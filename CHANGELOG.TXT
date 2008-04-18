@@ -1,0 +1,22 @@
+Version MOD 1.0.1
+-----------------
+-Fixed: corrupted graphic using intraFont
+-Fixed: MP3/ATRAC3+ playback under kernel 3.xx (sorry, I didn't test it before)
+-Fixed: message boxes work now.
+
+
+Version MOD 1.0.0
+-----------------
+
+-Added: oslSetReadKeysFunction(int (*sceCtrlReadBufferPositive)(SceCtrlData *pad_data, int count));
+        You can pass to it a function from a kernel prx, so you'll be able to read all buttons (VOLUME_UP, NOTE...)
+        oslUnsetReadKeysFunction();
+-Added: All USB.c functions now works
+-Added: OSL_VERSION
+-Added: oslSetHoldForAnalog
+-Added: support for intraFont.
+-Added: Dialogs (message, error and net conf)
+-Added: On Screen Keyboard
+-Added: Save and load
+-Fixed: Tagged MP3 and ATRAC3+ now works
+-Fixed: osl_keys->analogToDPadSensivity now works correctly

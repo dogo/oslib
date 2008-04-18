@@ -1,0 +1,47 @@
+/**
+	\mainpage OldSchool Library v2.0 Documentation
+
+	\section intro Introduction
+
+	Welcome to the OldSchool Library documentation. To begin, you can access the function reference by clicking on the
+	"Modules" tab.
+
+	This page includes some tutorials that you can read before beginning.
+	If you are a beginner, it is strongly recommended that you check the official OSLib site: http://oslib.playeradvance.org.
+
+	On this you will be able to find some simple tutorials to begin with. The documentation you are reading is designed for more
+	advanced users.
+
+	\section concepts Concepts
+
+	As said before, this documentation is not made for beginners, and you should check the official OSLib site where you will
+	be able to find the excellent tutorials made by Yodajr, which are ideal to begin with.
+
+	\ref swizzling "What is image swizzling?"
+*/
+
+/**
+	\page swizzling About image swizzling...
+
+	In the OSLib documentation, you will often hear about a term named "swizzling".
+
+	The image swizzling is a process that reorders the pixels in an image to make it more adapted to the way the graphic
+	processor reads it. For more information, please read: http://wiki.ps2dev.org/psp:ge_faq.
+
+	As a result, images are drawn way faster. But the downside is that the pixels are no more contiguous,
+	making it harder to modify images, because you can't access a single pixel by its position anymore, but need some quite
+	complicated calculation to find the real reordered pixel position on the image.
+
+	So, if you want to access the image data, easily and quickly (for example for an oldschool framebuffered demo), you should
+	use unswizzled (normal) images. For images loaded from files that you don't plan to modify later, you should use
+	swizzled images, as it's really a lot faster (especially if the image is put in RAM).
+
+	By default, OSLib will automatically swizzle images when loading them from a file (see #oslLoadImageFile).
+	But it won't swizzle images created manually (see #oslCreateImage). But you can disable swizzling by passing the
+	OSL_UNSWIZZLED flag when loading the image. See #oslSetImageAutoSwizzle.
+
+
+
+*/
+
+
