@@ -99,8 +99,8 @@ int main(){
             }
         }
         oslEndDrawing();
+        oslEndFrame();
         oslSyncFrame();
-        oslAudioVSync();
     }
     //Quit OSL:
     oslEndGfx();

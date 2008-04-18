@@ -68,9 +68,11 @@ void oslDrawOsk()
         case PSP_UTILITY_DIALOG_VISIBLE :
             sceDisplayWaitVblankStart();
             sceDisplayWaitVblankStart();
-            oslEndDrawing();
+			sceGuFinish();
+			sceGuSync(0,0);
             sceUtilityOskUpdate(2);
-            oslStartDrawing();
+			sceGuStart(GU_DIRECT, osl_list);
+			oslSetAlpha(OSL_FX_RGBA, 0xff);
             break;
         case PSP_UTILITY_DIALOG_QUIT :
             sceUtilityOskShutdownStart();

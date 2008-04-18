@@ -1,5 +1,8 @@
 OldSchool Library (OSLib) MOD
 -----------------------------
+Source code online: http://trac2.assembla.com/oslibmod/browser/trunk
+	    svn   : http://svn2.assembla.com/svn/oslibmod/trunk
+
 
 This is a modded versione of OSLib 2.10
 The original OSLib by Brunni can be found here:

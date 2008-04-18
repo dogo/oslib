@@ -119,9 +119,11 @@ void oslInitLoadDialog(struct oslSaveLoad *loadData){
 void oslDrawSaveLoad(){
 	switch(sceUtilitySavedataGetStatus()) {
         case PSP_UTILITY_DIALOG_VISIBLE:
-            oslEndDrawing();
-            sceUtilitySavedataUpdate(1);
-            oslStartDrawing();
+			sceGuFinish();
+			sceGuSync(0,0);
+			sceUtilitySavedataUpdate(1);
+			sceGuStart(GU_DIRECT, osl_list);
+			oslSetAlpha(OSL_FX_RGBA, 0xff);
             break;
         case PSP_UTILITY_DIALOG_QUIT:
             sceUtilitySavedataShutdownStart();

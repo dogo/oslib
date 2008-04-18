@@ -92,10 +92,12 @@ void oslDrawDialog()
     if (dialogType == OSL_DIALOG_MESSAGE || dialogType == OSL_DIALOG_ERROR){
         switch(sceUtilityMsgDialogGetStatus()) {
             case PSP_UTILITY_DIALOG_VISIBLE:
-                oslEndDrawing();
-                sceUtilityMsgDialogUpdate(1);
-                oslStartDrawing();
-                break;
+				sceGuFinish();
+				sceGuSync(0,0);
+				sceUtilityMsgDialogUpdate(1);
+				sceGuStart(GU_DIRECT, osl_list);
+				oslSetAlpha(OSL_FX_RGBA, 0xff);
+				break;
             case PSP_UTILITY_DIALOG_QUIT:
                 sceUtilityMsgDialogShutdownStart();
                 //dialogType = OSL_DIALOG_NONE;
@@ -108,9 +110,11 @@ void oslDrawDialog()
             case PSP_UTILITY_DIALOG_NONE:
                 break;
             case PSP_UTILITY_DIALOG_VISIBLE:
-                oslEndDrawing();
-                sceUtilityNetconfUpdate(1);
-                oslStartDrawing();
+				sceGuFinish();
+				sceGuSync(0,0);
+				sceUtilityNetconfUpdate(1);
+				sceGuStart(GU_DIRECT, osl_list);
+				oslSetAlpha(OSL_FX_RGBA, 0xff);
                 break;
             case PSP_UTILITY_DIALOG_QUIT:
                 sceUtilityNetconfShutdownStart();
