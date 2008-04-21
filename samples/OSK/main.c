@@ -56,6 +56,7 @@ int initOSLib(){
 // Main:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 int main(){
+	int skip = 0;
     char message[100] = "";
     SetupCallbacks();
 
@@ -70,37 +71,41 @@ int main(){
     oslSetFont(font);
 
     while(runningFlag && !osl_quit){
-        oslStartDrawing();
-        oslDrawImageXY(bkg, 0, 0);
-        oslDrawString(30, 50, "Press X to use the On Screen Keyboard.");
-        oslDrawString(30, 150, "Press /\\ to quit.");
+        if (!skip){
+			oslStartDrawing();
+			oslDrawImageXY(bkg, 0, 0);
+			oslDrawString(30, 50, "Press X to use the On Screen Keyboard.");
+			oslDrawString(30, 150, "Press /\\ to quit.");
 
-        oslDrawString(30, 200, message);
+			oslDrawString(30, 200, message);
 
-        if (oslOskIsActive()){
-            oslDrawOsk();
-            if (oslGetOskStatus() == PSP_UTILITY_DIALOG_NONE){
-                if (oslOskGetResult() == OSL_OSK_CANCEL)
-                    sprintf(message, "Cancel");
-                else{
-                    char userText[100] = "";
-                    oslOskGetText(userText);
-                    sprintf(message, "You entered: %s", userText);
-                }
-                oslEndOsk();
-            }
-        }else{
-            oslReadKeys();
-            if (osl_keys->pressed.triangle){
-                runningFlag = 0;
-            }else if (osl_keys->pressed.cross){
-                oslInitOsk("Please insert some text", "Initial text", 128, 1);
-                memset(message, 0, sizeof(message));
-            }
-        }
-        oslEndDrawing();
+			if (oslOskIsActive()){
+				oslDrawOsk();
+				if (oslGetOskStatus() == PSP_UTILITY_DIALOG_NONE){
+					if (oslOskGetResult() == OSL_OSK_CANCEL)
+						sprintf(message, "Cancel");
+					else{
+						char userText[100] = "";
+						oslOskGetText(userText);
+						sprintf(message, "You entered: %s", userText);
+					}
+					oslEndOsk();
+				}
+			}
+			oslEndDrawing();
+		}
+
+		if (!oslOskIsActive()){
+			oslReadKeys();
+			if (osl_keys->pressed.triangle){
+				runningFlag = 0;
+			}else if (osl_keys->pressed.cross){
+				oslInitOsk("Please insert some text", "Initial text", 128, 1);
+				memset(message, 0, sizeof(message));
+			}
+		}
         oslEndFrame();
-        oslSyncFrame();
+        skip = oslSyncFrame();
     }
     //Quit OSL:
     oslEndGfx();

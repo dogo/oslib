@@ -19,10 +19,10 @@ int OskActive = 0;
 void oslInitOsk(char *descStr, char *initialStr, int textLimit, int linesNumber){
     int i = 0;
 
-    intext = (unsigned short *) malloc(textLimit*sizeof(unsigned short));
+    intext = (unsigned short *) malloc((textLimit + 1)*sizeof(unsigned short));
     if (!intext)
         return;
-    outtext = (unsigned short *) malloc(textLimit*sizeof(unsigned short));
+    outtext = (unsigned short *) malloc((textLimit + 1)*sizeof(unsigned short));
     if (!outtext)
         return;
 

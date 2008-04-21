@@ -220,7 +220,7 @@ static int intraFontSwizzle(intraFont *font) {
 	return 1;
 }
 
-int intraFontPreCache(intraFont *font, unsigned short options) {
+int intraFontPreCache(intraFont *font, unsigned int options) {
 	if (!font) return 0;
 	if (!(options & INTRAFONT_CACHE_ASCII)) return 0; //no precaching requested
 	if (font->options & INTRAFONT_CACHE_ASCII) return 0; //already prechached?
@@ -270,7 +270,7 @@ int intraFontPreCache(intraFont *font, unsigned short options) {
 	return 1;
 }
 
-intraFont* intraFontLoad(const char *filename, unsigned short options) {
+intraFont* intraFontLoad(const char *filename, unsigned int options) {
     unsigned long i,j;
 	
     //open pgf file and get file size
@@ -561,13 +561,18 @@ void intraFontActivate(intraFont *font) {
 	sceGuTexFilter(GU_LINEAR, GU_LINEAR);
 }
 
-void intraFontSetStyle(intraFont *font, float size, unsigned int color, unsigned int shadowColor, unsigned short options) {
+void intraFontSetStyle(intraFont *font, float size, unsigned int color, unsigned int shadowColor, unsigned int options) {
 	if (!font) return;
 	font->size = size;
 	font->color = color;
 	font->shadowColor = shadowColor;
+#if 0
 	font->options = (options & PGF_OPTIONS_MASK) + (font->options & PGF_STRING_MASK) + (font->options & PGF_CACHE_MASK);
 	if ((font->options & PGF_WIDTH_MASK) == 0) font->options |= ((font->advancex / 8) & PGF_WIDTH_MASK);
+#else
+	font->options = (options & PGF_OPTIONS_MASK) | (font->options & PGF_STRING_MASK) | (font->options & PGF_CACHE_MASK);
+	if ((font->options & PGF_WIDTH_MASK) == 0) font->options |= ((font->advancex / 8) & PGF_WIDTH_MASK);
+#endif
 }
 
 unsigned short intraFontSJIS2UCS2(unsigned char **text) {
@@ -674,6 +679,78 @@ unsigned short intraFontSJIS2UCS2(unsigned char **text) {
 	return ucs2;
 }
 
+/*
+ * UUstrlen : UTF -> UCS2 string len
+ * string length ucs2 string from utf string
+ */
+int UUstrlen(const char *src)
+{
+    unsigned char c;
+    int uulen=0;
+    int len;
+    int i;
+
+    len = strlen(src);
+    for (i=0; i<len;) {
+        c = src[i]&0xe0;
+        if (c < 0x80) {
+            i++;
+        }
+        else if (c < 0xe0) {
+            i += 2;
+        }
+        else if (c < 0xf0) {
+            i += 3;
+        }
+        uulen++;
+    }
+
+    return uulen;
+}
+ 
+
+/* UTF8toUCS2
+ * converts UTF8 string to UCS2 array
+ */
+int UTF8toUCS2(unsigned char *src, unsigned short *ucs2)
+{
+    unsigned char c;
+    unsigned short unicode=0;
+    int count=0;
+    int len;
+    int i;
+
+    len = strlen((char *)src);
+    for (i=0; i<len;) {
+        c = src[i]&0xe0;
+        if (c < 0x80) {
+            unicode = (unsigned short) src[i];
+            i++;
+        }
+        else if (c < 0xe0) {
+            unicode = (unsigned short) src[i] & 0x1f;
+            i++;
+            unicode = unicode << 6;
+            unicode = unicode | ((unsigned short) src[i] & 0x3f);
+            i++;
+        }
+        else if (c < 0xf0) {
+            unicode = (unsigned short) src[i] & 0x0f;
+            i++;
+            unicode = unicode << 6;
+            unicode = unicode | ((unsigned short) src[i] & 0x3f);
+            i++;
+            unicode = unicode << 6;
+            unicode = unicode | ((unsigned short) src[i] & 0x3f);
+            i++;
+        }
+        ucs2[count] = unicode;
+        count++;
+    }
+
+    return count;
+}
+
 float intraFontPrintf(intraFont *font, float x, float y, const char *text, ...) {
 	if(!font) return x;
 
@@ -697,6 +774,8 @@ float intraFontPrint(intraFont *font, float x, float y, const char *text) {
 			length++;
 			i += ( text[i] <= 0x7FU || (text[i] >= 0xA0U && text[i] <= 0xDFU) || text[i] >= 0xFDU) ? 1 : 2; //single or double byte
 		}
+    } else if (font->options & INTRAFONT_STRING_UTF8) {
+        length = UUstrlen(text);
 	} else {
 		length = strlen(text);
 	}
@@ -705,15 +784,20 @@ float intraFontPrint(intraFont *font, float x, float y, const char *text) {
     if (!ucs2_text) return x;
 	
 	unsigned char* utext = (unsigned char*)text;
-	for (i = 0; i < length; i++) {
-		if (font->options & INTRAFONT_STRING_SJIS) {
-			ucs2_text[i] = intraFontSJIS2UCS2((unsigned char**)&utext);
-		} else {
-			ucs2_text[i] = utext[i];
-		}
-	}
-    ucs2_text[i] = 0;
-	
+    if (font->options & INTRAFONT_STRING_UTF8) {
+        UTF8toUCS2(utext, ucs2_text);
+        ucs2_text[length] = 0;
+    } else {
+        for (i = 0; i < length; i++) {
+            if (font->options & INTRAFONT_STRING_SJIS) {
+                ucs2_text[i] = intraFontSJIS2UCS2((unsigned char**)&utext);
+            } else {
+                ucs2_text[i] = utext[i];
+            }
+        }
+        ucs2_text[i] = 0;
+    }
+
     x = intraFontPrintUCS2(font, x, y, ucs2_text);
 	
     free(ucs2_text);

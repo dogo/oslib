@@ -16,6 +16,7 @@
 
 STATICLIB = libosl.a
 TARGET := OSLib
+PSP_FW_VERSION=371
 
 #----------------------------------------------------------------------------
 #	Project folders

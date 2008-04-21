@@ -72,6 +72,7 @@ typedef struct {
 //  int volumeleft;
 //  int volumeright;
   void (*callback)(unsigned int channel, void *buf, unsigned int reqn);
+  int inProgress;
 } osl_audio_channelinfo;
 
 /** Currently playing channel, user part. Only sound drivers should play with this, the user will only work with OSL_SOUND. */

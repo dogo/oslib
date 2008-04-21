@@ -80,10 +80,12 @@ static int oslAudioChannelThread(int args, void *argp)
 			//Our callback function
 			void (*callback)(unsigned int channel, void *buf, unsigned int reqn) = AudioStatus[channel].callback;
 			//NE SERT A RIEN, NE FONCTIONNE PAS (pourquoi j'ai écrit ça moi?)
+			AudioStatus[channel].inProgress = 1;
 			if (callback && osl_audioActive[channel]==1)
 				callback(channel, bufptr, osl_audioVoices[channel].numSamples);
 			else
 				memset(bufptr, 0, osl_audioVoices[channel].numSamples << 2);
+			AudioStatus[channel].inProgress = 0;
 //			if (sample++ <= 2)
 //				memset(bufptr, 0, osl_audioVoices[channel].numSamples << 2);
 			oslAudioOutBlocking(channel,osl_audioVoices[channel].sound->volumeLeft,osl_audioVoices[channel].sound->volumeRight,bufptr);

@@ -28,7 +28,8 @@ typedef struct AT3_INFO		{
 typedef struct MP3_INFO		{
 	VIRTUAL_FILE *handle;
 	unsigned long *codecBuffer;
-	u8* dataBuffer;
+	//u8* dataBuffer;
+	unsigned char dataBuffer[2889]__attribute__((aligned(64)));
 	u32 sample_per_frame;
 	u32 data_start_init;
 
@@ -39,6 +40,16 @@ typedef struct MP3_INFO		{
 	u8 getEDRAM;
 } MP3_INFO;
 
+
+static int samplerates[4][3] =
+{
+    {11025, 12000, 8000,},//mpeg 2.5
+    {0, 0, 0,}, //reserved
+    {22050, 24000, 16000,},//mpeg 2
+    {44100, 48000, 32000}//mpeg 1
+};
+static int bitrates[] = {0, 32, 40, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224, 256, 320 };
+static int bitrates_v2[] = {0, 8, 16, 24, 32, 40, 48, 56, 64, 80, 96, 112, 128, 144, 160 };
 
 #define NUMBLOCKS 4
 
@@ -91,6 +102,65 @@ int GetID3TagSize(char *fname)
     return 0;
 }
 
+
+int SeekNextFrameMP3(VIRTUAL_FILE *fd)
+{
+    int offset = 0;
+    unsigned char buf[1024];
+    unsigned char *pBuffer;
+    int i;
+    int size = 0;
+
+    VirtualFileSeek(fd, 0, PSP_SEEK_CUR);
+	offset = VirtualFileTell(fd);
+    VirtualFileRead(buf, sizeof(buf), 1, fd);
+    if (!strncmp((char*)buf, "ID3", 3) || !strncmp((char*)buf, "ea3", 3)) //skip past id3v2 header, which can cause a false sync to be found
+    {
+        //get the real size from the syncsafe int
+        size = buf[6];
+        size = (size<<7) | buf[7];
+        size = (size<<7) | buf[8];
+        size = (size<<7) | buf[9];
+
+        size += 10;
+
+        if (buf[5] & 0x10) //has footer
+            size += 10;
+    }
+
+    VirtualFileSeek(fd, offset, PSP_SEEK_SET); //now seek for a sync
+    while(1)
+    {
+        VirtualFileSeek(fd, 0, PSP_SEEK_CUR);
+		offset = VirtualFileTell(fd);
+        size = VirtualFileRead(buf, sizeof(buf), 1, fd);
+
+        if (size <= 2)//at end of file
+            return -1;
+
+        if (!strncmp((char*)buf, "EA3", 3))//oma mp3 files have non-safe ints in the EA3 header
+        {
+            VirtualFileSeek(fd, (buf[4]<<8)+buf[5], PSP_SEEK_CUR);
+            continue;
+        }
+
+        pBuffer = buf;
+        for( i = 0; i < size; i++)
+        {
+            //if this is a valid frame sync (0xe0 is for mpeg version 2.5,2+1)
+            if ( (pBuffer[i] == 0xff) && ((pBuffer[i+1] & 0xE0) == 0xE0))
+            {
+                offset += i;
+                VirtualFileSeek(fd, offset, PSP_SEEK_SET);
+                return offset;
+            }
+        }
+       //go back two bytes to catch any syncs that on the boundary
+        VirtualFileSeek(fd, -2, PSP_SEEK_CUR);
+    }
+}
+
+
 void initME(){
     if (sceKernelDevkitVersion() == 0x01050001)
     {
@@ -131,8 +201,8 @@ static void osl_mp3DestroyInfo(MP3_INFO *info)		{
 		if (info->codecBuffer)
 			free(info->codecBuffer);
 
-		if (info->dataBuffer)
-			free(info->dataBuffer);
+		//if (info->dataBuffer)
+		//	free(info->dataBuffer);
 
 		if (info->handle)
 			VirtualFileClose(info->handle);
@@ -364,12 +434,14 @@ void oslAudioCallback_PlaySound_ME(OSL_SOUND *s)		{
 }
 
 int oslAudioCallback_AudioCallback_MP3(unsigned int i, void* buf, unsigned int length)			{
-	static int bitrates[] = {0, 32, 40, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224, 256, 320 };
 	int eof = 0;
 	MP3_INFO *info = (MP3_INFO*)osl_audioVoices[i].data;
 	unsigned long decode_type = 0x1002;
 	unsigned char mp3_header_buf[4];
 
+	info->data_start = SeekNextFrameMP3(info->handle);
+
+start:
 	if (VirtualFileRead(mp3_header_buf, 4, 1, info->handle) != 4)			{
          eof = 1;
          goto end;
@@ -382,12 +454,34 @@ int oslAudioCallback_AudioCallback_MP3(unsigned int i, void* buf, unsigned int l
 
 	int bitrate = (mp3_header & 0xf000) >> 12;
 	int padding = (mp3_header & 0x200) >> 9;
+	int version = (mp3_header & 0x180000) >> 19;
+	int samplerate = samplerates[version][ (mp3_header & 0xC00) >> 10 ];
 
-	int frame_size = 144000*bitrates[bitrate]/info->samplerate + padding;
+	if ((bitrate > 14) || (version == 1) || (samplerate == 0) || (bitrate == 0))//invalid frame, look for the next one
+	{
+		info->data_start = SeekNextFrameMP3(info->handle);
+		if(info->data_start < 0)
+		{
+			eof = 1;
+			goto end;
+		}
+		goto start;
+	}
 
-	if (info->dataBuffer)
-		free(info->dataBuffer);
-	info->dataBuffer = (u8*)memalign(64, frame_size);
+	int frame_size = 0;
+	if (version == 3) //mpeg-1
+	{
+		info->sample_per_frame = 1152;
+		frame_size = 144000*bitrates[bitrate]/samplerate + padding;
+	}else{
+		info->sample_per_frame = 576;
+		frame_size = 72000*bitrates_v2[bitrate]/samplerate + padding;
+	}
+	//int frame_size = 144000*bitrates[bitrate]/info->samplerate + padding;
+
+	//if (info->dataBuffer)
+	//	free(info->dataBuffer);
+	//info->dataBuffer = (u8*)memalign(64, frame_size);
 
 	VirtualFileSeek(info->handle, info->data_start, PSP_SEEK_SET); //seek back
 
@@ -405,8 +499,15 @@ int oslAudioCallback_AudioCallback_MP3(unsigned int i, void* buf, unsigned int l
 	info->codecBuffer[8] = (unsigned long)buf;
 
 	int res = sceAudiocodecDecode(info->codecBuffer, decode_type);
-	if ( res < 0 )
-		eof = 1;
+	if ( res < 0 ){
+		info->data_start = SeekNextFrameMP3(info->handle);
+		if(info->data_start < 0)
+		{
+			eof = 1;
+			goto end;
+		}
+		goto start;
+	}
 
 end:
 	if (eof)		{
