@@ -63,8 +63,7 @@ void oslInitOsk(char *descStr, char *initialStr, int textLimit, int linesNumber)
 void oslDrawOsk()
 {
     switch(sceUtilityOskGetStatus()){
-        case PSP_UTILITY_DIALOG_INIT :
-            break;
+		case PSP_UTILITY_DIALOG_INIT:
         case PSP_UTILITY_DIALOG_VISIBLE :
             sceDisplayWaitVblankStart();
             sceDisplayWaitVblankStart();
@@ -74,14 +73,12 @@ void oslDrawOsk()
 			sceGuStart(GU_DIRECT, osl_list);
 			oslSetAlpha(OSL_FX_RGBA, 0xff);
             break;
-        case PSP_UTILITY_DIALOG_QUIT :
+        case PSP_UTILITY_DIALOG_QUIT:
             sceUtilityOskShutdownStart();
             break;
-        case PSP_UTILITY_DIALOG_FINISHED :
-            break;
-        case PSP_UTILITY_DIALOG_NONE :
-            default :
-            break;
+        case PSP_UTILITY_DIALOG_FINISHED:
+        case PSP_UTILITY_DIALOG_NONE:
+			break;
     }
 }
 

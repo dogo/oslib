@@ -37,4 +37,4 @@ THANKS
 ------
 InsertWittyName for all the sdk's dialog samples
 Brunni for OSLib
-Ben Hur for intraFont
+BenHur for intraFont

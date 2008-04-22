@@ -15,6 +15,8 @@ int saveLoadType = OSL_DIALOG_NONE;
 
 void oslInitSaveDialog(struct oslSaveLoad *saveData){
 	memset(&savedata, 0, sizeof(SceUtilitySavedataParam));
+	memset(&newData, 0, sizeof(PspUtilitySavedataListSaveNewData));
+
 	savedata.base.size = sizeof(SceUtilitySavedataParam);
 
     sceUtilityGetSystemParamInt(PSP_SYSTEMPARAM_ID_INT_LANGUAGE, &savedata.base.language);
@@ -28,8 +30,9 @@ void oslInitSaveDialog(struct oslSaveLoad *saveData){
 	savedata.overwrite = 1;
 	savedata.focus = PSP_UTILITY_SAVEDATA_FOCUS_LATEST; // Set initial focus to the newest file (for loading)
 
-	//strncpy(savedata.key, key, 16);
-
+#if _PSP_FW_VERSION >= 200
+	strncpy(savedata.key, key, 16);
+#endif
 	strcpy(savedata.gameName, saveData->gameID);	// First part of the save name, game identifier name
 	strcpy(savedata.saveName, saveData->saveName);	// Second part of the save name, save identifier name
 
@@ -96,8 +99,9 @@ void oslInitLoadDialog(struct oslSaveLoad *loadData){
 	savedata.overwrite = 1;
 	savedata.focus = PSP_UTILITY_SAVEDATA_FOCUS_LATEST; // Set initial focus to the newest file (for loading)
 
-	//strncpy(savedata.key, key, 16);
-
+#if _PSP_FW_VERSION >= 200
+	strncpy(savedata.key, key, 16);
+#endif
 	strcpy(savedata.gameName, loadData->gameID);	// First part of the save name, game identifier name
 	strcpy(savedata.saveName, loadData->saveName);	// Second part of the save name, save identifier name
 
@@ -107,7 +111,6 @@ void oslInitLoadDialog(struct oslSaveLoad *loadData){
 	strcpy(savedata.fileName, "DATA.BIN");	// name of the data file
 
     savedata.dataBuf = loadData->data;
-	//savedata.dataBuf = malloc(sizeof(*data));
 	savedata.dataBufSize = loadData->dataSize;
 	savedata.dataSize = loadData->dataSize;
 
@@ -118,7 +121,8 @@ void oslInitLoadDialog(struct oslSaveLoad *loadData){
 
 void oslDrawSaveLoad(){
 	switch(sceUtilitySavedataGetStatus()) {
-        case PSP_UTILITY_DIALOG_VISIBLE:
+		case PSP_UTILITY_DIALOG_INIT:
+		case PSP_UTILITY_DIALOG_VISIBLE:
 			sceGuFinish();
 			sceGuSync(0,0);
 			sceUtilitySavedataUpdate(1);
@@ -128,10 +132,9 @@ void oslDrawSaveLoad(){
         case PSP_UTILITY_DIALOG_QUIT:
             sceUtilitySavedataShutdownStart();
             break;
-        case PSP_UTILITY_DIALOG_FINISHED:
-            break;
+		case PSP_UTILITY_DIALOG_FINISHED:
         case PSP_UTILITY_DIALOG_NONE:
-            return;
+			break;
 	}
 }
 

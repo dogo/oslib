@@ -91,6 +91,7 @@ void oslDrawDialog()
 {
     if (dialogType == OSL_DIALOG_MESSAGE || dialogType == OSL_DIALOG_ERROR){
         switch(sceUtilityMsgDialogGetStatus()) {
+			case PSP_UTILITY_DIALOG_INIT:
             case PSP_UTILITY_DIALOG_VISIBLE:
 				sceGuFinish();
 				sceGuSync(0,0);
@@ -107,8 +108,7 @@ void oslDrawDialog()
         }
     }else if (dialogType == OSL_DIALOG_NETCONF){
         switch(sceUtilityNetconfGetStatus()){
-            case PSP_UTILITY_DIALOG_NONE:
-                break;
+			case PSP_UTILITY_DIALOG_INIT:
             case PSP_UTILITY_DIALOG_VISIBLE:
 				sceGuFinish();
 				sceGuSync(0,0);
@@ -118,11 +118,11 @@ void oslDrawDialog()
                 break;
             case PSP_UTILITY_DIALOG_QUIT:
                 sceUtilityNetconfShutdownStart();
-                //dialogType = OSL_DIALOG_NONE;
                 break;
+            case PSP_UTILITY_DIALOG_NONE:
             case PSP_UTILITY_DIALOG_FINISHED:
                 break;
-        }
+		}
     }
 }
 

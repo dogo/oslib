@@ -167,25 +167,27 @@ The same options will be applied to all intraFonts
 		INTRAFONT_XXX flags as defined above including flags related to CACHE (ored together)
 
 \code
-INTRAFONT_ADVANCE_H     default: advance horizontaly from one char to the next
-INTRAFONT_ADVANCE_V
-INTRAFONT_ALIGN_LEFT    default: left-align the text
-INTRAFONT_ALIGN_CENTER
-INTRAFONT_ALIGN_RIGHT
-INTRAFONT_WIDTH_VAR     default: variable-width
-INTRAFONT_WIDTH_FIX     set your custom fixed witdh to 24 pixels: INTRAFONT_WIDTH_FIX | 24
-                        (max is 255, set to 0 to use default fixed width, this width will be scaled by size)
-INTRAFONT_ACTIVE        assumes the font-texture resides inside sceGuTex already, prevents unecessary reloading -> very small speed-gain
-INTRAFONT_STRING_ASCII  default: interpret strings as ascii text
-INTRAFONT_STRING_SJIS   interpret strings as shifted-jis (japanese)
-INTRAFONT_CACHE_MED     default: 256x256 texture (enough to cache about 100 chars)
-INTRAFONT_CACHE_LARGE   512x512 texture(enough to cache all chars of ltn0.pgf or ... or ltn15.pgf or kr0.pgf)
-INTRAFONT_CACHE_ASCII   try to cache all ASCII chars during fontload (uses less memory and is faster to draw text, but slower to load font)
-                        if it fails: (because the cache is too small) it will automatically switch to chache on-the-fly with a medium texture
-                        if it succeeds: (all chars and shadows fit into chache) it will free some now unneeded memory
-INTRAFONT_CACHE_ALL     try to cache all chars during fontload (uses less memory and is faster to draw text, but slower to load font)
-                        if it fails: (because the cache is too small) it will automatically switch to chache on-the-fly with a large texture
-                        if it succeeds: (all chars and shadows fit into chache) it will free some now unneeded memory
+#define INTRAFONT_ADVANCE_H     0x00000000 //default: advance horizontaly from one char to the next
+#define INTRAFONT_ADVANCE_V     0x00000100
+#define INTRAFONT_ALIGN_LEFT    0x00000000 //default: left-align the text
+#define INTRAFONT_ALIGN_CENTER  0x00000200
+#define INTRAFONT_ALIGN_RIGHT   0x00000400
+#define INTRAFONT_WIDTH_VAR     0x00000000 //default: variable-width
+#define INTRAFONT_WIDTH_FIX     0x00000800 //set your custom fixed witdh to 24 pixels: INTRAFONT_WIDTH_FIX | 24 
+                                           //(max is 255, set to 0 to use default fixed width, this width will be scaled by size)
+#define INTRAFONT_ACTIVE        0x00001000 //assumes the font-texture resides inside sceGuTex already, prevents unecessary reloading -> very small speed-gain									   
+#define INTRAFONT_STRING_ASCII  0x00000000 //default: interpret strings as ascii text
+#define INTRAFONT_STRING_SJIS   0x00002000 //interpret strings as shifted-jis (japanese)
+#define INTRAFONT_STRING_UTF8   0x00010000 //interpret strings as UTF-8
+#define INTRAFONT_CACHE_MED     0x00000000 //default: 256x256 texture (enough to cache about 100 chars)
+#define INTRAFONT_CACHE_LARGE   0x00004000 //512x512 texture(enough to cache all chars of ltn0.pgf or ... or ltn15.pgf or kr0.pgf)
+#define INTRAFONT_CACHE_ASCII   0x00008000 //try to cache all ASCII chars during fontload (uses less memory and is faster to draw text, but slower to load font)
+
+                                           //if it fails: (because the cache is too small) it will automatically switch to chache on-the-fly with a medium texture
+									       //if it succeeds: (all chars and shadows fit into chache) it will free some now unneeded memory
+#define INTRAFONT_CACHE_ALL     0x0000C000 //try to cache all chars during fontload (uses less memory and is faster to draw text, but slower to load font)
+                                       //if it fails: (because the cache is too small) it will automatically switch to chache on-the-fly with a large texture
+									   //if it succeeds: (all chars and shadows fit into chache) it will free some now unneeded memory
 \endcode
 */
 extern int oslIntraFontInit(unsigned short options);

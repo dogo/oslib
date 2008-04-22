@@ -100,7 +100,9 @@ int main(){
     oslSetFont(font);
 
     while(runningFlag && !osl_quit){
-        if (!skip){
+		type = oslGetSaveLoadType();
+
+		if (!skip){
             oslStartDrawing();
             oslDrawImageXY(bkg, 0, 0);
 
@@ -109,10 +111,9 @@ int main(){
             oslDrawString(30, 150, "Press /\\ to quit.");
             oslDrawString(30, 200, message);
 
-            type = oslGetSaveLoadType();
             if (type != OSL_DIALOG_NONE){
                 oslDrawSaveLoad();
-                if (oslGetLoadSaveStatus() == OSL_DIALOG_NONE){
+                if (oslGetLoadSaveStatus() == PSP_UTILITY_DIALOG_NONE){
                     if (oslSaveLoadGetResult() == OSL_SAVELOAD_CANCEL)
                         sprintf(message, "Cancel");
                     else if (type == OSL_DIALOG_LOAD)

@@ -178,7 +178,7 @@ int main(){
             oslDrawString(470, y, "right");
             oslIntraFontSetStyle(ltn[8], 1.0f,WHITE,BLACK,0);
 
-            y += 50;
+            y += 40;
             oslIntraFontSetStyle(ltn[4], 1.0f,BLACK,WHITE,INTRAFONT_ALIGN_CENTER);
             oslSetFont(ltn[4]);
             oslDrawString(240, y, "Press X to quit");

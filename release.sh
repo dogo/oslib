@@ -5,9 +5,10 @@ echo
 echo "-------------------"
 echo "OSLib release maker"
 echo "-------------------"
+echo "Deleting target directory...."
 rm -rf $TARGET
 
-echo "Creating directories...."
+echo "Creating target directories...."
 mkdir -p $TARGET
 mkdir -p $TARGET/Install
 mkdir -p $TARGET/Install/oslib

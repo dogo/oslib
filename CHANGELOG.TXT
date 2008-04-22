@@ -1,9 +1,10 @@
 Version MOD 1.0.1
 -----------------
 -Added: Support for UTF-8 with intraFont (many thanks to nextos!!!) 
+        Use INTRAFONT_STRING_UTF8 to init intraFont
 -Fixed: corrupted graphic using intraFont
 -Fixed: MP3/ATRAC3+ playback under kernel 3.xx (sorry, I didn't test it before)
--Fixed: crash in MP3 playback after some seconds
+-Fixed: crash in MP3 playback after some seconds (many thanks to Drakon for reporting and testing)
 -Fixed: message boxes work now.
 
 
