@@ -37,6 +37,9 @@ typedef union		{
 	unsigned int value;					//!< 32-bit value containing all keys
 } OSL_KEYLIST;
 
+
+
+
 /** Controller type. */
 typedef struct		{
 	OSL_KEYLIST held;						//!< Keys currently down (held)
@@ -210,6 +213,92 @@ extern int oslWaitKey();
 extern int oslKbhit();
 /** Flushes the key buffer, removing the pending key (retrievable with oslKbhit). */
 extern void oslFlushKey();
+
+
+
+
+
+//Remote functions:
+/** List of remote keys. */
+typedef union		{
+	struct		{
+		int rmplaypause:1;				//!< Play/Pause
+		int reserved1:1;				//!< For padding, do not use
+		int rmforward:1;				//!< Formward
+		int rmback:1;					//!< Back
+		int rmvolup:1;					//!< Volume Up
+		int rmvoldown:1;				//!< Volume Down
+		int rmhold:1;					//!< Hold
+	};
+	u32 value;							//!< 32-bit value containing all keys
+} OSL_REMOTEKEYLIST;
+
+
+/** Remote Controller type. */
+typedef struct		{
+	OSL_REMOTEKEYLIST held;						//!< Keys currently down (held)
+	OSL_REMOTEKEYLIST pressed;					//!< Keys pressed (only reported once when the user pressed it)
+	OSL_REMOTEKEYLIST released;					//!< Keys released (only reported once when the user releases it)
+	OSL_REMOTEKEYLIST lastHeld;					//!< Allows you to trick with the held member without messing up the auto-repeat feature
+
+	short autoRepeatInit;					//!< Time for the initialization of the autorepeat feature
+	short autoRepeatInterval;				//!< Interval before the autorepeat feature is switched on (the time the user must let the key down)
+	int autoRepeatMask;						//!< Keys affected by the autorepeat feature
+	short autoRepeatCounter;				//!< Counter (internal)
+} OSL_REMOTECONTROLLER;
+
+extern OSL_REMOTECONTROLLER *osl_remotekeys;
+
+/** Current remote keys. In this structure you will find three members: pressed, released and held.
+- pressed: keys that were just pressed, reported once when the user pressed it but not after.
+- held: always reported while the user holds the key.
+- released: reported when the user just releases a pressed key.
+
+Each of these members is an union, containing a structure of type OSL_REMOTEKEYLIST (contains a member for each key):
+\code
+oslReadRemoteKeys();
+if (osl_remote.pressed.rmplaypause)
+	oslDebug("A pause should be thrown!");
+if (osl_remote.held.rmforward)
+	oslDebug("Do something!");
+
+\endcode
+
+Look at OSL_REMOTECONTROLLER for more information. */
+extern OSL_REMOTECONTROLLER osl_remote;
+
+ /** Reads the current remote controller state and stores the result in the osl_remote structure. Returns a pointer to the actual key structure. It may seem cleaner to store this pointer and access data from it,
+but you can do however you want. */
+extern OSL_REMOTECONTROLLER *oslReadRemoteKeys();
+
+/** Flushes the remote key buffer, removing the pending key. */
+extern void oslFlushRemoteKey();
+
+/** Sets the auto-repeat parameters (all at once).
+	\param keys
+		Sets the keys affected by the autorepeat feature. If these keys are held for long enough, they will be reported more times in the pressed member in the osl_pad structure. It's the ideal thing to
+		handle a menu, just check for the 'pressed' member and move the cursor when it's set. The auto-repeat feature will automatically work. Typical keys the user would expect to be auto-repeated are:
+		OSL_KEYMASK_UP|OSL_KEYMASK_RIGHT|OSL_KEYMASK_DOWN|OSL_KEYMASK_LEFT|OSL_KEYMASK_R|OSL_KEYMASK_L. As you see, just OR the masks of the keys you want to be auto-repeated.
+	\param init
+		Time (in number of calls, so at 60 fps, 60 = 1 second) before the auto-repeat feature turns on. Usually you must wait a while (1/2 second or more) before the auto-repeat is turned on, but once
+		it's on, the key will be repeated more than each 1/2 second. A typical value here is 40 (2/3 second).
+	\param interval
+		Time interval between each key repeat when the auto-repeat has been turned on. A typical value is 10 (1/6 of a second); with the example above, you would press the key, then 2/3 second later it
+		begins to auto-repeat the key each 1/6 second.
+*/
+#define oslSetRemoteKeyAutorepeat(keys,init,interval)		( osl_remotekeys->autoRepeatMask = keys, osl_remotekeys->autoRepeatInit = init, osl_remotekeys->autoRepeatInterval = interval )
+/** Separate routine setting the key auto-repeat mask. */
+#define oslSetRemoteKeyAutorepeatMask(mask)		(osl_remotekeys->autoRepeatMask=mask)
+/** Separate routine setting the key auto-repeat initialization value. */
+#define oslSetRemoteKeyAutorepeatInit(value)		(osl_remotekeys->autoRepeatInit=value)
+/** Separate routine setting the key auto-repeat interval value. */
+#define oslSetRemoteKeyAutorepeatInterval(value)	(osl_remotekeys->autoRepeatInterval=value)
+
+/**
+Determines whether the remote is plugged in.
+@return 1 if the remote is plugged in, else 0.
+*/
+int oslIsRemoteExist();
 
 /** @} */ // end of keys
 

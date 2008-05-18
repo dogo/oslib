@@ -101,7 +101,6 @@ void oslDrawDialog()
 				break;
             case PSP_UTILITY_DIALOG_QUIT:
                 sceUtilityMsgDialogShutdownStart();
-                //dialogType = OSL_DIALOG_NONE;
                 break;
             case PSP_UTILITY_DIALOG_NONE:
                 break;

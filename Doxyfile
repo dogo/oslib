@@ -91,10 +91,12 @@ INPUT                  = ./oslib.h \
                          ./dialog.h \
                          ./osk.h \
                          ./saveload.h \
+                         ./net.h \
+                         ./browser.h \
                          ./map.h \
                          ./messagebox.h \
                          ./text.h \
-                         ./vfpu.h \
+                         ./oslmath.h
                          ./VirtualFile.h \
                          ./Doc/mainpage.txt \
                          ./Doc/mainpage.txt

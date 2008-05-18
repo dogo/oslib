@@ -1,7 +1,7 @@
 #include "oslib.h"
 #include "intraFont/intraFont.h"
 
-unsigned short intra_options = 0;
+unsigned int intra_options = 0;
 
 OSL_FONT *osl_curFont=NULL;
 OSL_FONT *osl_sceFont=NULL;
@@ -752,7 +752,7 @@ newline:
 }
 
 
-int oslIntraFontInit(unsigned short options){
+int oslIntraFontInit(unsigned int options){
     intra_options = options;
     osl_intraInit = 1;
     return intraFontInit();
@@ -764,7 +764,7 @@ void oslIntraFontShutdown(){
     intraFontShutdown();
 }
 
-void oslIntraFontSetStyle(OSL_FONT *f, float size, unsigned int color, unsigned int shadowColor, unsigned short options){
+void oslIntraFontSetStyle(OSL_FONT *f, float size, unsigned int color, unsigned int shadowColor, unsigned int options){
     if (f->intra)
         intraFontSetStyle(f->intra, size, color, shadowColor, options);
 }

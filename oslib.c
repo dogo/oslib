@@ -13,6 +13,8 @@ int osl_vblInterruptNumber=0;
 int (*osl_powerCallback)(int, int, void*)=NULL;
 int (*osl_exitCallback)(int, int, void*)=NULL;
 OSL_CONTROLLER *osl_keys;
+OSL_REMOTECONTROLLER *osl_remotekeys;
+
 int osl_noFail = 0;
 
 //float osl_fsinus[361];
@@ -260,6 +262,7 @@ void oslInit(int flags)
 	int i;
 
 	osl_keys = &osl_pad;
+	osl_remotekeys = &osl_remote;
 
 	osl_quit = 0;
 	osl_vblCount = 0;

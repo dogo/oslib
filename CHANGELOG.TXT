@@ -1,3 +1,9 @@
+Version MOD 1.1.0
+-----------------
+-Added: VFPU Math Library libpspmath version 4 by MrMr[iCE]
+-Added: Remote control functions
+
+
 Version MOD 1.0.1
 -----------------
 -Added: Support for UTF-8 with intraFont (many thanks to nextos!!!) 

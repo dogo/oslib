@@ -18,21 +18,21 @@
 #define OSL_DIALOG_LOAD 2
 
 /**Struct containing data to save/load
-	\param *gameTitle
+	\param gameTitle[0x80]
         Title of the game
-	\param *gameID
+	\param gameID[13]
         Game ID of the game
-	\param *saveName
+	\param saveName[20]
         Save name
-	\param *nameList
+	\param (*nameList)[20]
         List of names for saves data
 	\param *pic1
         Pic1 data
-	\param *size_pic1
+	\param size_pic1
         Pic1 size
 	\param *icon0
         Icon0 data
-	\param *size_icon0
+	\param size_icon0
         Icon0 size
 	\param *data
         Pointer to data to be saved/loaded

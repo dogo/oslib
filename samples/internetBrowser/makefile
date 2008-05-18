@@ -1,5 +1,5 @@
-TARGET = dialog
-OBJS = main.o
+TARGET = internetbrowser
+OBJS = exception.o main.o
 
 #To build for custom firmware:
 BUILD_PRX = 1
@@ -17,7 +17,7 @@ LIBS=$(STDLIBS) $(MYLIBS)
 
 LDFLAGS =
 EXTRA_TARGETS = EBOOT.PBP
-PSP_EBOOT_TITLE = Dialog test
+PSP_EBOOT_TITLE = Internet Browser test
 #PSP_EBOOT_ICON = ICON0.PNG
 PSPSDK=$(shell psp-config --pspsdk-path)
 include $(PSPSDK)/lib/build.mak

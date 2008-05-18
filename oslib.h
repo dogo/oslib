@@ -26,6 +26,7 @@
 	#include <pspgu.h>
 	#include <psppower.h>
 	#include <pspiofilemgr.h>
+	#include <psphprm.h>
 #endif
 
 #ifdef __cplusplus
@@ -46,7 +47,7 @@ extern "C" {
 */
 
 /** OSLib version */
-#define OSL_VERSION "MOD 1.0.1"
+#define OSL_VERSION "MOD 1.1.0"
 
 extern int osl_intraInit;
 
@@ -581,7 +582,9 @@ extern inline int oslShowNeoflashLogo()		{
 															oslPrintf(str,##format); })*/
 
 
-#include "vfpu.h"
+//#include "vfpu.h"
+#include "oslmath.h"
+
 #include "vram_mgr.h"
 #include "VirtualFile.h"
 #include "drawing.h"
@@ -595,6 +598,8 @@ extern inline int oslShowNeoflashLogo()		{
 #include "dialog.h"
 #include "osk.h"
 #include "saveload.h"
+#include "net.h"
+#include "browser.h"
 
 #ifdef __cplusplus
 }

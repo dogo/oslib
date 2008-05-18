@@ -20,24 +20,24 @@
 #if JPEG_USE_IWRAM
     /* The source address pointer for DMA 3. */
     #define JPEG_IWRAM_REG_DM3SAD (*(volatile unsigned int *) 0x40000D4)
-    
+
     /* The destination address pointer for DMA 3. */
     #define JPEG_IWRAM_REG_DM3DAD (*(volatile unsigned int *) 0x40000D8)
-    
+
     /* The number of words or halfwords to transfer for DMA 3. */
     #define JPEG_IWRAM_REG_DM3CNT_L (*(volatile unsigned short *) 0x40000DC)
-    
+
     /* DMA 3 control register. */
     #define JPEG_IWRAM_REG_DM3CNT_H (*(volatile unsigned short *) 0x40000DE)
-    
+
     /* The address of this is the end of the .bss (uninitialized variables)
      * segment, which DevKit Advance's linker script puts last.
      */
     extern char __bss_end;
-    
+
     /* Retrieve the pointer to the first free byte in the IWRAM segment. */
     #define JPEG_IWRAM_USED_END (&__bss_end)
-    
+
     /* This creates a simple stub function that can be used with JPEG_FUNCTION_SIZE
      * to determine the size of a function in bytes.  If the function will be
      * IWRAM-loaded, this macro must be executed immediately after the
@@ -45,15 +45,15 @@
      * function must be declared static.
      */
     #define JPEG_FUNCTION_END(NAME) static void NAME##End () { }
-   
+
     /* Retrieve the size in bytes of a function that has a JPEG_FUNCTION_END
-     * ballast. 
+     * ballast.
      */
     #define JPEG_FUNCTION_SIZE(NAME) ((int) ((char *) &NAME##End - (char *) &NAME) & ~3)
-    
+
     /* Start a loading function by defining the necessary variables. */
     #define JPEG_IWRAM_LoadStart() char *iwramEnd = (char *) JPEG_IWRAM_USED_END
-    
+
     /* Load the value named JPEG_NAME into the pointer named NAME,
      * adjusting the read pointer.  This copies SIZE bytes through DMA 3.
      */
@@ -66,17 +66,17 @@
         JPEG_IWRAM_REG_DM3CNT_L = (SIZE + 3) >> 2; \
         JPEG_IWRAM_REG_DM3CNT_H = (1 << 10) | (1 << 15); \
         iwramEnd += (SIZE & ~3)
-    
+
     #define JPEG_IWRAM_LoadFunction(NAME) JPEG_IWRAM_LoadValue (NAME, JPEG_FUNCTION_SIZE (JPEG_##NAME))
     #define JPEG_IWRAM_LoadData(NAME) JPEG_IWRAM_LoadValue (NAME, sizeof (JPEG_##NAME))
-    
+
     /* Finish loading the IWRAM by waiting for the DMA transfers to finish and
      * making an assertion check that makes sure (with fairly good but not
      * perfect assurance) that we haven't written over the stack.
      */
     #define JPEG_IWRAM_LoadDone() \
         do { } while (JPEG_IWRAM_REG_DM3CNT_H & (1 << 15))
-        
+
 #else
     /* This stub does absolutely nothing. */
     #define JPEG_FUNCTION_END(NAME)
@@ -99,7 +99,7 @@ const unsigned char JPEG_ToZigZag [JPEG_DCTSIZE2] =
  * compile-time, allowing configuration control of fixed point precision.
  */
 #define JPEG_AAN_0 1.0
-#define JPEG_AAN_1 1.387039845 
+#define JPEG_AAN_1 1.387039845
 #define JPEG_AAN_2 1.306562965
 #define JPEG_AAN_3 1.175875602
 #define JPEG_AAN_4 1.0
@@ -137,7 +137,7 @@ const JPEG_FIXED_TYPE JPEG_AANScaleFactor [JPEG_DCTSIZE2] =
  */
 const unsigned char JPEG_ComponentRange [32 * 3] =
 {
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18,
     19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
     31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31
@@ -151,7 +151,7 @@ static void JPEG_IDCT_Columns (JPEG_FIXED_TYPE *zz)
 
     /* The first column will always have a non-zero coefficient, the DC. */
     goto skipFirstCheckb;
-    
+
     for ( ; zz < ez; zz ++)
     {
         /* A column containing only zeroes will output only zeroes.  Since we
@@ -162,40 +162,40 @@ static void JPEG_IDCT_Columns (JPEG_FIXED_TYPE *zz)
         && !zz [4 * JPEG_DCTSIZE] && !zz [5 * JPEG_DCTSIZE]
         && !zz [6 * JPEG_DCTSIZE] && !zz [7 * JPEG_DCTSIZE])
             continue;
-        
+
     skipFirstCheckb:
         tmp0 = zz [0 * JPEG_DCTSIZE];
         tmp1 = zz [2 * JPEG_DCTSIZE];
         tmp2 = zz [4 * JPEG_DCTSIZE];
         tmp3 = zz [6 * JPEG_DCTSIZE];
-        
+
         tmp6 = tmp1 + tmp3;
         tmp7 = JPEG_FIXMUL (tmp1 - tmp3, JPEG_FTOFIX (1.414213562)) - tmp6;
         tmp1 = tmp0 - tmp2 + tmp7;
         tmp0 = tmp0 + tmp2 + tmp6;
-        
+
         tmp3 = tmp0 - (tmp6 << 1);
         tmp2 = tmp1 - (tmp7 << 1);
-        
+
         tmp4 = zz [1 * JPEG_DCTSIZE];
         tmp5 = zz [3 * JPEG_DCTSIZE];
         tmp6 = zz [5 * JPEG_DCTSIZE];
         tmp7 = zz [7 * JPEG_DCTSIZE];
-        
+
         tmp10 = tmp4 - tmp7;
-        
+
         tmp8 = tmp6 + tmp5;
         tmp9 = tmp4 + tmp7;
         tmp7 = tmp9 + tmp8;
         tmp11 = JPEG_FIXMUL (tmp9 - tmp8, JPEG_FTOFIX (1.414213562));
-        
+
         tmp8 = tmp6 - tmp5;
         tmp9 = JPEG_FIXMUL (tmp8 + tmp10, JPEG_FTOFIX (1.847759065));
-        
+
         tmp6 = JPEG_FIXMUL (JPEG_FTOFIX (-2.613125930), tmp8) + tmp9 - tmp7;
         tmp5 = tmp11 - tmp6;
-        tmp4 = JPEG_FIXMUL (JPEG_FTOFIX (1.082392200), tmp10) - tmp9 + tmp5; 
-        
+        tmp4 = JPEG_FIXMUL (JPEG_FTOFIX (1.082392200), tmp10) - tmp9 + tmp5;
+
         zz [0 * JPEG_DCTSIZE] = tmp0 + tmp7;
         zz [1 * JPEG_DCTSIZE] = tmp1 + tmp6;
         zz [2 * JPEG_DCTSIZE] = tmp2 + tmp5;
@@ -212,13 +212,13 @@ JPEG_FUNCTION_END (JPEG_IDCT_Columns)
  * chunk as values in the range -64 to 64, although it can go somewhat outside
  * of that range.  chunkStride is the number of bytes in a row in chunk.
  */
- 
+
 static void JPEG_IDCT_Rows (const JPEG_FIXED_TYPE *zz, signed char *chunk, int chunkStride)
 {
     JPEG_FIXED_TYPE tmp0, tmp1, tmp2, tmp3, tmp10, tmp11, tmp12, tmp13;
     JPEG_FIXED_TYPE tmp4, tmp5, tmp6, tmp7, z5, z10, z11, z12, z13;
     int row;
-    
+
     for (row = 0; row < JPEG_DCTSIZE; row ++, zz += JPEG_DCTSIZE, chunk += chunkStride)
     {
         tmp10 = zz [0] + zz [4];
@@ -231,7 +231,7 @@ static void JPEG_IDCT_Rows (const JPEG_FIXED_TYPE *zz, signed char *chunk, int c
         tmp3 = tmp10 - tmp13;
         tmp1 = tmp11 + tmp12;
         tmp2 = tmp11 - tmp12;
-        
+
         z13 = zz [5] + zz [3];
         z10 = zz [5] - zz [3];
         z11 = zz [1] + zz [7];
@@ -243,7 +243,7 @@ static void JPEG_IDCT_Rows (const JPEG_FIXED_TYPE *zz, signed char *chunk, int c
         z5 = JPEG_FIXMUL (z10 + z12, JPEG_FTOFIX (1.847759065));
         tmp10 = JPEG_FIXMUL (JPEG_FTOFIX (1.082392200), z12) - z5;
         tmp12 = JPEG_FIXMUL (JPEG_FTOFIX (-2.613125930), z10) + z5;
-        
+
         tmp6 = tmp12 - tmp7;
         tmp5 = tmp11 - tmp6;
         tmp4 = tmp10 + tmp5;
@@ -254,7 +254,7 @@ static void JPEG_IDCT_Rows (const JPEG_FIXED_TYPE *zz, signed char *chunk, int c
          * instruction set, and has an acceptable, likely imperceptible, loss
          * of quality.
          */
-         
+
         chunk [0] = JPEG_FIXTOI (tmp0 + tmp7) >> 4;
         chunk [1] = JPEG_FIXTOI (tmp1 + tmp6) >> 4;
         chunk [2] = JPEG_FIXTOI (tmp2 + tmp5) >> 4;
@@ -277,7 +277,7 @@ void JPEG_IDCT (JPEG_FIXED_TYPE *zz, signed char *chunk, int chunkStride)
 /* Compute a signed value.  COUNT is the number of bits to read, and OUT is
  * where to store the result.
  */
- 
+
 #define JPEG_Value(COUNT, OUT) \
     do { \
         unsigned int value = JPEG_BITS_GET (COUNT); \
@@ -286,7 +286,7 @@ void JPEG_IDCT (JPEG_FIXED_TYPE *zz, signed char *chunk, int chunkStride)
             value += (-1 << COUNT) + 1; \
         (OUT) = value; \
     } while (0)
- 
+
 /* Decode the coefficients from the input stream and do dequantization at the
  * same time.  dcLast is the previous block's DC value and is updated.  zz is
  * the output coefficients and will be all ready for an IDCT.  quant is the
@@ -295,7 +295,7 @@ void JPEG_IDCT (JPEG_FIXED_TYPE *zz, signed char *chunk, int chunkStride)
  * bitsDataBase are for input stream state, and toZigZag is a pointer to
  * JPEG_ToZigZag or to its IWRAM copy.
  */
- 
+
 static void JPEG_DecodeCoefficients (
     JPEG_FIXED_TYPE *dcLast, JPEG_FIXED_TYPE *zz, JPEG_FIXED_TYPE *quant,
     JPEG_HuffmanTable *dcTable, JPEG_HuffmanTable *acTable,
@@ -306,19 +306,19 @@ static void JPEG_DecodeCoefficients (
     const unsigned char *data = *dataBase; /* Input stream state. */
     int r, s, diff; /* Various temporary data variables. */
     int index = 1; /* The current zig-zagged index. */
-    
+
     /* Clear all coefficients to zero. */
     {
         JPEG_FIXED_TYPE *ez = zz + JPEG_DCTSIZE2;
         do *-- ez = 0;
         while (ez > zz);
     }
-    
+
     /* Read the DC coefficient. */
     JPEG_BITS_CHECK ();
     JPEG_HuffmanTable_Decode (dcTable, s);
     JPEG_Value (s, diff);
-    
+
     /* Store the DC coefficient. */
     *dcLast += diff;
     zz [toZigZag [0]] = *dcLast * quant [0];
@@ -330,7 +330,7 @@ static void JPEG_DecodeCoefficients (
         JPEG_HuffmanTable_Decode (acTable, s);
         r = s >> 4;
         s &= 15;
-    
+
         /* If there is a value at this cell +r, then read it. */
         if (s)
         {
@@ -349,7 +349,7 @@ static void JPEG_DecodeCoefficients (
             index += 16;
         }
     }
-    
+
     /* Restore state for the caller. */
     *bitsDataBase = bits_data;
     *bitsLeftBase = bits_left;
@@ -375,13 +375,13 @@ static void JPEG_ConvertBlock (
     char M211, volatile OSL_IMAGE *out, int outOffsetX, int outOffsetY, int outStride, int outHeight, const unsigned char *ComponentRange)
 {
     int px, py;
-    
+
     /* Since we need to offset all indices into this anyway, we might as well do it once only. */
     ComponentRange += 32;
-   
+
 #if 0
 /* Do the faster 2:1:1 code if JPEG_FASTER_M211 is set and the image scan satisfies that relationship. */
-#if JPEG_FASTER_M211                
+#if JPEG_FASTER_M211
     if (M211)
     {
         /* Nothing complex here.  Because of its nature, we can do Cb and Cr
@@ -389,12 +389,12 @@ static void JPEG_ConvertBlock (
          * done implicitly, using GCC's optimizer for gleaning the actual
          * advantage.
          */
-         
+
         for (py = 0; py < 2 * JPEG_DCTSIZE; py += 2)
         {
             volatile JPEG_OUTPUT_TYPE *row = &out [outStride * py];
             volatile JPEG_OUTPUT_TYPE *rowEnd = row + JPEG_DCTSIZE * 2;
-            
+
             for ( ; row < rowEnd; row += 2, YBlock += 2, CbBlock ++, CrBlock ++)
             {
                 int Cb = *CbBlock, Cr = *CrBlock;
@@ -403,7 +403,7 @@ static void JPEG_ConvertBlock (
                 JPEG_Convert (row [outStride], YBlock [2 * JPEG_DCTSIZE + 0], Cb, Cr); // 240
                 JPEG_Convert (row [outStride + 1], YBlock [2 * JPEG_DCTSIZE + 1], Cb, Cr); // 241
             }
-            
+
             YBlock += JPEG_DCTSIZE * 2;
         }
     }
@@ -421,7 +421,7 @@ static void JPEG_ConvertBlock (
         signed char *YScan = YBlock + (py * YVertFactor >> 8) * (horzMax * YHorzFactor >> 8);
         signed char *CbScan = CbBlock + (py * CbVertFactor >> 8) * (horzMax * CbHorzFactor >> 8);
         signed char *CrScan = CrBlock + (py * CrVertFactor >> 8) * (horzMax * CrHorzFactor >> 8);
-        
+
 //        volatile OSL_IMAGE *row = &out [outStride * (py + outOffsetY) + outOffsetX];
 
 		for (px = 0; px < horzMax; px ++)
@@ -429,7 +429,7 @@ static void JPEG_ConvertBlock (
 			int Y = YScan [px * YHorzFactor >> 8];
 			int Cb = CbScan [px * CbHorzFactor >> 8];
 			int Cr = CrScan [px * CrHorzFactor >> 8];
-            
+
 			int eY = (Y) + 63;
 			int R = ((eY) + ((Cr) * 359 >> 8)) * 2;
 			int G = ((eY) - ((Cb) * 88 >> 8) - ((Cr) * 183 >> 8)) * 2;
@@ -468,17 +468,17 @@ int JPEG_HuffmanTable_Read (JPEG_HuffmanTable *huffmanTable, const unsigned char
     unsigned char huffsize [256];
     int total = 0;
     int c;
-    
+
     bits = data;
     for (c = 0; c < 16; c ++)
-        total += *data ++;
+	        total += *data ++;
     huffmanTable->huffval = data;
     data += total;
-    
+
     /*void GenerateSizeTable ()*/
     {
         int k = 0, i = 1, j = 1;
-        
+
         do
         {
             while (j ++ <= bits [i - 1])
@@ -487,31 +487,31 @@ int JPEG_HuffmanTable_Read (JPEG_HuffmanTable *huffmanTable, const unsigned char
             j = 1;
         }
         while (i <= 16);
-            
+
         huffsize [k] = 0;
     }
-    
+
     /*void GenerateCodeTable ()*/
     {
         int k = 0, code = 0, si = huffsize [0];
 
         while (1)
-        {            
+        {
             do huffcode [k ++] = code ++;
             while (huffsize [k] == si);
-                
+
             if (huffsize [k] == 0)
                 break;
-            
+
             do code <<= 1, si ++;
             while (huffsize [k] != si);
         }
     }
-    
+
     /*void DecoderTables ()*/
     {
         int i = 0, j = 0;
-        
+
         while (1)
         {
             if (i >= 16)
@@ -527,21 +527,21 @@ int JPEG_HuffmanTable_Read (JPEG_HuffmanTable *huffmanTable, const unsigned char
             i ++;
         }
     }
-    
+
     /*void GenerateLookahead ()*/
     {
         int l, i, p, c, ctr;
-        
+
         for (c = 0; c < 256; c ++)
             huffmanTable->look_nbits [c] = 0;
-            
+
         p = 0;
         for (l = 1; l <= 8; l ++)
         {
             for (i = 1; i <= bits [l - 1]; i ++, p ++)
             {
                 int lookbits = huffcode [p] << (8 - l);
-                
+
                 for (ctr = 1 << (8 - l); ctr > 0; ctr --)
                 {
                     huffmanTable->look_nbits [lookbits] = l;
@@ -551,7 +551,7 @@ int JPEG_HuffmanTable_Read (JPEG_HuffmanTable *huffmanTable, const unsigned char
             }
         }
     }
-    
+
     *dataBase = data;
     return 1;
 }
@@ -563,7 +563,7 @@ int JPEG_HuffmanTable_Skip (const unsigned char **dataBase)
 {
     const unsigned char *data = *dataBase;
     int c, total = 16;
-    
+
     for (c = 0; c < 16; c ++)
         total += *data ++;
     *dataBase += total;
@@ -589,18 +589,18 @@ int JPEG_Decoder_ReadImage (JPEG_Decoder *decoder, const unsigned char **dataBas
     int vertShift = 0; /* The right shift to use after multiplying by nVertFactor to get the actual sample. */
     char M211 = 0; /* Whether this scan satisfies the 2:1:1 relationship, which leads to faster code. */
     const unsigned char *data = *dataBase; /* The input data pointer; this must be right at the start of scan data. */
-    
+
     signed char blockBase [JPEG_DCTSIZE2 * JPEG_MAXIMUM_SCAN_COMPONENT_FACTORS]; /* Blocks that have been read and are alloted to YBlock, CbBlock, and CrBlock based on their scaling factors. */
     signed char *YBlock; /* Y component temporary block that holds samples for the MCU currently being decompressed. */
     signed char *CbBlock; /* Cb component temporary block that holds samples for the MCU currently being decompressed. */
     signed char *CrBlock; /* Cr component temporary block that holds samples for the MCU currently being decompressed. */
-    
+
     JPEG_HuffmanTable acTableList [2]; /* The decompressed AC Huffman tables.  JPEG Baseline allows only two AC Huffman tables in a scan. */
     int acTableUse [2] = { -1, -1 }; /* The indices of the decompressed AC Huffman tables, or -1 if this table hasn't been used. */
     JPEG_HuffmanTable dcTableList [2]; /* The decompressed DC Huffman tables.  JPEG Baseline allows only two DC Huffman tables in a scan. */
     int dcTableUse [2] = { -1, -1 }; /* The indices of the decompressed DC Huffman tables, or -1 if this table hasn't been used. */
     int restartInterval = decoder->restartInterval; /* Number of blocks until the next restart. */
-    
+
     /* Pointer to JPEG_ConvertBlock, which might be moved to IWRAM. */
     void (*ConvertBlock) (signed char *, signed char *, signed char *,
         int, int, int, int, int, int, int, int, char,
@@ -612,18 +612,18 @@ int JPEG_Decoder_ReadImage (JPEG_Decoder *decoder, const unsigned char **dataBas
 
     /* Pointer to JPEG_IDCT_Rows, which might be moved to IWRAM. */
     void (*IDCT_Rows) (const JPEG_FIXED_TYPE *, signed char *, int) = &JPEG_IDCT_Rows;
-    
+
     /* Pointer to JPEG_DecodeCoefficients, which might be moved to IWRAM. */
     void (*DecodeCoefficients) (JPEG_FIXED_TYPE *, JPEG_FIXED_TYPE *, JPEG_FIXED_TYPE *, JPEG_HuffmanTable *,
         JPEG_HuffmanTable *, const unsigned char **, unsigned int *,
         unsigned long int *, const unsigned char *) = &JPEG_DecodeCoefficients;
-    
+
     const unsigned char *ToZigZag = JPEG_ToZigZag; /* Pointer to JPEG_ToZigZag, which might be moved to IWRAM. */
     const unsigned char *ComponentRange = JPEG_ComponentRange; /* Pointer to JPEG_ComponentRange, which might be moved to IWRAM. */
-   
+
     /* Start decoding bits. */
     JPEG_BITS_START ();
-    
+
     /* The sum of all factors in the scan; this cannot be greater than 10 in JPEG Baseline. */
     int factorSum = 0;
 
@@ -639,7 +639,7 @@ int JPEG_Decoder_ReadImage (JPEG_Decoder *decoder, const unsigned char **dataBas
     JPEG_IWRAM_LoadDone (); /* Finished; run down DMA and check that we haven't overwritten the stack. */
 #endif /* JPEG_USE_IWRAM */
 
-    /* Find the maximum factors and the factors for each component. */    
+    /* Find the maximum factors and the factors for each component. */
     for (item = frame->componentList; item < itemEnd; item ++)
     {
         /* Find the opposing scan header component. */
@@ -651,12 +651,12 @@ int JPEG_Decoder_ReadImage (JPEG_Decoder *decoder, const unsigned char **dataBas
             sc = &scan->componentList [c];
             if (sc->selector != item->selector)
                 continue;
-            
+
             /* Decompress the DC table if necessary. */
             if (sc->dcTable != dcTableUse [0] && sc->dcTable != dcTableUse [1])
             {
                 const unsigned char *tablePointer = decoder->dcTables [sc->dcTable];
-                
+
                 if (dcTableUse [0] == -1)
                     dcTableUse [0] = sc->dcTable, JPEG_HuffmanTable_Read (&dcTableList [0], &tablePointer);
                 else if (dcTableUse [1] == -1)
@@ -664,12 +664,12 @@ int JPEG_Decoder_ReadImage (JPEG_Decoder *decoder, const unsigned char **dataBas
                 else
                     JPEG_Assert (0);
             }
-            
+
             /* Decompress the AC table if necessary. */
             if (sc->acTable != acTableUse [0] && sc->acTable != acTableUse [1])
             {
                 const unsigned char *tablePointer = decoder->acTables [sc->acTable];
-                
+
                 if (acTableUse [0] == -1)
                     acTableUse [0] = sc->acTable, JPEG_HuffmanTable_Read (&acTableList [0], &tablePointer);
                 else if (acTableUse [1] == -1)
@@ -677,20 +677,20 @@ int JPEG_Decoder_ReadImage (JPEG_Decoder *decoder, const unsigned char **dataBas
                 else
                     JPEG_Assert (0);
             }
-            
+
             frameComponents [c] = item;
             break;
         }
-        
+
         /* Add the sum for a later assertion test. */
         factorSum += item->horzFactor * item->vertFactor;
-        
+
         /* Adjust the maximum horizontal and vertical scaling factors as necessary. */
         if (item->horzFactor > horzMax)
             horzMax = item->horzFactor;
         if (item->vertFactor > vertMax)
             vertMax = item->vertFactor;
-            
+
         /* Update the relevant component scaling factors if necessary. */
         if (item->selector == 1)
         {
@@ -708,45 +708,45 @@ int JPEG_Decoder_ReadImage (JPEG_Decoder *decoder, const unsigned char **dataBas
             CrVertFactor = item->vertFactor;
         }
     }
-   
+
     /* Ensure that we have enough memory for these factors. */
     JPEG_Assert (factorSum < JPEG_MAXIMUM_SCAN_COMPONENT_FACTORS);
-     
+
     /* Split up blockBase according to the components. */
     YBlock = blockBase;
     CbBlock = YBlock + YHorzFactor * YVertFactor * JPEG_DCTSIZE2;
     CrBlock = CbBlock + CbHorzFactor * CbVertFactor * JPEG_DCTSIZE2;
-    
+
     /* Compute the right shift to be done after multiplying against the scaling factor. */
     if (horzMax == 1) horzShift = 8;
     else if (horzMax == 2) horzShift = 7;
     else if (horzMax == 4) horzShift = 6;
-    
+
     /* Compute the right shift to be done after multiplying against the scaling factor. */
     if (vertMax == 1) vertShift = 8;
     else if (vertMax == 2) vertShift = 7;
     else if (vertMax == 4) vertShift = 6;
 
-    /* Adjust the scaling factors for our parameters. */    
+    /* Adjust the scaling factors for our parameters. */
     YHorzFactor <<= horzShift;
     YVertFactor <<= vertShift;
     CbHorzFactor <<= horzShift;
     CbVertFactor <<= vertShift;
     CrHorzFactor <<= horzShift;
     CrVertFactor <<= vertShift;
-    
+
     /* Clear the Cb channel for potential grayscale. */
     {
         signed char *e = CbBlock + JPEG_DCTSIZE2;
-        
+
         do *-- e = 0;
         while (e > CbBlock);
     }
-    
+
     /* Clear the Cr channel for potential grayscale. */
     {
         signed char *e = CrBlock + JPEG_DCTSIZE2;
-        
+
         do *-- e = 0;
         while (e > CrBlock);
     }
@@ -756,11 +756,11 @@ int JPEG_Decoder_ReadImage (JPEG_Decoder *decoder, const unsigned char **dataBas
     if (YHorzFactor == 256 && YVertFactor == 256 && CbHorzFactor == 128 && CbVertFactor == 128 && CrHorzFactor == 128 && CrVertFactor == 128)
         M211 = 1;
 #endif /* JPEG_FASTER_M211 */
-        
+
     /* Clear the DC parameters. */
     for (c = 0; c < JPEG_MAXIMUM_COMPONENTS; c ++)
         dcLast [c] = 0;
-    
+
     /* Now run over each MCU horizontally, then vertically. */
     for (by = 0; by < frame->height; by += vertMax * JPEG_DCTSIZE)
     {
@@ -775,10 +775,10 @@ int JPEG_Decoder_ReadImage (JPEG_Decoder *decoder, const unsigned char **dataBas
                 JPEG_FIXED_TYPE *quant = decoder->quantTables [fc->quantTable];
                 int stride = fc->horzFactor * JPEG_DCTSIZE;
                 signed char *chunk = 0;
-                
+
                 dcTable = &dcTableList [sc->dcTable == dcTableUse [1] ? 1 : 0];
                 acTable = &acTableList [sc->acTable == acTableUse [1] ? 1 : 0];
-                
+
                 /* Compute the output chunk. */
                 if (fc->selector == 1)
                     chunk = YBlock;
@@ -786,7 +786,7 @@ int JPEG_Decoder_ReadImage (JPEG_Decoder *decoder, const unsigned char **dataBas
                     chunk = CbBlock;
                 else if (fc->selector == 3)
                     chunk = CrBlock;
-                    
+
                 for (cy = 0; cy < fc->vertFactor * JPEG_DCTSIZE; cy += JPEG_DCTSIZE)
                 {
                     for (cx = 0; cx < fc->horzFactor * JPEG_DCTSIZE; cx += JPEG_DCTSIZE)
@@ -806,7 +806,7 @@ int JPEG_Decoder_ReadImage (JPEG_Decoder *decoder, const unsigned char **dataBas
                     }
                 }
             }
-            
+
             /* Check that our block will be in-range; this should actually use clamping. */
 //            if (bx + horzMax * JPEG_DCTSIZE > outWidth || by + vertMax * JPEG_DCTSIZE > outHeight)
 //                continue;
@@ -815,7 +815,7 @@ int JPEG_Decoder_ReadImage (JPEG_Decoder *decoder, const unsigned char **dataBas
             ConvertBlock (YBlock, CbBlock, CrBlock,
                 YHorzFactor, YVertFactor, CbHorzFactor, CbVertFactor, CrHorzFactor, CrVertFactor,
                 horzMax * JPEG_DCTSIZE, vertMax * JPEG_DCTSIZE, M211, out, bx, by, outWidth, outHeight, ComponentRange);
-            
+
             /* Handle the restart interval. */
             if (decoder->restartInterval && --restartInterval == 0)
             {
@@ -830,13 +830,13 @@ int JPEG_Decoder_ReadImage (JPEG_Decoder *decoder, const unsigned char **dataBas
             }
         }
     }
-   
+
 finish:
-    /* Make sure we read an EOI marker. */ 
+    /* Make sure we read an EOI marker. */
     JPEG_BITS_REWIND ();
     JPEG_Assert (((data [0] << 8) | data [1]) == JPEG_Marker_EOI);
     data += 2;
-    
+
     /* Clear up and return success. */
     *dataBase = data;
     return 1;
@@ -852,38 +852,38 @@ int JPEG_FrameHeader_Read (JPEG_FrameHeader *frame, const unsigned char **dataBa
     int index;
 
     (void) length;
-    JPEG_Assert (length >= 8);        
+    JPEG_Assert (length >= 8);
     data += 2; /* Skip the length. */
     frame->marker = marker;
     frame->encoding = (marker >= 0xFFC0 && marker <= 0xFFC7) ? 0 : 1;
     frame->differential = !(marker >= 0xFFC0 && marker <= 0xFFC3 && marker >= 0xFFC8 && marker <= 0xFFCB);
-    
+
     frame->precision = *data ++;
     frame->height = (data [0] << 8) | data [1]; data += 2;
     frame->width = (data [0] << 8) | data [1]; data += 2;
     frame->componentCount = *data ++;
-    
+
     JPEG_Assert (frame->precision == 8);
     JPEG_Assert (frame->componentCount <= JPEG_MAXIMUM_COMPONENTS);
     JPEG_Assert (length == 8 + 3 * frame->componentCount);
-    
+
     /* Read the frame components. */
     for (index = 0; index < frame->componentCount; index ++)
     {
         JPEG_FrameHeader_Component *c = &frame->componentList [index];
         unsigned char pair;
-        
+
         c->selector = *data ++;
         pair = *data ++;
         c->horzFactor = pair >> 4;
         c->vertFactor = pair & 15;
         c->quantTable = *data ++;
-        
+
         JPEG_Assert (c->horzFactor == 1 || c->horzFactor == 2 || c->horzFactor == 4);
         JPEG_Assert (c->vertFactor == 1 || c->vertFactor == 2 || c->vertFactor == 4);
         JPEG_Assert (c->quantTable <= 3);
     }
-    
+
     *dataBase = data;
     return 1;
 }
@@ -897,31 +897,31 @@ int JPEG_ScanHeader_Read (JPEG_ScanHeader *scan, const unsigned char **dataBase)
     unsigned short length = (data [0] << 8) | data [1];
     JPEG_ScanHeader_Component *c, *cEnd;
     unsigned char pair;
- 
+
     (void) length;
     JPEG_Assert (length >= 6);
     data += 2; /* Skip the length. */
     scan->componentCount = *data ++;
-    
+
     JPEG_Assert (scan->componentCount <= JPEG_MAXIMUM_COMPONENTS);
     JPEG_Assert (length == 6 + 2 * scan->componentCount);
 
-    /* Read the scan components. */    
+    /* Read the scan components. */
     for (c = scan->componentList, cEnd = c + scan->componentCount; c < cEnd; c ++)
     {
         c->selector = *data ++;
         pair = *data ++;
         c->dcTable = pair >> 4;
         c->acTable = pair & 15;
-        
+
         JPEG_Assert (c->dcTable < 4);
         JPEG_Assert (c->acTable < 4);
     }
-    
+
     /* Read the spectral and approximation footers, which are used for
      * progressive.
      */
-     
+
     scan->spectralStart = *data ++;
     scan->spectralEnd = *data ++;
     JPEG_Assert (scan->spectralStart <= 63);
@@ -931,7 +931,7 @@ int JPEG_ScanHeader_Read (JPEG_ScanHeader *scan, const unsigned char **dataBase)
     scan->successiveApproximationBitPositionLow = pair & 15;
     JPEG_Assert (scan->successiveApproximationBitPositionHigh <= 13);
     JPEG_Assert (scan->successiveApproximationBitPositionLow <= 15);
-    
+
     *dataBase = data;
     return 1;
 }
@@ -939,24 +939,24 @@ int JPEG_ScanHeader_Read (JPEG_ScanHeader *scan, const unsigned char **dataBase)
 /* Read all headers from the very start of the JFIF stream to right after the
  * SOS marker.
  */
- 
+
 int JPEG_Decoder_ReadHeaders (JPEG_Decoder *decoder, const unsigned char **dataBase)
 {
     const unsigned char *data = *dataBase;
     JPEG_Marker marker;
     int c;
- 
-    /* Initialize state and assure that this is a JFIF file. */   
+
+    /* Initialize state and assure that this is a JFIF file. */
     decoder->restartInterval = 0;
     JPEG_Assert (((data [0] << 8) | data [1]) == JPEG_Marker_SOI);
     data += 2;
-    
+
     /* Start reading every marker as it comes in. */
     while (1)
     {
         marker = (JPEG_Marker) ((data [0] << 8) | data [1]);
         data += 2;
-        
+
         switch (marker)
         {
             /* This block is just skipped over. */
@@ -979,96 +979,96 @@ int JPEG_Decoder_ReadHeaders (JPEG_Decoder *decoder, const unsigned char **dataB
             case JPEG_Marker_COM:
                 data += (data [0] << 8) | data [1];
                 break;
-            
+
             case JPEG_Marker_DHT: /* Define Huffman table.  We just skip it for later decompression. */
             {
                 unsigned short length = (data [0] << 8) | data [1];
                 const unsigned char *end = data + length;
-                
+
                 JPEG_Assert (length >= 2);
                 data += 2;
                 while (data < end)
                 {
                     unsigned char pair, type, slot;
-                    
+
                     pair = *data ++;
                     type = pair >> 4;
                     slot = pair & 15;
-                    
+
                     JPEG_Assert (type == 0 || type == 1);
                     JPEG_Assert (slot <= 15);
-                    
+
                     if (type == 0)
                         decoder->dcTables [slot] = data;
                     else
                         decoder->acTables [slot] = data;
-                        
+
                     if (!JPEG_HuffmanTable_Skip (&data))
                         return 0;
                 }
-                
+
                 JPEG_Assert (data == end);
                 break;
             }
-            
+
             case JPEG_Marker_DQT: /* Define quantization table. */
             {
                 unsigned short length = (data [0] << 8) | data [1];
                 const unsigned char *end = data + length;
                 int col, row;
                 JPEG_FIXED_TYPE *s;
-                
+
                 JPEG_Assert (length >= 2);
                 data += 2;
-                
+
                 while (data < end)
                 {
                     int pair, slot, precision;
-                    
+
                     pair = *data ++;
                     precision = pair >> 4;
                     slot = pair & 15;
-                    
+
                     JPEG_Assert (precision == 0); /* Only allow 8-bit. */
                     JPEG_Assert (slot < 4); /* Ensure the slot is in-range. */
                     JPEG_Assert (data + 64 <= end); /* Ensure it's the right size. */
-                    
+
                     s = decoder->quantTables [slot];
-                   
+
                     for (c = 0; c < JPEG_DCTSIZE2; c ++)
                         s [c] = JPEG_ITOFIX (*data ++);
-                    
+
                     /* Multiply against the AAN factors. */
                     for (row = 0; row < JPEG_DCTSIZE; row ++)
                         for (col = 0; col < JPEG_DCTSIZE; col ++)
                         {
                             JPEG_FIXED_TYPE *item = &s [col + row * JPEG_DCTSIZE];
-                            
+
                             *item = JPEG_FIXMUL (*item, JPEG_AANScaleFactor [JPEG_ToZigZag [row * JPEG_DCTSIZE + col]]);
                         }
                 }
-                
+
                 JPEG_Assert (data == end); /* Ensure we've finished it. */
                 break;
             }
-        
+
             case JPEG_Marker_DRI: /* Define restart interval. */
                 JPEG_Assert (((data [0] << 8) | data [1]) == 4); /* Check the length. */
                 decoder->restartInterval = (data [2] << 8) | data [3];
                 data += 4;
                 break;
-            
+
             case JPEG_Marker_SOF0: /* Start of Frame: Baseline Sequential Huffman. */
                 if (!JPEG_FrameHeader_Read (&decoder->frame, &data, marker))
                     return 0;
                 break;
-            
+
             case JPEG_Marker_SOS: /* Start of scan, immediately followed by the image. */
                 if (!JPEG_ScanHeader_Read (&decoder->scan, &data))
                     return 0;
                 *dataBase = data;
                 return 1;
-                
+
             default: /* No known marker of this type. */
                 JPEG_Assert (0);
                 break;
@@ -1096,7 +1096,7 @@ int JPEG_DecompressImage (const unsigned char *data, volatile OSL_IMAGE *out, in
  * skip known markers until it reaches an unknown marker or a handled
  * SOFn.
  */
- 
+
 int JPEG_Match (const unsigned char *data, int length)
 {
     if (length == 0) return 0;

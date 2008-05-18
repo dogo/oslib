@@ -29,8 +29,55 @@ INCLUDE_DIR :=
 #	Source to make
 #	--------------
 
-LIBOBJS :=					$(SOURCE_DIR)oslib.o \
-							$(SOURCE_DIR)drawing.o \
+PSPMATHOBJS := 	            $(SOURCE_DIR)libpspmath/printMatrixFloat.o \
+                            $(SOURCE_DIR)libpspmath/vfpu_srand.o \
+                            $(SOURCE_DIR)libpspmath/vfpu_randf.o \
+                            $(SOURCE_DIR)libpspmath/vfpu_rand_8888.o \
+                            $(SOURCE_DIR)libpspmath/vfpu_identity_matrix.o \
+                            $(SOURCE_DIR)libpspmath/vfpu_translate_matrix.o \
+                            $(SOURCE_DIR)libpspmath/vfpu_perspective_matrix.o \
+                            $(SOURCE_DIR)libpspmath/vfpu_ortho_matrix.o \
+                            $(SOURCE_DIR)libpspmath/vfpu_sinf.o \
+                            $(SOURCE_DIR)libpspmath/vfpu_cosf.o \
+                            $(SOURCE_DIR)libpspmath/vfpu_tanf.o \
+                            $(SOURCE_DIR)libpspmath/vfpu_asinf.o \
+                            $(SOURCE_DIR)libpspmath/vfpu_acosf.o \
+                            $(SOURCE_DIR)libpspmath/vfpu_atanf.o \
+                            $(SOURCE_DIR)libpspmath/vfpu_sinhf.o \
+                            $(SOURCE_DIR)libpspmath/vfpu_coshf.o \
+                            $(SOURCE_DIR)libpspmath/vfpu_tanhf.o \
+                            $(SOURCE_DIR)libpspmath/vfpu_sincos.o \
+                            $(SOURCE_DIR)libpspmath/vfpu_expf.o \
+                            $(SOURCE_DIR)libpspmath/vfpu_logf.o \
+                            $(SOURCE_DIR)libpspmath/vfpu_fabsf.o \
+                            $(SOURCE_DIR)libpspmath/vfpu_sqrtf.o \
+                            $(SOURCE_DIR)libpspmath/vfpu_powf.o \
+                            $(SOURCE_DIR)libpspmath/vfpu_fmodf.o \
+                            $(SOURCE_DIR)libpspmath/vfpu_fminf.o \
+                            $(SOURCE_DIR)libpspmath/vfpu_fmaxf.o \
+                            $(SOURCE_DIR)libpspmath/vfpu_ease_in_out.o \
+                            $(SOURCE_DIR)libpspmath/vfpu_normalize_vector.o \
+                            $(SOURCE_DIR)libpspmath/vfpu_zero_vector.o \
+                            $(SOURCE_DIR)libpspmath/vfpu_scale_vector.o \
+                            $(SOURCE_DIR)libpspmath/vfpu_add_vector.o \
+                            $(SOURCE_DIR)libpspmath/vfpu_envmap_matrix.o \
+                            $(SOURCE_DIR)libpspmath/vfpu_sphere_to_cartesian.o \
+                            $(SOURCE_DIR)libpspmath/vfpu_quaternion_identity.o \
+                            $(SOURCE_DIR)libpspmath/vfpu_quaternion_copy.o \
+                            $(SOURCE_DIR)libpspmath/vfpu_quaternion_multiply.o \
+                            $(SOURCE_DIR)libpspmath/vfpu_quaternion_normalize.o \
+                            $(SOURCE_DIR)libpspmath/vfpu_quaternion_exp.o \
+                            $(SOURCE_DIR)libpspmath/vfpu_quaternion_ln.o \
+                            $(SOURCE_DIR)libpspmath/vfpu_quaternion_sample_linear.o \
+                            $(SOURCE_DIR)libpspmath/vfpu_quaternion_from_euler.o \
+                            $(SOURCE_DIR)libpspmath/vfpu_quaternion_to_matrix.o \
+                            $(SOURCE_DIR)libpspmath/vfpu_quaternion_sample_hermite.o \
+                            $(SOURCE_DIR)libpspmath/vfpu_quaternion_hermite_tangent.o
+
+LIBOBJS :=					$(PSPMATHOBJS) \
+                            $(SOURCE_DIR)oslib.o \
+                            $(SOURCE_DIR)vfpu.o \
+                            $(SOURCE_DIR)drawing.o \
 							$(SOURCE_DIR)image.o \
 							$(SOURCE_DIR)palette.o \
 							$(SOURCE_DIR)shape.o \
@@ -38,7 +85,6 @@ LIBOBJS :=					$(SOURCE_DIR)oslib.o \
 							$(SOURCE_DIR)messagebox.o \
 							$(SOURCE_DIR)oslHandleLoadNoFailError.o \
 							$(SOURCE_DIR)keys.o \
-							$(SOURCE_DIR)vfpu.o \
 							$(SOURCE_DIR)text.o \
 							$(SOURCE_DIR)vram_mgr.o \
 							$(SOURCE_DIR)stub.o \
@@ -50,6 +96,8 @@ LIBOBJS :=					$(SOURCE_DIR)oslib.o \
 							$(SOURCE_DIR)dialog.o \
 							$(SOURCE_DIR)osk.o \
 							$(SOURCE_DIR)saveload.o \
+							$(SOURCE_DIR)net.o \
+							$(SOURCE_DIR)browser.o \
                             $(SOURCE_DIR)vfile/VirtualFile.o \
 							$(SOURCE_DIR)vfile/vfsFile.o \
 							$(SOURCE_DIR)image/oslConvertImageTo.o \
@@ -75,7 +123,7 @@ LIBOBJS :=					$(SOURCE_DIR)oslib.o \
 							$(SOURCE_DIR)splash/oslShowSplashScreen1.o \
 							$(SOURCE_DIR)splash/oslShowSplashScreen2.o \
 							$(SOURCE_DIR)mem/oslGetRamStatus.o \
-                            $(SOURCE_DIR)intraFont/intraFont.o \
+                            $(SOURCE_DIR)intraFont/intraFont.o
 
 OBJS :=						$(LIBOBJS)
 
@@ -90,7 +138,7 @@ INCDIR   :=					$(INCDIR) \
 #	Addditional libraries
 #	---------------------
 SDK_LIBS :=					-lpspsdk \
-							-lpspctrl \
+							-lpspctrl -lpsphprm \
 							-lpspumd \
 							-lpsprtc \
 							-lpspgu -lpspgum \
@@ -98,7 +146,8 @@ SDK_LIBS :=					-lpspsdk \
 							-lpspaudio \
 							-lpsppower \
 							-lpspusb -lpspusbstor \
-                            -lpsputility
+                            -lpsputility \
+                            -lpspssl -lpsphttp -lpspwlan
 
 EXTERN_LIBS :=				-lpng \
 							-lz

@@ -12,7 +12,7 @@ LIBDIR =
 
 MYLIBS=
 STDLIBS= -losl -lpng -lz \
-         -lpspsdk -lpspctrl -lpspumd -lpsprtc -lpsppower -lpspgu -lpspaudiolib -lpspaudio -lm
+         -lpspsdk -lpspctrl -lpspumd -lpsprtc -lpsppower -lpspgu -lpspaudiolib -lpspaudio -lpsphttp -lpspwlan -lm
 LIBS=$(STDLIBS) $(MYLIBS)
 
 LDFLAGS =

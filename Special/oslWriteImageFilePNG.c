@@ -1,7 +1,7 @@
 #include "../oslib.h"
 #include "../png.h"
 #include "../pngconf.h"
-#include "../zlibinterface.h"
+#include "../zlibInterface.h"
 #include "../zlib.h"
 #include "../zconf.h"
 
@@ -31,22 +31,22 @@ int oslWriteImageFilePNG(OSL_IMAGE *img, const char* filename, int flags)
 	if (!f)
 		return 0;
 
-	png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL); 
+	png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
 	if (!png_ptr)		{
 		goto error;
 	}
-	info_ptr = png_create_info_struct(png_ptr); 
+	info_ptr = png_create_info_struct(png_ptr);
 	if (!info_ptr)		{
-		png_destroy_write_struct(&png_ptr, (png_infopp)NULL); 
+		png_destroy_write_struct(&png_ptr, (png_infopp)NULL);
 		goto error;
-	} 
-//	png_init_io(png_ptr, fp); 
+	}
+//	png_init_io(png_ptr, fp);
 	png_set_write_fn(png_ptr, f, oslPngWriteFn, oslPngFlushFn);
-	png_set_IHDR(png_ptr, info_ptr, width, height, 8, 
-		saveAlpha ? PNG_COLOR_TYPE_RGBA : PNG_COLOR_TYPE_RGB, 
-		PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT); 
-	png_write_info(png_ptr, info_ptr); 
-	line = (u8*) malloc(width * (saveAlpha ? 4 : 3)); 
+	png_set_IHDR(png_ptr, info_ptr, width, height, 8,
+		saveAlpha ? PNG_COLOR_TYPE_RGBA : PNG_COLOR_TYPE_RGB,
+		PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
+	png_write_info(png_ptr, info_ptr);
+	line = (u8*) malloc(width * (saveAlpha ? 4 : 3));
 	for (y = 0; y < height; y++) {
 		for (i = 0, x = 0; x < width; x++)		{
 			ptr = oslGetImagePixelAdr(img, (int)(x + img->offsetX0), (int)(y + img->offsetY0));
@@ -68,17 +68,17 @@ int oslWriteImageFilePNG(OSL_IMAGE *img, const char* filename, int flags)
 			a = (color >> 24) & 0xff;
 			if (img->pixelFormat == OSL_PF_5650)
 				a = 0xff;
-			line[i++] = r; 
-			line[i++] = g; 
-			line[i++] = b; 
+			line[i++] = r;
+			line[i++] = g;
+			line[i++] = b;
 			if (saveAlpha)
-				line[i++] = a; 
-		} 
-		png_write_row(png_ptr, line); 
-	} 
-	free(line); 
-	png_write_end(png_ptr, info_ptr); 
-	png_destroy_write_struct(&png_ptr, (png_infopp)NULL); 
+				line[i++] = a;
+		}
+		png_write_row(png_ptr, line);
+	}
+	free(line);
+	png_write_end(png_ptr, info_ptr);
+	png_destroy_write_struct(&png_ptr, (png_infopp)NULL);
 	lbSuccess = 1;
 error:
 	VirtualFileClose(f);

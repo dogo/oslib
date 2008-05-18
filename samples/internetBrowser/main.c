@@ -4,9 +4,11 @@
 #include <pspnet_apctl.h>
 #include <oslib/oslib.h>
 
-PSP_MODULE_INFO("Dialog Test", 0, 1, 0);
+#include "exception.h"
+
+PSP_MODULE_INFO("Internet Browser Test", 0, 1, 0);
 PSP_MAIN_THREAD_ATTR(THREAD_ATTR_USER | THREAD_ATTR_VFPU);
-PSP_HEAP_SIZE_KB(12*1024);
+PSP_HEAP_SIZE_KB(6*1024);
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Globals:
@@ -61,14 +63,13 @@ int initOSLib(){
 int main(){
     int skip = 0;
     char message[100] = "";
-    int dialog = OSL_DIALOG_NONE;
+    int browser = 0;
     SetupCallbacks();
 
-    //Init network (for net conf dialog):
-    oslNetInit();
-
+	initExceptionHandler();
     initOSLib();
     oslIntraFontInit(INTRAFONT_CACHE_MED);
+	oslNetInit();
 
     //Loads image:
     OSL_IMAGE *bkg = oslLoadImageFilePNG("bkg.png", OSL_IN_RAM | OSL_SWIZZLED, OSL_PF_8888);
@@ -78,58 +79,46 @@ int main(){
     oslSetFont(font);
 
     while(runningFlag && !osl_quit){
-        if (!skip){
+		browser = oslBrowserIsActive();
+		if (!skip){
             oslStartDrawing();
             oslDrawImageXY(bkg, 0, 0);
-            oslDrawString(30, 50, "Press X to see a message dialog.");
-            oslDrawString(30, 70, "Press [] to see an error dialog.");
-            oslDrawString(30, 90, "Press O to see the net conf dialog.");
+            oslDrawString(30, 50, "Press X to open the internet browser");
             oslDrawString(30, 150, "Press /\\ to quit.");
 
             oslDrawString(30, 200, message);
 
-            dialog = oslGetDialogType();
-            if (dialog){
-                oslDrawDialog();
-                if (oslGetDialogStatus() == PSP_UTILITY_DIALOG_NONE){
-                    if (oslDialogGetResult() == OSL_DIALOG_CANCEL)
-                        sprintf(message, "Cancel");
-                    else if (dialog == OSL_DIALOG_MESSAGE){
-                        int button = oslGetDialogButtonPressed();
-                        if (button == PSP_UTILITY_MSGDIALOG_RESULT_YES)
-                            sprintf(message, "You pressed YES");
-                        else if (button == PSP_UTILITY_MSGDIALOG_RESULT_NO)
-                            sprintf(message, "You pressed NO");
-                    }
-                    oslEndDialog();
+            if (browser){
+                oslDrawBrowser();
+                if (oslGetBrowserStatus() == PSP_UTILITY_DIALOG_NONE){
+					oslMessageBox("End Browser", "Debug",  oslMake3Buttons(OSL_KEY_CROSS, OSL_MB_OK , 0, 0, 0, 0));
+                    oslEndBrowser();
                 }
             }
             oslEndDrawing();
         }
 
-        if (dialog == OSL_DIALOG_NONE){
+        if (!browser){
             oslReadKeys();
             if (osl_keys->pressed.triangle){
                 runningFlag = 0;
             }else if (osl_keys->pressed.cross){
-                oslInitMessageDialog("Test message dialog", 1);
+                int res = oslBrowserInit("http://www.ps2dev.org/", "/PSP/PHOTO");
                 memset(message, 0, sizeof(message));
-            }else if (osl_keys->pressed.square){
-                oslInitErrorDialog(0x80020001);
-                memset(message, 0, sizeof(message));
-            }else if (osl_keys->pressed.circle){
-                oslInitNetDialog();
-                memset(message, 0, sizeof(message));
-            }
+				if (res)
+					sprintf(message, "Error initializing browser!");
+				else
+					sprintf(message, "Browser initialized.");
+			}
         }
 
         oslEndFrame();
         skip = oslSyncFrame();
     }
     //Quit OSL:
-    oslEndGfx();
+	oslNetTerm();
+	oslEndGfx();
     oslQuit();
-    oslNetTerm();
 
     sceKernelExitGame();
     return 0;

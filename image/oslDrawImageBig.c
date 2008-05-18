@@ -1,4 +1,5 @@
 #include "oslib.h"
+#include "vfpu.h"
 
 #define TEXSIZEX_LIMIT 512
 #define TEXSIZEX_LIMITF 512.0f
@@ -155,14 +156,14 @@ void oslDrawImageBig(OSL_IMAGE *img)		{
 
 					vertices[0].u = uVal - uStart;
 					vertices[0].v = vVal - vStart;
-					vertices[0].x = vfpu_cosf(angleRadians, xVal) - vfpu_sinf(angleRadians, cY) + img->x;
-					vertices[0].y = vfpu_sinf(angleRadians, xVal) + vfpu_cosf(angleRadians, cY) + img->y;
+					vertices[0].x = oslVfpu_cosf(angleRadians, xVal) - oslVfpu_sinf(angleRadians, cY) + img->x;
+					vertices[0].y = oslVfpu_sinf(angleRadians, xVal) + oslVfpu_cosf(angleRadians, cY) + img->y;
 					vertices[0].z = 0;
 
 					vertices[2].u = uVal - uStart;
 					vertices[2].v = vLimit - vStart;
-					vertices[2].x = vfpu_cosf(angleRadians, xVal) - vfpu_sinf(angleRadians, tmpY) + img->x;
-					vertices[2].y = vfpu_sinf(angleRadians, xVal) + vfpu_cosf(angleRadians, tmpY) + img->y;
+					vertices[2].x = oslVfpu_cosf(angleRadians, xVal) - oslVfpu_sinf(angleRadians, tmpY) + img->x;
+					vertices[2].y = oslVfpu_sinf(angleRadians, xVal) + oslVfpu_cosf(angleRadians, tmpY) + img->y;
 					vertices[2].z = 0;
 				}
 
@@ -187,14 +188,14 @@ void oslDrawImageBig(OSL_IMAGE *img)		{
 				if (bDrawn)		{
 					vertices[1].u = uVal - uStart;
 					vertices[1].v = vVal - vStart;
-					vertices[1].x = vfpu_cosf(angleRadians, xVal) - vfpu_sinf(angleRadians, cY) + img->x;
-					vertices[1].y = vfpu_sinf(angleRadians, xVal) + vfpu_cosf(angleRadians, cY) + img->y;
+					vertices[1].x = oslVfpu_cosf(angleRadians, xVal) - oslVfpu_sinf(angleRadians, cY) + img->x;
+					vertices[1].y = oslVfpu_sinf(angleRadians, xVal) + oslVfpu_cosf(angleRadians, cY) + img->y;
 					vertices[1].z = 0;
 
 					vertices[3].u = uVal - uStart;
 					vertices[3].v = vLimit - vStart;
-					vertices[3].x = vfpu_cosf(angleRadians, xVal) - vfpu_sinf(angleRadians, tmpY) + img->x;
-					vertices[3].y = vfpu_sinf(angleRadians, xVal) + vfpu_cosf(angleRadians, tmpY) + img->y;
+					vertices[3].x = oslVfpu_cosf(angleRadians, xVal) - oslVfpu_sinf(angleRadians, tmpY) + img->x;
+					vertices[3].y = oslVfpu_sinf(angleRadians, xVal) + oslVfpu_cosf(angleRadians, tmpY) + img->y;
 					vertices[3].z = 0;
 
 					sceGuDrawArray(GU_TRIANGLE_STRIP,GU_TEXTURE_32BITF|GU_VERTEX_32BITF|GU_TRANSFORM_2D,4,0,vertices);

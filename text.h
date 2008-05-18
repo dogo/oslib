@@ -173,9 +173,9 @@ The same options will be applied to all intraFonts
 #define INTRAFONT_ALIGN_CENTER  0x00000200
 #define INTRAFONT_ALIGN_RIGHT   0x00000400
 #define INTRAFONT_WIDTH_VAR     0x00000000 //default: variable-width
-#define INTRAFONT_WIDTH_FIX     0x00000800 //set your custom fixed witdh to 24 pixels: INTRAFONT_WIDTH_FIX | 24 
+#define INTRAFONT_WIDTH_FIX     0x00000800 //set your custom fixed witdh to 24 pixels: INTRAFONT_WIDTH_FIX | 24
                                            //(max is 255, set to 0 to use default fixed width, this width will be scaled by size)
-#define INTRAFONT_ACTIVE        0x00001000 //assumes the font-texture resides inside sceGuTex already, prevents unecessary reloading -> very small speed-gain									   
+#define INTRAFONT_ACTIVE        0x00001000 //assumes the font-texture resides inside sceGuTex already, prevents unecessary reloading -> very small speed-gain
 #define INTRAFONT_STRING_ASCII  0x00000000 //default: interpret strings as ascii text
 #define INTRAFONT_STRING_SJIS   0x00002000 //interpret strings as shifted-jis (japanese)
 #define INTRAFONT_STRING_UTF8   0x00010000 //interpret strings as UTF-8
@@ -190,10 +190,10 @@ The same options will be applied to all intraFonts
 									   //if it succeeds: (all chars and shadows fit into chache) it will free some now unneeded memory
 \endcode
 */
-extern int oslIntraFontInit(unsigned short options);
+extern int oslIntraFontInit(unsigned int options);
 
 /**Sets style for a pgf font (works ONLY with pgf font) */
-extern void oslIntraFontSetStyle(OSL_FONT *f, float size, unsigned int color, unsigned int shadowColor, unsigned short options);
+extern void oslIntraFontSetStyle(OSL_FONT *f, float size, unsigned int color, unsigned int shadowColor, unsigned int options);
 
 /**Shuts down intraFont */
 extern void oslIntraFontShutdown();
