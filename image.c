@@ -324,6 +324,8 @@ OSL_IMAGE *oslCreateImageTile(OSL_IMAGE *img, int offsetX0, int offsetY0, int of
 {
 	OSL_IMAGE *newImg;
 	newImg = (OSL_IMAGE*)malloc(sizeof(OSL_IMAGE));
+	if (!newImg)
+		return NULL;
 	memcpy(newImg, img, sizeof(OSL_IMAGE));
 	oslImageIsCopySet(newImg, 1);
 	oslSetImageTile(newImg, offsetX0, offsetY0, offsetX1, offsetY1);
@@ -334,6 +336,8 @@ OSL_IMAGE *oslCreateImageTileSize(OSL_IMAGE *img, int offsetX0, int offsetY0, in
 {
 	OSL_IMAGE *newImg;
 	newImg = (OSL_IMAGE*)malloc(sizeof(OSL_IMAGE));
+	if (!newImg)
+		return NULL;
 	memcpy(newImg, img, sizeof(OSL_IMAGE));
 	oslImageIsCopySet(newImg, 1);
 	oslSetImageTileSize(newImg, offsetX0, offsetY0, width, height);
@@ -345,7 +349,7 @@ void oslSetImageFrame(OSL_IMAGE *img, int frame)		{
 	u32 framesPerLine = img->sizeX / img->frameSizeX;
 	u32 line = frame / framesPerLine;
 
-	img->offsetX0 = (frame - line * framesPerLine) * img->frameSizeX; 
+	img->offsetX0 = (frame - line * framesPerLine) * img->frameSizeX;
 	img->offsetY0 = line * img->frameSizeY;
 	img->offsetX1 = img->offsetX0 + img->frameSizeX;
 	img->offsetY1 = img->offsetY0 + img->frameSizeY;
