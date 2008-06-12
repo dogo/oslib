@@ -112,6 +112,7 @@ void oslDeleteImage(OSL_IMAGE *img)
 */
 void oslFreeImageData(OSL_IMAGE *img)		{
 	if (img->data)		{
+		//oslUncacheImage(img); //SAKYA
 		//Free memory depending on the current location
 		if (img->location == OSL_IN_RAM)
 			free(img->data);

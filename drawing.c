@@ -255,10 +255,11 @@ void oslSetSysDisplayListSize(int newSize)		{
 	if (osl_list)
 		free(osl_list);
 	//This function can cause random crashes.
-	osl_list = (unsigned int*)memalign(64, newSize);
+	//osl_list = (unsigned int*)memalign(64, newSize);
+	osl_list = (unsigned int*)memalign(16, newSize);
 }
 
-void oslInitGfx(int pixelFormat, int bDoubleBuffer)			{
+void oslInitGfx(int pixelFormat, int bDoubleBuffer) {
 	u8 *baseAdr;
 	bool alreadyInited = (osl_list != NULL);
 
@@ -266,17 +267,18 @@ void oslInitGfx(int pixelFormat, int bDoubleBuffer)			{
 //	osl_currentPixelFormat = pixelFormat;
 //	osl_currentResolutionBPP = osl_pixelWidth[pixelFormat];
 
-	if (!alreadyInited)			{
+	if (!alreadyInited) {
 		oslSetupFTrigo();
 
 		//Allocate 1 Megabyte for the display list by default. Should be enough.
-		oslSetSysDisplayListSize(1 << 20);
+		//oslSetSysDisplayListSize(1 << 20);
+		oslSetSysDisplayListSize((int)1024*1024*1.5);
 
 		sceGuInit();
 	}
 
 	// setup
-	sceGuStart(GU_DIRECT,osl_list);
+	sceGuStart(GU_DIRECT, osl_list);
 	sceGuDisplay(0);
 	sceGuDrawBuffer(pixelFormat,(void*)0,512);
 	if (bDoubleBuffer)			{
@@ -296,8 +298,8 @@ void oslInitGfx(int pixelFormat, int bDoubleBuffer)			{
 		osl_curDispBuf = osl_curDrawBuf;
 	}
 
-    //SAKYA
-    sceGuDepthBuffer((void*)0x110000, 512);
+    //SAKYA OLD
+    /*sceGuDepthBuffer((void*)0x110000, 512);
     sceGuDepthRange(65535, 0);
     sceGuDepthFunc(GU_GEQUAL);
     //sceGuEnable(GU_DEPTH_TEST);
@@ -306,8 +308,32 @@ void oslInitGfx(int pixelFormat, int bDoubleBuffer)			{
     sceGuEnable(GU_CULL_FACE);
     sceGuEnable(GU_CLIP_PLANES);
     sceGuEnable(GU_BLEND);
-    sceGuBlendFunc(GU_ADD, GU_SRC_ALPHA, GU_ONE_MINUS_SRC_ALPHA, 0, 0);
+    sceGuBlendFunc(GU_ADD, GU_SRC_ALPHA, GU_ONE_MINUS_SRC_ALPHA, 0, 0);*/
     //END SAKYA
+
+    //SAKYA NEW
+    sceGuDepthBuffer((void*)0x110000, 512);
+	sceGuOffset(2048 - 480/2, 2048 - 272/2);
+	sceGuViewport(2048, 2048, 480, 272);
+    sceGuDepthRange(65535, 0);
+	sceGuScissor(0,0,480,272);
+	sceGuEnable(GU_SCISSOR_TEST);
+	sceGuDepthFunc(GU_GEQUAL);
+    //sceGuEnable(GU_DEPTH_TEST);
+	sceGuDisable(GU_DEPTH_TEST);
+	sceGuFrontFace(GU_CW);
+	sceGuShadeModel(GU_SMOOTH);
+	sceGuEnable(GU_CULL_FACE);
+    sceGuEnable(GU_CLIP_PLANES);
+    sceGuEnable(GU_BLEND);
+    sceGuBlendFunc(GU_ADD, GU_SRC_ALPHA, GU_ONE_MINUS_SRC_ALPHA, 0, 0);
+
+	sceGuEnable(GU_TEXTURE_2D), osl_textureEnabled = 1;
+	sceGuDisable(GU_ALPHA_TEST), osl_alphaTestEnabled = 0;
+	sceGuDisable(GU_DITHER), osl_ditheringEnabled = 0;
+	osl_bilinearFilterEnabled = 0;
+	oslSetTextureWrap(OSL_TW_REPEAT, OSL_TW_REPEAT);
+	//END SAKYA
 
 
 	//Initialise le gestionnaire de VRAM
@@ -315,41 +341,16 @@ void oslInitGfx(int pixelFormat, int bDoubleBuffer)			{
 	//Définit le début de la VRAM
 	oslVramMgrSetParameters((void*)baseAdr, (u32)OSL_UVRAM_END - (u32)baseAdr);
 
-/*	if (osl_3Dsupport)		{
-		zbp = ( u16* ) oslGetUncachedPtr(oslVramMgrAllocBlock(DEPTHBUFFER_SIZE));
-		sceGuDepthBuffer(zbp, 512);
-		sceGuDepthFunc(GU_GEQUAL);
-		sceGuDepthRange(65535, 0);
-//		sceGuDepthRange(0xc350,0x2710);
-		sceGuClearDepth(0);
-	}*/
-
-	//Unsupported on PC
-//	sceGuOffset(2048 - (480 / 2),2048 - (272 / 2));
-//	sceGuViewport(2048, 2048, 480, 272);
-
-/*	const int DEPTHBUFFER_SIZE = 512*272*sizeof (u16);
-	u16* zbp;
-	zbp = ( u16* ) oslGetUncachedPtr(oslVramMgrAllocBlock(DEPTHBUFFER_SIZE));
-	sceGuDepthBuffer(zbp, 512);
-	sceGuDepthFunc(GU_GEQUAL);
-	sceGuDepthRange(65535, 0);
-	sceGuClearDepth(0);
-	sceGuClear(GU_COLOR_BUFFER_BIT | GU_DEPTH_BUFFER_BIT);*/
-
-    sceGuDisable(GU_DEPTH_TEST);
-
+	/*sceGuDisable(GU_DEPTH_TEST);
 	sceGuScissor(0,0,480,272);
 	sceGuEnable(GU_SCISSOR_TEST);
-//	sceGuFrontFace(GU_CW);
 	sceGuEnable(GU_TEXTURE_2D), osl_textureEnabled = 1;
 	sceGuDisable(GU_ALPHA_TEST), osl_alphaTestEnabled = 0;
-//	sceGuClear(GU_COLOR_BUFFER_BIT);
 	sceGuTexFilter(GU_NEAREST,GU_NEAREST);
 	sceGuShadeModel(GU_SMOOTH);
 	sceGuDisable(GU_DITHER), osl_ditheringEnabled = 0;
 	osl_bilinearFilterEnabled = 0;
-	oslSetTextureWrap(OSL_TW_REPEAT, OSL_TW_REPEAT);
+	oslSetTextureWrap(OSL_TW_REPEAT, OSL_TW_REPEAT);*/
 
 	osl_isDrawingStarted = 0;
 
@@ -383,8 +384,6 @@ void oslInitGfx(int pixelFormat, int bDoubleBuffer)			{
 	if (!alreadyInited)
 		oslInitConsole();
 
-//	vfpu_identity_m(&osl_matOrthoProjection);
-//	vfpu_ortho_m ( &osl_matOrthoProjection, 0.0f, 480.0f, 272.0f, 0.0f, -1.0f, 1.0f );
 }
 
 
@@ -456,3 +455,10 @@ void oslEndGfx()
 }
 
 
+void oslSetDepthTest(int enabled){
+	if (enabled)
+		sceGuEnable(GU_DEPTH_TEST);
+	else
+		sceGuDisable(GU_DEPTH_TEST);
+	osl_alphaTestEnabled = enabled;
+}

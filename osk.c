@@ -53,7 +53,7 @@ void oslInitOsk(char *descStr, char *initialStr, int textLimit, int linesNumber)
 	oskParams.base.accessThread = 19;
 	oskParams.base.fontThread = 18;
 	oskParams.base.soundThread = 16;
-	oskParams.unk_48 = 1;
+	oskParams.datacount = 1;
 	oskParams.data = &OskData;
 
 	sceUtilityOskInitStart(&oskParams);

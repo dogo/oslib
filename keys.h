@@ -229,6 +229,7 @@ typedef union		{
 		int rmvolup:1;					//!< Volume Up
 		int rmvoldown:1;				//!< Volume Down
 		int rmhold:1;					//!< Hold
+		int reserved2:1;				//!< For padding, do not use
 	};
 	u32 value;							//!< 32-bit value containing all keys
 } OSL_REMOTEKEYLIST;

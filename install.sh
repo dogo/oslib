@@ -1,5 +1,6 @@
 #!/bin/sh
 
+PSPSDK=$(psp-config --pspsdk-path)
 if [ -z "$PSPSDK" ]; then
     echo
     echo "ERROR: Env variable PSPSDK not set."

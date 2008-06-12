@@ -64,6 +64,7 @@ oslSetFont(oldFont);
 oslPrintf("Using the normal font.\n");
 \endcode */
 #define oslSetFont(f)		(osl_curFont = f)
+//extern void oslSetFont(OSL_FONT *f);
 
 //System defines
 #define OSL_TEXT_TEXWIDTH 512

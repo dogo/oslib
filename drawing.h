@@ -106,6 +106,9 @@ extern void oslClearScreen(int backColor);
 Note: oslSetDrawBuffer automatically adjusts the clipping region to cover the full the drawbuffer image. */
 extern void oslSetScreenClipping(int x0, int y0, int x1, int y1);
 
+/** Sets the depth test. */
+extern void oslSetDepthTest(int enabled);
+
 /** Resets the screen clipping to the whole screen. */
 #define oslResetScreenClipping()					oslSetScreenClipping(0, 0, osl_curBuf->sizeX, osl_curBuf->sizeY);
 
@@ -199,7 +202,7 @@ extern void oslSetDithering(int enabled);
 
 /** Enables color keying. Any pixel of the specified color will not be drawn to the screen.
 
-It has not much interest in itself, but the fact is that it takes effect as well when loading images. Any color equal to this one is set as transparent. As transparency is defined by the alpha channel, 
+It has not much interest in itself, but the fact is that it takes effect as well when loading images. Any color equal to this one is set as transparent. As transparency is defined by the alpha channel,
 you can disable color keying then and the image will still contain transparency.
 
 Example 1: loading an image with a color key. You can often see that the background of some sprite images are of a bright and unconventional color, like pink or bright red. This color is not used
@@ -500,7 +503,7 @@ extern OSL_IMAGE *oslLoadImageFileJPG(char *filename, int location, int pixelFor
 /** Loads a GIF file. Same remark as for oslLoadImageFile apply. */
 extern OSL_IMAGE *oslLoadImageFileGIF(char *filename, int location, int pixelFormat);
 
-//Wrapped to by oslSetImageAutoSwizzle. 
+//Wrapped to by oslSetImageAutoSwizzle.
 extern int osl_autoSwizzleImages;
 
 /** Controls whether the images should automatically be swizzled upon loading. You can specify OSL_UNSWIZZLED to get a raw image, which you can then access using the data member of the image.
@@ -523,7 +526,7 @@ extern inline void oslSetImageAutoSwizzle(int enabled)		{
 	Add the following values:
 		- 1: Align the image sizes horizontally to a power of two
 		- 2: Align the vertical size to a multiple of 8 (mandatory for swizzling)
-	
+
 	Default value: 3.
 */
 extern int osl_alignBuffer;
@@ -834,7 +837,7 @@ extern inline void oslSetImageFrameSize(OSL_IMAGE *img, u16 width, u16 height)		
 	img->frameSizeX = width, img->frameSizeY = height;
 }
 
-/** 
+/**
 
 To make a smart use of this feature, remember that you can always code macros to simplify and wrap your code.
 \code

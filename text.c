@@ -412,6 +412,8 @@ OSL_FONT *oslLoadFontFile(const char *filename)		{
     char *start = (char *)filename + (strlen(filename) - 4);
     if (!strncmp(start, ".pgf", 4) || !strncmp(start, ".PGF", 4)){
         font = (OSL_FONT*)malloc(sizeof(OSL_FONT));
+		if (!font)
+			return NULL;
         font->fontType = OSL_FONT_INTRA;
         font->intra = intraFontLoad(filename, intra_options);
         if (!font->intra){
@@ -443,6 +445,8 @@ OSL_FONT *oslLoadFontFile(const char *filename)		{
                 fi.addedSpace = fh.addedSpace;
                 //Lit les données des caractères
                 tcCaracteres = (u8*)malloc(fh.lineWidth*fi.charHeight*256);
+				if (!tcCaracteres)
+					return NULL;
                 if (VirtualFileRead(tcCaracteres, fh.lineWidth*fi.charHeight*256, 1, f) > 0)			{
                     fi.fontdata = tcCaracteres;
                     fi.paletteCount = fh.paletteCount;
@@ -768,3 +772,10 @@ void oslIntraFontSetStyle(OSL_FONT *f, float size, unsigned int color, unsigned 
     if (f->intra)
         intraFontSetStyle(f->intra, size, color, shadowColor, options);
 }
+
+/*void oslSetFont(OSL_FONT *f){
+	osl_curFont = f;
+	if (f->fontType == OSL_FONT_INTRA)
+		intraFontActivate(f->intra);
+}
+*/

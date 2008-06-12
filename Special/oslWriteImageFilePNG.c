@@ -47,6 +47,8 @@ int oslWriteImageFilePNG(OSL_IMAGE *img, const char* filename, int flags)
 		PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
 	png_write_info(png_ptr, info_ptr);
 	line = (u8*) malloc(width * (saveAlpha ? 4 : 3));
+	if (!line)
+		goto error;
 	for (y = 0; y < height; y++) {
 		for (i = 0, x = 0; x < width; x++)		{
 			ptr = oslGetImagePixelAdr(img, (int)(x + img->offsetX0), (int)(y + img->offsetY0));

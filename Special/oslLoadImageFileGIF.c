@@ -15,7 +15,7 @@ int fnGifReadFunc(GifFileType* GifFile, GifByteType* buf, int count)
     memcpy(buf, ptr, count);
     GifFile->UserData = ptr + count;*/
     VirtualFileRead(buf, 1, count, (VIRTUAL_FILE*)GifFile->UserData);
-	     
+
     return count;
 }
 
@@ -69,14 +69,16 @@ OSL_IMAGE *oslLoadImageFileGIF(char *filename, int location, int pixelFormat)
 	//We only keep the location bits
 	int imgLocation = location & OSL_LOCATION_MASK;
 	VIRTUAL_FILE *f;
-		
+
 	if (osl_pixelWidth[pixelFormat] > 8)			{ 									// En mode true color, on utilise une palette temporaire...
 		osl_gifTempPalette = (u32*)malloc(256 * sizeof(u32));								// Ecran temporaire
+		if (!osl_gifTempPalette)
+			return NULL;
 		Palette = osl_gifTempPalette;
 	}
 	else
 		osl_gifTempPalette = NULL;
-	
+
 	f = VirtualFileOpen((void*)filename, 0, VF_AUTO, VF_O_READ);
 	if (f)			{
 		GifFile = DGifOpen(f, fnGifReadFunc);
@@ -84,7 +86,7 @@ OSL_IMAGE *oslLoadImageFileGIF(char *filename, int location, int pixelFormat)
 		// Scan the content of the GIF file and load the image(s) in:
 		do {
 			DGifGetRecordType(GifFile, &RecordType);
-		
+
 			switch (RecordType) {
 				case IMAGE_DESC_RECORD_TYPE:
 					DGifGetImageDesc(GifFile);
@@ -98,7 +100,7 @@ OSL_IMAGE *oslLoadImageFileGIF(char *filename, int location, int pixelFormat)
 					Row = Col = 0;
 					Width = GifFile->Image.Width;
 					Height = GifFile->Image.Height;
-					
+
 					// Update Color map
 					ColorMap = (GifFile->Image.ColorMap	? GifFile->Image.ColorMap: GifFile->SColorMap);
 
@@ -120,7 +122,7 @@ OSL_IMAGE *oslLoadImageFileGIF(char *filename, int location, int pixelFormat)
 							alpha = 0xff;
 						Palette[i] = RGBA(pColor->Red, pColor->Green, pColor->Blue, alpha);
 					}
-					
+
 					/* if (GifFile->Image.Left + GifFile->Image.Width > GifFile->SWidth ||
 					GifFile->Image.Top + GifFile->Image.Height > GifFile->SHeight) {
 					return EXIT_FAILURE;
@@ -153,11 +155,11 @@ OSL_IMAGE *oslLoadImageFileGIF(char *filename, int location, int pixelFormat)
 						}
 					}
 					break;
-			
+
 				case EXTENSION_RECORD_TYPE:
 					// Skip any extension blocks in file:
 					DGifGetExtension(GifFile, &ExtCode, &Extension);
-					
+
 					while (Extension != NULL) {
 						//Couleur transparente
 						if (ExtCode == 249)			{
@@ -175,11 +177,11 @@ OSL_IMAGE *oslLoadImageFileGIF(char *filename, int location, int pixelFormat)
 					break;
 			}
 		} while (RecordType != TERMINATE_RECORD_TYPE);
-		
+
 		 /* Close file when done */
 		DGifCloseFile(GifFile);
 		VirtualFileClose(f);
-		
+
 		if (osl_pixelWidth[pixelFormat] > 8)
 			free(osl_gifTempPalette); 					//Libère la mémoire allouée pour la palette fixe
 

@@ -27,9 +27,9 @@ extern "C" {
 #define INTRAFONT_ALIGN_CENTER  0x00000200
 #define INTRAFONT_ALIGN_RIGHT   0x00000400
 #define INTRAFONT_WIDTH_VAR     0x00000000 //default: variable-width
-#define INTRAFONT_WIDTH_FIX     0x00000800 //set your custom fixed witdh to 24 pixels: INTRAFONT_WIDTH_FIX | 24 
+#define INTRAFONT_WIDTH_FIX     0x00000800 //set your custom fixed witdh to 24 pixels: INTRAFONT_WIDTH_FIX | 24
                                            //(max is 255, set to 0 to use default fixed width, this width will be scaled by size)
-#define INTRAFONT_ACTIVE        0x00001000 //assumes the font-texture resides inside sceGuTex already, prevents unecessary reloading -> very small speed-gain									   
+#define INTRAFONT_ACTIVE        0x00001000 //assumes the font-texture resides inside sceGuTex already, prevents unecessary reloading -> very small speed-gain
 #define INTRAFONT_STRING_ASCII  0x00000000 //default: interpret strings as ascii text
 #define INTRAFONT_STRING_SJIS   0x00002000 //interpret strings as shifted-jis (japanese)
 #define INTRAFONT_STRING_UTF8   0x00010000 //interpret strings as UTF-8
@@ -40,8 +40,8 @@ extern "C" {
                                            //if it fails: (because the cache is too small) it will automatically switch to chache on-the-fly with a medium texture
 									       //if it succeeds: (all chars and shadows fit into chache) it will free some now unneeded memory
 #define INTRAFONT_CACHE_ALL     0x0000C000 //try to cache all chars during fontload (uses less memory and is faster to draw text, but slower to load font)
-                                       //if it fails: (because the cache is too small) it will automatically switch to chache on-the-fly with a large texture
-									   //if it succeeds: (all chars and shadows fit into chache) it will free some now unneeded memory
+										   //if it fails: (because the cache is too small) it will automatically switch to chache on-the-fly with a large texture
+										   //if it succeeds: (all chars and shadows fit into chache) it will free some now unneeded memory
 
 /** @note The following definitions are used internally by ::intraFont and have no other relevance.*/
 #define PGF_BMP_H_ROWS    0x01
@@ -74,7 +74,7 @@ typedef struct {
 	unsigned char flags;
 	unsigned short shadowID;  //to look up in shadowmap
 	char advance;             //in quarterpixels
-	unsigned long ptr;        //offset 
+	unsigned long ptr;        //offset
 } Glyph;
 
 /**
@@ -119,26 +119,26 @@ typedef struct {
 typedef struct {
 	char *filename;
 	unsigned char *fontdata;
-	
+
 	unsigned char *texture; /**<  The bitmap data  */
 	unsigned int texWidth; /**<  Texture size (power2) */
-	unsigned int texHeight; /**<  Texture height (power2) */	
+	unsigned int texHeight; /**<  Texture height (power2) */
 	unsigned short texX;
 	unsigned short texY;
 	unsigned short texYSize;
-	
+
 	unsigned short n_chars;
 	char advancex;            //in quarterpixels
 	char advancey;            //in quarterpixels
 	unsigned char charmap_compr_len; /**<length of compression info*/
-	unsigned short *charmap_compr; /**< Compression info on compressed charmap*/	
-	unsigned short *charmap; /**<  Character map */	
+	unsigned short *charmap_compr; /**< Compression info on compressed charmap*/
+	unsigned short *charmap; /**<  Character map */
 	Glyph* glyph; /**<  Character glyphs */
-		
+
 	unsigned short n_shadows;
-	unsigned char shadowscale; /**<  shadows in pgf file (width, height, left and top properties as well) are scaled by factor of (shadowscale>>6) */	
-	Glyph* shadowGlyph; /**<  Shadow glyphs */	
-	
+	unsigned char shadowscale; /**<  shadows in pgf file (width, height, left and top properties as well) are scaled by factor of (shadowscale>>6) */
+	Glyph* shadowGlyph; /**<  Shadow glyphs */
+
 	float size;
 	unsigned int color;
 	unsigned int shadowColor;
@@ -267,7 +267,7 @@ float intraFontMeasureText(intraFont *font, const char *text);
  *
  * @returns The total width of the text (until the first newline char)
  */
-float intraFontMeasureTextUCS2(intraFont *font, const unsigned short *text); 
+float intraFontMeasureTextUCS2(intraFont *font, const unsigned short *text);
 
 /** @} */
 

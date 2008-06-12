@@ -34,6 +34,13 @@ void oslVramMgrInit()		{
 	osl_vramBlocksMax = DEFAULT_TABLE_SIZE;
 	osl_vramBlocksNb = 1;
 	osl_vramBlocks = (OSL_VRAMBLOCK*)malloc(osl_vramBlocksMax * sizeof(OSL_VRAMBLOCK));
+	if (!osl_vramBlocks){
+		osl_useVramManager = 0;
+		osl_vramBlocksMax = 0;
+		osl_vramBlocksNb = 0;
+		return;
+	}
+
 	//Premier bloc: libre, taille totale de la VRAM, adresse 0
 	setBlockOffset(0, 0);
 	//La taille en blocs doit être divisée par 16 puisqu'on n'utilise pas des octets sinon il serait impossible de coder toute la VRAM sur 16 bits
@@ -43,12 +50,12 @@ void oslVramMgrInit()		{
 
 void *oslVramMgrAllocBlock(int blockSize)		{
 	int i;
-	
+
 	osl_skip = osl_vramBlocks[0].size;
 	//Le bloc ne peut pas être de taille nulle ou négative
 	if (blockSize <= 0)
 		return NULL;
-	
+
 	//La taille est toujours multiple de 16 - arrondir au bloc supérieur
 	if (blockSize & 15)
 		blockSize += 16;
@@ -81,7 +88,7 @@ void *oslVramMgrAllocBlock(int blockSize)		{
 	else		{
 		//On va ajouter un nouveau bloc
 		osl_vramBlocksNb++;
-		
+
 		//Plus de mémoire pour le tableau? On l'aggrandit
 		if (osl_vramBlocksNb >= osl_vramBlocksMax)			{
 			OSL_VRAMBLOCK *oldBlock = osl_vramBlocks;
@@ -99,7 +106,7 @@ void *oslVramMgrAllocBlock(int blockSize)		{
 
 		//Décalage pour insérer notre nouvel élément
 		memmove(osl_vramBlocks + i + 1, osl_vramBlocks + i, sizeof(OSL_VRAMBLOCK) * (osl_vramBlocksNb - i - 1));
-		
+
 		//Remplissons notre nouveau bloc
 		setBlockSize(i, blockSize);
 		//Il a l'adresse du bloc qui était là avant
@@ -173,13 +180,15 @@ int oslVramMgrSetParameters(void *baseAddr, int size)		{
    int blockNum = osl_vramBlocksNb - 1;
    int sizeDiff;
 
+	if (!osl_useVramManager)
+		return 0;
 	//La taille est toujours multiple de 16 - arrondir au bloc supérieur
 	if (size & 15)
 		size += 16;
 
 	//Différence de taille (négatif pour réduction, positif pour aggrandissement)
    sizeDiff = size - curVramSize;
-   
+
 	//Le dernier bloc est TOUJOURS libre, même s'il reste 0 octet. Cf la bidouille dans ulTexVramAlloc
 	if (isBlockFree(blockNum) && getBlockSize(blockNum) + sizeDiff >= 0)			{
 		setBlockSize(blockNum, getBlockSize(blockNum) + sizeDiff);

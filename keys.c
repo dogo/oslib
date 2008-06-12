@@ -34,8 +34,8 @@ OSL_CONTROLLER *oslReadKeys()
     }else{
         osl_keys->analogX = (signed)ctl.Lx-128;
         osl_keys->analogY = (signed)ctl.Ly-128;
-        if (osl_keys->analogX || osl_keys->analogY)
-            scePowerTick(0); //Keep display on also with analog
+        //if (osl_keys->analogX || osl_keys->analogY)
+        //    scePowerTick(0); //Keep display on also with analog
     }
 
 	if (osl_keys->analogToDPadSensivity > 0)		{
