@@ -667,24 +667,10 @@ void oslConsolePrint(const char *str)
 }
 
 void oslSetTextColor(OSL_COLOR color)			{
-/*	if (!osl_curFont)
-		return;
-	oslSyncDrawing();
-	((unsigned long*)osl_curFont->img->palette->data)[1] = color;
-	osl_curPalette = NULL;
-	sceKernelDcacheWritebackInvalidateRange(osl_curFont->img->palette->data, 16*4);*/
-//	osl_textColor = (color & 0xf0) >> 4 | (color & 0xf000) >> 8 | (color & 0xf00000) >> 12 | (color & 0xf0000000) >> 16;
 	osl_textColor = color;
 }
 
 void oslSetBkColor(OSL_COLOR color)			{
-/*	if (!osl_curFont)
-		return;
-	oslSyncDrawing();
-	((unsigned long*)osl_curFont->img->palette->data)[0] = color;
-	osl_curPalette = NULL;
-	sceKernelDcacheWritebackInvalidateRange(osl_curFont->img->palette->data, 16*4);*/
-//	osl_textBkColor = (color & 0xf0) >> 4 | (color & 0xf000) >> 8 | (color & 0xf00000) >> 12 | (color & 0xf0000000) >> 16;
 	osl_textBkColor = color;
 }
 

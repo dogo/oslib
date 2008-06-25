@@ -167,8 +167,8 @@ DEFINES :=					-D_DEBUG \
 #	Compiler settings
 #	-----------------
 
-#CFLAGS :=					$(DEFINES) -O2 -G0 -g -Wall -DHAVE_AV_CONFIG_H -fno-strict-aliasing -fverbose-asm
-CFLAGS :=					$(DEFINES) -O2 -G0 -g -frename-registers -ffast-math -fomit-frame-pointer -Wall -DHAVE_AV_CONFIG_H -fno-strict-aliasing
+CFLAGS :=					$(DEFINES) -O2 -G0 -g -Wall -DHAVE_AV_CONFIG_H -fno-strict-aliasing -fverbose-asm
+#CFLAGS :=					$(DEFINES) -O2 -G0 -g -frename-registers -ffast-math -fomit-frame-pointer -Wall -DHAVE_AV_CONFIG_H -fno-strict-aliasing
 CXXFLAGS :=					$(CFLAGS) -fno-exceptions -fno-rtti
 ASFLAGS :=					$(CFLAGS)
 

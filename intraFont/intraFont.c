@@ -551,7 +551,7 @@ void intraFontActivate(intraFont *font) {
 	sceGuClutMode(GU_PSM_8888, 0, 255, 0);
 	sceGuClutLoad(2, clut);
 
-	sceGuEnable(GU_TEXTURE_2D);
+	//sceGuEnable(GU_TEXTURE_2D);
 	sceGuTexMode(GU_PSM_T4, 0, 0, (font->options & INTRAFONT_CACHE_ASCII) ? 1 : 0);
 	sceGuTexImage(0, font->texWidth, font->texWidth, font->texWidth, font->texture);
 	sceGuTexFunc(GU_TFX_MODULATE, GU_TCC_RGBA);
@@ -962,12 +962,13 @@ float intraFontPrintUCS2(intraFont *font, float x, float y, const unsigned short
 
 	//finalize and activate texture (if not already active or has been changed)
 	//sceKernelDcacheWritebackAll();
-	sceKernelDcacheWritebackInvalidateRange(v, ((n_glyphs+n_sglyphs)<<1) * sizeof(fontVertex)); //SAKYA
+	//sceKernelDcacheWritebackInvalidateRange(v, ((n_glyphs+n_sglyphs)<<1) * sizeof(fontVertex)); //SAKYA
+	sceKernelDcacheWritebackRange(v, ((n_glyphs+n_sglyphs)<<1) * sizeof(fontVertex)); //SAKYA
 	if (!(font->options & INTRAFONT_ACTIVE)) intraFontActivate(font);
 
-	sceGuDisable(GU_DEPTH_TEST);
+	//sceGuDisable(GU_DEPTH_TEST);
 	sceGuDrawArray(GU_SPRITES, GU_TEXTURE_32BITF|GU_COLOR_8888|GU_VERTEX_32BITF|GU_TRANSFORM_2D, (n_glyphs+n_sglyphs)<<1, 0, v);
-	sceGuEnable(GU_DEPTH_TEST);
+	//sceGuEnable(GU_DEPTH_TEST);
 
 	return left+width;
 }

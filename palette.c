@@ -42,6 +42,8 @@ OSL_PALETTE *oslCreatePaletteFrom(void *data, int size, short pixelFormat)
 }
 
 void oslDeletePalette(OSL_PALETTE *p)		{
+	if (!p)
+		return;
 	if (p->location == OSL_IN_RAM)
 		free(p->data);
 	else if (p->location == OSL_IN_VRAM)

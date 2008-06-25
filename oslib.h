@@ -24,6 +24,7 @@
 	#include <pspctrl.h>
 	#include <psputility.h>
 	#include <pspgu.h>
+	#include <pspgum.h>
 	#include <psppower.h>
 	#include <pspiofilemgr.h>
 	#include <psphprm.h>

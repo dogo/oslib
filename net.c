@@ -48,6 +48,15 @@ int oslIsWlanPowerOn(){
 }
 
 
+int oslIsWlanConnected(){
+	char ipaddr[32];
+
+	if(sceNetApctlGetInfo(8, ipaddr) == 0)
+		return 1;
+	else
+		return 0;
+}
+
 int oslGetNetConfigs(struct oslNetConfig *result){
     int index;
     netData name, ip;

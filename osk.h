@@ -21,8 +21,23 @@
         Maximum number of chars
     \param linesNumber
         Number of lines
+    \param language
+        Language
+			JAPANESE			0
+			ENGLISH				1
+			FRENCH				2
+			SPANISH				3
+			GERMAN				4
+			ITALIAN				5
+			DUTCH				6
+			PORTUGUESE			7
+			RUSSIAN				8
+			KOREAN				9
+			CHINESE_TRADITIONAL	10
+			CHINESE_SIMPLIFIED	11
+		If you pass to the function -1 then the language set in the firmware is used
 */
-void oslInitOsk(char *descStr, char *initialStr, int textLimit, int linesNumber);
+void oslInitOsk(char *descStr, char *initialStr, int textLimit, int linesNumber, int language);
 
 /** Draws the OSK
 After drawing it you should check if the user closed it. Remember to call oslEndOsk.

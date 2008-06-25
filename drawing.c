@@ -225,6 +225,16 @@ void oslStartDrawing()		{
 	sceGuStart(GU_DIRECT, osl_list);
     /*SAKYA */
     if (osl_intraInit){
+		sceGumMatrixMode(GU_PROJECTION);
+		sceGumLoadIdentity();
+		sceGumPerspective( 75.0f, 16.0f/9.0f, 0.5f, 1000.0f);
+
+        sceGumMatrixMode(GU_VIEW);
+		sceGumLoadIdentity();
+
+		sceGumMatrixMode(GU_MODEL);
+		sceGumLoadIdentity();
+
         sceGuClearColor(0xFF000000);
         sceGuClearDepth(0);
         sceGuClear(GU_COLOR_BUFFER_BIT|GU_DEPTH_BUFFER_BIT);
@@ -271,8 +281,8 @@ void oslInitGfx(int pixelFormat, int bDoubleBuffer) {
 		oslSetupFTrigo();
 
 		//Allocate 1 Megabyte for the display list by default. Should be enough.
-		//oslSetSysDisplayListSize(1 << 20);
-		oslSetSysDisplayListSize((int)1024*1024*1.5);
+		oslSetSysDisplayListSize(1 << 20);
+		//oslSetSysDisplayListSize((int)1024*1024*1.5);
 
 		sceGuInit();
 	}

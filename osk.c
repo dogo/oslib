@@ -16,7 +16,7 @@ unsigned short desc[128]  = { 0 };
 
 int OskActive = 0;
 
-void oslInitOsk(char *descStr, char *initialStr, int textLimit, int linesNumber){
+void oslInitOsk(char *descStr, char *initialStr, int textLimit, int linesNumber, int language){
     int i = 0;
 
     intext = (unsigned short *) malloc((textLimit + 1)*sizeof(unsigned short));
@@ -36,7 +36,10 @@ void oslInitOsk(char *descStr, char *initialStr, int textLimit, int linesNumber)
     }
 
 	memset(&OskData, 0, sizeof(OskData));
-    sceUtilityGetSystemParamInt(PSP_SYSTEMPARAM_ID_INT_LANGUAGE, &OskData.language);
+	if (language >= 0)
+		OskData.language = language;
+	else
+	    sceUtilityGetSystemParamInt(PSP_SYSTEMPARAM_ID_INT_LANGUAGE, &OskData.language);
 	OskData.lines = linesNumber;
 	OskData.unk_24 = 1;			    // set to 1
 	OskData.desc = desc;
@@ -47,8 +50,11 @@ void oslInitOsk(char *descStr, char *initialStr, int textLimit, int linesNumber)
 
 	memset(&oskParams, 0, sizeof(oskParams));
 	oskParams.base.size = sizeof(oskParams);
-    sceUtilityGetSystemParamInt(PSP_SYSTEMPARAM_ID_INT_LANGUAGE, &oskParams.base.language);
-    sceUtilityGetSystemParamInt(PSP_SYSTEMPARAM_ID_INT_UNKNOWN, &oskParams.base.buttonSwap);
+	if (language >= 0)
+		oskParams.base.language = language;
+	else
+	    sceUtilityGetSystemParamInt(PSP_SYSTEMPARAM_ID_INT_LANGUAGE, &oskParams.base.language);
+	sceUtilityGetSystemParamInt(PSP_SYSTEMPARAM_ID_INT_UNKNOWN, &oskParams.base.buttonSwap);
 	oskParams.base.graphicsThread = 17;
 	oskParams.base.accessThread = 19;
 	oskParams.base.fontThread = 18;

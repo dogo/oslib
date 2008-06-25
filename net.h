@@ -38,6 +38,10 @@ struct oslNetConfig{
 */
 int oslIsWlanPowerOn();
 
+/**Checks if the WLAN is connected to an Access Point (returns 1, else 0).
+*/
+int oslIsWlanConnected();
+
 /**Gets the network configs.
 \code
 struct oslNetConfig configs[OSL_MAX_NET_CONFIGS];
