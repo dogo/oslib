@@ -100,6 +100,7 @@ void oslDeleteImage(OSL_IMAGE *img)
 			oslDeletePalette(img->palette);
 	}
 	free(img);
+	img = NULL;
 }
 
 
