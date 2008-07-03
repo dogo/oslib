@@ -36,10 +36,12 @@ void oslInitOsk(char *descStr, char *initialStr, int textLimit, int linesNumber,
     }
 
 	memset(&OskData, 0, sizeof(OskData));
-	if (language >= 0)
+	/*if (language >= 0)
 		OskData.language = language;
 	else
-	    sceUtilityGetSystemParamInt(PSP_SYSTEMPARAM_ID_INT_LANGUAGE, &OskData.language);
+	    sceUtilityGetSystemParamInt(PSP_SYSTEMPARAM_ID_INT_LANGUAGE, &OskData.language);*/
+	OskData.language = PSP_UTILITY_OSK_LANGUAGE_DEFAULT;
+
 	OskData.lines = linesNumber;
 	OskData.unk_24 = 1;			    // set to 1
 	OskData.desc = desc;

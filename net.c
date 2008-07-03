@@ -228,7 +228,8 @@ int oslResolveAddress(char *address, char *resolvedIP){
     int rid = -1;
     char buf[1024];
     struct in_addr addr = { 0 };
-    int err, i;
+	static struct in_addr saddr = { 0 };
+	int err, i;
 
     for (i=0; i<OSL_RESOLVER_RETRY; i++){
         strcpy(resolvedIP, "");
@@ -236,7 +237,7 @@ int oslResolveAddress(char *address, char *resolvedIP){
             if(sceNetResolverCreate(&rid, buf, sizeof(buf)) < 0)
                 return OSL_ERR_RESOLVER_CREATE;
 
-            err = sceNetResolverStartNtoA(rid, address, &addr, 2, 3);
+            err = sceNetResolverStartNtoA(rid, address, &saddr, 2, 3);
             sceNetResolverStop(rid);
             sceNetResolverDelete(rid);
             if(err < 0)
@@ -244,5 +245,7 @@ int oslResolveAddress(char *address, char *resolvedIP){
             strcpy(resolvedIP, inet_ntoa(addr));
         }
     }
+
+
     return 0;
 }
