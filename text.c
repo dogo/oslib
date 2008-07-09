@@ -488,6 +488,7 @@ void oslDeleteFont(OSL_FONT *f)		{
         free(f->charWidths);
     }
     free(f);
+	f = NULL;
 }
 
 void oslDrawTextTileBack(int x, int y, int tX, int tY)		{
