@@ -25,6 +25,8 @@
 #define OSL_ERR_RESOLVER_CREATE		-14
 #define OSL_ERR_RESOLVER_RESOLVING	-15
 
+#define OSL_ERR_WLAN_OFF	        -16
+#define OSL_USER_ABORTED            -17
 
 #define OSL_MAX_NET_CONFIGS		20
 struct oslNetConfig{

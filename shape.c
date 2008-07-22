@@ -7,10 +7,10 @@
 	//Old method - only for 32-bit processors
 	#if 0
 		OSL_COLOR a1 = c & 0xffff, a2 = c >> 16, b1 = osl_currentAlphaCoeff & 0xffff, b2 = osl_currentAlphaCoeff >> 16, c1, c2;
-		c1 = 
+		c1 =
 			(((a1 & 0xff00) * (b1 & 0xff00)) >> 16) |
 			(((a1 & 0xff) * (b1 & 0xff)) >> 8);
-		c2 = 
+		c2 =
 			(((a2 & 0xff00) * (b2 & 0xff00)) >> 16) |
 			(((a2 & 0xff) * (b2 & 0xff)) >> 8);
 		return c1 | c2 << 16;
@@ -21,7 +21,7 @@
 			return (c & 0xffffff) | (((c >> 24) * (osl_currentAlphaCoeff >> 24) >> 8) << 24);
 		}
 		else	{
-			return 
+			return
 				((((u64)(c & 0xff000000) * (osl_currentAlphaCoeff & 0xff000000)) >> 32) & 0xff000000) |
 				((((u64)(c & 0xff0000) * (osl_currentAlphaCoeff & 0xff0000)) >> 24) & 0xff0000) |
 				((((c & 0xff00) * (osl_currentAlphaCoeff & 0xff00)) >> 16) && 0xff00) |
@@ -37,10 +37,10 @@ OSL_COLOR oslBlendColors(OSL_COLOR c1, OSL_COLOR c2)		{
 	//Old method - only for 32-bit processors
 	#if 0
 		OSL_COLOR a1 = c & 0xffff, a2 = c >> 16, b1 = osl_currentAlphaCoeff & 0xffff, b2 = osl_currentAlphaCoeff >> 16, c1, c2;
-		c1 = 
+		c1 =
 			(((a1 & 0xff00) * (b1 & 0xff00)) >> 16) |
 			(((a1 & 0xff) * (b1 & 0xff)) >> 8);
-		c2 = 
+		c2 =
 			(((a2 & 0xff00) * (b2 & 0xff00)) >> 16) |
 			(((a2 & 0xff) * (b2 & 0xff)) >> 8);
 		return c1 | c2 << 16;
@@ -51,7 +51,7 @@ OSL_COLOR oslBlendColors(OSL_COLOR c1, OSL_COLOR c2)		{
 			return (c1 & 0xffffff) | (((c1 >> 24) * (c2 >> 24) >> 8) << 24);
 		}
 		else	{
-			return 
+			return
 				((((u64)(c1 & 0xff000000) * (c2 & 0xff000000)) >> 32) & 0xff000000) |
 				((((u64)(c1 & 0xff0000) * (c2 & 0xff0000)) >> 24) & 0xff0000) |
 				((((c1 & 0xff00) * (c2 & 0xff00)) >> 16) && 0xff00) |
@@ -78,8 +78,12 @@ void oslDrawLine(int x0, int y0, int x1, int y1, OSL_COLOR color)		{
 		vertices[1].y = y1;
 		vertices[1].z = 0;
 
+		int wasEnable = osl_textureEnabled;
 		oslDisableTexturing();
 		sceGuDrawArray(GU_LINES, GU_COLOR_8888|GU_VERTEX_16BIT|GU_TRANSFORM_2D, 2, 0, vertices);
+        sceKernelDcacheWritebackRange(vertices, 2 * sizeof(OSL_LINE_VERTEX)); //SAKYA
+		if (wasEnable)
+			oslEnableTexturing();
 }
 
 void oslDrawRect(int x0, int y0, int x1, int y1, OSL_COLOR color)		{
@@ -141,28 +145,38 @@ void oslDrawRect(int x0, int y0, int x1, int y1, OSL_COLOR color)		{
 		vertices[7].y = y0;
 		vertices[7].z = 0;
 
+		int wasEnable = osl_textureEnabled;
 		oslDisableTexturing();
+
 		sceGuDrawArray(GU_LINES, GU_COLOR_8888|GU_VERTEX_16BIT|GU_TRANSFORM_2D, 8, 0, vertices);
+    	sceKernelDcacheWritebackRange(vertices, 8 * sizeof(OSL_LINE_VERTEX)); //SAKYA
+		if (wasEnable)
+			oslEnableTexturing();
 }
 
 void oslDrawFillRect(int x0, int y0, int x1, int y1, OSL_COLOR color)		{
-		OSL_LINE_VERTEX* vertices;
-		
-		vertices = (OSL_LINE_VERTEX*)sceGuGetMemory(2 * sizeof(OSL_LINE_VERTEX));
-		color = oslBlendColor(color);
+    OSL_LINE_VERTEX* vertices;
 
-		vertices[0].color = color;
-		vertices[0].x = x0;
-		vertices[0].y = y0;
-		vertices[0].z = 0;
+    vertices = (OSL_LINE_VERTEX*)sceGuGetMemory(2 * sizeof(OSL_LINE_VERTEX));
+    color = oslBlendColor(color);
 
-		vertices[1].color = color;
-		vertices[1].x = x1;
-		vertices[1].y = y1;
-		vertices[1].z = 0;
+    vertices[0].color = color;
+    vertices[0].x = x0;
+    vertices[0].y = y0;
+    vertices[0].z = 0;
 
-		oslDisableTexturing();
-		sceGuDrawArray(GU_SPRITES, GU_COLOR_8888|GU_VERTEX_16BIT|GU_TRANSFORM_2D, 2, 0, vertices);
+    vertices[1].color = color;
+    vertices[1].x = x1;
+    vertices[1].y = y1;
+    vertices[1].z = 0;
+
+    int wasEnable = osl_textureEnabled;
+    oslDisableTexturing();
+
+    sceGuDrawArray(GU_SPRITES, GU_COLOR_8888|GU_VERTEX_16BIT|GU_TRANSFORM_2D, 2, 0, vertices);
+	sceKernelDcacheWritebackRange(vertices, 2 * sizeof(OSL_LINE_VERTEX)); //SAKYA
+    if (wasEnable)
+        oslEnableTexturing();
 }
 
 //Va de 1*couleur1 à 15/16*couleur2 + 1/16*couleur1 (pas jusqu'au fond, limite hardware). Idem pour couleur2 et couleur4. Dessiner un rectangle à l'envers pour prioriser l'autre coin (couleur1 ou couleur3), càd x1,y0,x0,y1.
@@ -198,7 +212,13 @@ void oslDrawGradientRect(int x0, int y0, int x1, int y1, OSL_COLOR c1, OSL_COLOR
 	vertices[3].y = y1;
 	vertices[3].z = 0;
 
-	oslDisableTexturing();
+    int wasEnable = osl_textureEnabled;
+    oslDisableTexturing();
+
 	sceGuDrawArray(GU_TRIANGLE_STRIP, GU_COLOR_8888|GU_VERTEX_16BIT|GU_TRANSFORM_2D, 4, 0, vertices);
+	sceKernelDcacheWritebackRange(vertices, 4 * sizeof(OSL_LINE_VERTEX)); //SAKYA
+    if (wasEnable)
+        oslEnableTexturing();
+
 }
 

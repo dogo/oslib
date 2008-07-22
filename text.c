@@ -509,8 +509,13 @@ void oslDrawTextTileBack(int x, int y, int tX, int tY)		{
 	vertices[1].y = y+tY;
 	vertices[1].z = 0;
 
-	oslDisableTexturing();
-	sceGuDrawArray(GU_SPRITES,GU_COLOR_8888|GU_VERTEX_16BIT|GU_TRANSFORM_2D,2,0,vertices);
+    int wasEnable = osl_textureEnabled;
+    oslDisableTexturing();
+
+    sceGuDrawArray(GU_SPRITES,GU_COLOR_8888|GU_VERTEX_16BIT|GU_TRANSFORM_2D,2,0,vertices);
+	sceKernelDcacheWritebackRange(vertices, 2 * sizeof(OSL_LINE_VERTEX_COLOR32)); //SAKYA
+    if (wasEnable)
+        oslEnableTexturing();
 }
 
 //Dessine une tile de la texture sélectionnée. Eviter d'utiliser à l'extérieur.
@@ -541,8 +546,13 @@ void oslDrawTextTile(int u, int v, int x, int y, int tX, int tY)
 	vertices[1].y = y+tY;
 	vertices[1].z = 0;
 
+    int wasEnable = osl_textureEnabled;
 	oslEnableTexturing();
+
 	sceGuDrawArray(GU_SPRITES,GU_TEXTURE_16BIT|GU_COLOR_8888|GU_VERTEX_16BIT|GU_TRANSFORM_2D,2,0,vertices);
+	sceKernelDcacheWritebackRange(vertices, 2 * sizeof(OSL_FAST_VERTEX_COLOR32)); //SAKYA
+    if (!wasEnable)
+        oslDisableTexturing();
 }
 
 void oslDrawChar(int x, int y, unsigned char c)

@@ -329,7 +329,6 @@ void oslInitGfx(int pixelFormat, int bDoubleBuffer) {
 	sceGuScissor(0,0,480,272);
 	sceGuEnable(GU_SCISSOR_TEST);
 	sceGuDepthFunc(GU_GEQUAL);
-    //sceGuEnable(GU_DEPTH_TEST);
 	sceGuDisable(GU_DEPTH_TEST);
 	sceGuFrontFace(GU_CW);
 	sceGuShadeModel(GU_SMOOTH);

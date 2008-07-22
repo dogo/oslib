@@ -962,7 +962,6 @@ float intraFontPrintUCS2(intraFont *font, float x, float y, const unsigned short
 
 	//finalize and activate texture (if not already active or has been changed)
 	//sceKernelDcacheWritebackAll();
-	//sceKernelDcacheWritebackInvalidateRange(v, ((n_glyphs+n_sglyphs)<<1) * sizeof(fontVertex)); //SAKYA
 	sceKernelDcacheWritebackRange(v, ((n_glyphs+n_sglyphs)<<1) * sizeof(fontVertex)); //SAKYA
 	if (!(font->options & INTRAFONT_ACTIVE)) intraFontActivate(font);
 

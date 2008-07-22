@@ -58,7 +58,7 @@ int oslIsWlanConnected(){
 }
 
 int oslGetNetConfigs(struct oslNetConfig *result){
-    int index;
+    int index = 0;
     netData name, ip;
 
     for (index=1; index<OSL_MAX_NET_CONFIGS; index++){
@@ -171,6 +171,9 @@ int oslConnectToAP(int config, int timeout,
 	int err = 0;
 	int stateLast = -1;
 
+    if (!oslIsWlanPowerOn())
+        return OSL_ERR_WLAN_OFF;
+
 	err = sceNetApctlConnect(config);
 	if (err)
 		return OSL_ERR_APCTL_CONNECT;
@@ -193,14 +196,18 @@ int oslConnectToAP(int config, int timeout,
 		if (err){
             if (apctlCallback != NULL)
                 (*apctlCallback)(OSL_ERR_APCTL_GETSTATE);
+            oslDisconnectFromAP();
             err = OSL_ERR_APCTL_GETSTATE;
             break;
         }
 		if (state > stateLast){
 			stateLast = state;
-            if (apctlCallback != NULL)
-                if ((*apctlCallback)(state))
+            if (apctlCallback != NULL){
+                if ((*apctlCallback)(state)){
+                    err = OSL_USER_ABORTED;
                     break;
+                }
+            }
         }
 		if (state == 4)
 			break;  // connected with static IP
