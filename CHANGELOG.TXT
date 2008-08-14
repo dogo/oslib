@@ -2,6 +2,7 @@ Version MOD 1.1.0
 -----------------
 -Added: VFPU Math Library libpspmath version 4 by MrMr[iCE]
 -Added: Remote control functions
+-Fixed: minor bugs
 
 
 Version MOD 1.0.1

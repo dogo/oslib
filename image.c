@@ -113,7 +113,6 @@ void oslDeleteImage(OSL_IMAGE *img)
 */
 void oslFreeImageData(OSL_IMAGE *img)		{
 	if (img->data)		{
-		//oslUncacheImage(img); //SAKYA
 		//Free memory depending on the current location
 		if (img->location == OSL_IN_RAM)
 			free(img->data);
@@ -241,6 +240,8 @@ OSL_IMAGE *oslCreateSwizzledImage(OSL_IMAGE *src, int newLocation)
 	OSL_IMAGE *img;
 	if (!src)
 		return NULL;
+	if (oslImageIsSwizzled(src))
+		return NULL;
 	img = oslCreateImage(src->sizeX, src->sizeY, newLocation, src->pixelFormat);
 	if (img)
 		oslSwizzleImageTo(img, src);
@@ -304,6 +305,7 @@ int oslVerifyStripBlit(OSL_IMAGE *img)		{
 
 
 void oslSetTexture(OSL_IMAGE *img)		{
+    //int wasEnable = osl_textureEnabled;
 	oslEnableTexturing();
 	if (img->palette && osl_curPalette != img->palette)		{
 		osl_curPalette = img->palette;
@@ -319,6 +321,8 @@ void oslSetTexture(OSL_IMAGE *img)		{
 //		sceGuTexFunc(GU_TFX_REPLACE, img->pixelFormat==OSL_PF_5650?GU_TCC_RGB:GU_TCC_RGBA);
 		sceGuTexImage(0, img->sysSizeX, img->sysSizeY, img->realSizeX, img->data);
 	}
+    /*if (!wasEnable)
+        oslDisableTexturing();*/
 }
 
 

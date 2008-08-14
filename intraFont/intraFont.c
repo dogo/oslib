@@ -21,6 +21,7 @@
 #include <math.h>
 #include <malloc.h>
 
+#include "oslib.h"
 #include "intraFont.h"
 
 static unsigned int __attribute__((aligned(16))) clut[16];
@@ -548,6 +549,8 @@ void intraFontActivate(intraFont *font) {
 	if(!font) return;
 	if(!font->texture) return;
 
+    osl_curPalette = NULL;
+    osl_curTexture = NULL;
 	sceGuClutMode(GU_PSM_8888, 0, 255, 0);
 	sceGuClutLoad(2, clut);
 
