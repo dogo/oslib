@@ -1,4 +1,4 @@
-TARGET = internetbrowser
+TARGET = helloworld
 OBJS = main.o
 
 #To build for custom firmware:
@@ -12,12 +12,12 @@ LIBDIR =
 
 MYLIBS=
 STDLIBS= -losl -lpng -lz \
-         -lpspsdk -lpspctrl -lpsphprm -lpspumd -lpsprtc -lpsppower -lpspgu -lpspgum -lpspaudiolib -lpspaudio -lpsphttp -lpspssl -lpspwlan -lm
+         -lpsphprm -lpspsdk -lpspctrl -lpspumd -lpsprtc -lpsppower -lpspgu -lpspgum -lpspaudiolib -lpspaudio -lpsphttp -lpspssl -lpspwlan -lm
 LIBS=$(STDLIBS) $(MYLIBS)
 
 LDFLAGS =
 EXTRA_TARGETS = EBOOT.PBP
-PSP_EBOOT_TITLE = Internet Browser test
+PSP_EBOOT_TITLE = Hello World
 #PSP_EBOOT_ICON = ICON0.PNG
 PSPSDK=$(shell psp-config --pspsdk-path)
 include $(PSPSDK)/lib/build.mak

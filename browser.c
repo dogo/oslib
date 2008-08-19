@@ -18,8 +18,10 @@ static SceUID vpl;
 static pspUtilityHtmlViewerParam params;
 static int browserIsActive = 0;
 
-int oslBrowserInit(char *url, char *downloadDir){
+int oslBrowserInit(char *url, char *downloadDir, int browserMemory){
 	int res;
+    if (browserMemory <= 0)
+        browserMemory = BROWSER_MEMORY;
 
 	vpl = sceKernelCreateVpl("BrowserVpl", PSP_MEMORY_PARTITION_USER, 0, BROWSER_MEMORY + 256, NULL);
 	if (vpl < 0)
@@ -36,7 +38,7 @@ int oslBrowserInit(char *url, char *downloadDir){
 	params.base.accessThread = 19;
 	params.base.fontThread = 18;
 	params.base.soundThread = 16;
-	params.memsize = BROWSER_MEMORY;
+	params.memsize = browserMemory;
 	params.initialurl = url;
 	params.numtabs = 1;
 	params.cookiemode = PSP_UTILITY_HTMLVIEWER_COOKIEMODE_DEFAULT;

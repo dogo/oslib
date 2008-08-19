@@ -50,7 +50,7 @@ int main(){
     int skip = 0;
 
     initOSLib();
-    oslIntraFontInit(INTRAFONT_CACHE_MED);
+    oslIntraFontInit(INTRAFONT_CACHE_ALL | INTRAFONT_STRING_UTF8); // All fonts loaded with oslLoadIntraFontFile will have UTF8 support
 
     // Load background
     OSL_IMAGE *bkg = oslLoadImageFilePNG("bkg.png", OSL_IN_RAM | OSL_SWIZZLED, OSL_PF_8888);;
@@ -65,13 +65,16 @@ int main(){
         oslIntraFontSetStyle(ltn[i], 1.0f,WHITE,BLACK,INTRAFONT_ALIGN_LEFT);
     }
 
+    OSL_FONT* jpn0 = oslLoadIntraFontFile("flash0:/font/jpn0.pgf", INTRAFONT_CACHE_ALL | INTRAFONT_STRING_SJIS); //japanese font with SJIS support
+    oslIntraFontSetStyle(jpn0, 1.0f,WHITE,BLACK, INTRAFONT_ALIGN_LEFT);
+
     while(!osl_quit){
         if (!skip){
             oslStartDrawing();
             oslDrawImageXY(bkg, 0, 0);
 
             // Draw various text
-            float y = 25;
+            float y = 15;
             oslIntraFontSetStyle(ltn[4], 1.0f,BLACK,WHITE,INTRAFONT_ALIGN_CENTER);
             oslSetFont(ltn[4]);
             oslDrawString(240, y, "OSLib with intraFont by Sakya");
@@ -123,6 +126,12 @@ int main(){
             oslDrawString(330, y, "bold, ");
             oslSetFont(ltn[15]);
             oslDrawString(390, y, "both");
+
+            y += 20;
+            oslSetFont(ltn[8]);
+            oslDrawString(10, y, "JPN (S-JIS): ");
+            oslSetFont(jpn0);
+            oslDrawString(180, y, "イントラフォント");
 
             y += 25;
             oslSetFont(ltn[8]);
@@ -178,7 +187,7 @@ int main(){
             oslDrawString(470, y, "right");
             oslIntraFontSetStyle(ltn[8], 1.0f,WHITE,BLACK,0);
 
-            y += 40;
+            y += 25;
             oslIntraFontSetStyle(ltn[4], 1.0f,BLACK,WHITE,INTRAFONT_ALIGN_CENTER);
             oslSetFont(ltn[4]);
             oslDrawString(240, y, "Press X to quit");

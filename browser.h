@@ -7,11 +7,13 @@
 	@{
 */
 
+/**Memory error initializing the browser*/
 #define OSL_BROSER_ERROR_MEMORY		-1
+/**Error initializing the browser*/
 #define OSL_BROSER_ERROR_INIT		-2
 
 
-int oslBrowserInit(char *url, char *downloadDir);
+int oslBrowserInit(char *url, char *downloadDir, int browserMemory);
 
 void oslDrawBrowser();
 

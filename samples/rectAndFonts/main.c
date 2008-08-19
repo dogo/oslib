@@ -4,9 +4,9 @@
 #include <pspnet_apctl.h>
 #include <oslib/oslib.h>
 
-PSP_MODULE_INFO("Internet Browser Test", 0, 1, 0);
+PSP_MODULE_INFO("Rect and Fonts Test", 0, 1, 0);
 PSP_MAIN_THREAD_ATTR(THREAD_ATTR_USER | THREAD_ATTR_VFPU);
-PSP_HEAP_SIZE_KB(4*1024);
+PSP_HEAP_SIZE_KB(12*1024);
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Globals:
@@ -60,61 +60,59 @@ int initOSLib(){
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 int main(){
     int skip = 0;
-    char message[100] = "";
-    int browser = 0;
     SetupCallbacks();
 
     initOSLib();
     oslIntraFontInit(INTRAFONT_CACHE_MED);
-	oslNetInit();
 
     //Loads image:
     OSL_IMAGE *bkg = oslLoadImageFilePNG("bkg.png", OSL_IN_RAM | OSL_SWIZZLED, OSL_PF_8888);
+    OSL_IMAGE *rect_01 = oslLoadImageFilePNG("rect_01.png", OSL_IN_RAM | OSL_SWIZZLED, OSL_PF_8888);
 
-    //Load font:
-    OSL_FONT *font = oslLoadFontFile("flash0:/font/ltn0.pgf");
-    oslSetFont(font);
+    //Load fonts:
+    OSL_FONT *pgfFont = oslLoadFontFile("flash0:/font/ltn0.pgf");
+    oslIntraFontSetStyle(pgfFont, 0.5, RGBA(255,255,255,255), RGBA(0,0,0,0), INTRAFONT_ALIGN_LEFT);
+
+    OSL_FONT *oftFont = oslLoadFontFile("font.oft");
+    oslSetTextColor(RGBA(255,255,255,255));
+    oslSetBkColor(RGBA(0,0,0,0));
 
     while(runningFlag && !osl_quit){
-		browser = oslBrowserIsActive();
-		if (!skip){
+        if (!skip){
             oslStartDrawing();
             oslDrawImageXY(bkg, 0, 0);
-            oslDrawString(30, 50, "Press X to open the internet browser");
-            oslDrawString(30, 150, "Press /\\ to quit.");
 
-            oslDrawString(30, 200, message);
+            oslDrawImageXY(rect_01, 50, 50);
+            oslSetFont(pgfFont);
+            oslDrawString(55, 55, "pgf on alpha image");
+            oslSetFont(oftFont);
+            oslDrawString(55, 70, "oft on alpha image");
 
-            if (browser){
-                oslDrawBrowser();
-                if (oslGetBrowserStatus() == PSP_UTILITY_DIALOG_NONE){
-					sprintf(message, "Browser closed");
-                    oslEndBrowser();
-                }
-            }
+            oslDrawFillRect(30, 150, 200, 250, RGB(150, 150, 150));
+            oslSetFont(pgfFont);
+            oslDrawString(35, 155, "pgf on rect");
+            oslSetFont(oftFont);
+            oslDrawString(35, 170, "oft on rect");
+
+            oslDrawFillRect(300, 150, 400, 250, RGB(100, 100, 100));
+            oslSetFont(pgfFont);
+            oslDrawString(305, 155, "pgf on rect");
+            oslSetFont(oftFont);
+            oslDrawString(305, 170, "oft on rect");
+
+            oslDrawGradientRect(300, 20, 430, 120, RGBA(100, 100, 100, 100),RGBA(100, 100, 100, 100), RGBA(200, 200, 200, 100), RGBA(200, 200, 200, 100));
+            oslSetFont(pgfFont);
+            oslDrawString(305, 25, "pgf on gradient rect");
+            oslSetFont(oftFont);
+            oslDrawString(305, 40, "oft on gradient rect");
+
             oslEndDrawing();
         }
-
-        if (!browser){
-            oslReadKeys();
-            if (osl_keys->pressed.triangle){
-                runningFlag = 0;
-            }else if (osl_keys->pressed.cross){
-                int res = oslBrowserInit("http://www.ps2dev.org/", "/PSP/PHOTO", 5*1024*1024);
-                memset(message, 0, sizeof(message));
-				if (res)
-					sprintf(message, "Error %i initializing browser!", res);
-				else
-					sprintf(message, "Browser initialized.");
-			}
-        }
-
         oslEndFrame();
         skip = oslSyncFrame();
     }
     //Quit OSL:
-	oslNetTerm();
-	oslEndGfx();
+    oslEndGfx();
     oslQuit();
 
     sceKernelExitGame();

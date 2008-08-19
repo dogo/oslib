@@ -193,6 +193,15 @@ The same options will be applied to all intraFonts
 */
 extern int oslIntraFontInit(unsigned int options);
 
+/** Loads a font from a pgf file (intraFont). Use this if you want to load a pgf font with options different from the one passed to oslIntraFontInit.
+
+\code
+OSL_FONT *f = oslLoadIntraFontFile("verdana.pgf", INTRAFONT_CACHE_ALL | INTRAFONT_STRING_UTF8);
+oslSetFont(f);
+oslDrawString(0, 0, "Hello world using verdana!");
+\endcode */
+extern OSL_FONT *oslLoadIntraFontFile(const char *filename, unsigned int options);
+
 /**Sets style for a pgf font (works ONLY with pgf font) */
 extern void oslIntraFontSetStyle(OSL_FONT *f, float size, unsigned int color, unsigned int shadowColor, unsigned int options);
 

@@ -14,7 +14,7 @@ LDFLAGS =
 
 MYLIBS=
 STDLIBS= -losl -lpng -lz \
-         -lpspsdk -lpspctrl -lpsphprm -lpspumd -lpsprtc -lpsppower -lpspgu -lpspaudiolib -lpspaudio -lpsphttp -lpspwlan -lm
+         -lpspsdk -lpspctrl -lpsphprm -lpspumd -lpsprtc -lpsppower -lpspgu -lpspgum -lpspaudiolib -lpspaudio -lpsphttp -lpspwlan -lm
 LIBS=$(STDLIBS) $(MYLIBS)
 
 EXTRA_TARGETS = EBOOT.PBP

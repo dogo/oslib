@@ -29,6 +29,8 @@
 #define OSL_USER_ABORTED            -17
 
 #define OSL_MAX_NET_CONFIGS		20
+
+/**Structure for network configuration*/
 struct oslNetConfig{
     char name[128];
     char IP[128];

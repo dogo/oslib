@@ -402,6 +402,26 @@ OSL_FONT *oslLoadFont(OSL_FONTINFO *fi)
 	return f;
 }
 
+OSL_FONT *oslLoadIntraFontFile(const char *filename, unsigned int options)		{
+	OSL_FONT *font = NULL;
+
+    font = (OSL_FONT*)malloc(sizeof(OSL_FONT));
+    if (!font)
+        return NULL;
+    font->fontType = OSL_FONT_INTRA;
+    font->intra = intraFontLoad(filename, options);
+    if (!font->intra){
+        free(font);
+        font = NULL;
+        oslHandleLoadNoFailError(filename);
+    }else{
+        intraFontSetStyle(font->intra, 1.0f, 0xFFFFFFFF, 0xFF000000, INTRAFONT_ALIGN_LEFT);
+        font->charHeight = font->intra->texYSize;
+    }
+    return font;
+}
+
+
 OSL_FONT *oslLoadFontFile(const char *filename)		{
 	OSL_FONTINFO fi;
 	OSL_FONT_FORMAT_HEADER fh;
