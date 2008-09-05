@@ -975,7 +975,7 @@ float intraFontPrintUCS2(intraFont *font, float x, float y, const unsigned short
 	return left+width;
 }
 
-float intraFontMeasureText(intraFont *font, const char *text) {
+/*float intraFontMeasureText(intraFont *font, const char *text) {
     if (!font) return 0.0f;
 
 	int i, length = 0;
@@ -990,7 +990,7 @@ float intraFontMeasureText(intraFont *font, const char *text) {
 	}
 
     return x;
-}
+}*/
 
 float intraFontMeasureTextUCS2(intraFont *font, const unsigned short *text) {
    if(!font) return 0.0f;
@@ -1009,3 +1009,53 @@ float intraFontMeasureTextUCS2(intraFont *font, const unsigned short *text) {
    return x;
 }
 
+
+float intraFontMeasureText(intraFont *font, const char *text) {
+    float width = 0.0f;
+    float glyphscale = font->size;
+
+    if (!text || strlen(text) == 0 || !font) return width;
+
+	int i = 0, length = 0;
+	if (font->options & INTRAFONT_STRING_SJIS) {
+		while (text[i]) {
+			length++;
+			i += ( text[i] <= 0x7FU || (text[i] >= 0xA0U && text[i] <= 0xDFU) || text[i] >= 0xFDU) ? 1 : 2; //single or double byte
+		}
+    } else if (font->options & INTRAFONT_STRING_UTF8) {
+        length = UUstrlen(text);
+	} else {
+		length = strlen(text);
+	}
+
+    unsigned short* ucs2_text = (unsigned short*)malloc((length+1)*sizeof(unsigned short));
+    if (!ucs2_text) return width;
+
+	unsigned char* utext = (unsigned char*)text;
+    if (font->options & INTRAFONT_STRING_UTF8) {
+        UTF8toUCS2(utext, ucs2_text);
+        ucs2_text[length] = 0;
+    } else {
+        for (i = 0; i < length; i++) {
+            if (font->options & INTRAFONT_STRING_SJIS) {
+                ucs2_text[i] = intraFontSJIS2UCS2((unsigned char**)&utext);
+            } else {
+                ucs2_text[i] = utext[i];
+            }
+        }
+        ucs2_text[i] = 0;
+    }
+
+    for(i = 0; i < length; i++) {
+        unsigned short char_id = intraFontGetID(font,text[i]);
+		if (char_id < font->n_chars){
+			if (font->options & INTRAFONT_WIDTH_FIX)
+				width += ( ((float)(font->options & PGF_WIDTH_MASK))/2.0f + ((float)font->glyph[char_id].advance)/8.0f ) * glyphscale;
+			else
+				width += font->glyph[char_id].advance * glyphscale * 0.25;
+        }
+	}
+
+    free(ucs2_text);
+    return width;
+}

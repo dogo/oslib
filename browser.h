@@ -13,7 +13,7 @@
 #define OSL_BROSER_ERROR_INIT		-2
 
 
-int oslBrowserInit(char *url, char *downloadDir, int browserMemory);
+int oslBrowserInit(char *url, char *downloadDir, int browserMemory, unsigned int displaymode, unsigned int options, unsigned int interfacemode, unsigned int connectmode);
 
 void oslDrawBrowser();
 

@@ -94,13 +94,19 @@ int main(){
             }
             oslEndDrawing();
         }
+        oslEndFrame();
+        skip = oslSyncFrame();
 
         if (!browser){
             oslReadKeys();
             if (osl_keys->pressed.triangle){
                 runningFlag = 0;
             }else if (osl_keys->pressed.cross){
-                int res = oslBrowserInit("http://www.ps2dev.org/", "/PSP/PHOTO", 5*1024*1024);
+                int res = oslBrowserInit("http://www.ps2dev.org/", "/PSP/PHOTO", 5*1024*1024,
+                                         PSP_UTILITY_HTMLVIEWER_DISPLAYMODE_SMART_FIT,
+                                         PSP_UTILITY_HTMLVIEWER_DISABLE_STARTUP_LIMITS,
+                                         PSP_UTILITY_HTMLVIEWER_INTERFACEMODE_FULL,
+                                         PSP_UTILITY_HTMLVIEWER_CONNECTMODE_MANUAL_ALL);
                 memset(message, 0, sizeof(message));
 				if (res)
 					sprintf(message, "Error %i initializing browser!", res);
@@ -108,9 +114,6 @@ int main(){
 					sprintf(message, "Browser initialized.");
 			}
         }
-
-        oslEndFrame();
-        skip = oslSyncFrame();
     }
     //Quit OSL:
 	oslNetTerm();

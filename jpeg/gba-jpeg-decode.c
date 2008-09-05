@@ -471,7 +471,7 @@ int JPEG_HuffmanTable_Read (JPEG_HuffmanTable *huffmanTable, const unsigned char
 
     bits = data;
     for (c = 0; c < 16; c ++)
-	        total += *data ++;
+	        total += *data ++; //CRASH WITH "STRANGE" JPEG
     huffmanTable->huffval = data;
     data += total;
 

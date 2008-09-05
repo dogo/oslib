@@ -18,7 +18,7 @@ static SceUID vpl;
 static pspUtilityHtmlViewerParam params;
 static int browserIsActive = 0;
 
-int oslBrowserInit(char *url, char *downloadDir, int browserMemory){
+int oslBrowserInit(char *url, char *downloadDir, int browserMemory, unsigned int displaymode, unsigned int options, unsigned int interfacemode, unsigned int connectmode){
 	int res;
     if (browserMemory <= 0)
         browserMemory = BROWSER_MEMORY;
@@ -44,10 +44,14 @@ int oslBrowserInit(char *url, char *downloadDir, int browserMemory){
 	params.cookiemode = PSP_UTILITY_HTMLVIEWER_COOKIEMODE_DEFAULT;
 	params.homeurl = url;
 	params.textsize = PSP_UTILITY_HTMLVIEWER_TEXTSIZE_NORMAL;
-	params.displaymode = PSP_UTILITY_HTMLVIEWER_DISPLAYMODE_SMART_FIT;
-	params.options = PSP_UTILITY_HTMLVIEWER_DISABLE_STARTUP_LIMITS|PSP_UTILITY_HTMLVIEWER_ENABLE_FLASH;
+	/*params.displaymode = PSP_UTILITY_HTMLVIEWER_DISPLAYMODE_SMART_FIT;
+	params.options = PSP_UTILITY_HTMLVIEWER_DISABLE_STARTUP_LIMITS | PSP_UTILITY_HTMLVIEWER_ENABLE_FLASH;
 	params.interfacemode = PSP_UTILITY_HTMLVIEWER_INTERFACEMODE_FULL;
-	params.connectmode = PSP_UTILITY_HTMLVIEWER_CONNECTMODE_MANUAL_ALL;
+	params.connectmode = PSP_UTILITY_HTMLVIEWER_CONNECTMODE_MANUAL_ALL;*/
+	params.displaymode = displaymode;
+	params.options = options;
+	params.interfacemode = interfacemode;
+	params.connectmode = connectmode;
 
 	// WITHOUT 'ms0:' on the paths
 	params.dldirname = downloadDir;
