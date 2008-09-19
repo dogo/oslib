@@ -99,7 +99,7 @@ int oslNetInit()
 	}
 
 	//res = sceNetApctlInit(0x1800, 0x30);
-	res = sceNetApctlInit(0x1400, 0x42);
+	res = sceNetApctlInit(0x1600, 0x42);
 	if (res < 0)
 	{
 		oslNetTerm();
