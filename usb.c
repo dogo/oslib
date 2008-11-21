@@ -6,16 +6,16 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Globals:
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-SceUID modules[7];
+SceUID modules[8];
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Private functions
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 int oslLoadStartModule(char *path)
 {
-    u32 loadResult;
-    u32 startResult;
-    int status;
+    u32 loadResult = 0;
+    u32 startResult = 0;
+    int status = 0;
 
     loadResult = kuKernelLoadModule(path, 0, NULL);
     if (loadResult & 0x80000000)
@@ -27,41 +27,27 @@ int oslLoadStartModule(char *path)
     return loadResult;
 }
 
-int oslStopUnloadModule(SceUID modID){
-    int status;
+void oslStopUnloadModule(SceUID modID){
+    int status = 0;
     sceKernelStopModule(modID, 0, NULL, &status, NULL);
     sceKernelUnloadModule(modID);
-    return 0;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // PUBLIC FUNCTIONS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 int oslInitUsbStorage()		{
-	u32 retVal;
+	u32 retVal = 0;
 
     //start necessary drivers
-    modules[0] = oslLoadStartModule("flash0:/kd/chkreg.prx");
-    if (modules[0] < 0)
-        return -1;
+	modules[0] = oslLoadStartModule("flash0:/kd/chkreg.prx");
     modules[1] = oslLoadStartModule("flash0:/kd/npdrm.prx");
-    if (modules[1] < 0)
-        return -1;
     modules[2] = oslLoadStartModule("flash0:/kd/semawm.prx");
-    if (modules[2] < 0)
-        return -1;
     modules[3] = oslLoadStartModule("flash0:/kd/usbstor.prx");
-    if (modules[3] < 0)
-        return -1;
     modules[4] = oslLoadStartModule("flash0:/kd/usbstormgr.prx");
-    if (modules[4] < 0)
-        return -1;
     modules[5] = oslLoadStartModule("flash0:/kd/usbstorms.prx");
-    if (modules[5] < 0)
-        return -1;
     modules[6] = oslLoadStartModule("flash0:/kd/usbstorboot.prx");
-    if (modules[6] < 0)
-        return -1;
+	modules[7] = oslLoadStartModule("flash0:/kd/usbdevice.prx"); 
 
     //setup USB drivers
     retVal = sceUsbStart(PSP_USBBUS_DRIVERNAME, 0, 0);
@@ -75,16 +61,18 @@ int oslInitUsbStorage()		{
     retVal = sceUsbstorBootSetCapacity(0x800000);
     if (retVal != 0)
 		return -8;
+
     return 0;
 }
 
-void oslStartUsbStorage()		{
-    sceUsbActivate(0x1c8);
+int oslStartUsbStorage()		{
+    return sceUsbActivate(0x1c8);
 }
 
-void oslStopUsbStorage()		{
-    sceUsbDeactivate(0x1c8);
+int oslStopUsbStorage()		{
+    int retVal = sceUsbDeactivate(0x1c8);
     sceIoDevctl("fatms0:", 0x0240D81E, NULL, 0, NULL, 0 ); //Avoid corrupted files
+	return retVal;
 }
 
 int oslDeinitUsbStorage()			{
@@ -94,7 +82,8 @@ int oslDeinitUsbStorage()			{
         oslStopUsbStorage();
     sceUsbStop(PSP_USBSTOR_DRIVERNAME, 0, 0);
     sceUsbStop(PSP_USBBUS_DRIVERNAME, 0, 0);
-    for (i=6; i>=0; i--)
-        oslStopUnloadModule(modules[i]);
+    for (i=7; i>=0; i--)
+		if (modules[i] >= 0)
+			oslStopUnloadModule(modules[i]);
     return 0;
 }

@@ -35,6 +35,7 @@ copy the oslib directory (containing header files) in $PSPSDK/include/
 
 THANKS
 ------
+MrMr[iCE] for libpspmath 
 InsertWittyName for all the sdk's dialog samples
 Brunni for OSLib
 BenHur for intraFont

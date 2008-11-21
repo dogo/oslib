@@ -39,14 +39,22 @@ OSL_CONTROLLER *oslReadKeys()
     }
 
 	if (osl_keys->analogToDPadSensivity > 0)		{
-		if (osl_keys->analogY >= osl_keys->analogToDPadSensivity)
+		if (osl_keys->analogY >= osl_keys->analogToDPadSensivity){
 			ctl.Buttons |= OSL_KEYMASK_DOWN;
-		if (osl_keys->analogY <= -osl_keys->analogToDPadSensivity)
+			scePowerTick(0); 
+		}
+		if (osl_keys->analogY <= -osl_keys->analogToDPadSensivity){
 			ctl.Buttons |= OSL_KEYMASK_UP;
-		if (osl_keys->analogX >= osl_keys->analogToDPadSensivity)
+			scePowerTick(0); 
+		}
+		if (osl_keys->analogX >= osl_keys->analogToDPadSensivity){
 			ctl.Buttons |= OSL_KEYMASK_RIGHT;
-		if (osl_keys->analogX <= -osl_keys->analogToDPadSensivity)
+			scePowerTick(0); 
+		}		
+		if (osl_keys->analogX <= -osl_keys->analogToDPadSensivity){
 			ctl.Buttons |= OSL_KEYMASK_LEFT;
+			scePowerTick(0); 
+		}
 	}
 
 	/*

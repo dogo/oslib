@@ -772,7 +772,7 @@ int JPEG_Decoder_ReadImage (JPEG_Decoder *decoder, const unsigned char **dataBas
                 JPEG_ScanHeader_Component *sc = &scan->componentList [c];
                 JPEG_FrameHeader_Component *fc = frameComponents [c];
                 JPEG_HuffmanTable *dcTable, *acTable;
-                JPEG_FIXED_TYPE *quant = decoder->quantTables [fc->quantTable];
+                JPEG_FIXED_TYPE *quant = decoder->quantTables [fc->quantTable]; //Qui va in crash con alcune jpeg
                 int stride = fc->horzFactor * JPEG_DCTSIZE;
                 signed char *chunk = 0;
 

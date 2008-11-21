@@ -49,9 +49,9 @@ int oslIsWlanPowerOn(){
 
 
 int oslIsWlanConnected(){
-	char ipaddr[32];
+	union SceNetApctlInfo apctlInfo;
 
-	if(sceNetApctlGetInfo(8, ipaddr) == 0)
+	if(sceNetApctlGetInfo(PSP_NET_APCTL_INFO_IP, &apctlInfo) == 0)
 		return 1;
 	else
 		return 0;
@@ -159,9 +159,11 @@ int oslNetTerm()
 }
 
 int oslGetIPaddress(char *IPaddress){
+	union SceNetApctlInfo apctlInfo;
     strcpy(IPaddress, "");
-    if (sceNetApctlGetInfo(8, IPaddress))
+    if (sceNetApctlGetInfo(PSP_NET_APCTL_INFO_IP, &apctlInfo))
         return OSL_ERR_APCTL_GETINFO;
+	strcpy(IPaddress, apctlInfo.ip);
     return 0;
 }
 
