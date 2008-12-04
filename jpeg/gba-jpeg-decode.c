@@ -639,6 +639,9 @@ int JPEG_Decoder_ReadImage (JPEG_Decoder *decoder, const unsigned char **dataBas
     JPEG_IWRAM_LoadDone (); /* Finished; run down DMA and check that we haven't overwritten the stack. */
 #endif /* JPEG_USE_IWRAM */
 
+    for (c = 0; c < JPEG_MAXIMUM_COMPONENTS; c ++)
+        frameComponents [c] = 0;
+
     /* Find the maximum factors and the factors for each component. */
     for (item = frame->componentList; item < itemEnd; item ++)
     {
@@ -678,7 +681,7 @@ int JPEG_Decoder_ReadImage (JPEG_Decoder *decoder, const unsigned char **dataBas
                     JPEG_Assert (0);
             }
 
-            frameComponents [c] = item;
+			frameComponents [c] = item;
             break;
         }
 
@@ -771,8 +774,10 @@ int JPEG_Decoder_ReadImage (JPEG_Decoder *decoder, const unsigned char **dataBas
             {
                 JPEG_ScanHeader_Component *sc = &scan->componentList [c];
                 JPEG_FrameHeader_Component *fc = frameComponents [c];
-                JPEG_HuffmanTable *dcTable, *acTable;
-                JPEG_FIXED_TYPE *quant = decoder->quantTables [fc->quantTable]; //Qui va in crash con alcune jpeg
+				if (fc == 0)
+					return 0;
+				JPEG_HuffmanTable *dcTable, *acTable;
+				JPEG_FIXED_TYPE *quant = decoder->quantTables [fc->quantTable]; //Qui va in crash con alcune jpeg
                 int stride = fc->horzFactor * JPEG_DCTSIZE;
                 signed char *chunk = 0;
 

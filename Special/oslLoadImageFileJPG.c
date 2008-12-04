@@ -49,7 +49,11 @@ OSL_IMAGE *oslLoadImageFileJPG(char *filename, int location, int pixelFormat)
 		fclose( infile );
 
 		img = oslCreateImage(width, height, imgLocation, pixelFormat);
-		img->data = raw_image;*/
+		img->data = raw_image;
+		if (oslImageLocationIsSwizzled(location))
+			oslSwizzleImage(img);
+
+		oslUncacheImage(img);*/
 
 		f = VirtualFileOpen((void*)filename, 0, VF_AUTO, VF_O_READ);
 
@@ -77,10 +81,11 @@ OSL_IMAGE *oslLoadImageFileJPG(char *filename, int location, int pixelFormat)
 
 				free((void*)input_free);
 
-				if (oslImageLocationIsSwizzled(location))
+				if (img != NULL && oslImageLocationIsSwizzled(location))
+				{
 					oslSwizzleImage(img);
-
-				oslUncacheImage(img);
+					oslUncacheImage(img);
+				}
 			}
 		}
 	}
