@@ -674,6 +674,13 @@ void oslConsolePrint(const char *str)
 	unsigned char c;
 //	if (!osl_consoleOk)
 //		return;
+	OSL_FONT *oldFont = NULL;
+	if (osl_curFont != osl_sceFont)
+	{
+		oldFont = osl_curFont;
+		oslSetFont(osl_sceFont);
+	}
+
 	while(*str)
 	{
 		c = *(unsigned char*)str++;
@@ -695,6 +702,9 @@ void oslConsolePrint(const char *str)
 			osl_consolePosX = 0;
 		}
 	}
+
+	if (oldFont != NULL)
+		oslSetFont(oldFont);
 }
 
 void oslSetTextColor(OSL_COLOR color)			{

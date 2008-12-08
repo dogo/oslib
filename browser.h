@@ -12,7 +12,13 @@
 /**Error initializing the browser*/
 #define OSL_BROSER_ERROR_INIT		-2
 
+/** Initializes the internet browser.
+	\param url
+        The url to open
+    \param downloadDir
+        The default
 
+*/
 int oslBrowserInit(char *url, char *downloadDir, int browserMemory, unsigned int displaymode, unsigned int options, unsigned int interfacemode, unsigned int connectmode);
 
 void oslDrawBrowser();

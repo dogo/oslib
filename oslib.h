@@ -469,7 +469,7 @@ oslPrintf("Welcome...\n");
 \endcode */
 #define oslCls()				 	(oslClearScreen(0), oslMoveTo(0,0))
 /** Moves the cursor to a place on the screen. The x, y coordinates are indicated in terms of characters (by default 8x8 pixels, but depends on the current font). */
-#define oslMoveTo(x,y)				(osl_consolePosX=x*osl_curFont->charWidths['0'], osl_consolePosY=y*osl_curFont->charHeight)
+#define oslMoveTo(x,y)				(osl_consolePosX=x*osl_sceFont->charWidths['0'], osl_consolePosY=y*osl_sceFont->charHeight)
 
 /** @} */ // end of main_debug
 

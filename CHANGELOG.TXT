@@ -3,7 +3,9 @@ Version MOD 1.1.0
 -Added: VFPU Math Library libpspmath version 4 by MrMr[iCE]
 -Added: Remote control functions
 -Added: Sony Browser (see the sample)
+-Fixed: Bug in jpeg loader (some jpeg made it crash. Now it doesen't load them, but witout crashing)
 -Fixed: minor bugs
+-Fixed: debug console
 
 
 Version MOD 1.0.1
