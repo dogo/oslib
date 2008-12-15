@@ -601,6 +601,7 @@ extern inline int oslShowNeoflashLogo()		{
 #include "saveload.h"
 #include "net.h"
 #include "browser.h"
+#include "adhoc/pspadhoc.h"
 
 #ifdef __cplusplus
 }

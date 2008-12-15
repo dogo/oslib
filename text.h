@@ -107,6 +107,13 @@ oslDrawString(0, 0, "Test string");
 \endcode */
 extern void oslDrawString(int x, int y, const char *str);
 
+/** Draws a formatted string litteral at the specified x and y positions.
+
+\code
+oslDrawStringf(0, 0, "Test string %i", 1);
+\endcode */
+#define oslDrawStringf(x, y, ...)		{ char __str[1000]; sprintf(__str , __VA_ARGS__); oslDrawString(x, y, __str); }
+
 /** Outputs a text to the console at the current cursor position, and moves it. Here for debugging purposes, not very useful in a game. */
 extern void oslConsolePrint(const char *str);
 

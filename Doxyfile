@@ -93,6 +93,7 @@ INPUT                  = ./oslib.h \
                          ./saveload.h \
                          ./net.h \
                          ./browser.h \
+                         ./adhoc/pspadhoc.h \
                          ./map.h \
                          ./messagebox.h \
                          ./text.h \

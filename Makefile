@@ -98,7 +98,8 @@ LIBOBJS :=					$(PSPMATHOBJS) \
 							$(SOURCE_DIR)saveload.o \
 							$(SOURCE_DIR)net.o \
 							$(SOURCE_DIR)browser.o \
-                            $(SOURCE_DIR)vfile/VirtualFile.o \
+							$(SOURCE_DIR)adhoc/pspadhoc.o \
+							$(SOURCE_DIR)vfile/VirtualFile.o \
 							$(SOURCE_DIR)vfile/vfsFile.o \
 							$(SOURCE_DIR)image/oslConvertImageTo.o \
 							$(SOURCE_DIR)image/oslSetImagePixel.o \

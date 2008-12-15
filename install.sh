@@ -16,6 +16,7 @@ echo "Creating directories...."
 mkdir -p $PSPSDK/include/oslib
 mkdir -p $PSPSDK/include/oslib/intraFont
 mkdir -p $PSPSDK/include/oslib/libpspmath
+mkdir -p $PSPSDK/include/oslib/adhoc
 
 echo "Copying lib...."
 cp -f  libosl.a $PSPSDK/lib/
@@ -23,6 +24,7 @@ cp -f  libosl.a $PSPSDK/lib/
 echo "Copying header files...."
 cp -f intraFont/intraFont.h $PSPSDK/include/oslib/intraFont/
 cp -f libpspmath/pspmath.h $PSPSDK/include/oslib/libpspmath/
+cp -f adhoc/pspadhoc.h $PSPSDK/include/oslib/adhoc/
 cp -f oslmath.h $PSPSDK/include/oslib/
 cp -f net.h $PSPSDK/include/oslib/
 cp -f browser.h $PSPSDK/include/oslib/

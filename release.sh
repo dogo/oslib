@@ -14,6 +14,7 @@ mkdir -p $TARGET/Install
 mkdir -p $TARGET/Install/oslib
 mkdir -p $TARGET/Install/oslib/intraFont
 mkdir -p $TARGET/Install/oslib/libpspmath
+mkdir -p $TARGET/Install/oslib/adhoc
 
 echo "Copying lib...."
 cp -f  libosl.a $TARGET/Install
@@ -21,6 +22,7 @@ cp -f  libosl.a $TARGET/Install
 echo "Copying header files...."
 cp -f intraFont/intraFont.h $TARGET/Install/oslib/intraFont/
 cp -f libpspmath/pspmath.h $TARGET/Install/oslib/libpspmath/
+cp -f adhoc/pspadhoc.h $TARGET/Install/oslib/adhoc/
 cp -f oslmath.h $TARGET/Install/oslib/
 cp -f net.h $TARGET/Install/oslib/
 cp -f browser.h $TARGET/Install/oslib/
