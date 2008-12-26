@@ -1,6 +1,4 @@
 #include "../oslib.h"
-#include "jpeg/gba-jpeg.h"
-#include "jpeg/gba-jpeg-decode.h"
 #include <jpeglib.h>
 
 OSL_IMAGE *oslLoadImageFileJPG(char *filename, int location, int pixelFormat)
