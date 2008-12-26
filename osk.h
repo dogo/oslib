@@ -68,6 +68,7 @@ int oslOskGetResult();
 /**Get the text inserted in the OSK
 */
 void oslOskGetText(char *text);
+void oslOskGetTextUCS2(unsigned short *text);
 
 /**Ends the OSK
 */

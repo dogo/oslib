@@ -801,6 +801,12 @@ extern int oslWriteImageFilePNG(OSL_IMAGE *img, const char* filename, int flags)
 /** Resets the properties of an image (position, image tile, angle, rotation center, stretching). */
 extern void oslResetImageProperties(OSL_IMAGE *img);
 
+/** Draws srcImg to dstImg with being scaled. */
+extern void oslScaleImage(OSL_IMAGE *dstImg, OSL_IMAGE *srcImg, int newX, int newY, int newWidth, int newHeight);
+
+/** Creates a scaled copy of an image. */
+extern OSL_IMAGE *oslScaleImageCreate(OSL_IMAGE *img, short newLocation, int newWidth, int newHeight, short newPixelFormat);
+
 /** Look at oslWriteImageFilePNG for more information. */
 enum OSL_WRITE_FLAGS	{
 	OSL_WRI_ALPHA = 1							//!< Writes the alpha channel of the image.

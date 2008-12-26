@@ -60,7 +60,7 @@ Structure for information on a psp
 struct remotePsp
 {
 	/** The mac address of the PSP */
-    u8     macAddress[6]; 
+    u8     macAddress[8]; 
 	/** Nickname of the PSP */
 	char   name[257];
 	/** The connection state of the PSP ( remotePspState ) */
@@ -106,6 +106,12 @@ int oslAdhocRequestConnection(struct remotePsp *aPsp, int timeOut, int (*request
 Sends data to a remote psp
 */
 int oslAdhocSendData( struct remotePsp *pPsp, void *data, int lenData);
+
+/**
+Receives data from a remote psp.
+Returns the length of the data received (if == 0 no data received)
+*/
+int oslAdhocReceiveData( struct remotePsp *pPsp, void *data, int maxLen);
 
 /**
 Retuns one psp that is requesting a connection

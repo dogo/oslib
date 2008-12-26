@@ -418,9 +418,23 @@ OSL_FONT *oslLoadIntraFontFile(const char *filename, unsigned int options)		{
         intraFontSetStyle(font->intra, 1.0f, 0xFFFFFFFF, 0xFF000000, INTRAFONT_ALIGN_LEFT);
         font->charHeight = font->intra->texYSize;
     }
+	font->intraAlt = NULL;
     return font;
 }
 
+void oslLoadAltIntraFontFile(OSL_FONT *font, const char *filename)		{
+	if (!font || font->fontType != OSL_FONT_INTRA || font->intraAlt != NULL ) return;
+
+    font->intraAlt = intraFontLoad(filename, font->intra->options&~INTRAFONT_CACHE_ALL);
+    if (!font->intraAlt){
+        oslHandleLoadNoFailError(filename);
+    }else{
+        intraFontSetStyle(font->intraAlt, 1.0f, 0xFFFFFFFF, 0xFF000000, INTRAFONT_ALIGN_LEFT);
+		if ( font->charHeight < font->intraAlt->texYSize )
+			font->charHeight = font->intraAlt->texYSize;
+    }
+	return;
+}
 
 OSL_FONT *oslLoadFontFile(const char *filename)		{
 	OSL_FONTINFO fi;
@@ -444,6 +458,7 @@ OSL_FONT *oslLoadFontFile(const char *filename)		{
             intraFontSetStyle(font->intra, 1.0f, 0xFFFFFFFF, 0xFF000000, INTRAFONT_ALIGN_LEFT);
             font->charHeight = font->intra->texYSize;
         }
+		font->intraAlt = NULL;
     }else{
         f = VirtualFileOpen((void*)filename, 0, VF_AUTO, VF_O_READ);
         if (f)			{
@@ -502,6 +517,8 @@ OSL_FONT *oslLoadFontFile(const char *filename)		{
 void oslDeleteFont(OSL_FONT *f)		{
     if (f->fontType == OSL_FONT_INTRA){
         intraFontUnload(f->intra);
+		if ( f->intraAlt != NULL )
+			intraFontUnload(f->intraAlt);
     }else if (f->fontType == OSL_FONT_OFT){
         oslDeleteImage(f->img);
         free(f->charPositions);
@@ -587,7 +604,7 @@ void oslDrawChar(int x, int y, unsigned char c)
         char temp[2];
         sprintf(temp, "%c", c);
         y += (int)((float)osl_curFont->charHeight / 2.0) + 1;
-        intraFontPrint(osl_curFont->intra, x, y, temp);
+        intraFont2Print(osl_curFont->intra, osl_curFont->intraAlt, x, y, temp);
     }
 }
 
@@ -605,7 +622,7 @@ void oslDrawString(int x, int y, const char *str)
         }
     }else if (osl_curFont->fontType == OSL_FONT_INTRA){
         y += (int)((float)osl_curFont->charHeight / 2.0) + 1;
-        intraFontPrint(osl_curFont->intra, x, y, str);
+        intraFont2Print(osl_curFont->intra, osl_curFont->intraAlt, x, y, str);
     }
 
 }
@@ -731,7 +748,7 @@ int oslGetStringWidth(const char *str)
             x += osl_curFont->charWidths[c];
         }
     }else if (osl_curFont->fontType == OSL_FONT_INTRA){
-        x = (int)intraFontMeasureText(osl_curFont->intra, str);
+        x = (int)intraFont2MeasureText(osl_curFont->intra, osl_curFont->intraAlt, str);
     }
 	return x;
 }
@@ -798,6 +815,8 @@ void oslIntraFontShutdown(){
 void oslIntraFontSetStyle(OSL_FONT *f, float size, unsigned int color, unsigned int shadowColor, unsigned int options){
     if (f->intra)
         intraFontSetStyle(f->intra, size, color, shadowColor, options);
+	if (f->intraAlt)
+        intraFontSetStyle(f->intraAlt, size, color, shadowColor, options);
 }
 
 /*void oslSetFont(OSL_FONT *f){

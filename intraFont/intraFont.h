@@ -216,6 +216,7 @@ void intraFontSetStyle(intraFont *font, float size, unsigned int color, unsigned
  * @returns The x position after the last char
  */
 float intraFontPrintUCS2(intraFont *font, float x, float y, const unsigned short *text);
+float intraFont2PrintUCS2(intraFont *font1, intraFont *font2, float x, float y, const unsigned short *text);
 
 /**
  * Draw text along the baseline starting at x, y.
@@ -231,6 +232,7 @@ float intraFontPrintUCS2(intraFont *font, float x, float y, const unsigned short
  * @returns The x position after the last char
  */
 float intraFontPrint(intraFont *font, float x, float y, const char *text);
+float intraFont2Print(intraFont *font1, intraFont *font2, float x, float y, const char *text);
 
 /**
  * Draw text along the baseline starting at x, y (with formatting).
@@ -246,6 +248,7 @@ float intraFontPrint(intraFont *font, float x, float y, const char *text);
  * @returns The x position after the last char
  */
 float intraFontPrintf(intraFont *font, float x, float y, const char *text, ...);
+float intraFont2Printf(intraFont *font1, intraFont *font2, float x, float y, const char *text, ...);
 
 /**
  * Measure a length of text if it were to be drawn
@@ -257,6 +260,7 @@ float intraFontPrintf(intraFont *font, float x, float y, const char *text, ...);
  * @returns The total width of the text (until the first newline char)
  */
 float intraFontMeasureText(intraFont *font, const char *text);
+float intraFont2MeasureText(intraFont *font1, intraFont *font2, const char *text);
 
 /**
  * Measure a length of UCS-2 encoded text if it were to be drawn
@@ -268,6 +272,7 @@ float intraFontMeasureText(intraFont *font, const char *text);
  * @returns The total width of the text (until the first newline char)
  */
 float intraFontMeasureTextUCS2(intraFont *font, const unsigned short *text);
+float intraFont2MeasureTextUCS2(intraFont *font1, intraFont *font2, const unsigned short *text);
 
 /** @} */
 

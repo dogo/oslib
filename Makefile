@@ -113,6 +113,7 @@ LIBOBJS :=					$(PSPMATHOBJS) \
 							$(SOURCE_DIR)image/oslUnswizzleImage.o \
 							$(SOURCE_DIR)image/oslSetDrawBuffer.o \
 							$(SOURCE_DIR)image/oslResetImageProperties.o \
+							$(SOURCE_DIR)image/oslScaleImage.o \
 							$(SOURCE_DIR)jpeg/gba-jpeg-decode.o \
 							$(SOURCE_DIR)gif/dev2gif.o $(SOURCE_DIR)gif/dgif_lib.o $(SOURCE_DIR)gif/egif_lib.o $(SOURCE_DIR)gif/gif_err.o $(SOURCE_DIR)gif/gifalloc.o $(SOURCE_DIR)gif/quantize.o \
 							$(SOURCE_DIR)Special/oslLoadImageFilePNG.o	\

@@ -114,6 +114,17 @@ void oslOskGetText(char *text){
     text[j] = 0;
 }
 
+void oslOskGetTextUCS2(unsigned short *text){
+    int i, j;
+    j = 0;
+    for(i = 0; OskData.outtext[i]; i++)
+        if (OskData.outtext[i]!='\0' && OskData.outtext[i]!='\n' && OskData.outtext[i]!='\r'){
+            text[j] = OskData.outtext[i];
+            j++;
+        }
+    text[j] = 0;
+}
+
 void oslEndOsk(){
     free(intext);
     free(outtext);

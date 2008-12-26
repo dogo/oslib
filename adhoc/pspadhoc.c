@@ -12,7 +12,7 @@
 #include "pspadhoc.h"
 
 static int state = ADHOC_UNINIT;
-static u8 myMacAddress[6]; //the mac address of the PSP
+static u8 myMacAddress[8];
 static struct productStruct product;
 static int matchingHD = 0;
 static int pdpHD = 0;
@@ -96,7 +96,8 @@ void _adhocctlState()
 
 int _pdpCreate()
 {
-    return sceNetAdhocPdpCreate(myMacAddress, port, 0x400, 0);
+    pdpHD = sceNetAdhocPdpCreate(myMacAddress, port, 0x400, 0);
+	return pdpHD;
 }
 
 
@@ -177,7 +178,7 @@ void _matchingCB(int unk1, int event, unsigned char *macSource, int size, void *
                 memcpy(buffer,data,42);
                 buffer[41]=0;
                 struct remotePsp newPsp;
-                memcpy(newPsp.macAddress, macSource, 6*sizeof(u8));
+                memcpy(newPsp.macAddress, macSource, 8*sizeof(u8));
                 strcpy(newPsp.name, buffer);
                 newPsp.connectionState = OSL_ADHOC_JOINED;
                 allRemotePSP[allRemotePSPCount++] = newPsp;
@@ -227,7 +228,7 @@ int oslAdhocInit(char *productID)
 {
     if( state != ADHOC_UNINIT) return 0;
 
-    memset(myMacAddress, 0, 6*sizeof(u8) );
+    memset(myMacAddress, 0, 8*sizeof(u8) );
     strcpy(product.product, productID);
     product.unknown = 0;
     matchingHD=-1;
@@ -328,12 +329,12 @@ int oslAdhocRequestConnection(struct remotePsp *aPsp, int timeOut, int (*request
 		if(aPsp->connectionState == OSL_ADHOC_REJECTED)
         {
 			aPsp->connectionState = OSL_ADHOC_JOINED; //reset the state flag
-			sceKernelDelayThread(1000 * 1000); // 1 sec
 			return aPsp->connectionState;
         }
 		sceKernelLibcTime(&currentTime);
 		if (timeOut > 0 && currentTime - startTime >= timeOut)
 			break;
+		sceKernelDelayThread(1000 * 1000); // 1 sec
     }
     return -1;
 }
@@ -341,6 +342,30 @@ int oslAdhocRequestConnection(struct remotePsp *aPsp, int timeOut, int (*request
 int oslAdhocSendData( struct remotePsp *pPsp, void *data, int lenData)
 {
 	return sceNetAdhocPdpSend( pdpHD, pPsp->macAddress,  port, data, lenData, 0, 0);
+}
+
+
+int oslAdhocReceiveData( struct remotePsp *pPsp, void *data, int maxLen)
+{
+    pdpStatStruct aStat;
+    //aStat.next = NULL;
+    int sizeStat = sizeof(aStat);
+    unsigned int sizeData = maxLen;
+
+    int ret = sceNetAdhocGetPdpStat(&sizeStat, &aStat);
+    if(ret<0) return ret;
+	
+	if(aStat.rcvdData > 0)
+	{
+		//there are data to be read
+		//sizeData = ( maxLen<aStat.rcvdData)?maxLen:aStat.rcvdData; //MIN
+		//if the size isn't big enough there is an error ....
+		return sceNetAdhocPdpRecv(pdpHD, pPsp->macAddress, &(aStat.port), data, &sizeData, 0, 0);    
+	}
+	else
+	{
+		return 0;
+	}
 }
 
 
@@ -374,12 +399,13 @@ void oslAdhocTerm()
     ret = sceNetAdhocTerm();
     ret = sceNetTerm();
 
-    memset(myMacAddress, 0, 6*sizeof(u8));
+    memset(myMacAddress, 0, 8*sizeof(u8));
 	matchingHD = 0;
 	pdpHD = 0;
 	port = 0;
     state = ADHOC_UNINIT;
 }
+
 
 int oslAdhocGetState()
 {
