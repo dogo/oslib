@@ -1,5 +1,5 @@
 #include <pspkernel.h>
-#include <kubridge.h>
+//#include <kubridge.h>
 #include "oslib.h"
 #include "usb.h"
 
@@ -11,7 +11,7 @@ SceUID modules[8];
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Private functions
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-int oslLoadStartModule(char *path)
+/*int oslLoadStartModule(char *path)
 {
     u32 loadResult = 0;
     u32 startResult = 0;
@@ -25,7 +25,7 @@ int oslLoadStartModule(char *path)
     if (loadResult != startResult)
        return -2;
     return loadResult;
-}
+}*/
 
 void oslStopUnloadModule(SceUID modID){
     int status = 0;
@@ -40,14 +40,23 @@ int oslInitUsbStorage()		{
 	u32 retVal = 0;
 
     //start necessary drivers
-	modules[0] = oslLoadStartModule("flash0:/kd/chkreg.prx");
+	/*modules[0] = oslLoadStartModule("flash0:/kd/chkreg.prx");
     modules[1] = oslLoadStartModule("flash0:/kd/npdrm.prx");
     modules[2] = oslLoadStartModule("flash0:/kd/semawm.prx");
     modules[3] = oslLoadStartModule("flash0:/kd/usbstor.prx");
     modules[4] = oslLoadStartModule("flash0:/kd/usbstormgr.prx");
     modules[5] = oslLoadStartModule("flash0:/kd/usbstorms.prx");
     modules[6] = oslLoadStartModule("flash0:/kd/usbstorboot.prx");
-	modules[7] = oslLoadStartModule("flash0:/kd/usbdevice.prx"); 
+	modules[7] = oslLoadStartModule("flash0:/kd/usbdevice.prx"); */
+
+	modules[0] = pspSdkLoadStartModule("flash0:/kd/chkreg.prx", PSP_MEMORY_PARTITION_KERNEL);
+    modules[1] = pspSdkLoadStartModule("flash0:/kd/npdrm.prx", PSP_MEMORY_PARTITION_KERNEL);
+    modules[2] = pspSdkLoadStartModule("flash0:/kd/semawm.prx", PSP_MEMORY_PARTITION_KERNEL);
+    modules[3] = pspSdkLoadStartModule("flash0:/kd/usbstor.prx", PSP_MEMORY_PARTITION_KERNEL);
+    modules[4] = pspSdkLoadStartModule("flash0:/kd/usbstormgr.prx", PSP_MEMORY_PARTITION_KERNEL);
+    modules[5] = pspSdkLoadStartModule("flash0:/kd/usbstorms.prx", PSP_MEMORY_PARTITION_KERNEL);
+    modules[6] = pspSdkLoadStartModule("flash0:/kd/usbstorboot.prx", PSP_MEMORY_PARTITION_KERNEL);
+	modules[7] = pspSdkLoadStartModule("flash0:/kd/usbdevice.prx", PSP_MEMORY_PARTITION_KERNEL); 
 
     //setup USB drivers
     retVal = sceUsbStart(PSP_USBBUS_DRIVERNAME, 0, 0);
