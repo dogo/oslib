@@ -250,10 +250,9 @@ OSL_IMAGE *oslScaleImageCreate(OSL_IMAGE *img, short newLocation, int newWidth, 
 	newImg = oslCreateImage(newWidth, newHeight, newLocation, newPixelFormat);
 	if (newImg) {
 		oslScaleImage(newImg, img, 0, 0, newWidth, newHeight);
-		if (oslImageLocationIsSwizzled(newLocation)) {
+		if (oslImageLocationIsSwizzled(newLocation))
 			oslSwizzleImage(newImg);
-			oslUncacheImage(newImg);
-		}
+        oslUncacheImage(newImg);
 	}
 	return newImg;
 }
