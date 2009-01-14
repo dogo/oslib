@@ -240,15 +240,15 @@ enum {OSL_FX_NONE=0, OSL_FX_FLAT, OSL_FX_ALPHA, OSL_FX_ADD, OSL_FX_SUB};
 #define OSL_FX_DEFAULT OSL_FX_RGBA
 #define OSL_FX_OPAQUE OSL_FX_NONE
 #define OSL_FX_TINT				(OSL_FX_ALPHA | OSL_FX_COLOR)
-//Cumulable avec les autres pour définir l'utilisation du canal alpha.
+//Cumulable avec les autres pour dÃ©finir l'utilisation du canal alpha.
 #define OSL_FX_RGBA 0x100
-//Coefficients alpha à trois canaux
+//Coefficients alpha Ã  trois canaux
 #define OSL_FX_COLOR 0x1000
 
 
 //Don't access them!
 //extern int osl_currentResolutionBPP;
-//Couleur transparente utilisée au chargement des images.
+//Couleur transparente utilisÃ©e au chargement des images.
 extern int osl_colorKeyValue;
 
 /** @} */ // end of drawing_general
@@ -312,7 +312,7 @@ oslPrintf("%i %i %i %i", red, green, blue, alpha);
 /** Get components from a 5650 (16-bit) color. Same remarks as oslRgbGet4444 apply. */
 #define oslRgbGet5650(data, r, g, b)			((r)=((data)&0x1f)<<3, (g)=(((data)>>5)&0x3f)<<2, (b)=(((data)>>11)&0x1f)<<3)
 
-//Précises - vieilles et lentes
+//PrÃ©cises - vieilles et lentes
 /*#define oslRgbGet5650f(data, r, g, b)			((r)=(((data)&0x1f)*255)/31, (g)=((((data)>>5)&0x3f)*255)/63, (b)=((((data)>>11)&0x1f)*255)/31)
 #define oslRgbaGet5551f(data, r, g, b, a)		((r)=(((data)&0x1f)*255)/31, (g)=((((data)>>5)&0x1f)*255)/31, (b)=((((data)>>10)&0x1f)*255)/31, (a)=(((data)>>15)&0x1)*255)
 #define oslRgbaGet4444f(data, r, g, b, a)		((r)=(((data)&0xf)*255)/15, (g)=((((data)>>4)&0xf)*255)/15, (b)=((((data)>>8)&0xf)*255)/15, (a)=((((data)>>12)&0xf)*255)/15)*/
@@ -431,7 +431,7 @@ typedef struct		{
 	//Rotation
 	int centerX, centerY;					//!< Rotation center
 	int angle;								//!< Angle (rotation) in degrees
-	//Paramètres
+	//ParamÃ¨tres
 //	bool autoStrip;							//!< Automatic stripping (let it one)
 } OSL_IMAGE;
 
@@ -668,7 +668,7 @@ oslDrawImage(image);
 #define oslImageIsMirroredV(img)				((img)->offsetY1 > (img)->offsetY0)
 
 
-//Donne les coordonnées d'une image de manière à ce qu'avec un angle de 0 le haut-gauche de l'image se trouve à la la position x,y indiquée
+//Donne les coordonnÃ©es d'une image de maniÃ¨re Ã  ce qu'avec un angle de 0 le haut-gauche de l'image se trouve Ã  la la position x,y indiquÃ©e
 /** Moves the image so that its top-left corner appears at the specified x and y coordinates when angle is 0, taking in account rotation parameters. */
 #define oslImageRotMoveX(img,x)			((((x)+(img)->centerX*(img)->stretchX)/(img)->sizeX))
 /** Same as oslImageRotMoveX but for the y coordinate. */
@@ -889,7 +889,7 @@ void main()		{
 	myImage = LoadSpriteFilePNG("test.png", OSL_IN_RAM, OSL_PF_5551, 30, 40);
 	[...]
 
-	//Draw the frame n°2 (that is, the third sprite) at location (0, 0) (top-left corner of the screen).
+	//Draw the frame nÂ°2 (that is, the third sprite) at location (0, 0) (top-left corner of the screen).
 	DrawImageFrameXY(myImage, 0, 0, 2);
 	[...]
 } \endcode */
@@ -960,13 +960,14 @@ extern void oslUncachePalette(OSL_PALETTE *pal);
 	@{
 */
 
-//Nécessaire avant de pouvoir dessiner ou manier l'image (à appeler après une modification du contenu de  img->data à la main)
+//NÃ©cessaire avant de pouvoir dessiner ou manier l'image (Ã  appeler aprÃ¨s une modification du contenu de  img->data Ã  la main)
 /** Flushes the image data from the cache.
 Never forget to call this after you've modified an image in a cached way (by default all the following routines do). See oslUncacheData for more information.
 
 Note: this routine does not flush the associated image palette data! Call oslUncacheImage instead if you need it! */
 extern inline void oslUncacheImageData(OSL_IMAGE *img)		{
-	sceKernelDcacheWritebackInvalidateRange(img->data, img->totalSize);
+    if (img != NULL)
+        sceKernelDcacheWritebackInvalidateRange(img->data, img->totalSize);
 }
 /** Uncache a whole image, including its associated palette (image->palette). */
 extern void oslUncacheImage(OSL_IMAGE *img);
@@ -1489,7 +1490,7 @@ typedef struct
 
 
 
-// *** Général ***
+// *** GÃ©nÃ©ral ***
 
 
 
@@ -1508,7 +1509,7 @@ typedef struct
 
 //Graphique::dessin
 
-//Graphique::écran
+//Graphique::Ã©cran
 
 //Graphique::alpha
 

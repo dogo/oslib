@@ -56,11 +56,11 @@ static void accumOutputRow(unsigned int* const xelrow, float const fraction,
 					float rs[], float gs[], float bs[], float as[], int const cols)
 {
 /*----------------------------------------------------------------------------
-   Take 'fraction' times the color in row xelrow and add it to 
+   Take 'fraction' times the color in row xelrow and add it to
    rs/gs/bs.  'fraction' is less than 1.0.
 -----------------------------------------------------------------------------*/
 	int x;
-	
+
 	for( x = 0; x < cols; x++ ) {
 		rs[x] += fraction * RGBA_GETR(xelrow[x]);
 		gs[x] += fraction * RGBA_GETG(xelrow[x]);
@@ -68,7 +68,7 @@ static void accumOutputRow(unsigned int* const xelrow, float const fraction,
 		as[x] += fraction * RGBA_GETA(xelrow[x]);
 	}
 }
-					
+
 static void horizontalScale(const float rs[], const float gs[], const float bs[], const float as[],
 							unsigned int newxelrow[], const int cols, const int newcols, const float xscale)
 {
@@ -82,7 +82,7 @@ static void horizontalScale(const float rs[], const float gs[], const float bs[]
     float fraccoltofill, fraccolleft;
     unsigned int col;
     unsigned int newcol;
-    
+
     newcol = 0;
     fraccoltofill = 1.0;  /* Output column is "empty" now */
     r = g = b = a = 0;          /* initial value */
@@ -95,7 +95,7 @@ static void horizontalScale(const float rs[], const float gs[], const float bs[]
         */
         while (fraccolleft >= fraccoltofill) {
             /* Generate one output pixel in 'newxelrow'.  It will consist
-               of anything accumulated from prior input pixels in 'r','g', 
+               of anything accumulated from prior input pixels in 'r','g',
                and 'b', plus a fraction of the current input pixel.
             */
 			r += fraccoltofill * rs[col];
@@ -112,7 +112,7 @@ static void horizontalScale(const float rs[], const float gs[], const float bs[]
             fraccoltofill = 1.0;
             r = g = b = 0.0;
         }
-        /* There's not enough left in the current input pixel to fill up 
+        /* There's not enough left in the current input pixel to fill up
            a whole output column, so just accumulate the remainder of the
            pixel into the current output column.
         */
@@ -131,7 +131,7 @@ static void horizontalScale(const float rs[], const float gs[], const float bs[]
 //                 newcol, newcols-1);
 
     if (newcol < newcols ) {
-        /* We were still working on the last output column when we 
+        /* We were still working on the last output column when we
            ran out of input columns.  This would be because of rounding
            down, and we should be missing only a tiny fraction of that
            last output column.
@@ -151,7 +151,7 @@ void oslScaleImage(OSL_IMAGE *dstImg, OSL_IMAGE *srcImg, int newX, int newY, int
 {
 	float rowsleft;
 	/* The number of rows of output that need to be formed from the
-       current input row (the one in tuplerow[]), less the number that 
+       current input row (the one in tuplerow[]), less the number that
        have already been formed (either in accumulator[]
        or output to the file).  This can be fractional because of the
        way we define rows as having height.
@@ -163,31 +163,31 @@ void oslScaleImage(OSL_IMAGE *dstImg, OSL_IMAGE *srcImg, int newX, int newY, int
 	int rowsread;
 		/* Number of rows of the input file that have been read */
 	int row;
-	
+
 	unsigned int* orgxelrow;
 	unsigned int* newxelrow;
 	float* rs;
 	float* gs;
 	float* bs;
 	float* as;
-	
+
 	float xscale = (float)newWidth / srcImg->sizeX;
 	float yscale = (float)newHeight / srcImg->sizeY;
-	
+
 	rowsread = 0;
 	rowsleft = 0.0;
 	fracrowtofill = 1.0;
-	
+
 	orgxelrow = malloc( srcImg->sizeX * sizeof(orgxelrow[0]) );
 	rs = malloc( srcImg->sizeX * sizeof(rs[0]) );
 	gs = malloc( srcImg->sizeX * sizeof(gs[0]) );
 	bs = malloc( srcImg->sizeX * sizeof(bs[0]) );
 	as = malloc( srcImg->sizeX * sizeof(bs[0]) );
 	newxelrow = malloc( newWidth * sizeof(newxelrow[0]) );
-	
+
 	for( row = 0; row < newHeight; ++row ) {
 		/* First scane Y from orgxelrow[] into vertScanedRow[]. */
-		
+
 		if ( newHeight == srcImg->sizeY ) { /* shortcut Y scaling if possible */
 			readRow( srcImg, row, orgxelrow );
 		}
@@ -206,7 +206,7 @@ void oslScaleImage(OSL_IMAGE *dstImg, OSL_IMAGE *srcImg, int newX, int newY, int
 	                       scaling arithmetic.  So we go ahead with
 	                       the data from the last row we read, which
 	                       amounts to stretching out the last output
-	                       row.  
+	                       row.
 	                    */
 					}
 					rowsleft = yscale;
@@ -226,9 +226,9 @@ void oslScaleImage(OSL_IMAGE *dstImg, OSL_IMAGE *srcImg, int newX, int newY, int
 		}
 
         /* Now scale rs/gs/bs horizontally into newxelrow and write
-           it dstImg. 
+           it dstImg.
         */
-		
+
 		horizontalScale(rs, gs, bs, as, newxelrow, srcImg->sizeX, newWidth, xscale);
 		writeRow(dstImg, newxelrow, newX, newY + row, newWidth);
 
@@ -238,7 +238,8 @@ void oslScaleImage(OSL_IMAGE *dstImg, OSL_IMAGE *srcImg, int newX, int newY, int
 	free( bs );
 	free( gs );
 	free( rs );
-	
+	free( orgxelrow );
+
 	return;
 }
 
@@ -250,7 +251,7 @@ OSL_IMAGE *oslScaleImageCreate(OSL_IMAGE *img, short newLocation, int newWidth, 
 	newImg = oslCreateImage(newWidth, newHeight, newLocation, newPixelFormat);
 	if (newImg) {
 		oslScaleImage(newImg, img, 0, 0, newWidth, newHeight);
-		if (oslImageLocationIsSwizzled(newLocation))
+		if (newImg != NULL && oslImageLocationIsSwizzled(newLocation))
 			oslSwizzleImage(newImg);
         oslUncacheImage(newImg);
 	}
