@@ -274,12 +274,12 @@ OSL_FONTINFO osl_sceFontInfo=		{
 	7, 8, 1,								// 7x8 (1 octet par ligne)
 };
 
-//bitplanes: format (bits par pixel) de la fonte, imagePlanes: format de la texture à remplir (puissance de deux)
+//bitplanes: format (bits par pixel) de la fonte, imagePlanes: format de la texture Ã  remplir (puissance de deux)
 void oslDrawChar1BitToImage(OSL_IMAGE *img, int x0, int y0, int w, int h, int width, int bitPlanes, int imagePlanes, const unsigned char *font)
 {
 	unsigned char v, t, *data;
 	int x,xx,y;
-	//Nombre de pixels par octet en fonction du format (seuls 1, 2, 4 et 8 supportés)
+	//Nombre de pixels par octet en fonction du format (seuls 1, 2, 4 et 8 supportÃ©s)
 	const u8 pixelsPerByte[] = {0, 8, 4, 0, 2, 0, 0, 0, 1};
 
 	for (y=0;y<h;y++)
@@ -325,19 +325,19 @@ OSL_FONT *oslLoadFont(OSL_FONTINFO *fi)
 		return NULL;
 	}
 	if (fi->charWidths)		{
-		//Réutilise les tailles fournies
+		//RÃ©utilise les tailles fournies
 		for (i=0;i<256;i++)
 			f->charWidths[i] = fi->charWidths[i];
 //		f->charWidths = fi->charWidths;
 		f->isCharWidthConstant = 0;
 	}
 	else		{
-		//Remplit la table avec les mêmes tailles
+		//Remplit la table avec les mÃªmes tailles
 		for (i=0;i<256;i++)
 			f->charWidths[i] = fi->charWidth;
 		f->isCharWidthConstant = 1;
 	}
-	//Position des caractères (pour les fontes non proportionnelles)
+	//Position des caractÃ¨res (pour les fontes non proportionnelles)
 	f->charPositions = (u16*)malloc(256*sizeof(short));
 	if (!f->charPositions)		{
 		free(f->charWidths);
@@ -357,7 +357,7 @@ OSL_FONT *oslLoadFont(OSL_FONTINFO *fi)
 		x += f->charWidths[i] + f->addedSpace;
 	}
 
-	//16x16 caractères
+	//16x16 caractÃ¨res
 	f->img = oslCreateImage(512, (y+1)*fi->charHeight, OSL_IN_RAM, OSL_PF_4BIT);
 	//4 bit texture format
 	imageFormat = 4;
@@ -391,7 +391,7 @@ OSL_FONT *oslLoadFont(OSL_FONTINFO *fi)
 
 	f->charHeight = fi->charHeight;
 	memset(f->img->data, 0, f->img->totalSize);
-	//Dessine les caractères sur le buffer
+	//Dessine les caractÃ¨res sur le buffer
 	for (i=0;i<256;i++)		{
 		oslDrawChar1BitToImage(f->img, OSL_TEXT_CHARPOSXY(f, i),
 			f->charWidths[i] + f->addedSpace, f->charHeight, fi->lineWidth << pixelplanewidth[fi->pixelFormat - 1],
@@ -462,9 +462,9 @@ OSL_FONT *oslLoadFontFile(const char *filename)		{
     }else{
         f = VirtualFileOpen((void*)filename, 0, VF_AUTO, VF_O_READ);
         if (f)			{
-            //Lit l'en-tête de la fonte
+            //Lit l'en-tÃªte de la fonte
             VirtualFileRead(&fh, sizeof(fh), 1, f);
-            //Vérifie l'en-tête
+            //VÃ©rifie l'en-tÃªte
             if (!strcmp(fh.strVersion, "OSLFont v01"))		{
                 fi.pixelFormat = fh.pixelFormat;
                 //VERIFIER 1 <= PIXELFORMAT <= 4
@@ -478,7 +478,7 @@ OSL_FONT *oslLoadFontFile(const char *filename)		{
                 fi.charHeight = fh.charHeight;
                 fi.lineWidth = fh.lineWidth;
                 fi.addedSpace = fh.addedSpace;
-                //Lit les données des caractères
+                //Lit les donnÃ©es des caractÃ¨res
                 tcCaracteres = (u8*)malloc(fh.lineWidth*fi.charHeight*256);
 				if (!tcCaracteres)
 					return NULL;
@@ -486,11 +486,11 @@ OSL_FONT *oslLoadFontFile(const char *filename)		{
                     fi.fontdata = tcCaracteres;
                     fi.paletteCount = fh.paletteCount;
                     fi.paletteData = NULL;
-                    //Est-ce qu'il reste encore des couleurs à charger?
+                    //Est-ce qu'il reste encore des couleurs Ã  charger?
                     if (fi.paletteCount > 0)			{
                         fi.paletteData = (unsigned long*)malloc(fi.paletteCount * sizeof(unsigned long));
                         if (fi.paletteData)			{
-                            //Lit les entrées de palette
+                            //Lit les entrÃ©es de palette
                             if (VirtualFileRead(fi.paletteData, fi.paletteCount * sizeof(unsigned long), 1, f) == 0)			{
                                 //Do not use these entries as they were not read correctly
                                 fi.paletteCount = 0;
@@ -555,7 +555,7 @@ void oslDrawTextTileBack(int x, int y, int tX, int tY)		{
         oslEnableTexturing();
 }
 
-//Dessine une tile de la texture sélectionnée. Eviter d'utiliser à l'extérieur.
+//Dessine une tile de la texture sÃ©lectionnÃ©e. Eviter d'utiliser Ã  l'extÃ©rieur.
 void oslDrawTextTile(int u, int v, int x, int y, int tX, int tY)
 {
 	int color = oslBlendColor(osl_textColor);
@@ -598,7 +598,7 @@ void oslDrawChar(int x, int y, unsigned char c)
 		return;
     if (osl_curFont->fontType == OSL_FONT_OFT){
         oslSetTexture(osl_curFont->img);
-        //Dessine le caractère
+        //Dessine le caractÃ¨re
         oslDrawTextTile(OSL_TEXT_CHARPOSXY(osl_curFont, c), x, y, osl_curFont->charWidths[c], osl_curFont->charHeight);
     }else if (osl_curFont->fontType == OSL_FONT_INTRA){
         char temp[2];
@@ -653,7 +653,7 @@ newline:
 			//Prochaine ligne
 			x = x0;
 			y += osl_curFont->charHeight;
-			//Trop bas -> terminé
+			//Trop bas -> terminÃ©
 			if (y + osl_curFont->charHeight > y1)
 				break;
 			//Retour -> saute
@@ -669,7 +669,7 @@ newline:
 
 void oslInitConsole()
 {
-	//Charge et utilise la fonte système
+	//Charge et utilise la fonte systÃ¨me
 	if (!osl_sceFont)
 		osl_sceFont = oslLoadFont(&osl_sceFontInfo);
 	oslSetFont(osl_sceFont);
@@ -705,10 +705,10 @@ void oslConsolePrint(const char *str)
 			oslDrawChar(osl_consolePosX, osl_consolePosY, c);
 			osl_consolePosX += osl_curFont->charWidths[c];
 		}
-		//A droite de l'écran
+		//A droite de l'Ã©cran
 		if (osl_consolePosX+7 > osl_curBuf->sizeX || c=='\n')			{
 			osl_consolePosY += osl_curFont->charHeight;
-			//[MARCHE PAS, TESTER] Trop bas -> défile
+			//[MARCHE PAS, TESTER] Trop bas -> dÃ©file
 			if (osl_consolePosY + osl_curFont->charHeight > osl_curBuf->sizeY)		{
 				osl_consolePosY -= osl_curFont->charHeight;
 				oslSyncDrawing();
@@ -742,7 +742,7 @@ int oslGetStringWidth(const char *str)
     if (osl_curFont->fontType == OSL_FONT_OFT){
         unsigned char c;
 
-        //Parcourt tous les caractères
+        //Parcourt tous les caractÃ¨res
         while(*str)			{
             c = *(unsigned char*)str++;
             x += osl_curFont->charWidths[c];
@@ -787,7 +787,7 @@ newline:
 				text++;
 			continue;
 		}
-		//Trop bas -> terminé
+		//Trop bas -> terminÃ©
 		if (y + osl_curFont->charHeight > maxHeight && maxHeight > 0)
 			break;
 		if (newLine)

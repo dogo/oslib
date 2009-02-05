@@ -6,13 +6,14 @@ Version MOD 1.1.0
 -Added: oslDrawStringf [oslDrawStringf(0, 0, "Test string %i", 1);]
 -Added: adhoc functions (based on pspZorba's adhoc sample)
 -Added: switched to libjpeg to load jpg
+-Added: Switched to intraFont 0.30
 -Fixed: debug console
 -Fixed: minor bugs
 
 
 Version MOD 1.0.1
 -----------------
--Added: Support for UTF-8 with intraFont (many thanks to nextos!!!) 
+-Added: Support for UTF-8 with intraFont (many thanks to nextos!!!)
         Use INTRAFONT_STRING_UTF8 to init intraFont
 -Fixed: corrupted graphic using intraFont
 -Fixed: MP3/ATRAC3+ playback under kernel 3.xx (sorry, I didn't test it before)

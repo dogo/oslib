@@ -124,7 +124,8 @@ LIBOBJS :=					$(PSPMATHOBJS) \
 							$(SOURCE_DIR)splash/oslShowSplashScreen1.o \
 							$(SOURCE_DIR)splash/oslShowSplashScreen2.o \
 							$(SOURCE_DIR)mem/oslGetRamStatus.o \
-                            $(SOURCE_DIR)intraFont/intraFont.o
+                            $(SOURCE_DIR)intraFont/intraFont.o \
+                            $(SOURCE_DIR)intraFont/libccc.o
 
 OBJS :=						$(LIBOBJS)
 

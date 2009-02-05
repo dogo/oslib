@@ -23,6 +23,7 @@ cp -f  libosl.a $PSPSDK/lib/
 
 echo "Copying header files...."
 cp -f intraFont/intraFont.h $PSPSDK/include/oslib/intraFont/
+cp -f intraFont/libccc.h $PSPSDK/include/oslib/intraFont/
 cp -f libpspmath/pspmath.h $PSPSDK/include/oslib/libpspmath/
 cp -f adhoc/pspadhoc.h $PSPSDK/include/oslib/adhoc/
 cp -f oslmath.h $PSPSDK/include/oslib/
