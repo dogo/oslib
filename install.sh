@@ -44,6 +44,7 @@ cp -f usb.h $PSPSDK/include/oslib/
 cp -f vfpu_ops.h $PSPSDK/include/oslib/
 cp -f VirtualFile.h $PSPSDK/include/oslib/
 cp -f vram_mgr.h $PSPSDK/include/oslib/
+cp -f ccc.h $PSPSDK/include/oslib/
 
 echo "Done!"
 echo

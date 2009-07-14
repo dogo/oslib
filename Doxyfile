@@ -98,6 +98,7 @@ INPUT                  = ./oslib.h \
                          ./messagebox.h \
                          ./text.h \
                          ./oslmath.h
+                         ./ccc.h
                          ./VirtualFile.h \
                          ./Doc/mainpage.txt \
                          ./Doc/mainpage.txt

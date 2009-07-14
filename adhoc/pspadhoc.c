@@ -349,18 +349,18 @@ int oslAdhocReceiveData( struct remotePsp *pPsp, void *data, int maxLen)
 {
     pdpStatStruct aStat;
     //aStat.next = NULL;
-    int sizeStat = sizeof(aStat);
+    int sizeStat = sizeof(pdpStatStruct);
     unsigned int sizeData = maxLen;
 
     int ret = sceNetAdhocGetPdpStat(&sizeStat, &aStat);
     if(ret<0) return ret;
-	
+
 	if(aStat.rcvdData > 0)
 	{
 		//there are data to be read
 		//sizeData = ( maxLen<aStat.rcvdData)?maxLen:aStat.rcvdData; //MIN
 		//if the size isn't big enough there is an error ....
-		return sceNetAdhocPdpRecv(pdpHD, pPsp->macAddress, &(aStat.port), data, &sizeData, 0, 0);    
+		return sceNetAdhocPdpRecv(pdpHD, pPsp->macAddress, &(aStat.port), data, &sizeData, 0, 0);
 	}
 	else
 	{

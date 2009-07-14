@@ -43,6 +43,7 @@ extern float oslVfpu_sinf(float angle, float rayon);
 */
 extern float oslVfpu_cosf(float angle, float rayon);
 
+/** @} */ // end of vfpu
 
 #ifdef __cplusplus
 }

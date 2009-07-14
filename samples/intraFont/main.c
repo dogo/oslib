@@ -68,6 +68,12 @@ int main(){
     OSL_FONT* jpn0 = oslLoadIntraFontFile("flash0:/font/jpn0.pgf", INTRAFONT_CACHE_ALL | INTRAFONT_STRING_SJIS); //japanese font with SJIS support
     oslIntraFontSetStyle(jpn0, 1.0f,WHITE,BLACK, INTRAFONT_ALIGN_LEFT);
 
+	OSL_FONT* kr0 = oslLoadIntraFontFile("flash0:/font/kr0.pgf", INTRAFONT_STRING_UTF8);  //Korean font (not available on all systems) with UTF-8 encoding
+	oslIntraFontSetStyle(kr0, 0.8f, WHITE, DARKGRAY, 0);                                  //scale to 80%
+
+	OSL_FONT* chn = oslLoadIntraFontFile("flash0:/font/gb3s1518.bwfon", 0);               //chinese font
+	oslIntraFontSetStyle(chn, 0.8f, WHITE, DARKGRAY, 0);                                  //scale to 80%
+
     while(!osl_quit){
         if (!skip){
             oslStartDrawing();
@@ -77,7 +83,7 @@ int main(){
             float y = 15;
             oslIntraFontSetStyle(ltn[4], 1.0f,BLACK,WHITE,INTRAFONT_ALIGN_CENTER);
             oslSetFont(ltn[4]);
-            oslDrawString(240, y, "OSLib with intraFont by Sakya");
+            oslDrawStringf(240, y, "OSLib v.%s with intraFont by Sakya", OSL_VERSION);
             oslIntraFontSetStyle(ltn[4], 1.0f,WHITE,BLACK,INTRAFONT_ALIGN_LEFT);
 
             y += 30;

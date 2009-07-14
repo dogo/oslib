@@ -125,7 +125,7 @@ int intraFontGetBMP(intraFont *font, unsigned short id, unsigned char glyphtype)
 				for (yy = 0; yy < glyph->height; yy++) {
 					for (xx = 0; xx < glyph->width; xx++) {
 						if (glyphtype & PGF_CHARGLYPH) {
-							value = intraFontGetV(1,font->fontdata,&b) * 0x0b; //scale 1 bit/pix to 4 bit/pix
+							value = intraFontGetV(1,font->fontdata,&b) * 0x0f; //scale 1 bit/pix to 4 bit/pix
 							if ((font->texX + (7-(xx&7)+(xx&248))) & 1) {
 								font->texture[((font->texX + (7-(xx&7)+(xx&248))) + (font->texY + yy) * font->texWidth)>>1] &= 0x0F;
 								font->texture[((font->texX + (7-(xx&7)+(xx&248))) + (font->texY + yy) * font->texWidth)>>1] |= (value<<4);
@@ -331,8 +331,8 @@ int intraFontPreCache(intraFont *font, unsigned int options) {
 
 intraFont* intraFontLoad(const char *filename, unsigned int options) {
     unsigned long i,j;
-	static Glyph bw_glyph                         = { 0, 0, 16, 18, 0, 14, PGF_BMP_H_ROWS, 0, 64, 0 };
-	static Glyph bw_shadowGlyph                   = { 0, 0,  8, 10, 0,  4, PGF_BMP_H_ROWS, 0, 64, 0 };
+	static Glyph bw_glyph                         = { 0, 0, 16, 18, 0, 15, PGF_BMP_H_ROWS, 0, 64, 0 };
+	static Glyph bw_shadowGlyph                   = { 0, 0,  8, 10, 0,  5, PGF_BMP_H_ROWS, 0, 64, 0 };
 	static const unsigned short bw_charmap_compr[]= { 0x00a4,  1, 0x00a7,  2, 0x00b0,  2, 0x00b7,  1, 0x00d7,  1, 0x00e0,  2, 0x00e8,  3, 0x00ec,  2,
 		                                              0x00f2,  2, 0x00f7,  1, 0x00f9,  2, 0x00fc,  1, 0x0101,  1, 0x0113,  1, 0x011b,  1, 0x012b,  1,
 													  0x0144,  1, 0x0148,  1, 0x014d,  1, 0x016b,  1, 0x01ce,  1, 0x01d0,  1, 0x01d2,  1, 0x01d4,  1,
@@ -1160,9 +1160,7 @@ float intraFontMeasureTextEx(intraFont *font, const char *text, int length) {
 }
 
 float intraFontMeasureTextUCS2(intraFont *font, const cccUCS2 *text) {
-	if (!font) return 0;
-	int length = cccStrlenCode((cccCode*)text, font->options/0x00010000);
-	return intraFontMeasureTextUCS2Ex(font, text, length);
+	return intraFontMeasureTextUCS2Ex(font, text, cccStrlenUCS2(text));
 }
 
 float intraFontMeasureTextUCS2Ex(intraFont *font, const cccUCS2 *text, int length) {
