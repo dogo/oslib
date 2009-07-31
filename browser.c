@@ -23,9 +23,9 @@ int oslBrowserInit(char *url, char *downloadDir, int browserMemory, unsigned int
     if (browserMemory <= 0)
         browserMemory = BROWSER_MEMORY;
 
-	vpl = sceKernelCreateVpl("BrowserVpl", PSP_MEMORY_PARTITION_USER, 0, BROWSER_MEMORY + 256, NULL);
+	vpl = sceKernelCreateVpl("BrowserVpl", PSP_MEMORY_PARTITION_USER, 0, browserMemory + 256, NULL);
 	if (vpl < 0)
-		return OSL_BROSER_ERROR_MEMORY;
+		return OSL_BROWSER_ERROR_MEMORY;
 
 	memset(&params, 0, sizeof(pspUtilityHtmlViewerParam));
 
@@ -44,10 +44,6 @@ int oslBrowserInit(char *url, char *downloadDir, int browserMemory, unsigned int
 	params.cookiemode = PSP_UTILITY_HTMLVIEWER_COOKIEMODE_DEFAULT;
 	params.homeurl = url;
 	params.textsize = PSP_UTILITY_HTMLVIEWER_TEXTSIZE_NORMAL;
-	/*params.displaymode = PSP_UTILITY_HTMLVIEWER_DISPLAYMODE_SMART_FIT;
-	params.options = PSP_UTILITY_HTMLVIEWER_DISABLE_STARTUP_LIMITS | PSP_UTILITY_HTMLVIEWER_ENABLE_FLASH;
-	params.interfacemode = PSP_UTILITY_HTMLVIEWER_INTERFACEMODE_FULL;
-	params.connectmode = PSP_UTILITY_HTMLVIEWER_CONNECTMODE_MANUAL_ALL;*/
 	params.displaymode = displaymode;
 	params.options = options;
 	params.interfacemode = interfacemode;
@@ -58,11 +54,11 @@ int oslBrowserInit(char *url, char *downloadDir, int browserMemory, unsigned int
 
 	res = sceKernelAllocateVpl(vpl, params.memsize, &params.memaddr, NULL);
 	if (res < 0)
-		return OSL_BROSER_ERROR_MEMORY;
+		return OSL_BROWSER_ERROR_MEMORY;
 
 	res = sceUtilityHtmlViewerInitStart(&params);
 	if (res < 0)
-		return OSL_BROSER_ERROR_INIT;
+		return OSL_BROWSER_ERROR_INIT;
 
 	browserIsActive = 1;
 	return 0;

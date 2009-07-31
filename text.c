@@ -417,8 +417,8 @@ OSL_FONT *oslLoadIntraFontFile(const char *filename, unsigned int options)		{
     }else{
         intraFontSetStyle(font->intra, 1.0f, 0xFFFFFFFF, 0xFF000000, INTRAFONT_ALIGN_LEFT);
         font->charHeight = font->intra->texYSize;
+		font->intraAlt = NULL;
     }
-	font->intraAlt = NULL;
     return font;
 }
 
@@ -457,8 +457,8 @@ OSL_FONT *oslLoadFontFile(const char *filename)		{
         }else{
             intraFontSetStyle(font->intra, 1.0f, 0xFFFFFFFF, 0xFF000000, INTRAFONT_ALIGN_LEFT);
             font->charHeight = font->intra->texYSize;
+			font->intraAlt = NULL;
         }
-		font->intraAlt = NULL;
     }else{
         f = VirtualFileOpen((void*)filename, 0, VF_AUTO, VF_O_READ);
         if (f)			{
@@ -621,6 +621,7 @@ void oslDrawString(int x, int y, const char *str)
             x += osl_curFont->charWidths[c];
         }
     }else if (osl_curFont->fontType == OSL_FONT_INTRA){
+		//intraFontActivate(osl_curFont->intra);
         y += (int)((float)osl_curFont->charHeight / 2.0) + 1;
         intraFont2Print(osl_curFont->intra, osl_curFont->intraAlt, x, y, str);
     }

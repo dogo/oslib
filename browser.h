@@ -8,9 +8,9 @@
 */
 
 /**Memory error initializing the browser*/
-#define OSL_BROSER_ERROR_MEMORY		-1
+#define OSL_BROWSER_ERROR_MEMORY		-1
 /**Error initializing the browser*/
-#define OSL_BROSER_ERROR_INIT		-2
+#define OSL_BROWSER_ERROR_INIT		-2
 
 /** Initializes the internet browser.
 	\param url
