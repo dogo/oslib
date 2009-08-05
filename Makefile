@@ -29,6 +29,8 @@ INCLUDE_DIR :=
 #	Source to make
 #	--------------
 
+SFONTOBJS :=                $(SOURCE_DIR)sfont.o
+
 PSPMATHOBJS := 	            $(SOURCE_DIR)libpspmath/printMatrixFloat.o \
                             $(SOURCE_DIR)libpspmath/vfpu_srand.o \
                             $(SOURCE_DIR)libpspmath/vfpu_randf.o \
@@ -74,7 +76,8 @@ PSPMATHOBJS := 	            $(SOURCE_DIR)libpspmath/printMatrixFloat.o \
                             $(SOURCE_DIR)libpspmath/vfpu_quaternion_sample_hermite.o \
                             $(SOURCE_DIR)libpspmath/vfpu_quaternion_hermite_tangent.o
 
-LIBOBJS :=					$(PSPMATHOBJS) \
+LIBOBJS :=					$(SFONTOBJS) \
+                            $(PSPMATHOBJS) \
                             $(SOURCE_DIR)oslib.o \
                             $(SOURCE_DIR)vfpu.o \
                             $(SOURCE_DIR)drawing.o \

@@ -97,6 +97,7 @@ INPUT                  = ./oslib.h \
                          ./map.h \
                          ./messagebox.h \
                          ./text.h \
+                         ./sfont.h \
                          ./oslmath.h
                          ./ccc.h
                          ./VirtualFile.h \

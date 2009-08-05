@@ -1,6 +1,10 @@
 #ifndef BROWSER_H
 #define BROWSER_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /** @defgroup Browser
 
 	Functions to display Sony's internet browser
@@ -31,4 +35,9 @@ int oslBrowserIsActive();
 
 
 /** @} */ // end of Browser
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif
