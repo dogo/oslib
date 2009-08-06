@@ -174,7 +174,7 @@ static void _deletePngImage(PNG_DATA *pngData)
 ///////////////////////////////////////////////////////////////////////////////
 //Public functions
 ///////////////////////////////////////////////////////////////////////////////
-OSL_SFONT *oslLoadSFontFile(char *filename)
+OSL_SFONT *oslLoadSFontFile(char *filename, int pixelFormat)
 {
 	OSL_SFONT *sfont;
 	sfont = (OSL_SFONT*)malloc(sizeof(OSL_SFONT));
@@ -215,7 +215,7 @@ OSL_SFONT *oslLoadSFontFile(char *filename)
           }
 
           lt->width = x - pos;
-		  lt->letter = oslCreateImage(lt->width, img->sizeY - 1, OSL_IN_RAM, OSL_PF_8888);
+		  lt->letter = oslCreateImage(lt->width, img->sizeY - 1, OSL_IN_RAM, pixelFormat);
           oslClearImage(lt->letter, RGBA(0, 0, 0, 0));
 		  oslLockImage(lt->letter);
 

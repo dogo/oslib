@@ -39,9 +39,11 @@ typedef struct
 /** Load an SFont
 	\param filename
         file name
+	\param pixelFormat 
+		pixel format
 	Returns a pointer to the loaded OSL_SFONT or NULL
 */
-OSL_SFONT *oslLoadSFontFile(char *filename);
+OSL_SFONT *oslLoadSFontFile(char *filename, int pixelFormat);
 
 /** Delete a loaded SFont
 	\param sfont
