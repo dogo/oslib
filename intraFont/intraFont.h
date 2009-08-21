@@ -1,7 +1,7 @@
 /*
  * intraFont.h
  * This file is used to display the PSP's internal font (pgf and bwfon firmware files)
- * intraFont Version 0.30 by BenHur - http://www.psp-programming.com/benhur
+ * intraFont Version 0.31 by BenHur - http://www.psp-programming.com/benhur
  *
  * Uses parts of pgeFont by InsertWittyName - http://insomniac.0x89.org
  *
@@ -29,15 +29,15 @@ extern "C" {
 #define INTRAFONT_ALIGN_CENTER     0x00000200
 #define INTRAFONT_ALIGN_RIGHT      0x00000400
 #define INTRAFONT_ALIGN_FULL       0x00000600 //full justify text to width set by intraFontSetTextWidth()
-#define INTRAFONT_SCROLL_LEFT      0x00002000 //in intraFontPrintColumn if text does not fit text is scrolled to the left
+#define INTRAFONT_SCROLL_LEFT      0x00002000 //in intraFontPrintColumn if text does not fit text is scrolled to the left 
 	                                          //(requires redrawing at ~60 FPS with x position returned by previous call to intraFontPrintColumn())
 #define INTRAFONT_SCROLL_SEESAW    0x00002200 //in intraFontPrintColumn if text does not fit text is scrolled left and right
 #define INTRAFONT_SCROLL_RIGHT     0x00002400 //in intraFontPrintColumn if text does not fit text is scrolled to the right
 #define INTRAFONT_SCROLL_THROUGH   0x00002600 //in intraFontPrintColumn if text does not fit text is scrolled through (to the left)
 #define INTRAFONT_WIDTH_VAR        0x00000000 //default: variable-width
-#define INTRAFONT_WIDTH_FIX        0x00000800 //set your custom fixed witdh to 24 pixels: INTRAFONT_WIDTH_FIX | 24
+#define INTRAFONT_WIDTH_FIX        0x00000800 //set your custom fixed witdh to 24 pixels: INTRAFONT_WIDTH_FIX | 24 
                                               //(max is 255, set to 0 to use default fixed width, this width will be scaled by size)
-#define INTRAFONT_ACTIVE           0x00001000 //assumes the font-texture resides inside sceGuTex already, prevents unecessary reloading -> very small speed-gain
+#define INTRAFONT_ACTIVE           0x00001000 //assumes the font-texture resides inside sceGuTex already, prevents unecessary reloading -> very small speed-gain									   
 #define INTRAFONT_CACHE_MED        0x00000000 //default: 256x256 texture (enough to cache about 100 chars)
 #define INTRAFONT_CACHE_LARGE      0x00004000 //512x512 texture(enough to cache all chars of ltn0.pgf or ... or ltn15.pgf or kr0.pgf)
 #define INTRAFONT_CACHE_ASCII      0x00008000 //try to cache all ASCII chars during fontload (uses less memory and is faster to draw text, but slower to load font)
@@ -93,7 +93,7 @@ typedef struct {
 	unsigned char flags;
 	unsigned short shadowID;  //to look up in shadowmap
 	char advance;             //in quarterpixels
-	unsigned long ptr;        //offset
+	unsigned long ptr;        //offset 
 } Glyph;
 
 typedef struct {
@@ -141,35 +141,37 @@ typedef struct {
 /**
  * A Font struct
  */
-typedef struct {
-	char *filename;
-	unsigned char fileType; /**<  FILETYPE_PGF or FILETYPE_BWFON  */
-	unsigned char *fontdata;
-
-	unsigned char *texture; /**<  The bitmap data  */
-	unsigned int texWidth; /**<  Texture size (power2) */
-	unsigned int texHeight; /**<  Texture height (power2) */
+typedef struct intraFont {
+	char* filename;
+	unsigned char fileType;          /**< FILETYPE_PGF or FILETYPE_BWFON */
+	unsigned char* fontdata;
+	
+	unsigned char* texture;          /**< The bitmap data */
+	unsigned int texWidth;           /**< Texture size (power2) */
+	unsigned int texHeight;          /**< Texture height (power2) */	
 	unsigned short texX;
 	unsigned short texY;
 	unsigned short texYSize;
-
+	
 	unsigned short n_chars;
-	char advancex;            //in quarterpixels
-	char advancey;            //in quarterpixels
-	unsigned char charmap_compr_len; /**<length of compression info*/
-	unsigned short *charmap_compr; /**< Compression info on compressed charmap*/
-	unsigned short *charmap; /**<  Character map */
-	Glyph* glyph; /**<  Character glyphs */
+	char advancex;                   /**< in quarterpixels */
+	char advancey;                   /**< in quarterpixels */
+	unsigned char charmap_compr_len; /**< length of compression info */
+	unsigned short* charmap_compr;   /**< Compression info on compressed charmap */	
+	unsigned short* charmap;         /**< Character map */	
+	Glyph* glyph;                    /**< Character glyphs */
 	GlyphBW* glyphBW;
-
+		
 	unsigned short n_shadows;
-	unsigned char shadowscale; /**<  shadows in pgf file (width, height, left and top properties as well) are scaled by factor of (shadowscale>>6) */
-	Glyph* shadowGlyph; /**<  Shadow glyph(s) */
-
+	unsigned char shadowscale;       /**< shadows in pgf file (width, height, left and top properties as well) are scaled by factor of (shadowscale>>6) */	
+	Glyph* shadowGlyph;              /**<  Shadow glyph(s) */	
+	
 	float size;
 	unsigned int color;
 	unsigned int shadowColor;
 	unsigned int options;
+
+	struct intraFont* altFont;
 } intraFont;
 
 
@@ -235,6 +237,15 @@ void intraFontSetStyle(intraFont *font, float size, unsigned int color, unsigned
 void intraFontSetEncoding(intraFont *font, unsigned int options);
 
 /**
+ * Set alternative font
+ *
+ * @param font - A valid ::intraFont
+ *
+ * @param altFont - A valid ::intraFont that's to be used if font does not contain a character
+ */
+void intraFontSetAltFont(intraFont *font, intraFont *altFont);
+
+/**
  * Draw UCS-2 encoded text along the baseline starting at x, y.
  *
  * @param font - A valid ::intraFont
@@ -254,7 +265,7 @@ void intraFontSetEncoding(intraFont *font, unsigned int options);
 float intraFontPrintUCS2        (intraFont *font, float x, float y, const unsigned short *text);
 float intraFontPrintUCS2Ex      (intraFont *font, float x, float y, const unsigned short *text, int length);
 float intraFontPrintColumnUCS2  (intraFont *font, float x, float y, float width, const unsigned short *text);
-float intraFontPrintColumnUCS2Ex(intraFont *font, intraFont *font2, float x, float y, float width, const unsigned short *text, int length);
+float intraFontPrintColumnUCS2Ex(intraFont *font, float x, float y, float width, const unsigned short *text, int length);
 
 /**
  * Draw text along the baseline starting at x, y.
@@ -274,10 +285,9 @@ float intraFontPrintColumnUCS2Ex(intraFont *font, intraFont *font2, float x, flo
  * @returns The x position after the last char
  */
 float intraFontPrint        (intraFont *font, float x, float y, const char *text);
-float intraFont2Print(intraFont *font, intraFont *font2, float x, float y, const char *text);
 float intraFontPrintEx      (intraFont *font, float x, float y, const char *text, int length);
 float intraFontPrintColumn  (intraFont *font, float x, float y, float width, const char *text);
-float intraFontPrintColumnEx(intraFont *font, intraFont *font2, float x, float y, float width, const char *text, int length);
+float intraFontPrintColumnEx(intraFont *font, float x, float y, float width, const char *text, int length);
 
 /**
  * Draw text along the baseline starting at x, y (with formatting).
@@ -315,7 +325,7 @@ float intraFontPrintf        (intraFont *font, float x, float y, const char *tex
  */
 float intraFontMeasureText  (intraFont *font, const char *text);
 float intraFontMeasureTextEx(intraFont *font, const char *text, int length);
-float intraFont2MeasureText(intraFont *font, intraFont *font2, const char *text);
+
 /**
  * Measure a length of UCS-2 encoded text if it were to be drawn
  *
@@ -327,8 +337,9 @@ float intraFont2MeasureText(intraFont *font, intraFont *font2, const char *text)
  *
  * @returns The total width of the text (until the first newline char)
  */
-float intraFontMeasureTextUCS2  (intraFont *font, const unsigned short *text);
-float intraFontMeasureTextUCS2Ex(intraFont *font, const unsigned short *text, int length);
+float intraFontMeasureTextUCS2  (intraFont *font, const unsigned short *text); 
+float intraFontMeasureTextUCS2Ex(intraFont *font, const unsigned short *text, int length); 
+
 /** @} */
 
 #ifdef __cplusplus

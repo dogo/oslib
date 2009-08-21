@@ -20,7 +20,6 @@ typedef struct			{
 	unsigned char addedSpace;				//!< Space added between characters on the texture (allows to make characters bigger than indicated by charWidths)
     int fontType;                           //!< Font type (OSL_FONT_OFT or OSL_FONT_INTRA)
     intraFont *intra;                       //!< IntraFont data
-	intraFont *intraAlt;                    //!< another IntraFont data
 } OSL_FONT;
 
 /** Font information type */

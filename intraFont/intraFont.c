@@ -1,7 +1,7 @@
 /*
  * intraFont.c
  * This file is used to display the PSP's internal font (pgf and bwfon firmware files)
- * intraFont Version 0.30 by BenHur - http://www.psp-programming.com/benhur
+ * intraFont Version 0.31 by BenHur - http://www.psp-programming.com/benhur
  *
  * Uses parts of pgeFont by InsertWittyName - http://insomniac.0x89.org
  *
@@ -14,11 +14,9 @@
 #include <pspgu.h>
 #include <pspgum.h>
 #include <pspdisplay.h>
-
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
-#include <math.h>
 #include <malloc.h>
 
 #include "oslib.h"
@@ -126,6 +124,22 @@ int intraFontGetBMP(intraFont *font, unsigned short id, unsigned char glyphtype)
 					for (xx = 0; xx < glyph->width; xx++) {
 						if (glyphtype & PGF_CHARGLYPH) {
 							value = intraFontGetV(1,font->fontdata,&b) * 0x0f; //scale 1 bit/pix to 4 bit/pix
+							/* Simple anti-aliasing/blur for black pixels. Unfortunately, does not improve the result...
+							if ((value == 0) && (xx > 0) && (yy > 0) && (xx < (glyph->width-1)) && (yy < (glyph->height-1))) {
+								b -= 19;
+								value += intraFontGetV(1,font->fontdata,&b);
+								value += intraFontGetV(1,font->fontdata,&b);
+								value += intraFontGetV(1,font->fontdata,&b);
+								b += 13;
+								value += intraFontGetV(1,font->fontdata,&b);
+								value += intraFontGetV(1,font->fontdata,&b);
+								value += intraFontGetV(1,font->fontdata,&b);
+								b += 13;
+								value += intraFontGetV(1,font->fontdata,&b);
+								value += intraFontGetV(1,font->fontdata,&b);
+								value += intraFontGetV(1,font->fontdata,&b);
+								b -= 16;
+							} */
 							if ((font->texX + (7-(xx&7)+(xx&248))) & 1) {
 								font->texture[((font->texX + (7-(xx&7)+(xx&248))) + (font->texY + yy) * font->texWidth)>>1] &= 0x0F;
 								font->texture[((font->texX + (7-(xx&7)+(xx&248))) + (font->texY + yy) * font->texWidth)>>1] |= (value<<4);
@@ -439,6 +453,7 @@ intraFont* intraFontLoad(const char *filename, unsigned int options) {
     font->size = 1.0f;               //default size
     font->color = 0xFFFFFFFF;        //non-transparent white
     font->shadowColor = 0xFF000000;  //non-transparent black
+	font->altFont = NULL;            //no alternative font
 	font->filename = (char*)malloc((strlen(filename)+1)*sizeof(char));
 	font->texture = (unsigned char*)memalign(16,font->texWidth*font->texHeight>>1);
 	if (!font->filename || !font->texture) {
@@ -702,6 +717,7 @@ void intraFontActivate(intraFont *font) {
 
     osl_curPalette = NULL; //sakya
     osl_curTexture = NULL; //sakya
+
 	sceGuClutMode(GU_PSM_8888, 0, 255, 0);
 	sceGuClutLoad(2, clut);
 
@@ -729,6 +745,17 @@ void intraFontSetEncoding(intraFont *font, unsigned int options) {
 	font->options = (font->options & PGF_OPTIONS_MASK) | (options & PGF_STRING_MASK) | (font->options & PGF_CACHE_MASK);
 }
 
+void intraFontSetAltFont(intraFont *font, intraFont *altFont) {
+	if (!font) return;
+	intraFont* nextFont;
+	nextFont = altFont;
+	while (nextFont) {
+		if ((nextFont->altFont) == font) return; //it must not point at itself
+		nextFont = nextFont->altFont;
+	}
+	font->altFont = altFont;
+}
+
 float intraFontPrintf(intraFont *font, float x, float y, const char *text, ...) {
 	if(!font) return x;
 
@@ -746,27 +773,20 @@ float intraFontPrintf(intraFont *font, float x, float y, const char *text, ...) 
 float intraFontPrint(intraFont *font, float x, float y, const char *text) {
 	if (!font) return x;
 	int length = cccStrlenCode((cccCode*)text, font->options/0x00010000);
-	return intraFontPrintColumnEx(font, NULL, x, y, 0.0f, text, length);
+	return intraFontPrintColumnEx(font, x, y, 0.0f, text, length);
 }
-
-float intraFont2Print(intraFont *font, intraFont *font2, float x, float y, const char *text) {
-	if (!font) return x;
-	int length = cccStrlenCode((cccCode*)text, font->options/0x00010000);
-	return intraFontPrintColumnEx(font, font2, x, y, 0.0f, text, length);
-}
-
 
 float intraFontPrintEx(intraFont *font, float x, float y, const char *text, int length) {
-	return intraFontPrintColumnEx(font, NULL, x, y, 0.0f, text, length);
+	return intraFontPrintColumnEx(font, x, y, 0.0f, text, length);
 }
 
 float intraFontPrintColumn(intraFont *font, float x, float y, float column, const char *text) {
 	if (!font) return x;
 	int length = cccStrlenCode((cccCode*)text, font->options/0x00010000);
-	return intraFontPrintColumnEx(font, NULL, x, y, column, text, length);
+	return intraFontPrintColumnEx(font, x, y, column, text, length);
 }
 
-float intraFontPrintColumnEx(intraFont *font, intraFont *font2, float x, float y, float column, const char *text, int length) {
+float intraFontPrintColumnEx(intraFont *font, float x, float y, float column, const char *text, int length) {
     if (!text || length <= 0 || !font) return x;
 
 #define LOCAL_BUFFER_LENGTH 256
@@ -789,7 +809,7 @@ float intraFontPrintColumnEx(intraFont *font, intraFont *font2, float x, float y
 	}
 
 	if (column >= 0) {
-		x = intraFontPrintColumnUCS2Ex(font, font2, x, y, column, ucs2_text, length);
+		x = intraFontPrintColumnUCS2Ex(font, x, y, column, ucs2_text, length);
 	} else {                                                      //negative column prevents from drawing -> measure text
 		x = intraFontMeasureTextUCS2Ex(font, ucs2_text, length);  //(hack to share local buffer between intraFontPrint and intraFontMeasure)
 	}
@@ -801,18 +821,18 @@ float intraFontPrintColumnEx(intraFont *font, intraFont *font2, float x, float y
 }
 
 float intraFontPrintUCS2(intraFont *font, float x, float y, const cccUCS2 *text) {
-	return intraFontPrintColumnUCS2Ex(font, NULL, x, y, 0.0f, text, cccStrlenUCS2(text));
+	return intraFontPrintColumnUCS2Ex(font, x, y, 0.0f, text, cccStrlenUCS2(text));
 }
 
 float intraFontPrintUCS2Ex(intraFont *font, float x, float y, const cccUCS2 *text, int length) {
-	return intraFontPrintColumnUCS2Ex(font, NULL, x, y, 0.0f, text, length);
+	return intraFontPrintColumnUCS2Ex(font, x, y, 0.0f, text, length);
 }
 
 float intraFontPrintColumnUCS2(intraFont *font, float x, float y, float column, const cccUCS2 *text) {
-	return intraFontPrintColumnUCS2Ex(font, NULL, x, y, 0.0f, text, cccStrlenUCS2(text));
+	return intraFontPrintColumnUCS2Ex(font, x, y, 0.0f, text, cccStrlenUCS2(text));
 }
 
-float intraFontPrintColumnUCS2Ex(intraFont *font, intraFont *font2, float x, float y, float column, const cccUCS2 *text, int length) {
+float intraFontPrintColumnUCS2Ex(intraFont *font, float x, float y, float column, const cccUCS2 *text, int length) {
 	if (!text || length <= 0 || !font) return x;
 
 	//for scrolling: if text contains '\n', replace with spaces and call intraFontColumnUCS2Ex again
@@ -823,7 +843,7 @@ float intraFontPrintColumnUCS2Ex(intraFont *font, intraFont *font2, float x, flo
 				cccUCS2* ucs2_text = (cccUCS2*)malloc(length*sizeof(cccUCS2));
 				if (!ucs2_text) return x;
 				for (i = 0; i < length; i++) ucs2_text[i] = (text[i] == '\n') ? ' ' : text[i];
-				x = intraFontPrintColumnUCS2Ex(font, font2, x, y, column, ucs2_text, length);
+				x = intraFontPrintColumnUCS2Ex(font, x, y, column, ucs2_text, length);
 				free(ucs2_text);
 				return x;
 			}
@@ -855,11 +875,6 @@ float intraFontPrintColumnUCS2Ex(intraFont *font, intraFont *font2, float x, flo
 		for(i = 0; i < length; i++) {
 
 			char_id = intraFontGetID(font,text[i]); //char
-			if ( char_id >= font->n_chars && font2 != NULL )
-			{
-				font = font2;
-				char_id = intraFontGetID(font,text[i]); //char
-			}
 			if (char_id < font->n_chars) {
 				if (font->fileType == FILETYPE_PGF) { //PGF-file
 					if ((font->glyph[char_id].flags & PGF_BMP_OVERLAY) == PGF_BMP_OVERLAY) { //overlay glyph?
@@ -1125,8 +1140,14 @@ float intraFontPrintColumnUCS2Ex(intraFont *font, intraFont *font2, float x, flo
 
 			if ((text[i] == 32) && ((font->options & INTRAFONT_ALIGN_FULL) == INTRAFONT_ALIGN_FULL)) width += fill;
 
+		} else {
+			if (font->altFont) {
+				unsigned int altOptions = (font->altFont)->options;
+				(font->altFont)->options = altOptions & (PGF_WIDTH_MASK+PGF_CACHE_MASK);
+				width += intraFontPrintColumnUCS2Ex(font->altFont, left+width, top+height, 0.0f, text+i, 1) - (left+width);
+				(font->altFont)->options = altOptions;
+			}
 		}
-
 	}
 
 	//finalize and activate texture (if not already active or has been changed)
@@ -1155,7 +1176,7 @@ float intraFontMeasureText(intraFont *font, const char *text) {
 }
 
 float intraFontMeasureTextEx(intraFont *font, const char *text, int length) {
-	return intraFontPrintColumnEx(font, NULL, 0.0f, 0.0f, -1.0f, text, length); //explanation: intraFontPrintColumnEx does the String -> UCS2 conversation,
+	return intraFontPrintColumnEx(font, 0.0f, 0.0f, -1.0f, text, length); //explanation: intraFontPrintColumnEx does the String -> UCS2 conversation,
 		                                                                  //but a negative column width triggers measurement without drawing
 }
 
@@ -1174,13 +1195,11 @@ float intraFontMeasureTextUCS2Ex(intraFont *font, const cccUCS2 *text, int lengt
 		if (char_id < font->n_chars) {
 			unsigned short glyph_ptr = (font->fileType == FILETYPE_PGF) ? char_id : 0; //for fields not covered in GlyphBW (advance,...)
 			x += (font->options & INTRAFONT_WIDTH_FIX) ? (font->options & PGF_WIDTH_MASK)*font->size : (font->glyph[glyph_ptr].advance)*font->size*0.25f;
+		} else {
+			x += intraFontMeasureTextUCS2Ex(font->altFont, text+i, 1); //try alternative font if char does not exist in current font
 		}
 	}
 
    return x;
 }
 
-float intraFont2MeasureText(intraFont *font, intraFont *font2, const char*text) {
-   int length = cccStrlenCode((cccCode*)text, font->options/0x00010000);
-   return intraFontPrintColumnEx(font, font2, 0.0f, 0.0f, -1.0f, text, length);
-}
