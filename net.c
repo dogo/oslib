@@ -80,7 +80,6 @@ int oslNetInit()
 	int res;
 
 	oslLoadNetModules();
-	//res = sceNetInit(0x20000, 0x2A, 0, 0x2A, 0);
 	res = sceNetInit(0x20000, 0x20, 0x1000, 0x20, 0x1000);
 	if (res < 0)
 		return OSL_NET_ERROR_NET;
@@ -98,8 +97,7 @@ int oslNetInit()
 		return OSL_NET_ERROR_RESOLVER;
 	}
 
-	//res = sceNetApctlInit(0x1800, 0x30);
-	res = sceNetApctlInit(0x1600, 0x42);
+	res = sceNetApctlInit(0x1400, 0x42);
 	if (res < 0)
 	{
 		oslNetTerm();
@@ -183,7 +181,7 @@ int oslConnectToAP(int config, int timeout,
     time_t startTime;
     time_t currTime;
     time(&startTime);
-	while (1){
+	while (!osl_quit){
         //Check timeout:
         time(&currTime);
         if (currTime - startTime >= timeout){
@@ -211,7 +209,7 @@ int oslConnectToAP(int config, int timeout,
                 }
             }
         }
-		if (state == 4)
+		if (state == PSP_NET_APCTL_STATE_GOT_IP)
 			break;  // connected with static IP
 		sceKernelDelayThread(50*1000);
 	}

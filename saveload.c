@@ -28,7 +28,7 @@ void oslInitSaveDialog(struct oslSaveLoad *saveData){
 
 	savedata.mode = PSP_UTILITY_SAVEDATA_LISTSAVE;
 	savedata.overwrite = 1;
-	savedata.focus = PSP_UTILITY_SAVEDATA_FOCUS_LATEST; // Set initial focus to the newest file (for loading)
+	//savedata.focus = PSP_UTILITY_SAVEDATA_FOCUS_LATEST; // Set initial focus to the newest file (for loading)
 
 #if _PSP_FW_VERSION >= 200
 	strncpy(savedata.key, key, 16);

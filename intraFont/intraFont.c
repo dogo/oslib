@@ -721,7 +721,7 @@ void intraFontActivate(intraFont *font) {
 	sceGuClutMode(GU_PSM_8888, 0, 255, 0);
 	sceGuClutLoad(2, clut);
 
-	sceGuEnable(GU_TEXTURE_2D);
+	//sceGuEnable(GU_TEXTURE_2D); //sakya
 	sceGuTexMode(GU_PSM_T4, 0, 0, (font->options & INTRAFONT_CACHE_ASCII) ? 1 : 0);
 	sceGuTexImage(0, font->texWidth, font->texWidth, font->texWidth, font->texture);
 	sceGuTexFunc(GU_TFX_MODULATE, GU_TCC_RGBA);
