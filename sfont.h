@@ -39,7 +39,7 @@ typedef struct
 /** Load an SFont
 	\param filename
         file name
-	\param pixelFormat 
+	\param pixelFormat
 		pixel format
 	Returns a pointer to the loaded OSL_SFONT or NULL
 */
@@ -63,6 +63,10 @@ int oslGetSFontTextWidth(OSL_SFONT *sfont, char *text);
 /** Print a string using SFont
 	\param sfont
         SFont to use
+	\param x
+        X position
+	\param y
+        Y position
 	\param text
         Text to print
 	Returns the string end position

@@ -5,8 +5,9 @@
 extern "C" {
 #endif
 
-/** @defgroup math Math functions (using VFPU)
+/** @defgroup math Math
 
+    Math functions (using VFPU)
 	Functions using the Vector Floating Point Unit (VFPU). All this functions are based on libpspmath version 4 by MrMr[iCE]
 	@{
 */
@@ -17,7 +18,7 @@ extern "C" {
   *
   * @param x - seed value
   *
-**/
+*/
 #define oslSrand vfpu_srand
 
 /**
@@ -26,7 +27,7 @@ extern "C" {
   * @param min - minimum value to return
   * @param max - maximum value to return
   *
-**/
+*/
 #define oslRandf vfpu_randf
 
 
@@ -37,7 +38,7 @@ extern "C" {
   * @param min - minimum value for each color channel (0..255)
   * @param max - maximum value for each color channel (0..255)
   *
-**/
+*/
 #define oslRand_8888 vfpu_rand_8888
 
 
@@ -46,7 +47,7 @@ extern "C" {
   *
   * @param x - input in radians
   *
-**/
+*/
 #define oslSinf vfpu_sinf
 
 
@@ -55,7 +56,7 @@ extern "C" {
   *
   * @param x - input in radians
   *
-**/
+*/
 #define oslCosf vfpu_cosf
 
 
@@ -64,7 +65,7 @@ extern "C" {
   *
   * @param x - input in radians
   *
-**/
+*/
 #define oslTanf vfpu_tanf
 
 /**
@@ -72,7 +73,7 @@ extern "C" {
   *
   * @param x - input
   *
-**/
+*/
 #define oslAsinf vfpu_asinf
 
 /**
@@ -80,7 +81,7 @@ extern "C" {
   *
   * @param x - input
   *
-**/
+*/
 #define oslAcosf vfpu_acosf
 
 /**
@@ -88,7 +89,7 @@ extern "C" {
   *
   * @param x - input
   *
-**/
+*/
 #define oslAtanf vfpu_atanf
 
 /**
@@ -96,7 +97,7 @@ extern "C" {
   *
   * @param x - input
   *
-**/
+*/
 #define oslAtan2f vfpu_atan2f
 
 /**
@@ -104,7 +105,7 @@ extern "C" {
   *
   * @param x - input
   *
-**/
+*/
 #define oslSinhf vfpu_sinhf
 
 /**
@@ -112,7 +113,7 @@ extern "C" {
   *
   * @param x - input
   *
-**/
+*/
 #define oslCoshf vfpu_coshf
 
 /**
@@ -120,7 +121,7 @@ extern "C" {
   *
   * @param x - input
   *
-**/
+*/
 #define oslTanhf vfpu_tanhf
 
 /**
@@ -129,7 +130,7 @@ extern "C" {
   * @param r - input in radians
   * @param s - pointer to float for sin
   * @param c - pointer to float for cos
-**/
+*/
 #define oslSincos vfpu_sincos
 
 /**
@@ -137,7 +138,7 @@ extern "C" {
   *
   * @param x - input
   *
-**/
+*/
 #define oslExpf vfpu_expf
 
 /**
@@ -145,7 +146,7 @@ extern "C" {
   *
   * @param x - input
   *
-**/
+*/
 #define oslLogf vfpu_logf
 
 /**
@@ -154,7 +155,7 @@ extern "C" {
   * @param x - number to raise power of
   * @param y - power to raise x by
   *
-**/
+*/
 #define oslPowf vfpu_powf
 
 /**
@@ -163,7 +164,7 @@ extern "C" {
   * @param x - input
   * @param y - input
   *
-**/
+*/
 #define oslFmodf vfpu_fmodf
 
 /** @} */ // end of oslMath

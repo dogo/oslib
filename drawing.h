@@ -21,9 +21,9 @@ extern "C" {
 
 
 
-/** @defgroup drawing
+/** @defgroup drawing Drawing
 
-	Drawing in OSLib.
+    Drawing in OSLib.
 	@{
 */
 

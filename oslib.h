@@ -35,9 +35,9 @@ extern "C" {
 #endif
 
 
-/** @defgroup main
+/** @defgroup main Main
 
-	Main OSLib section.
+    Main OSLib section.
 	@{
 */
 

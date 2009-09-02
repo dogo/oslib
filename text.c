@@ -516,6 +516,8 @@ OSL_FONT *oslLoadFontFile(const char *filename)		{
 
 void oslDeleteFont(OSL_FONT *f)		{
     if (f->fontType == OSL_FONT_INTRA){
+        if (f->intra->altFont)
+            intraFontUnload(f->intra->altFont);
         intraFontUnload(f->intra);
     }else if (f->fontType == OSL_FONT_OFT){
         oslDeleteImage(f->img);
@@ -812,13 +814,10 @@ void oslIntraFontShutdown(){
 }
 
 void oslIntraFontSetStyle(OSL_FONT *f, float size, unsigned int color, unsigned int shadowColor, unsigned int options){
-    if (f->intra)
+    if (f->intra){
         intraFontSetStyle(f->intra, size, color, shadowColor, options);
+        if(f->intra->altFont)
+            intraFontSetStyle(f->intra->altFont, size, color, shadowColor, options);
+    }
 }
 
-/*void oslSetFont(OSL_FONT *f){
-	osl_curFont = f;
-	if (f->fontType == OSL_FONT_INTRA)
-		intraFontActivate(f->intra);
-}
-*/
