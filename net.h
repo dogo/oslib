@@ -1,6 +1,8 @@
 #ifndef NET_H
 #define NET_H
 
+#include <sys/fd_set.h>
+
 /** @defgroup Network
 
 	Network functions
@@ -27,6 +29,14 @@
 
 #define OSL_ERR_WLAN_OFF	        -16
 #define OSL_USER_ABORTED            -17
+
+#define OSL_ERR_HTTP_INIT           -18
+#define OSL_ERR_HTTP_TEMPLATE       -19
+#define OSL_ERR_HTTP_TIMEOUT        -20
+#define OSL_ERR_HTTP_CONNECT        -21
+#define OSL_ERR_HTTP_REQUEST        -22
+#define OSL_ERR_HTTP_GENERIC        -23
+
 
 #define OSL_MAX_NET_CONFIGS		20
 
@@ -87,6 +97,29 @@ int oslGetAPState();
 /**Resolves an address to its IP address
 */
 int oslResolveAddress(char *address, char *resolvedIP);
+
+/**Get a file from the web and save it
+*/
+int oslNetGetFile(const char *url, const char *filepath);
+
+/**Posts a web form
+*/
+int oslNetPostForm(const char *url, char *data, char *response, unsigned int responsesize);
+
+
+int oslNetSocketCreate(void);
+int oslNetSocketAccept(int socket);
+int oslNetSocketBind(int socket, unsigned short port);
+int oslNetSocketListen(int socket, unsigned int maxconn);
+int oslNetSocketConnect(int socket, char *ip, unsigned short port);
+int oslNetSocketSend(int socket, const void *data, int length);
+int oslNetSocketReceive(int socket, void *data, int length);
+void oslNetSocketClose(int socket);
+void oslNetSocketSetClear(fd_set *set);
+void oslNetSocketSetAdd(int socket, fd_set *set);
+void oslNetSocketSetRemove(int socket, fd_set *set);
+int oslNetSocketSetIsMember(int socket, fd_set *set);
+int oslNetSocketSetSelect(unsigned int maxsockets, fd_set *set);
 
 /** @} */ // end of net
 #endif

@@ -621,7 +621,6 @@ void oslDrawString(int x, int y, const char *str)
             x += osl_curFont->charWidths[c];
         }
     }else if (osl_curFont->fontType == OSL_FONT_INTRA){
-		//intraFontActivate(osl_curFont->intra);
         y += (int)((float)osl_curFont->charHeight / 2.0) + 1;
         intraFontPrint(osl_curFont->intra, x, y, str);
     }
@@ -821,3 +820,10 @@ void oslIntraFontSetStyle(OSL_FONT *f, float size, unsigned int color, unsigned 
     }
 }
 
+float oslIntraFontPrintColumn(OSL_FONT *f, float x, float y, float width, const char *text)
+{
+    if (f->intra){
+        return intraFontPrintColumn(f->intra, x, y, width, text);
+    }
+    return 0;
+}

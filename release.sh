@@ -21,6 +21,7 @@ cp -f  libosl.a $TARGET/Install
 
 echo "Copying header files...."
 cp -f intraFont/intraFont.h $TARGET/Install/oslib/intraFont/
+cp -f intraFont/libccc.h $TARGET/Install/oslib/intraFont/
 cp -f libpspmath/pspmath.h $TARGET/Install/oslib/libpspmath/
 cp -f adhoc/pspadhoc.h $TARGET/Install/oslib/adhoc/
 cp -f oslmath.h $TARGET/Install/oslib/
@@ -41,6 +42,8 @@ cp -f usb.h $TARGET/Install/oslib/
 cp -f vfpu_ops.h $TARGET/Install/oslib/
 cp -f VirtualFile.h $TARGET/Install/oslib/
 cp -f vram_mgr.h $TARGET/Install/oslib/
+cp -f ccc.h $TARGET/Install/oslib/
+cp -f sfont.h $TARGET/Install/oslib/
 
 echo "Copying other files...."
 cp -f README.TXT $TARGET

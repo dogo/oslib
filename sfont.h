@@ -37,11 +37,11 @@ typedef struct
 } OSL_SFONT;
 
 /** Load an SFont
+	Returns a pointer to the loaded OSL_SFONT or NULL
 	\param filename
         file name
 	\param pixelFormat
 		pixel format
-	Returns a pointer to the loaded OSL_SFONT or NULL
 */
 OSL_SFONT *oslLoadSFontFile(char *filename, int pixelFormat);
 
@@ -52,16 +52,17 @@ OSL_SFONT *oslLoadSFontFile(char *filename, int pixelFormat);
 void oslDeleteSFont(OSL_SFONT *sfont);
 
 /** Get the text width using a SFont
+	Returns width in pixel of the string rendered with the given SFont
 	\param sfont
         SFont
 	\param text
         Text to measure
-	Returns width in pixel of the string rendered with the given SFont
 */
 int oslGetSFontTextWidth(OSL_SFONT *sfont, char *text);
 
 /** Print a string using SFont
-	\param sfont
+	Returns the string end position
+    \param sfont
         SFont to use
 	\param x
         X position
@@ -69,7 +70,6 @@ int oslGetSFontTextWidth(OSL_SFONT *sfont, char *text);
         Y position
 	\param text
         Text to print
-	Returns the string end position
 */
 int oslSFontDrawText(OSL_SFONT *sfont, int x, int y, char *text);
 
