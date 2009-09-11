@@ -13,10 +13,10 @@ typedef struct			{
 	OSL_IMAGE *img;							//!< Image containing character sprites
 	unsigned char *charWidths;				//!< Table containing the width of each character (256 entries)
 	unsigned short *charPositions;			//!< Position of characters in the image (16-bits: y:7, x:9)
-	int isCharWidthConstant;				//!< Internal (pour savoir s'il faut libérer charWidth)
+	int isCharWidthConstant;				//!< Internal (pour savoir s'il faut libÃ©rer charWidth)
 	int charWidth;
 	int charHeight;							//!< Height of characters (constant)
-	int recentrage;							//!< Add this to text positions when drawing it (à ajouter aux positions pour le dessin du texte)
+	int recentrage;							//!< Add this to text positions when drawing it (Ã  ajouter aux positions pour le dessin du texte)
 	unsigned char addedSpace;				//!< Space added between characters on the texture (allows to make characters bigger than indicated by charWidths)
     int fontType;                           //!< Font type (OSL_FONT_OFT or OSL_FONT_INTRA)
     intraFont *intra;                       //!< IntraFont data
@@ -148,7 +148,7 @@ extern void oslDeleteFont(OSL_FONT *f);
 sample shows you how to center a text horizontally and align it to the bottom of the screen:
 
 \code
-const char *text = "© 2007 Brunni";
+const char *text = "Â© 2007 Brunni";
 int width = oslGetStringWidth(text);
 oslDrawString((SCREEN_WIDTH - width) / 2, SCREEN_HEIGHT - osl_curFont->charHeight, text);
 \endcode */
@@ -230,7 +230,7 @@ extern void oslIntraFontSetStyle(OSL_FONT *f, float size, unsigned int color, un
  *
  * @returns The x position after the last char
  */
-extern float oslIntraFontPrintColumn(OSL_FONT *f, float x, float y, float width, const char *text);
+extern float oslIntraFontPrintColumn(OSL_FONT *f, float x, float y, float width, int autoBreakLine, const char *text);
 
 /**Shuts down intraFont */
 extern void oslIntraFontShutdown();

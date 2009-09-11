@@ -820,10 +820,11 @@ void oslIntraFontSetStyle(OSL_FONT *f, float size, unsigned int color, unsigned 
     }
 }
 
-float oslIntraFontPrintColumn(OSL_FONT *f, float x, float y, float width, const char *text)
+float oslIntraFontPrintColumn(OSL_FONT *f, float x, float y, float width, int autoBreakLine, const char *text)
 {
     if (f->intra){
-        return intraFontPrintColumn(f->intra, x, y, width, text);
+        y += (int)((float)osl_curFont->charHeight / 2.0f) + 1;
+        return intraFontPrintColumn(f->intra, x, y, width, autoBreakLine, text);
     }
     return 0;
 }
