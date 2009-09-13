@@ -107,6 +107,13 @@ oslDrawString(0, 0, "Test string");
 \endcode */
 extern void oslDrawString(int x, int y, const char *str);
 
+/** Draws a string litteral at the specified x and y positions limiting it to a given width.
+
+\code
+oslDrawStringLimited(0, 0, 200, "Test string");
+\endcode */
+extern void oslDrawStringLimited(int x, int y, int width, const char *str);
+
 /** Draws a formatted string litteral at the specified x and y positions.
 
 \code

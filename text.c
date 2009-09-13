@@ -627,6 +627,26 @@ void oslDrawString(int x, int y, const char *str)
 
 }
 
+void oslDrawStringLimited(int x, int y, int width, const char *str)
+{
+    if (osl_curFont->fontType == OSL_FONT_OFT){
+        int limitX = x + width;
+        unsigned char c;
+        if (!osl_curFont)
+            return;
+        oslSetTexture(osl_curFont->img);
+        while(*str)			{
+            c = *(unsigned char*)str++;
+            if (x + osl_curFont->charWidths[c] > limitX)
+                break;
+            oslDrawTextTile(OSL_TEXT_CHARPOSXY(osl_curFont, c), x, y, osl_curFont->charWidths[c], osl_curFont->charHeight);
+            x += osl_curFont->charWidths[c];
+        }
+    }else if (osl_curFont->fontType == OSL_FONT_INTRA){
+        oslIntraFontPrintColumn(osl_curFont, x, y, width, 0, str);
+    }
+}
+
 void oslDrawTextBox(int x0, int y0, int x1, int y1, const char *text, int format)
 {
 	int x,y, x2;
