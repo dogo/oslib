@@ -64,7 +64,6 @@ OSL_IMAGE *oslLoadImageFileJPG(char *filename, int location, int pixelFormat)
         jpeg_destroy_decompress( &cinfo );
         free( row_pointer[0] );
         fclose( infile );
-
         free((void*)input_free);
 
         if (img != NULL && oslImageLocationIsSwizzled(location))

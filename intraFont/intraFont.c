@@ -377,7 +377,17 @@ intraFont* intraFontLoad(const char *filename, unsigned int options) {
 	if (!font) return NULL;
 
 	//open pgf file and get file size
-    FILE *file = fopen(filename, "rb"); /* read from the file in binary mode */
+    VIRTUAL_FILE *f = VirtualFileOpen((void*)filename, 0, VF_AUTO, VF_O_READ);
+    if (!f)    return NULL;
+
+    const unsigned char *input, *input_free;
+    int input_size = 0;
+    input = (const unsigned char*)oslReadEntireFileToMemory(f, &input_size);
+    input_free = input;
+    VirtualFileClose(f);
+
+    //FILE *file = fopen(filename, "rb"); /* read from the file in binary mode */
+    FILE *file = fmemopen((void *)input,input_size,"rb");
 	if (!file) return NULL;
 	fseek(file, 0, SEEK_END);
     unsigned long filesize = ftell(file);
@@ -387,6 +397,7 @@ intraFont* intraFontLoad(const char *filename, unsigned int options) {
 	static PGF_Header header;
 	if (fread(&header, sizeof(PGF_Header), 1, file) != 1) {
 		fclose(file);
+        free((void*)input_free);
 		return NULL;
 	}
 
@@ -399,6 +410,7 @@ intraFont* intraFontLoad(const char *filename, unsigned int options) {
 		font->fileType = FILETYPE_BWFON;
 	} else {
 	    fclose(file);
+        free((void*)input_free);
 		return NULL;
 	}
 
@@ -418,6 +430,7 @@ intraFont* intraFontLoad(const char *filename, unsigned int options) {
 		font->charmap = (unsigned short*)malloc(header.charmap_len*sizeof(unsigned short));
 		if (!font->glyph || !font->shadowGlyph || !font->charmap_compr || !font->charmap) {
 			fclose(file);
+            free((void*)input_free);
 			intraFontUnload(font);
 			return NULL;
 		}
@@ -439,6 +452,7 @@ intraFont* intraFontLoad(const char *filename, unsigned int options) {
 		font->charmap = NULL;                //not needed for bwfon
 		if (!font->glyphBW) {
 			fclose(file);
+            free((void*)input_free);
 			intraFontUnload(font);
 			return NULL;
 		}
@@ -458,6 +472,7 @@ intraFont* intraFontLoad(const char *filename, unsigned int options) {
 	font->texture = (unsigned char*)memalign(16,font->texWidth*font->texHeight>>1);
 	if (!font->filename || !font->texture) {
 		fclose(file);
+        free((void*)input_free);
 		intraFontUnload(font);
 		return NULL;
 	}
@@ -471,12 +486,14 @@ intraFont* intraFontLoad(const char *filename, unsigned int options) {
 		signed long *advancemap = (signed long*)malloc(header.advance_len*sizeof(signed long)*2);
 		if (!advancemap) {
 			fclose(file);
+            free((void*)input_free);
 			intraFontUnload(font);
 			return NULL;
 		}
 		if (fread(advancemap, header.advance_len*sizeof(signed long)*2, 1, file) != 1) {
 			free(advancemap);
 			fclose(file);
+            free((void*)input_free);
 			intraFontUnload(font);
 			return NULL;
 		}
@@ -486,6 +503,7 @@ intraFont* intraFontLoad(const char *filename, unsigned int options) {
 		if (ucs_shadowmap == NULL) {
 			free(advancemap);
 			fclose(file);
+            free((void*)input_free);
 			intraFontUnload(font);
 			return NULL;
 		}
@@ -496,6 +514,7 @@ intraFont* intraFontLoad(const char *filename, unsigned int options) {
 				free(advancemap);
 				free(ucs_shadowmap);
 				fclose(file);
+                free((void*)input_free);
 				intraFontUnload(font);
 				return NULL;
 			}
@@ -510,6 +529,7 @@ intraFont* intraFontLoad(const char *filename, unsigned int options) {
 				free(advancemap);
 				free(ucs_shadowmap);
 				fclose(file);
+                free((void*)input_free);
 				intraFontUnload(font);
 				return NULL;
 			}
@@ -519,6 +539,7 @@ intraFont* intraFontLoad(const char *filename, unsigned int options) {
 				free(advancemap);
 				free(ucs_shadowmap);
 				fclose(file);
+                free((void*)input_free);
 				intraFontUnload(font);
 				return NULL;
 			}
@@ -534,6 +555,7 @@ intraFont* intraFontLoad(const char *filename, unsigned int options) {
 			free(advancemap);
 			free(ucs_shadowmap);
 			fclose(file);
+            free((void*)input_free);
 			intraFontUnload(font);
 			return NULL;
 		}
@@ -547,6 +569,7 @@ intraFont* intraFontLoad(const char *filename, unsigned int options) {
 		    free(ucs_shadowmap);
 			free(charptr);
 			fclose(file);
+            free((void*)input_free);
 			intraFontUnload(font);
 			return NULL;
 		}
@@ -555,12 +578,14 @@ intraFont* intraFontLoad(const char *filename, unsigned int options) {
 			free(ucs_shadowmap);
 			free(charptr);
 			fclose(file);
+            free((void*)input_free);
 			intraFontUnload(font);
 			return NULL;
 		}
 
 		//close file
 		fclose(file);
+        free((void*)input_free);
 
 		//count ascii chars and reduce mem required
 		if ((options & PGF_CACHE_MASK) == INTRAFONT_CACHE_ASCII) {
@@ -652,11 +677,13 @@ intraFont* intraFontLoad(const char *filename, unsigned int options) {
 		font->fontdata = (unsigned char*)malloc((filesize+40)*sizeof(unsigned char));
 		if (font->fontdata == NULL) {
 			fclose(file);
+            free((void*)input_free);
 			intraFontUnload(font);
 			return NULL;
 		}
 		if (fread(font->fontdata, filesize*sizeof(unsigned char), 1, file) != 1) {
 			fclose(file);
+            free((void*)input_free);
 			intraFontUnload(font);
 			return NULL;
 		}
@@ -664,6 +691,7 @@ intraFont* intraFontLoad(const char *filename, unsigned int options) {
 
 		//close file
 		fclose(file);
+        free((void*)input_free);
 
 		//count ascii chars and reduce mem required: no ascii chars in bwfon -> abort
 		if ((options & PGF_CACHE_MASK) == INTRAFONT_CACHE_ASCII) {

@@ -71,7 +71,17 @@ static PNG_DATA* _loadFromPNG(char *filename)
     int passes;
     u8** rows;
 
-    if ((fp = fopen(filename, "rb")) == NULL)
+    VIRTUAL_FILE *f = VirtualFileOpen((void*)filename, 0, VF_AUTO, VF_O_READ);
+    if (!f)    return NULL;
+
+    const unsigned char *input, *input_free;
+    int input_size = 0;
+    input = (const unsigned char*)oslReadEntireFileToMemory(f, &input_size);
+    input_free = input;
+    VirtualFileClose(f);
+
+    fp = fmemopen((void *)input,input_size,"rb");
+    if ( fp == NULL)
 	{
 	   free(pngData);
        return NULL;
@@ -81,6 +91,7 @@ static PNG_DATA* _loadFromPNG(char *filename)
     if (png_ptr == NULL)
     {
        fclose(fp);
+       free((void*)input_free);
 	   free(pngData);
 	   return NULL;
     }
@@ -91,6 +102,7 @@ static PNG_DATA* _loadFromPNG(char *filename)
     if (info_ptr == NULL)
     {
        fclose(fp);
+       free((void*)input_free);
        png_destroy_read_struct(&png_ptr, png_infopp_NULL, png_infopp_NULL);
 	   free(pngData);
 	   return NULL;
@@ -134,6 +146,7 @@ static PNG_DATA* _loadFromPNG(char *filename)
     if (!pngData->rawdata)
     {
        fclose(fp);
+       free((void*)input_free);
        png_destroy_read_struct(&png_ptr, png_infopp_NULL, png_infopp_NULL);
 	   free(pngData);
 	   return NULL;
@@ -155,6 +168,7 @@ static PNG_DATA* _loadFromPNG(char *filename)
     png_read_end(png_ptr, info_ptr);
     png_destroy_read_struct(&png_ptr, &info_ptr, png_infopp_NULL);
     fclose(fp);
+    free((void*)input_free);
 
 	return pngData;
 }
