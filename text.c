@@ -499,8 +499,10 @@ OSL_FONT *oslLoadFontFile(const char *filename)		{
                     }
                     //On peut finalement la charger
                     font = oslLoadFont(&fi);
-                    if (fi.paletteData)
+                    if (fi.paletteData){
                         free(fi.paletteData);
+                        fi.paletteData = NULL;
+                    }
                 }
                 free(tcCaracteres);
             }
@@ -522,7 +524,9 @@ void oslDeleteFont(OSL_FONT *f)		{
     }else if (f->fontType == OSL_FONT_OFT){
         oslDeleteImage(f->img);
         free(f->charPositions);
+        f->charPositions = NULL;
         free(f->charWidths);
+        f->charWidths = NULL;
     }
     free(f);
 	f = NULL;

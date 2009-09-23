@@ -547,6 +547,7 @@ intraFont* intraFontLoad(const char *filename, unsigned int options) {
 				font->charmap[i]=(unsigned short)((id_charmap[i] < font->n_chars)?id_charmap[i]:65535);
 			}
 			free(id_charmap);
+            id_charmap = NULL;
 		}
 
 		//read charptr

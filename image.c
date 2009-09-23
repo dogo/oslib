@@ -115,7 +115,10 @@ void oslFreeImageData(OSL_IMAGE *img)		{
 	if (img->data)		{
 		//Free memory depending on the current location
 		if (img->location == OSL_IN_RAM)
+        {
 			free(img->data);
+            img->data = NULL;
+        }
 		else if (img->location == OSL_IN_VRAM)
 			oslVramMgrFreeBlock(img->data, img->totalSize);
 	}
