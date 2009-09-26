@@ -518,9 +518,12 @@ OSL_FONT *oslLoadFontFile(const char *filename)		{
 
 void oslDeleteFont(OSL_FONT *f)		{
     if (f->fontType == OSL_FONT_INTRA){
-        if (f->intra->altFont)
+        if (f->intra->altFont){
             intraFontUnload(f->intra->altFont);
+            f->intra->altFont = NULL;
+        }
         intraFontUnload(f->intra);
+        f->intra = NULL;
     }else if (f->fontType == OSL_FONT_OFT){
         oslDeleteImage(f->img);
         free(f->charPositions);

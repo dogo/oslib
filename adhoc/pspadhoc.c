@@ -57,6 +57,7 @@ int _loadModules()
 int _libNetInit()
 {
     return sceNetInit(0x20000, 0x20 , 0x1000, 0x20, 0x1000);
+    //return sceNetInit(128*1024, 42, 4*1024, 42, 4*1024);
 }
 
 int _libAdhocInit()
@@ -229,7 +230,7 @@ int oslAdhocInit(char *productID)
     if( state != ADHOC_UNINIT) return 0;
 
     memset(myMacAddress, 0, 8*sizeof(u8) );
-    strcpy(product.product, productID);
+    strncpy(product.product, productID, 9);
     product.unknown = 0;
     matchingHD=-1;
     pdpHD=-1;
@@ -348,7 +349,7 @@ int oslAdhocSendData( struct remotePsp *pPsp, void *data, int lenData)
 int oslAdhocReceiveData( struct remotePsp *pPsp, void *data, int maxLen)
 {
     pdpStatStruct aStat;
-    //aStat.next = NULL;
+    aStat.next = NULL;
     int sizeStat = sizeof(pdpStatStruct);
     unsigned int sizeData = maxLen;
 
@@ -360,7 +361,10 @@ int oslAdhocReceiveData( struct remotePsp *pPsp, void *data, int maxLen)
 		//there are data to be read
 		//sizeData = ( maxLen<aStat.rcvdData)?maxLen:aStat.rcvdData; //MIN
 		//if the size isn't big enough there is an error ....
-		return sceNetAdhocPdpRecv(pdpHD, pPsp->macAddress, &(aStat.port), data, &sizeData, 0, 0);
+		ret = sceNetAdhocPdpRecv(pdpHD, pPsp->macAddress, &(aStat.port), data, &sizeData, 0, 0);
+        if (ret < 0)
+            return ret;
+        return aStat.rcvdData;
 	}
 	else
 	{
