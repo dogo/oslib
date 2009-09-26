@@ -37,21 +37,21 @@
 /**
 Connection states
 */
-enum remotePspState { 
-	//** PSP Disconnected */
-	OSL_ADHOC_DISCONNECTED = 0, 
-	//** PSP Joined */
-	OSL_ADHOC_JOINED, 
-	//** A PSP selected me */
-	OSL_ADHOC_SELECTED, 
-	//** Connection rejected */
-	OSL_ADHOC_REJECTED, 
-	//** Connection canceled */
-	OSL_ADHOC_CANCELED, 
-	//** Connection accepted */
-	OSL_ADHOC_ACCEPTED, 
-	//** Connection established */
-	OSL_ADHOC_ESTABLISHED 
+enum remotePspState {
+	/** PSP Disconnected */
+	OSL_ADHOC_DISCONNECTED = 0,
+	/** PSP Joined */
+	OSL_ADHOC_JOINED,
+	/** A PSP selected me */
+	OSL_ADHOC_SELECTED,
+	/** Connection rejected */
+	OSL_ADHOC_REJECTED,
+	/** Connection canceled */
+	OSL_ADHOC_CANCELED,
+	/** Connection accepted */
+	OSL_ADHOC_ACCEPTED,
+	/** Connection established */
+	OSL_ADHOC_ESTABLISHED
 };
 
 /**
@@ -60,7 +60,7 @@ Structure for information on a psp
 struct remotePsp
 {
 	/** The mac address of the PSP */
-    u8     macAddress[8]; 
+    u8     macAddress[8];
 	/** Nickname of the PSP */
 	char   name[257];
 	/** The connection state of the PSP ( remotePspState ) */

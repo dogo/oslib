@@ -1,3 +1,6 @@
+//PSP adhoc functions.
+// based on pspZorba's sample
+// www.pspZorba.com
 #include <pspkernel.h>
 #include <pspsdk.h>
 #include <pspwlan.h>

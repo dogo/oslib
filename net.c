@@ -33,14 +33,14 @@ int oslLoadNetModules()
 	sceUtilityLoadNetModule(PSP_NET_MODULE_PARSEURI);
 	sceUtilityLoadNetModule(PSP_NET_MODULE_PARSEHTTP);
 	sceUtilityLoadNetModule(PSP_NET_MODULE_HTTP);
-	//sceUtilityLoadNetModule(PSP_NET_MODULE_SSL);
+    sceUtilityLoadNetModule(PSP_NET_MODULE_SSL);
 	return 0;
 }
 
 
 int oslUnloadNetModules()
 {
-	//sceUtilityUnloadNetModule(PSP_NET_MODULE_SSL);
+	sceUtilityUnloadNetModule(PSP_NET_MODULE_SSL);
 	sceUtilityUnloadNetModule(PSP_NET_MODULE_HTTP);
 	sceUtilityUnloadNetModule(PSP_NET_MODULE_PARSEHTTP);
 	sceUtilityUnloadNetModule(PSP_NET_MODULE_PARSEURI);
@@ -113,14 +113,14 @@ int oslNetInit()
 		return OSL_NET_ERROR_APCTL;
 	}
 
-	/*res = sceSslInit(0x28000);
+	res = sceSslInit(0x28000);
 	if (res < 0)
 	{
 		oslNetTerm();
 		return OSL_NET_ERROR_SSL;
-	}*/
+	}
 
-	/*res = sceHttpInit(0x25800);
+	res = sceHttpInit(0x25800);
 	if (res < 0)
 	{
 		oslNetTerm();
@@ -146,7 +146,7 @@ int oslNetInit()
 	{
 		oslNetTerm();
 		return OSL_NET_ERROR_COOKIE;
-	}*/
+	}
 	return 0;
 }
 
