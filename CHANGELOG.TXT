@@ -7,7 +7,7 @@ Version MOD 1.1.0
 -Added: adhoc functions (based on pspZorba's adhoc sample)
 -Added: switched to libjpeg to load jpg
 -Added: Switched to intraFont 0.31
--Added: Functions to delete a savedata or save with multi list (thanks to valantin)
+-Added: Functions to delete a savedata or save without multi list (thanks to valantin)
 -Fixed: debug console
 -Fixed: minor bugs
 
