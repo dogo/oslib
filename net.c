@@ -156,7 +156,7 @@ int oslNetTerm()
 	sceHttpSaveSystemCookie();
 	sceHttpsEnd();
 	sceHttpEnd();
-	//sceSslEnd();
+	sceSslEnd();
 	sceNetApctlTerm();
 	sceNetInetTerm();
 	sceNetTerm();

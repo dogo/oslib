@@ -458,6 +458,18 @@ OSL_FONT *oslLoadFontFile(const char *filename)		{
         }else{
             intraFontSetStyle(font->intra, 1.0f, 0xFFFFFFFF, 0xFF000000, INTRAFONT_ALIGN_LEFT);
             font->charHeight = font->intra->texYSize;
+			font->charWidths = (u8*)malloc(256*sizeof(char));
+			if (!font->charWidths) {
+				free(font);
+				font = NULL;
+				oslHandleLoadNoFailError(filename);
+			}
+			int i = 0;
+			char tchar[2] = "";
+			for (i=0; i<256; i++){
+				tchar[0] = i;
+				font->charWidths[i] = (int)intraFontMeasureText(font->intra, tchar);
+			}
         }
     }else{
         f = VirtualFileOpen((void*)filename, 0, VF_AUTO, VF_O_READ);
@@ -524,6 +536,8 @@ void oslDeleteFont(OSL_FONT *f)		{
         }
         intraFontUnload(f->intra);
         f->intra = NULL;
+        free(f->charWidths);
+        f->charWidths = NULL;
     }else if (f->fontType == OSL_FONT_OFT){
         oslDeleteImage(f->img);
         free(f->charPositions);
