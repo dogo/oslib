@@ -402,6 +402,27 @@ OSL_FONT *oslLoadFont(OSL_FONTINFO *fi)
 	return f;
 }
 
+int updateIntraFontCharWidth(OSL_FONT *font, intraFont *intra)
+{
+    if (!font || !intra)
+        return 0;
+
+    font->charHeight = intra->texYSize;
+    if (!font->charWidths){
+        font->charWidths = (u8*)malloc(256*sizeof(char));
+        if (!font->charWidths)
+            return -1;
+    }
+
+    int i = 0;
+    char tchar[2] = "";
+    for (i=0; i<256; i++){
+        tchar[0] = i;
+        font->charWidths[i] = (int)intraFontMeasureText(intra, tchar);
+    }
+    return 0;
+}
+
 OSL_FONT *oslLoadIntraFontFile(const char *filename, unsigned int options)		{
 	OSL_FONT *font = NULL;
 
@@ -416,6 +437,8 @@ OSL_FONT *oslLoadIntraFontFile(const char *filename, unsigned int options)		{
         oslHandleLoadNoFailError(filename);
     }else{
         intraFontSetStyle(font->intra, 1.0f, 0xFFFFFFFF, 0xFF000000, INTRAFONT_ALIGN_LEFT);
+        font->charWidths = NULL;
+        updateIntraFontCharWidth(font, font->intra);
         font->charHeight = font->intra->texYSize;
     }
     return font;
@@ -458,18 +481,13 @@ OSL_FONT *oslLoadFontFile(const char *filename)		{
         }else{
             intraFontSetStyle(font->intra, 1.0f, 0xFFFFFFFF, 0xFF000000, INTRAFONT_ALIGN_LEFT);
             font->charHeight = font->intra->texYSize;
-			font->charWidths = (u8*)malloc(256*sizeof(char));
-			if (!font->charWidths) {
+            font->charWidths = NULL;
+
+            if (updateIntraFontCharWidth(font, font->intra)){
 				free(font);
 				font = NULL;
 				oslHandleLoadNoFailError(filename);
-			}
-			int i = 0;
-			char tchar[2] = "";
-			for (i=0; i<256; i++){
-				tchar[0] = i;
-				font->charWidths[i] = (int)intraFontMeasureText(font->intra, tchar);
-			}
+            }
         }
     }else{
         f = VirtualFileOpen((void*)filename, 0, VF_AUTO, VF_O_READ);
@@ -856,6 +874,7 @@ void oslIntraFontShutdown(){
 void oslIntraFontSetStyle(OSL_FONT *f, float size, unsigned int color, unsigned int shadowColor, unsigned int options){
     if (f->intra){
         intraFontSetStyle(f->intra, size, color, shadowColor, options);
+        updateIntraFontCharWidth(f, f->intra);
         if(f->intra->altFont)
             intraFontSetStyle(f->intra->altFont, size, color, shadowColor, options);
     }
