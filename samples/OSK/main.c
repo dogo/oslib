@@ -100,7 +100,7 @@ int main(){
 			if (osl_keys->pressed.triangle){
 				runningFlag = 0;
 			}else if (osl_keys->pressed.cross){
-				oslInitOsk("Please insert some text", "Initial text", 128, 1);
+				oslInitOsk("Please insert some text", "Initial text", 128, 1, -1);
 				memset(message, 0, sizeof(message));
 			}
 		}

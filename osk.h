@@ -39,8 +39,10 @@ extern void oslEndOskEx(OSL_KEYBOARD *kbd);
 
 /**OSK cancel*/
 #define OSL_OSK_CANCEL    PSP_UTILITY_OSK_RESULT_CANCELLED		/**<-- STAS: for backward compatibility */
-/**OSK OK*/
-// #define OSL_OSK_OK 0			//<-- STAS: This isn't right !!! - see SceUtilityOskResult enumeration
+/**OSK changed*/
+#define OSL_OSK_CHANGED    PSP_UTILITY_OSK_RESULT_CHANGED
+/**OSK unchanged*/
+#define OSL_OSK_UNCHANGED    PSP_UTILITY_OSK_RESULT_UNCHANGED
 
 /** Initializes the OSK
 	\param *descStr
@@ -91,7 +93,7 @@ int oslOskIsActive();
 */
 int oslGetOskStatus();
 
-/**Returns the OSK result (OSL_OSK_OK or OSL_OSK_CANCEL)
+/**Returns the OSK result (OSL_OSK_CHANGED, OSL_OSK_UNCHANGED or OSL_OSK_CANCEL)
 */
 int oslOskGetResult();
 
