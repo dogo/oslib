@@ -1,5 +1,8 @@
 Version MOD 1.1.1
 -----------------
+-Added net functions (from PGE LUA)
+-Added oslDrawStringLimited (limit a string blit to a fixed width)
+-Fixed loading an intraFont using Virtual fileSystem
 -Fixed bugs by STAS (many thanks)
 
 
