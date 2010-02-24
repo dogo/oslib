@@ -223,6 +223,8 @@ void oslStartDrawing()		{
 	osl_curTexture = NULL;
 	osl_curPalette=NULL;
 	sceGuStart(GU_DIRECT, osl_list);
+#if 0	//<-- STAS: In fact this is not needed for intraFont to work (see graphics.c in intrafont_0.31/samples/graphics).
+		//          Furthermore, all this stuff is not good here because it could interfere with the user application !
     /*SAKYA */
     if (osl_intraInit){
 		sceGumMatrixMode(GU_PROJECTION);
@@ -240,6 +242,7 @@ void oslStartDrawing()		{
         sceGuClear(GU_COLOR_BUFFER_BIT|GU_DEPTH_BUFFER_BIT);
     }
     /*END SAKYA */
+#endif	//<-- STAS END -->
     oslSetAlpha(OSL_FX_RGBA, 0xff);
 }
 
@@ -322,7 +325,11 @@ void oslInitGfx(int pixelFormat, int bDoubleBuffer) {
     //END SAKYA
 
     //SAKYA NEW
-    sceGuDepthBuffer((void*)0x110000, 512);
+										//<-- STAS -->
+//    sceGuDepthBuffer((void*)0x110000, 512);		// Absolute address is not good here !
+    sceGuDepthBuffer((void*)((u32)baseAdr - (u32)OSL_UVRAM_BASE), 512);
+    baseAdr = (u8*)((u32)baseAdr + 0x22000 * 2);	// Add the Depth Buffer length
+										//<-- STAS END -->
 	sceGuOffset(2048 - 480/2, 2048 - 272/2);
 	sceGuViewport(2048, 2048, 480, 272);
     sceGuDepthRange(65535, 0);
@@ -395,7 +402,7 @@ void oslInitGfx(int pixelFormat, int bDoubleBuffer) {
 
 }
 
-
+#if 0	//<-- STAS: this algorithm has different side effects for single and double buffering modes
 void oslSwapBuffers()
 {
 	//Seulement si le double buffer est activé
@@ -414,6 +421,24 @@ void oslSwapBuffers()
 	osl_defaultBufferImage.data = osl_curDrawBuf;
 }
 
+#else					//<-- STAS: much more simple and clear one...  -->
+void oslSwapBuffers()
+{
+	if (osl_curBuf != OSL_DEFAULT_BUFFER)				// Reset the user's draw buffer to OSL_DEFAULT_BUFFER
+		oslSetDrawBuffer(OSL_DEFAULT_BUFFER);
+	osl_curDispBuf = osl_curDrawBuf;					// The current draw buffer will be the display one
+
+	if (osl_doubleBuffer) {								// Get the new draw buffer pointer
+#ifdef PSP
+		osl_curDrawBuf = oslAddVramPrefixPtr(sceGuSwapBuffers());
+#else
+		osl_curDrawBuf = oslGetUncachedPtr(sceGuSwapBuffers());
+#endif
+	}
+	osl_defaultBufferImage.data = osl_curDrawBuf;		// Setup DEFAULT data ptr
+	osl_secondaryBufferImage.data = osl_curDispBuf;		// Setup SECONDARY data ptr
+}
+#endif
 
 void oslSetBilinearFilter(int enabled)
 {

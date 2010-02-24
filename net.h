@@ -8,7 +8,17 @@
 	Network functions
 	@{
 */
+//<-- STAS: APCTL states returned by oslGetAPState() -->
+#include <pspnet_apctl.h>
 
+#define OSL_APCTL_STATE_DISCONNECTED  PSP_NET_APCTL_STATE_DISCONNECTED
+#define OSL_APCTL_STATE_SCANNING      PSP_NET_APCTL_STATE_SCANNING
+#define OSL_APCTL_STATE_JOINING       PSP_NET_APCTL_STATE_JOINING
+#define OSL_APCTL_STATE_GETTING_IP    PSP_NET_APCTL_STATE_GETTING_IP
+#define OSL_APCTL_STATE_GOT_IP        PSP_NET_APCTL_STATE_GOT_IP
+#define OSL_APCTL_STATE_EAP_AUTH      PSP_NET_APCTL_STATE_EAP_AUTH
+#define OSL_APCTL_STATE_KEY_EXCHANGE  PSP_NET_APCTL_STATE_KEY_EXCHANGE
+//<-- STAS END -->
 #define OSL_NET_ERROR_NET		-1
 #define OSL_NET_ERROR_INET		-2
 #define OSL_NET_ERROR_RESOLVER	-3
@@ -63,6 +73,12 @@ int numconfigs = oslGetNetConfigs(configs);
 \endcode
 */
 int oslGetNetConfigs(struct oslNetConfig *result);
+
+//<-- STAS:
+/**Returns 1 or 0 indicating whether the network is initialized or not
+*/
+int oslIsNetActive();
+//<-- STAS END -->
 
 /**Inits network
 */

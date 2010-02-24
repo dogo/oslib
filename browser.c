@@ -58,7 +58,8 @@ int oslBrowserInit(char *url, char *downloadDir, int browserMemory, unsigned int
 
 	res = sceUtilityHtmlViewerInitStart(&params);
 	if (res < 0)
-		return OSL_BROWSER_ERROR_INIT;
+		return res;								//<-- STAS: Such a return value is more informative...
+//		return OSL_BROWSER_ERROR_INIT;
 
 	browserIsActive = 1;
 	return 0;
@@ -69,6 +70,7 @@ void oslDrawBrowser()
 {
 	switch (sceUtilityHtmlViewerGetStatus()){
 		case PSP_UTILITY_DIALOG_INIT:
+			break;							//<-- STAS: We shouldn't show the browser in its INIT status!
 		case PSP_UTILITY_DIALOG_VISIBLE:
 			sceGuFinish();
 			sceGuSync(0,0);

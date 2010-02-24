@@ -174,9 +174,19 @@ int oslBenchmarkTestEx(int startend, int slot)		{
 	return time[slot];
 }
 
+static int osl_exitCbId = 0;	//<-- STAS: Store the OSL's standard exitcallback ID here
+
 void oslQuit()
-{
-	sceKernelExitGame();
+{								//<-- STAS: Totally rewritten routine
+	osl_quit = 1;									// OSL mustQuit mark for another threads
+	sceKernelDelayThread(500000);					// Let another threads to handle osl_quit marker
+
+	if (!osl_exitCbId)
+		sceKernelExitGame();						// We'll fall here if the OSL's exit callback was not set
+	else {
+		sceKernelNotifyCallback(osl_exitCbId, 0);	// Wake up our exit callback
+		sceKernelSleepThreadCB();					// Sleep the thread forever...
+	}							//<-- STAS END -->
 }
 
 #ifdef PSP
@@ -186,7 +196,7 @@ void oslQuit()
 		osl_quit = 1;
 		if (osl_exitCallback)
 			osl_exitCallback(arg1, arg2, common);
-	//	sceKernelExitGame();
+		sceKernelExitGame();		//<-- STAS: It's a good pratice to place sceKernelExitGame() here !
 		return 0;
 	}
 
@@ -206,6 +216,7 @@ void oslQuit()
 
 		cbid = sceKernelCreateCallback("exitCallback", oslStandardExitCallback, NULL);
 		sceKernelRegisterExitCallback(cbid);
+		osl_exitCbId = cbid;			//<-- STAS: store the exitcallback cbid for further use...
 		cbid = sceKernelCreateCallback("powerCallback", oslStandardPowerCallback,NULL );
 		scePowerRegisterCallback(0, cbid );
 
@@ -338,7 +349,8 @@ void oslSysBenchmarkDisplay()			{
 		oslSyncFrameEx(0,0,0);
 */
 
-#if 0
+#if 1
+
 int oslSyncFrameEx(int frameskip, int max_frameskip, int vsync)
 {
 	#ifdef OSL_SYSTEM_BENCHMARK_ENABLED
@@ -362,13 +374,14 @@ int oslSyncFrameEx(int frameskip, int max_frameskip, int vsync)
 
 		//We need to do this outside of the handler to be more precise
 		osl_vblankCounterActive = 0;
-		if (vsync || osl_vblCallCount+1 > osl_vblCount)			{
-			while (osl_vblCallCount+1 > osl_vblCount)		{
+		if ((vsync & 5) || (osl_vblCallCount+1 > osl_vblCount)) {	//<-- STAS: (vsync&5) is more adequate here
+			do {
 				oslWaitVSync();
 				oslVblankNextFrame();
-			}
+			} while (osl_vblCallCount+1 > osl_vblCount);			//<-- STAS: check the condition AFTER VSync() !
 		}
 		osl_vblCallCount = osl_vblCount;
+		osl_vblankCounterActive = 1;								//<-- STAS: resume counter in the intr handler
 
 		osl_skip = 0;
 		#ifdef OSL_SYSTEM_BENCHMARK_ENABLED
@@ -379,10 +392,12 @@ int oslSyncFrameEx(int frameskip, int max_frameskip, int vsync)
 			oslSwapBuffers();
 	}
 	else	{
-		if (vsync&4)
+		osl_vblCallCount++;				//<-- STAS: osl_vblCallCount+=frameskip is not good here
+										//          because it wouldn't change osl_vblCallCount%frameskip value !
+		/*if (vsync&4)
 			osl_vblCallCount++;
 		else
-			osl_vblCallCount+=frameskip;
+			osl_vblCallCount+=frameskip;  <-- STAS END -->*/
 		#ifdef OSL_SYSTEM_BENCHMARK_ENABLED
 		lastOslSkip = osl_skip;
 		if (osl_skip)
@@ -393,8 +408,8 @@ int oslSyncFrameEx(int frameskip, int max_frameskip, int vsync)
 		#endif
 		//La référence quand vsync = 0
 		i=((vsync&1) && !osl_skip && !(vsync&8))?1:0;
-		//On est en retard?
-		if ((osl_vblCount+i > osl_vblCallCount || (vsync&4 && osl_vblCallCount%frameskip)) && osl_nbSkippedFrames < max_frameskip-1)			{
+		//On est en retard?				  <-- STAS: add frameskip-1 here
+		if ((osl_vblCount+i > osl_vblCallCount+frameskip-1 || (vsync&4 && osl_vblCallCount%frameskip)) && osl_nbSkippedFrames < max_frameskip-1)			{
 			if (!osl_skip)		{		//La frame a été dessinée -> on l'affiche
 				#ifdef OSL_SYSTEM_BENCHMARK_ENABLED
 					oslMeanBenchmarkTestEx(OSL_BENCH_END, 6);
@@ -427,6 +442,8 @@ int oslSyncFrameEx(int frameskip, int max_frameskip, int vsync)
 				oslWaitVSync();
 				i++;
 			}*/
+			if (!(vsync&4))						//<-- STAS: add frameskip-1 to osl_vblCallCount
+				osl_vblCallCount+=frameskip-1;	//          in order to skip correct number of frames
 			//We need to do this outside of the handler to be more precise
 			osl_vblankCounterActive = 0;
 			while (osl_vblCount < osl_vblCallCount + ((vsync & 8) ? (1 - osl_skip) : (0)))		{
@@ -450,9 +467,9 @@ int oslSyncFrameEx(int frameskip, int max_frameskip, int vsync)
 					oslMeanBenchmarkTestEx(OSL_BENCH_START, 6);
 			#endif
 			//Trop de frameskip tue le frameskip
-			if (osl_nbSkippedFrames >= max_frameskip-1)
+//			if (osl_nbSkippedFrames >= max_frameskip-1)			//<-- STAS: this is ALWAYS true at this point !
 				osl_vblCallCount = osl_vblCount;
-			osl_nbSkippedFrames=0;
+//			osl_nbSkippedFrames=0;								//<-- STAS: osl_nbSkippedFrames shouldn't be reset here
 			osl_skip = 0;
 			//Bidouille pour le frameskip fixé -> on repasse en-dessus
 			if (vsync&4 && frameskip > 1 && osl_vblCallCount%frameskip == 0)
@@ -465,6 +482,7 @@ int oslSyncFrameEx(int frameskip, int max_frameskip, int vsync)
 			oslMeanBenchmarkTestEx(OSL_BENCH_START, 4);
 		#endif
 	}
+	if (!osl_skip) osl_nbSkippedFrames=0;						//<-- STAS: reset the osl_nbSkippedFrames
 	if (wasDrawing)
 		oslStartDrawing();
 	return osl_skip;

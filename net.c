@@ -6,7 +6,7 @@
 #include <pspwlan.h>
 #include <pspnet.h>
 #include <pspnet_inet.h>
-#include <pspnet_apctl.h>
+//#include <pspnet_apctl.h>		//<-- STAS: included in net.h
 #include <pspnet_resolver.h>
 #include <psphttp.h>
 #include <pspssl.h>
@@ -25,6 +25,8 @@
 
 #include "oslib.h"
 #include "net.h"
+
+static int networkIsActive = 0;			//<-- STAS: network initialization flag
 
 int oslLoadNetModules()
 {
@@ -83,6 +85,39 @@ int oslGetNetConfigs(struct oslNetConfig *result){
     return index - 1;
 }
 
+//<-- STAS: intelligent NetTerm routine which takes care of exact oslNetInit step.
+//			Note: PSP sometime reboots when we try to deinitialize things not initialized yet.
+int oslNetTermEx(int step)
+{
+    switch(step) {
+      case 0:
+		sceHttpSaveSystemCookie();
+      case 7:
+		sceHttpsEnd();
+      case 6:
+		sceHttpEnd();
+      case 5:
+		sceSslEnd();
+      case 4:
+		sceNetApctlTerm();
+      case 3:
+		sceNetResolverTerm();
+      case 2:
+		sceNetInetTerm();
+      case 1:
+		sceNetTerm();
+    }
+	oslUnloadNetModules();
+	networkIsActive = 0;			//<-- STAS: network is uninitialized marker
+	return 0;
+}
+
+
+int oslIsNetActive()
+{
+	return networkIsActive;
+}
+//<-- STAS END -->
 
 int oslNetInit()
 {
@@ -95,74 +130,66 @@ int oslNetInit()
 
 	res = sceNetInetInit();
 	if (res < 0) {
-		oslNetTerm();
+		oslNetTermEx(1);
 		return OSL_NET_ERROR_INET;
 	}
 
 	res = sceNetResolverInit();
 	if (res < 0)
 	{
-		oslNetTerm();
+		oslNetTermEx(2);
 		return OSL_NET_ERROR_RESOLVER;
 	}
 
     res = sceNetApctlInit(0x10000, 48);
 	if (res < 0)
 	{
-		oslNetTerm();
+		oslNetTermEx(3);
 		return OSL_NET_ERROR_APCTL;
 	}
 
 	res = sceSslInit(0x28000);
 	if (res < 0)
 	{
-		oslNetTerm();
+		oslNetTermEx(4);
 		return OSL_NET_ERROR_SSL;
 	}
 
 	res = sceHttpInit(0x25800);
 	if (res < 0)
 	{
-		oslNetTerm();
+		oslNetTermEx(5);
 		return OSL_NET_ERROR_HTTP;
 	}
 
 	res = sceHttpsInit(0, 0, 0, 0);
 	if (res < 0)
 	{
-		oslNetTerm();
+		oslNetTermEx(6);
 		return OSL_NET_ERROR_HTTPS;
 	}
 
 	res = sceHttpsLoadDefaultCert(0, 0);
 	if (res < 0)
 	{
-		oslNetTerm();
+		oslNetTermEx(7);
 		return OSL_NET_ERROR_CERT;
 	}
 
 	res = sceHttpLoadSystemCookie();
 	if (res < 0)
 	{
-		oslNetTerm();
+		oslNetTermEx(7);
 		return OSL_NET_ERROR_COOKIE;
 	}
+	networkIsActive = 1;			//<-- STAS: network is initialized marker
 	return 0;
 }
 
 
 int oslNetTerm()
 {
-	sceHttpSaveSystemCookie();
-	sceHttpsEnd();
-	sceHttpEnd();
-	sceSslEnd();
-	sceNetApctlTerm();
-	sceNetInetTerm();
-	sceNetTerm();
-
-	oslUnloadNetModules();
-	return 0;
+	return oslNetTermEx(0);			//<-- STAS: full deinitialization
 }
 
 int oslGetIPaddress(char *IPaddress){
@@ -258,12 +285,12 @@ int oslNetGetFile(const char *url, const char *filepath)
 	int template, connection, request, ret, status, dataend, fd, byteswritten;
 	SceULong64 contentsize;
 	unsigned char readbuffer[8192];
-
+/*										//<-- STAS: HTTP library was already initialized (see oslNetInit()) !
 	ret = sceHttpInit(20000);
 
 	if(ret < 0)
 		return OSL_ERR_HTTP_INIT;
-
+*/										//<-- STAS END -->
 	template = sceHttpCreateTemplate("OSL-agent/0.0.1 libhttp/1.0.0", 1, 1);
 	if(template < 0)
 		return OSL_ERR_HTTP_TEMPLATE;
@@ -332,7 +359,7 @@ int oslNetGetFile(const char *url, const char *filepath)
 	sceHttpDeleteRequest(request);
 	sceHttpDeleteConnection(connection);
 	sceHttpDeleteTemplate(template);
-	sceHttpEnd();
+//	sceHttpEnd();						//<-- STAS: This should be done in oslNetTerm() only !
 
 	return 0;
 }
@@ -340,10 +367,11 @@ int oslNetGetFile(const char *url, const char *filepath)
 int oslNetPostForm(const char *url, char *data, char *response, unsigned int responsesize)
 {
 	int template, connection, request, ret, status;
+/*										//<-- STAS: HTTP library was already initialized (see oslNetInit()) !
 	ret = sceHttpInit(20000);
 	if(ret < 0)
 		return OSL_ERR_HTTP_INIT;
-
+*/										//<-- STAS END -->
 	template = sceHttpCreateTemplate("OSL-agent/0.0.1 libhttp/1.0.0", 1, 1);
 	if(template < 0)
 	{
@@ -444,7 +472,7 @@ int oslNetPostForm(const char *url, char *data, char *response, unsigned int res
 	sceHttpDeleteConnection(connection);
 
 	sceHttpDeleteTemplate(template);
-	sceHttpEnd();
+//	sceHttpEnd();						//<-- STAS: This should be done in oslNetTerm() only !
 
 	return 1;
 }

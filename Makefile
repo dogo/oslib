@@ -22,8 +22,12 @@ PSP_FW_VERSION=371
 #	Project folders
 #	---------------
 
-SOURCE_DIR :=
-INCLUDE_DIR :=
+#<-- STAS: pack all the necessary MikMod stuff directly into libosl.a
+#          in order to avoid conflict with the newest libmikmod releases.
+SOURCE_DIR := ./
+MM_DIR := $(SOURCE_DIR)mikmod
+INCLUDE_DIR := $(MM_DIR)
+#<-- STAS END -->
 
 #----------------------------------------------------------------------------
 #	Source to make
@@ -76,11 +80,32 @@ PSPMATHOBJS := 	            $(SOURCE_DIR)libpspmath/printMatrixFloat.o \
                             $(SOURCE_DIR)libpspmath/vfpu_quaternion_sample_hermite.o \
                             $(SOURCE_DIR)libpspmath/vfpu_quaternion_hermite_tangent.o
 
+MMLoaderObjs :=				$(MM_DIR)/mloader.o $(MM_DIR)/mlreg.o $(MM_DIR)/npertab.o \
+							$(MM_DIR)/sloader.o $(MM_DIR)/load_uni.o $(MM_DIR)/mwav.o \
+							$(MM_DIR)/load_mod.o $(MM_DIR)/load_m15.o $(MM_DIR)/load_mtm.o \
+							$(MM_DIR)/load_s3m.o $(MM_DIR)/load_stm.o $(MM_DIR)/load_669.o \
+							$(MM_DIR)/load_far.o $(MM_DIR)/load_dsm.o $(MM_DIR)/load_med.o \
+							$(MM_DIR)/load_xm.o $(MM_DIR)/load_ult.o $(MM_DIR)/load_it.o \
+							$(MM_DIR)/s3m_it.o $(MM_DIR)/load_wav.o
+
+MMDriverObjs :=				$(MM_DIR)/mdriver.o $(MM_DIR)/mdreg.o $(MM_DIR)/drv_nos.o
+
+MMPlayerObjs :=				$(MM_DIR)/mplayer.o
+
+MMIOOBJS :=					$(MM_DIR)/mmio/mmalloc.o \
+							$(MM_DIR)/mmio/mmerror.o $(MM_DIR)/mmio/mmio.o
+
+MIKMODLIBOBJS :=			$(MM_DIR)/stream.o \
+							$(MM_DIR)/virtch.o $(MM_DIR)/munitrk.o \
+							$(MMLoaderObjs) $(MMDriverObjs) $(MMPlayerObjs)
+
 LIBOBJS :=					$(SFONTOBJS) \
-                            $(PSPMATHOBJS) \
-                            $(SOURCE_DIR)oslib.o \
-                            $(SOURCE_DIR)vfpu.o \
-                            $(SOURCE_DIR)drawing.o \
+							$(PSPMATHOBJS) \
+							$(MMIOOBJS) \
+							$(MIKMODLIBOBJS) \
+							$(SOURCE_DIR)oslib.o \
+							$(SOURCE_DIR)vfpu.o \
+							$(SOURCE_DIR)drawing.o \
 							$(SOURCE_DIR)image.o \
 							$(SOURCE_DIR)palette.o \
 							$(SOURCE_DIR)shape.o \
@@ -117,7 +142,8 @@ LIBOBJS :=					$(SFONTOBJS) \
 							$(SOURCE_DIR)image/oslSetDrawBuffer.o \
 							$(SOURCE_DIR)image/oslResetImageProperties.o \
 							$(SOURCE_DIR)image/oslScaleImage.o \
-							$(SOURCE_DIR)gif/dev2gif.o $(SOURCE_DIR)gif/dgif_lib.o $(SOURCE_DIR)gif/egif_lib.o $(SOURCE_DIR)gif/gif_err.o $(SOURCE_DIR)gif/gifalloc.o $(SOURCE_DIR)gif/quantize.o \
+							$(SOURCE_DIR)gif/dev2gif.o $(SOURCE_DIR)gif/dgif_lib.o $(SOURCE_DIR)gif/egif_lib.o \
+							$(SOURCE_DIR)gif/gif_err.o $(SOURCE_DIR)gif/gifalloc.o $(SOURCE_DIR)gif/quantize.o \
 							$(SOURCE_DIR)Special/oslLoadImageFilePNG.o	\
 							$(SOURCE_DIR)Special/oslWriteImageFilePNG.o	\
 							$(SOURCE_DIR)Special/oslLoadImageFileJPG.o	\
@@ -127,8 +153,8 @@ LIBOBJS :=					$(SFONTOBJS) \
 							$(SOURCE_DIR)splash/oslShowSplashScreen1.o \
 							$(SOURCE_DIR)splash/oslShowSplashScreen2.o \
 							$(SOURCE_DIR)mem/oslGetRamStatus.o \
-                            $(SOURCE_DIR)intraFont/intraFont.o \
-                            $(SOURCE_DIR)intraFont/libccc.o
+							$(SOURCE_DIR)intraFont/intraFont.o \
+							$(SOURCE_DIR)intraFont/libccc.o
 
 OBJS :=						$(LIBOBJS)
 
@@ -154,7 +180,7 @@ SDK_LIBS :=					-lpspsdk \
                             -lpsputility \
                             -lpspssl -lpsphttp -lpspwlan
 
-EXTERN_LIBS :=				-lpng \
+EXTERN_LIBS :=				-lpng -ljpeg \
 							-lz
 
 LIBS :=						$(EXTERN_LIBS) \
@@ -172,7 +198,7 @@ DEFINES :=					-D_DEBUG \
 #	Compiler settings
 #	-----------------
 
-CFLAGS :=					$(DEFINES) -O2 -G0 -g -Wall -DHAVE_AV_CONFIG_H -fno-strict-aliasing -fverbose-asm
+CFLAGS :=					$(DEFINES) -O2 -G0 -ggdb -Wall -DHAVE_AV_CONFIG_H -fno-strict-aliasing -fverbose-asm
 #CFLAGS :=					$(DEFINES) -O2 -G0 -g -frename-registers -ffast-math -fomit-frame-pointer -Wall -DHAVE_AV_CONFIG_H -fno-strict-aliasing
 CXXFLAGS :=					$(CFLAGS) -fno-exceptions -fno-rtti
 ASFLAGS :=					$(CFLAGS)
@@ -185,14 +211,17 @@ LDFLAGS :=
 #	PBP parameters
 #	--------------
 
-EXTRA_TARGETS :=			EBOOT.PBP
+#EXTRA_TARGETS :=			EBOOT.PBP
 #PSP_EBOOT_ICON :=			../ICON0.PNG
 #PSP_EBOOT_PIC1 :=			../PIC1.PNG
-PSP_EBOOT_TITLE :=			Oldschool Library for PSP
+#PSP_EBOOT_TITLE :=			Oldschool Library for PSP
 
 #----------------------------------------------------------------------------
 #	Default build settings
 #	----------------------
+
+#test:
+#	echo $(OBJS)
 
 PSPSDK :=					$(shell psp-config --pspsdk-path)
 
@@ -202,26 +231,8 @@ include						$(PSPSDK)/lib/build.mak
 #	Copy to PSP
 #	-----------
 
-oslDrawMap.o: oslDrawMap.c
-	$(CC) $(addprefix -I,$(INCDIR)) $(CFLAGS) -O3 -c -o $@ $<
-
 lib: $(STATICLIB)
 
 $(STATICLIB): $(LIBOBJS)
 	$(AR) rcs $@ $(LIBOBJS)
 	$(RANLIB) $@
-
-ifneq ($VS_PATH),)
-CC       = psp-gcc
-endif
-
-kx-install: kxploit
-ifeq ($(PSP_MOUNT),)
-		@echo '*** Error: $$(PSP_MOUNT) undefined. Please set it to for example /cygdrive/e'
-		@echo if your PSP is mounted to E: in cygwin.
-else
-		cp -r $(TARGET) $(PSP_MOUNT)/PSP/GAME/
-		cp -r $(TARGET)% $(PSP_MOUNT)/PSP/GAME/
-		cp $(TARGET).elf $(PSP_MOUNT)/PSP/GAME/$(TARGET)
-		cp -r -u "../Data" $(PSP_MOUNT)/PSP/GAME/$(TARGET)
-endif

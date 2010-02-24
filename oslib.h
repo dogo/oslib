@@ -48,7 +48,7 @@ extern "C" {
 */
 
 /** OSLib version */
-#define OSL_VERSION "MOD 1.1.0"
+#define OSL_VERSION "MOD 1.1.1"
 
 extern int osl_intraInit;
 
