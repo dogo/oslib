@@ -377,7 +377,6 @@ OSL_FONT *oslLoadFont(OSL_FONTINFO *fi)
 		free(f->charPositions);
 		free(f->charWidths);
 		free(f);
-//		oslDeleteImage(f->img);					//<-- STAS: wow!  f was just freed !!!
 		return NULL;
 	}
 
@@ -406,6 +405,27 @@ OSL_FONT *oslLoadFont(OSL_FONTINFO *fi)
 	return f;
 }
 
+int updateIntraFontCharWidth(OSL_FONT *font, intraFont *intra) 
+{ 
+    if (!font || !intra) 
+        return 0; 
+ 
+    font->charHeight = intra->texYSize; 
+    if (!font->charWidths){ 
+        font->charWidths = (u8*)malloc(256*sizeof(char)); 
+        if (!font->charWidths) 
+            return -1; 
+    } 
+ 
+    int i = 0; 
+    char tchar[2] = ""; 
+    for (i=0; i<256; i++){ 
+        tchar[0] = i; 
+        font->charWidths[i] = (int)intraFontMeasureText(intra, tchar); 
+    } 
+    return 0; 
+} 
+
 OSL_FONT *oslLoadIntraFontFile(const char *filename, unsigned int options)		{
 	OSL_FONT *font = NULL;
 
@@ -421,6 +441,8 @@ OSL_FONT *oslLoadIntraFontFile(const char *filename, unsigned int options)		{
         oslHandleLoadNoFailError(filename);
     }else{
         intraFontSetStyle(font->intra, 1.0f, 0xFFFFFFFF, 0xFF000000, INTRAFONT_ALIGN_LEFT);
+        font->charWidths = NULL; 
+        updateIntraFontCharWidth(font, font->intra); 
         font->charHeight = font->intra->texYSize;
     }
     return font;
@@ -453,20 +475,7 @@ OSL_FONT *oslLoadFontFile(const char *filename)		{
     char *bwfon = (char *)filename + (strlen(filename) - 6);			//<-- STAS: BWFON intrafont support
     if (!strncmp(start, ".pgf", 4)   || !strncmp(start, ".PGF", 4) ||
         !strncmp(bwfon, ".bwfon", 6) || !strncmp(bwfon, ".BWFON", 6)) {
-        font = oslLoadIntraFontFile(filename, intra_options);			//<-- STAS: just to get rid of duplicate code
-/*        font = (OSL_FONT*)malloc(sizeof(OSL_FONT));
-		if (!font)
-			return NULL;
-        font->fontType = OSL_FONT_INTRA;
-        font->intra = intraFontLoad(filename, intra_options);
-        if (!font->intra){
-            free(font);
-            font = NULL;
-            oslHandleLoadNoFailError(filename);
-        }else{
-            intraFontSetStyle(font->intra, 1.0f, 0xFFFFFFFF, 0xFF000000, INTRAFONT_ALIGN_LEFT);
-            font->charHeight = font->intra->texYSize;
-        }																//<-- STAS END --> */
+        font = oslLoadIntraFontFile(filename, intra_options);			
     }else{
         f = VirtualFileOpen((void*)filename, 0, VF_AUTO, VF_O_READ);
         if (f)			{
@@ -630,8 +639,6 @@ void oslDrawString(int x, int y, const char *str)
         return;										//<-- STAS END -->
     if (osl_curFont->fontType == OSL_FONT_OFT){
         unsigned char c;
-//        if (!osl_curFont)							//<-- STAS: strange place for such a check :-((
-//            return;								//<-- STAS END -->
         oslSetTexture(osl_curFont->img);
         while(*str)			{
             c = *(unsigned char*)str++;
@@ -652,8 +659,6 @@ void oslDrawStringLimited(int x, int y, int width, const char *str)
     if (osl_curFont->fontType == OSL_FONT_OFT){
         int limitX = x + width;
         unsigned char c;
-//        if (!osl_curFont)							//<-- STAS: strange place for such a check :-((
-//            return;								//<-- STAS END -->
         oslSetTexture(osl_curFont->img);
         while(*str)			{
             c = *(unsigned char*)str++;
@@ -861,6 +866,7 @@ void oslIntraFontShutdown(){
 void oslIntraFontSetStyle(OSL_FONT *f, float size, unsigned int color, unsigned int shadowColor, unsigned int options){
     if (f->intra){
         intraFontSetStyle(f->intra, size, color, shadowColor, options);
+        updateIntraFontCharWidth(f, f->intra); 
         if(f->intra->altFont)
             intraFontSetStyle(f->intra->altFont, size, color, shadowColor, options);
     }
