@@ -146,6 +146,19 @@ extern void oslSetBkColor(OSL_COLOR color);
 */
 extern void oslDrawTextBox(int x0, int y0, int x1, int y1, const char *text, int format);
 
+/** Draws a text box, that is, text contained in a rectangle. The text will automatically be wrapped at the end of a line and be placed below.
+	Draw text by word's and not by char's
+	\param x0, y0
+		Top-left corner of the text box.
+	\param x1, y1
+		Bottom-right corner of the text box.
+	\param text
+		Text to be drawn. Can contain \n characters to make a carriage return.
+	\param format
+		Let it 0.
+*/
+extern void oslDrawTextBoxByWords(int x0, int y0, int x1, int y1, const char *text, int format);
+
 /** Deletes a font.
 
 \b Warning: the font must NOT be currently selected (that is f != #osl_curFont) else your program will crash the next time you'll try to draw a character (or later). */

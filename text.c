@@ -715,6 +715,56 @@ newline:
 	}
 }
 
+
+void oslDrawTextBoxByWords(int x0, int y0, int x1, int y1, const char *text, int format)
+{
+	char buffer[50];
+	int contaCaratteri;
+	unsigned char c;
+	int x,y, x2; //x2 => width della parola
+	x = x0;
+	y = y0;
+    const char *text2;
+    text2=text;
+    while(*text2)
+    {
+        memset(buffer,'\0',50);
+        //estrae una parola
+        contaCaratteri = 0;
+		x2 = 0;
+        while (*text2 != '\n' && *text2 != ' ' && *text2) {
+            contaCaratteri++;
+			text2++;
+        } 
+        if (contaCaratteri > 0 ) {
+            strncpy( buffer, text, contaCaratteri);
+			x2 = oslGetStringWidth(buffer);
+			if ((x+x2)> x1)
+            {
+            	x = x0;
+				y += osl_curFont->charHeight;
+				if (y > y1) break;
+			
+            }
+            oslDrawString(x, y, buffer);
+			text+=contaCaratteri;
+			x += x2;
+        }
+        if (*text2 == ' ') {
+			c = *text;
+            x += osl_curFont->charWidths[c];
+			text2++; text++;
+        }
+        if (*text2 == '\n') {
+			x = x0;
+			y += osl_curFont->charHeight;
+			if (y> y1) break;
+			text2++; text++;
+        }
+    }
+}
+
+
 void oslInitConsole()
 {
 	//Charge et utilise la fonte système
