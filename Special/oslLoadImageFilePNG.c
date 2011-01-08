@@ -34,7 +34,7 @@ OSL_IMAGE *oslLoadImageFilePNG(char *filename, int location, int pixelFormat)
 	}
 
 	//if (png_check_sig(signature, nSigSize) == 0) // For libPNG < 1.4.4
-	if (png_sig_cmp(buf, 0, 8) == 0)
+	if (png_sig_cmp(signature, 0, nSigSize) == 0)
 	{
 		goto error;
 	}
