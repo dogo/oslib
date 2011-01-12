@@ -103,7 +103,7 @@ static PNG_DATA* _loadFromPNG(char *filename)
     {
        fclose(fp);
        free((void*)input_free);
-       png_destroy_read_struct(&png_ptr, png_infopp_NULL, png_infopp_NULL);
+       png_destroy_read_struct(&png_ptr, (png_infopp) NULL, (png_infopp) NULL);
 	   free(pngData);
 	   return NULL;
     }
@@ -111,7 +111,7 @@ static PNG_DATA* _loadFromPNG(char *filename)
     png_init_io(png_ptr, fp);
     png_set_sig_bytes(png_ptr, sig_read);
     png_read_info(png_ptr, info_ptr);
-    png_get_IHDR(png_ptr, info_ptr, &pw, &ph, &bit_depth, &color_type, &interlace_type, int_p_NULL, int_p_NULL);
+    png_get_IHDR(png_ptr, info_ptr, &pw, &ph, &bit_depth, &color_type, &interlace_type, (int *) NULL, (int *) NULL);
 
     pngData->sizeX = (u16)pw;
     pngData->sizeY = (u16)ph;
@@ -126,7 +126,7 @@ static PNG_DATA* _loadFromPNG(char *filename)
        png_set_palette_to_rgb(png_ptr);
 
     if (color_type == PNG_COLOR_TYPE_GRAY && bit_depth < 8)
-       png_set_gray_1_2_4_to_8(png_ptr);
+       png_set_expand_gray_1_2_4_to_8(png_ptr);
 
     if (png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS))
        png_set_tRNS_to_alpha(png_ptr);
@@ -147,7 +147,7 @@ static PNG_DATA* _loadFromPNG(char *filename)
     {
        fclose(fp);
        free((void*)input_free);
-       png_destroy_read_struct(&png_ptr, png_infopp_NULL, png_infopp_NULL);
+       png_destroy_read_struct(&png_ptr, (png_infopp) NULL, (png_infopp) NULL);
 	   free(pngData);
 	   return NULL;
     }
@@ -166,7 +166,7 @@ static PNG_DATA* _loadFromPNG(char *filename)
     free(rows);
 
     png_read_end(png_ptr, info_ptr);
-    png_destroy_read_struct(&png_ptr, &info_ptr, png_infopp_NULL);
+    png_destroy_read_struct(&png_ptr, &info_ptr, (png_infopp) NULL);
     fclose(fp);
     free((void*)input_free);
 
