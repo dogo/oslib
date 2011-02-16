@@ -177,7 +177,7 @@ char *vfsMemGets(char *str, int maxLen, VIRTUAL_FILE *f)			{
 			else if (str[i] == '\n')			{
 				str[i] = 0;
 				//ATTENTION: MODIFIE DE -blockSize + i à -blockSize + i + 1, à vérifier!!!
-				VirtualFileSeek(f, -blockSize + i + 1, SEEK_CUR);
+				VirtualFileSeek(f, -size + (i - offset) + 1, SEEK_CUR);
 				//Retourne le pointeur
 				return str;
 			}
