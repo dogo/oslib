@@ -325,15 +325,18 @@ int oslNetGetFile(const char *url, const char *filepath)
 
 	if(status != 200)
 		return 0;
-
+	
+	/* Strangelove fix
 	ret = sceHttpGetContentLength(request, &contentsize);
 	if(ret < 0)
 		return OSL_ERR_HTTP_GENERIC;
+	*/
 
 	dataend = 0;
 	byteswritten = 0;
 
-	fd = sceIoOpen(filepath, PSP_O_WRONLY | PSP_O_CREAT, 0777);
+	// Strangelove fix - Added PSP_O_TRUNC
+	fd = sceIoOpen(filepath, PSP_O_WRONLY | PSP_O_TRUNC | PSP_O_CREAT, 0777);
 
 	while(dataend == 0)
 	{

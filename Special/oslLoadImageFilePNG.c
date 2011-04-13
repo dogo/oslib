@@ -5,7 +5,7 @@
 #include "../zlib.h"
 #include "../zconf.h"
 
-//Lecture / �criture des PNG
+// Read / Write PNG
 void oslPngReadFn(png_structp png_ptr, png_bytep data, png_size_t length)			{
 	VIRTUAL_FILE *f = (VIRTUAL_FILE *)png_get_io_ptr(png_ptr);
 	VirtualFileRead(data, length, 1, f);
@@ -19,7 +19,7 @@ OSL_IMAGE *oslLoadImageFilePNG(char *filename, int location, int pixelFormat)
 	const size_t	nSigSize=8;
 	u8				signature[ nSigSize ];
 	OSL_IMAGE		*img = NULL;
-	VIRTUAL_FILE *f;
+	VIRTUAL_FILE 	*f;
 	//We only keep the location bits
 	int imgLocation = location & OSL_LOCATION_MASK;
 	int i;
@@ -33,8 +33,7 @@ OSL_IMAGE *oslLoadImageFilePNG(char *filename, int location, int pixelFormat)
 		goto error;
 	}
 
-	//if (png_check_sig(signature, nSigSize) == 0) // For libPNG < 1.4.4
-	if (png_sig_cmp(signature, 0, nSigSize) == 0)
+	if (png_check_sig(signature, nSigSize) == 0) // For libPNG < 1.4.4
 	{
 		goto error;
 	}
@@ -61,7 +60,7 @@ OSL_IMAGE *oslLoadImageFilePNG(char *filename, int location, int pixelFormat)
 	}
 	
 	png_set_read_fn(pPngStruct, f, (png_rw_ptr)oslPngReadFn);
-//	png_init_io( pPngStruct, &f );
+	//png_init_io( pPngStruct, &f );
 	png_set_sig_bytes( pPngStruct, nSigSize );
 
 	if (osl_pixelWidth[pixelFormat] <= 8)
@@ -84,12 +83,12 @@ OSL_IMAGE *oslLoadImageFilePNG(char *filename, int location, int pixelFormat)
 		img = oslCreateImage(width, height, OSL_IN_RAM, pixelFormat);
 	}
 	else
-		//Sinon on cr�e notre image normalement, directement
+		// Otherwise, we create our image normally directly
 		img = oslCreateImage(width, height, imgLocation, pixelFormat);
 
 	if (img)
 	{
-   		//S'il y a besoin d'une palette...
+   		// If there is need for a palette ...
 		if (osl_pixelWidth[pixelFormat] <= 8)				{
 
 			img->palette = oslCreatePalette(oslMin(pPngInfo->num_palette, 1 << osl_paletteSizes[pixelFormat]), OSL_PF_8888);
@@ -97,7 +96,7 @@ OSL_IMAGE *oslLoadImageFilePNG(char *filename, int location, int pixelFormat)
 			   //Make sure to not use too much colors!
 			   pPngInfo->num_palette = oslMin(pPngInfo->num_palette, img->palette->nElements);
 
-			   //Suggestion: tenir compte de num_trans??
+			   //Suggestion: consider num_trans?
 			   for (i=0;i<pPngInfo->num_palette;i++)		{
 				   r = pPngInfo->palette[i].red;
 				   g = pPngInfo->palette[i].green;
@@ -161,7 +160,7 @@ OSL_IMAGE *oslLoadImageFilePNG(char *filename, int location, int pixelFormat)
 				case PNG_COLOR_TYPE_PALETTE:
 					color_offset = x % color_per_entry;
 					pixel_value = (*pRow >> (8 - depth * (color_offset + 1))) & mask;
-					//Dernier pixel pour cet octet
+					// Last pixel for this byte
 					if (x % color_per_entry == color_per_entry - 1)
 						pRow++;
 					if (img->palette)		{
