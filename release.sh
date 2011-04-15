@@ -55,5 +55,8 @@ cp -rf OSLib_MOD_Documentation $TARGET/Doc
 echo "Copying Samples...."
 cp -rf samples $TARGET/
 
+echo "Copying Tools...."
+cp -rf tools $TARGET/
+
 echo "Done!"
 echo
