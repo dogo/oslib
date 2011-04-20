@@ -164,11 +164,16 @@ int SeekNextFrameMP3(VIRTUAL_FILE *fd)
 void initME(){
     if (sceKernelDevkitVersion() == 0x01050001)
     {
+	/* Note: sceKernelLoadModule() restricts loading from flash0 unless a HEN is loaded. 
+           sceUtilityLoadModule(PSP_MODULE_AV_AVCODEC) might work as a replacement. 
+	   But I have no way of verifying or testing that. It does work on new firmwares though.
+	   -- Strangelove */
         LoadStartAudioModule("flash0:/kd/me_for_vsh.prx", PSP_MEMORY_PARTITION_KERNEL);
         LoadStartAudioModule("flash0:/kd/audiocodec.prx", PSP_MEMORY_PARTITION_KERNEL);
     }
     else
     {
+	/* sceUtilityLoadAvModule() works on FW 2.0 or greater */
         sceUtilityLoadAvModule(PSP_AV_MODULE_AVCODEC);
     }
 }
