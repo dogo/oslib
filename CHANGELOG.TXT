@@ -1,9 +1,16 @@
+Version MOD 1.1.1a
+-----------------
+-Added: some Strangelove fixes.
+-Updated: zlib 1.2.5 
+-Fixed: oslLoadImageFilePNG.c
+
+
 Version MOD 1.1.1
 -----------------
--Added net functions (from PGE LUA)
--Added oslDrawStringLimited (limit a string blit to a fixed width)
--Fixed loading an intraFont using Virtual fileSystem
--Fixed bugs by STAS (many thanks)
+-Added: net functions (from PGE LUA)
+-Added: oslDrawStringLimited (limit a string blit to a fixed width)
+-Fixed: loading an intraFont using Virtual fileSystem
+-Fixed: bugs by STAS (many thanks)
 
 
 Version MOD 1.1.0
