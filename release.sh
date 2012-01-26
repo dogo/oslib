@@ -48,6 +48,8 @@ cp -f sfont.h $TARGET/Install/oslib/
 echo "Copying other files...."
 cp -f README.TXT $TARGET
 cp -f CHANGELOG.TXT $TARGET
+cp -f install.bat $TARGET
+cp -f install.sh $TARGET
 
 echo "Copying DOC...."
 cp -rf OSLib_MOD_Documentation $TARGET/Doc

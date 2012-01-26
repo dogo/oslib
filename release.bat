@@ -1,3 +1,5 @@
+@echo off
+
 set TARGET=..\Distrib
 
 echo
@@ -49,6 +51,8 @@ xcopy sfont.h %TARGET%\Install\oslib\
 echo "xcopying other files...."
 xcopy README.TXT %TARGET%
 xcopy CHANGELOG.TXT %TARGET%
+xcopy install.bat %TARGET%
+xcopy install.sh %TARGET%
 
 echo "xcopying DOC...."
 xcopy OSLib_MOD_Documentation %TARGET%\Doc
