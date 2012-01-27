@@ -24,7 +24,7 @@ IF ERRORLEVEL 1 GOTO ERROR
 
 echo "Copying header files...."
 xcopy Install\oslib\intraFont\intraFont.h %PSPSDKDIR%\include\oslib\intraFont\
-xcopy Install\oslib\intraFont\intraFont\libccc.h %PSPSDKDIR%\include\oslib\intraFont\
+xcopy Install\oslib\intraFont\libccc.h %PSPSDKDIR%\include\oslib\intraFont\
 xcopy Install\oslib\libpspmath\pspmath.h %PSPSDKDIR%\include\oslib\libpspmath\
 xcopy Install\oslib\adhoc\pspadhoc.h %PSPSDKDIR%\include\oslib\adhoc\
 xcopy Install\oslib\oslmath.h %PSPSDKDIR%\include\oslib\
