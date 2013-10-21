@@ -1,11 +1,11 @@
 OldSchool Library (OSLib) MODv2
 -----------------------------
 Source code online:
-	Online Browse : http://code.google.com/p/oslibmodv2/source/browse/
-    svn   : svn checkout http://oslibmodv2.googlecode.com/svn/trunk/
+	Online Browse : https://github.com/dogo/oslibmodv2
+    	git : git@github.com:dogo/oslibmodv2.git
 
 
-This is a modded versione of OSLib 2.10 and OSLib MOD
+This is a modded version of OSLib 2.10 and OSLib MOD
 
 The original OSLib by Brunni can be found here:
 http://brunni.palib.info/new/index.php?page=pspsoft_oslib
@@ -20,12 +20,12 @@ http://www.sakya.it/OSLib_MOD/doc/html/
 
 SUPPORT
 -------
-You can report bugs and talk about OSLib MOD2 here:
+You can report bugs and talk about OSLib MODv2 here:
 diautilio@gmail.com
 
 INSTALL
 -------
-To install OSLib MOD copy
+To install OSLib MODv2 copy
 libosl.a in $PSPSDK/lib/
 
 copy the oslib directory (containing header files) in $PSPSDK/include/
@@ -34,6 +34,7 @@ copy the oslib directory (containing header files) in $PSPSDK/include/
 
 THANKS
 ------
+uppfinnarn for update libpng and makefile
 Strangelove for fixing many bugs
 STAS for tha patch fixing many bugs
 pspZorba for his adhoc sample
