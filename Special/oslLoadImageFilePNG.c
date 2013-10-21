@@ -53,7 +53,7 @@ OSL_IMAGE *oslLoadImageFilePNG(char *filename, int location, int pixelFormat)
 		goto error;
 	}
 
-	if ( setjmp( pPngStruct->jmpbuf ) != 0 )
+	if ( setjmp( png_jmpbuf(pPngStruct) ) != 0 )
 	{
 		png_destroy_read_struct( &pPngStruct, NULL, NULL );
 		goto error;
@@ -68,17 +68,22 @@ OSL_IMAGE *oslLoadImageFilePNG(char *filename, int location, int pixelFormat)
 	else
 		png_read_png( pPngStruct, pPngInfo, PNG_TRANSFORM_STRIP_16 | PNG_TRANSFORM_PACKING | PNG_TRANSFORM_EXPAND | PNG_TRANSFORM_BGR, NULL );
 
-	png_uint_32 width = pPngInfo->width;
-	png_uint_32 height = pPngInfo->height;
-	png_uint_32 depth = pPngInfo->bit_depth;
-	int color_type = pPngInfo->color_type;
+	png_uint_32 width = png_get_image_width(pPngStruct, pPngInfo);
+	png_uint_32 height = png_get_image_height(pPngStruct, pPngInfo);
+	png_uint_32 depth = png_get_bit_depth(pPngStruct, pPngInfo);
+	int color_type = png_get_color_type(pPngStruct, pPngInfo);
 
-	png_byte **pRowTable = pPngInfo->row_pointers;
+	png_byte **pRowTable = png_get_rows(pPngStruct, pPngInfo);
 	unsigned char r=0, g=0, b=0, a=0;
+	
+	png_colorp palette;
+	int num_palette;
+	png_get_PLTE(pPngStruct, pPngInfo, &palette, &num_palette);
 
 	int wantedPixelFormat = pixelFormat;
+	
 	//If we don't have a palette in the PNG but the pixel format requires one, we load the image in 32-bit mode and convert it to paletted later with oslConvertImageTo.
-	if (!pPngInfo->num_palette && osl_pixelWidth[pixelFormat] <= 8)			{
+	if (!num_palette && osl_pixelWidth[pixelFormat] <= 8)			{
 		pixelFormat = OSL_PF_8888;
 		img = oslCreateImage(width, height, OSL_IN_RAM, pixelFormat);
 	}
@@ -91,19 +96,19 @@ OSL_IMAGE *oslLoadImageFilePNG(char *filename, int location, int pixelFormat)
    		// If there is need for a palette ...
 		if (osl_pixelWidth[pixelFormat] <= 8)				{
 
-			img->palette = oslCreatePalette(oslMin(pPngInfo->num_palette, 1 << osl_paletteSizes[pixelFormat]), OSL_PF_8888);
+			img->palette = oslCreatePalette(oslMin(num_palette, 1 << osl_paletteSizes[pixelFormat]), OSL_PF_8888);
 			if (img->palette)			{
-			   //Make sure to not use too much colors!
-			   pPngInfo->num_palette = oslMin(pPngInfo->num_palette, img->palette->nElements);
+				//Make sure to not use too much colors!
+				png_set_PLTE(pPngStruct, pPngInfo, palette, num_palette);
 
 			   //Suggestion: consider num_trans?
-			   for (i=0;i<pPngInfo->num_palette;i++)		{
-				   r = pPngInfo->palette[i].red;
-				   g = pPngInfo->palette[i].green;
-				   b = pPngInfo->palette[i].blue;
+			   for (i = 0; i < num_palette; i++)		{
+				   r = palette[i].red;
+				   g = palette[i].green;
+				   b = palette[i].blue;
 				   a = 0xff;
 				   //Color key?
-				   if (osl_colorKeyEnabled && RGBA(pPngInfo->palette[i].red, pPngInfo->palette[i].green, pPngInfo->palette[i].blue, 0) == (osl_colorKeyValue & 0x00ffffff))
+				   if (osl_colorKeyEnabled && RGBA(palette[i].red, palette[i].green, palette[i].blue, 0) == (osl_colorKeyValue & 0x00ffffff))
 					   a = 0;
 				   ((u32*)img->palette->data)[i] = RGBA(r, g, b, a);
 			   }
@@ -170,9 +175,9 @@ OSL_IMAGE *oslLoadImageFilePNG(char *filename, int location, int pixelFormat)
 						a = ((((u32*)img->palette->data)[pixel_value]) >> 24) & 0xff;
 					}
 					else	{
-						b = pPngInfo->palette[pixel_value].blue;
-						g = pPngInfo->palette[pixel_value].green;
-						r = pPngInfo->palette[pixel_value].red;
+						b = palette[pixel_value].blue;
+						g = palette[pixel_value].green;
+						r = palette[pixel_value].red;
 						a = 0xff;
 					}
 					break;
