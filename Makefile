@@ -14,7 +14,7 @@
 
 #PATH 		:= /c/devkitPro/devkitPSP/bin:$(PATH)
 
-STATICLIB = libosl.a
+TARGET_LIB = libosl.a
 TARGET := OSLib
 PSP_FW_VERSION=371
 
@@ -174,11 +174,12 @@ SDK_LIBS :=					-lpspsdk \
 							-lpsprtc \
 							-lpspgu -lpspgum \
 							-lpspaudiolib \
-							-lpspaudio \
+							-lpspaudio -lpspaudiocodec \
 							-lpsppower \
 							-lpspusb -lpspusbstor \
                             -lpsputility \
-                            -lpspssl -lpsphttp -lpspwlan
+                            -lpspssl -lpsphttp -lpspwlan \
+                            -lpspnet_adhoc -lpspnet_adhocctl -lpspnet_adhocmatching
 
 EXTERN_LIBS :=				-lpng -ljpeg \
 							-lz
