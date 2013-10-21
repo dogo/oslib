@@ -68,12 +68,12 @@ OSL_IMAGE *oslLoadImageFilePNG(char *filename, int location, int pixelFormat)
 	else
 		png_read_png( pPngStruct, pPngInfo, PNG_TRANSFORM_STRIP_16 | PNG_TRANSFORM_PACKING | PNG_TRANSFORM_EXPAND | PNG_TRANSFORM_BGR, NULL );
 
-	png_uint_32 width = png_get_image_width(pPngStruct, pPngInfo);//pPngInfo->width;
-	png_uint_32 height = png_get_image_height(pPngStruct, pPngInfo);//pPngInfo->height;
-	png_uint_32 depth = png_get_bit_depth(pPngStruct, pPngInfo);//pPngInfo->bit_depth;
-	int color_type = png_get_color_type(pPngStruct, pPngInfo);//pPngInfo->color_type;
+	png_uint_32 width = png_get_image_width(pPngStruct, pPngInfo);
+	png_uint_32 height = png_get_image_height(pPngStruct, pPngInfo);
+	png_uint_32 depth = png_get_bit_depth(pPngStruct, pPngInfo);
+	int color_type = png_get_color_type(pPngStruct, pPngInfo);
 
-	png_byte **pRowTable = png_get_rows(pPngStruct, pPngInfo);//pPngInfo->row_pointers;
+	png_byte **pRowTable = png_get_rows(pPngStruct, pPngInfo);
 	unsigned char r=0, g=0, b=0, a=0;
 	
 	png_colorp palette;
@@ -83,7 +83,6 @@ OSL_IMAGE *oslLoadImageFilePNG(char *filename, int location, int pixelFormat)
 	int wantedPixelFormat = pixelFormat;
 	
 	//If we don't have a palette in the PNG but the pixel format requires one, we load the image in 32-bit mode and convert it to paletted later with oslConvertImageTo.
-	//if (!pPngInfo->num_palette && osl_pixelWidth[pixelFormat] <= 8)			{
 	if (!num_palette && osl_pixelWidth[pixelFormat] <= 8)			{
 		pixelFormat = OSL_PF_8888;
 		img = oslCreateImage(width, height, OSL_IN_RAM, pixelFormat);
@@ -100,7 +99,6 @@ OSL_IMAGE *oslLoadImageFilePNG(char *filename, int location, int pixelFormat)
 			img->palette = oslCreatePalette(oslMin(num_palette, 1 << osl_paletteSizes[pixelFormat]), OSL_PF_8888);
 			if (img->palette)			{
 				//Make sure to not use too much colors!
-				//pPngInfo->num_palette = oslMin(pPngInfo->num_palette, img->palette->nElements);
 				png_set_PLTE(pPngStruct, pPngInfo, palette, num_palette);
 
 			   //Suggestion: consider num_trans?
