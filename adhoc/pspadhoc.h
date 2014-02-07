@@ -28,7 +28,7 @@
 
 #define MAX_REMOTEPSP 100
 
-/** @defgroup adhoc
+/** @defgroup AdHoc AdHoc
 
 	Functions for adhoc.
 	@{

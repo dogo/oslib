@@ -1,7 +1,7 @@
 #ifndef DIALOG_H
 #define DIALOG_H
 
-/** @defgroup Dialogs
+/** @defgroup Dialogs Dialogs
 
 	Functions to display Sony's dialogs
 	@{

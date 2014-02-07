@@ -3,7 +3,7 @@
 
 #include <sys/fd_set.h>
 
-/** @defgroup Network
+/** @defgroup Network Network
 
 	Network functions
 	@{
@@ -93,11 +93,11 @@ int oslNetTerm();
 int oslGetIPaddress(char *IPaddress);
 
 /**Tries to connect to an Access Point using the given configuration
-	\param int config
+	\param config
         Index of the configuration to use
-	\param int timeout
+	\param timeout
         Timeout (in seconds) for the connection
-	\param int (*apctlCallback)(int state)
+	\param *apctlCallback
         Pointer to a callback function. It will be called with the current state
 */
 int oslConnectToAP(int config, int timeout, int (*apctlCallback)(int state));

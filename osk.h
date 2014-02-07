@@ -1,7 +1,7 @@
 #ifndef OSK_H
 #define OSK_H
 
-/** @defgroup OSK
+/** @defgroup OSK On-Screen Keyboard
 
 	Functions to display Sony's On Screen Keyboard
 	@{

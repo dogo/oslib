@@ -293,12 +293,12 @@ debug. */
 #endif
 
 /** Allocates a memory block, ensuring it is aligned.
-	\param 1
+	\param alignment
 		Alignment in bytes
-	\param 2
+	\param size
 		Size of the block
 */
-void *memalign(size_t, size_t);
+void *memalign(size_t alignment, size_t size);
 
 /** Structure for the return value of oslGetRamStatus. */
 typedef struct		{

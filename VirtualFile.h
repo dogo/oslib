@@ -133,6 +133,8 @@ void VirtualFileInit();
 /** Open a new file.
 	\param param1
 		Pointer to a string representing the file name.
+	\param param2
+		Should always be 0
 	\param type
 		File type. By default, can be:
 			- VF_MEMORY: read/write from a memory block

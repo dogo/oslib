@@ -86,23 +86,23 @@ void oslInitSingleSaveDialog(struct oslSaveLoad *saveData);
 */
 void oslInitAutoSaveDialog(struct oslSaveLoad *saveData);
 /**Initializes the load dialog
-	\param *saveData
+	\param *loadData
         Pointer to a oslSaveLoad structure where data will be loaded
 */
 void oslInitLoadDialog(struct oslSaveLoad *loadData);
 /**Initializes the multilist load dialog
-	\param *saveData
+	\param *loadData
         Pointer to a oslSaveLoad structure where data will be loaded
 */
 void oslInitMultiLoadDialog(struct oslSaveLoad *loadData);
 /**Initializes the single load dialog
-	\param *saveData
+	\param *loadData
         Pointer to a oslSaveLoad structure where data will be loaded
 */
 void oslInitSingleLoadDialog(struct oslSaveLoad *loadData);
 
 /**Initializes the automatic load dialog
-	\param *saveData
+	\param *loadData
         Pointer to a oslSaveLoad structure where data will be loaded
 */
 void oslInitAutoLoadDialog(struct oslSaveLoad *loadData);
