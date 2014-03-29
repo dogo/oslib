@@ -225,6 +225,7 @@ LDFLAGS :=
 #	echo $(OBJS)
 
 PSPSDK :=					$(shell psp-config --pspsdk-path)
+PSPDIR :=					$(shell psp-config --psp-prefix)
 
 include						$(PSPSDK)/lib/build.mak
 
@@ -237,3 +238,35 @@ lib: $(STATICLIB)
 $(STATICLIB): $(LIBOBJS)
 	$(AR) rcs $@ $(LIBOBJS)
 	$(RANLIB) $@
+	
+install: lib
+	install -d $(DESTDIR)$(PSPDIR)/lib
+	install -m644 $(TARGET_LIB) $(DESTDIR)$(PSPDIR)/lib
+	install -d $(DESTDIR)$(PSPDIR)/include/oslib/intraFont/
+	install -d $(DESTDIR)$(PSPDIR)/include/oslib/libpspmath/
+	install -d $(DESTDIR)$(PSPDIR)/include/oslib/adhoc/
+	install -m644 intraFont/intraFont.h $(DESTDIR)$(PSPDIR)/include/oslib/intraFont/
+	install -m644 intraFont/libccc.h $(DESTDIR)$(PSPDIR)/include/oslib/intraFont/
+	install -m644 libpspmath/pspmath.h $(DESTDIR)$(PSPDIR)/include/oslib/libpspmath/
+	install -m644 adhoc/pspadhoc.h $(DESTDIR)$(PSPDIR)/include/oslib/adhoc/
+	install -m644 oslmath.h $(DESTDIR)$(PSPDIR)/include/oslib/
+	install -m644 net.h $(DESTDIR)$(PSPDIR)/include/oslib/
+	install -m644 browser.h $(DESTDIR)$(PSPDIR)/include/oslib/
+	install -m644 audio.h $(DESTDIR)$(PSPDIR)/include/oslib/
+	install -m644 bgm.h $(DESTDIR)$(PSPDIR)/include/oslib/
+	install -m644 dialog.h $(DESTDIR)$(PSPDIR)/include/oslib/
+	install -m644 drawing.h $(DESTDIR)$(PSPDIR)/include/oslib/
+	install -m644 keys.h $(DESTDIR)$(PSPDIR)/include/oslib/
+	install -m644 map.h $(DESTDIR)$(PSPDIR)/include/oslib/
+	install -m644 messagebox.h $(DESTDIR)$(PSPDIR)/include/oslib/
+	install -m644 osk.h $(DESTDIR)$(PSPDIR)/include/oslib/
+	install -m644 saveload.h $(DESTDIR)$(PSPDIR)/include/oslib/
+	install -m644 oslib.h $(DESTDIR)$(PSPDIR)/include/oslib/
+	install -m644 text.h $(DESTDIR)$(PSPDIR)/include/oslib/
+	install -m644 usb.h $(DESTDIR)$(PSPDIR)/include/oslib/
+	install -m644 vfpu_ops.h $(DESTDIR)$(PSPDIR)/include/oslib/
+	install -m644 VirtualFile.h $(DESTDIR)$(PSPDIR)/include/oslib/
+	install -m644 vram_mgr.h $(DESTDIR)$(PSPDIR)/include/oslib/
+	install -m644 ccc.h $(DESTDIR)$(PSPDIR)/include/oslib/
+	install -m644 sfont.h $(DESTDIR)$(PSPDIR)/include/oslib/
+
