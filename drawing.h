@@ -27,7 +27,7 @@ extern "C" {
 	@{
 */
 
-/** \ingroup drawing_color True color. */
+/** \ingroup drawing_color True color */
 typedef unsigned long OSL_COLOR;
 
 
@@ -1368,6 +1368,8 @@ enum OSL_TEXWRAP_MODES		{
 /** Defines the current texture, useful for low level image drawing. */
 extern void oslSetTexture(OSL_IMAGE *img);
 /** Same but also defines the beginning coordinate in the texture. Useful for tricks meant to display an image bigger than 512x512.
+	\param img
+		Texture to set
 	\param x, y
 		Beginning (top-left corner) of the image. Should be a multiple of 512. The (x, y) corner will become the (u, v) = (0, 0) coordinate when drawing a texture, and a 512x512 range (to the right and down)
 		will be accessible.

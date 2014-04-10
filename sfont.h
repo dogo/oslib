@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-/** @defgroup SFont
+/** @defgroup SFont SFont
 
 	Functions to manage SFonts
 	@{

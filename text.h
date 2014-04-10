@@ -236,7 +236,7 @@ extern void oslIntraFontSetStyle(OSL_FONT *f, float size, unsigned int color, un
 /**
  * Draw text along the baseline starting at x, y.
  *
- * @param font - A valid ::intraFont
+ * @param f - A valid ::OSL_FONT with type ::OSL_FONT_INTRA
  *
  * @param x - X position on screen
  *
@@ -244,9 +244,9 @@ extern void oslIntraFontSetStyle(OSL_FONT *f, float size, unsigned int color, un
  *
  * @param width - column width for automatic line breaking (intraFontPrintColumn... versions only)
  *
- * @param text - Text to draw (ASCII & extended ASCII, S-JIS or UTF-8 encoded)
+ * @param autoBreakLine - char length of text to draw (...Ex versions only)
  *
- * @param length - char length of text to draw (...Ex versions only)
+ * @param text - Text to draw (ASCII & extended ASCII, S-JIS or UTF-8 encoded)
  *
  * @returns The x position after the last char
  */
