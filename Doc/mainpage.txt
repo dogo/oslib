@@ -1,9 +1,9 @@
 /**
-	\mainpage OldSchool Library v2.0 Documentation
+	\mainpage OldSchool Library MODv2 Documentation
 
 	\section intro Introduction
 
-	Welcome to the OldSchool Library documentation. To begin, you can access the function reference by clicking on the
+	Welcome to the OldSchool Library MODv2 documentation. To begin, you can access the function reference by clicking on the
 	"Modules" tab.
 
 	This page includes some tutorials that you can read before beginning.

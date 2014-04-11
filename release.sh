@@ -52,7 +52,7 @@ cp -f install.bat $TARGET
 cp -f install.sh $TARGET
 
 echo "Copying DOC...."
-cp -rf OSLib_MOD_Documentation $TARGET/Doc
+cp -rf OSLib_MOD2_Documentation $TARGET/Doc
 
 echo "Copying Samples...."
 cp -rf samples $TARGET/

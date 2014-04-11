@@ -55,7 +55,7 @@ xcopy install.bat %TARGET%
 xcopy install.sh %TARGET%
 
 echo "xcopying DOC...."
-xcopy OSLib_MOD_Documentation %TARGET%\Doc
+xcopy OSLib_MOD2_Documentation %TARGET%\Doc
 
 echo "xcopying Samples...."
 xcopy samples /e %TARGET%\Install\samples
