@@ -60,5 +60,8 @@ cp -rf samples $TARGET/
 echo "Copying Tools...."
 cp -rf tools $TARGET/
 
+echo "Compressing...."
+zip -r OSLibmodv2.zip $TARGET/*
+
 echo "Done!"
 echo
