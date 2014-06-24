@@ -270,3 +270,19 @@ install: lib
 	install -m644 ccc.h $(DESTDIR)$(PSPDIR)/include/oslib/
 	install -m644 sfont.h $(DESTDIR)$(PSPDIR)/include/oslib/
 
+gendoc:	
+	doxygen
+
+ghpages: gendoc
+	rm -rf /tmp/ghpages
+	mkdir -p /tmp/ghpages
+	cp -Rv OSLib_MODv2_Documentation/html/* /tmp/ghpages
+
+	cd /tmp/ghpages && \
+		git init && \
+		git add . && \
+		git commit -q -m "Automatic gh-pages"
+	cd /tmp/ghpages && \
+		git remote add remote git@github.com:dogo/oslibmodv2.git && \
+		git push --force remote +master:gh-pages
+	rm -rf /tmp/ghpages
