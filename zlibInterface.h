@@ -5,7 +5,7 @@
 enum {
 	UZEXR_OK = 1,
 	UZEXR_CANCEL = 0,
-	// マイナス値はすべてエラーとすること
+	// All errors shall be a negative value
 	UZEXR_INVALIDCALLBACK = -1,
 	UZEXR_INVALIDFILE = -2,
 	UZEXR_FATALERROR = -3
@@ -26,12 +26,12 @@ enum {
 
 
 
-// Unzipからの通知を受け取るコールバック関数のポインタを指定する
+// Specify a pointer to the callback function to receive notification from the Unzip
 void Unzip_setCallback(int (*pfuncCallback)(int nCallbackId, unsigned long ulExtractSize,
 		      unsigned long ulCurrentPosition, const void *pData,
                       unsigned long ulDataSize, unsigned long ulUserData));
 
-// Unzipに指定したファイルの解凍します。
+// Extract the file specified in the Unzip.
 int Unzip_execExtract(const char *pszTargetFile, unsigned long ulUserData);
 
 
