@@ -20,7 +20,7 @@ https://dl.dropboxusercontent.com/u/12595498/OSLibmodv2_112.zip
 DOCUMENTATION
 -------------
 You can find the documentation in the Doc directory, or consult it online here:
-http://www.sakya.it/OSLib_MOD/doc/html/
+http://dogo.github.io/oslibmodv2/
 
 SUPPORT
 -------
