@@ -16,7 +16,7 @@ int oslWriteImageFile(OSL_IMAGE *img, const char* filename, int flags)
 	i = 0;
 	while(ext[i] && i < sizeof(extension) - 2)
 	{
-		extension[i] = tolower(ext[i]);
+		extension[i] = tolower((unsigned char) ext[i]);
 		i++;
 	}
 	extension[i] = 0;

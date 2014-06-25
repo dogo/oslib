@@ -11,7 +11,7 @@ OSL_IMAGE *oslLoadImageFile(char *filename, int location, int pixelFormat)
 	i = 0;
 	while(ext[i] && i < sizeof(extension) - 2)
 	{
-		extension[i] = tolower(ext[i]);
+		extension[i] = tolower((unsigned char) ext[i]);
 		i++;
 	}
 	extension[i] = 0;
