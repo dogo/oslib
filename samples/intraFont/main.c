@@ -83,7 +83,7 @@ int main(){
             float y = 15;
             oslIntraFontSetStyle(ltn[4], 1.0f,BLACK,WHITE,INTRAFONT_ALIGN_CENTER);
             oslSetFont(ltn[4]);
-            oslDrawStringf(240, y, "OSLib v.%s with intraFont by Sakya", OSL_VERSION);
+            oslDrawStringf(240, y, "OSLib %s with intraFont by Sakya", OSL_VERSION);
             oslIntraFontSetStyle(ltn[4], 1.0f,WHITE,BLACK,INTRAFONT_ALIGN_LEFT);
 
             y += 30;

@@ -90,7 +90,7 @@ int main(){
     SetupCallbacks();
 
     initOSLib();
-    oslIntraFontInit(INTRAFONT_CACHE_MED);
+    oslIntraFontInit(INTRAFONT_CACHE_ALL);
 
     //Loads image:
     OSL_IMAGE *bkg = oslLoadImageFilePNG("bkg.png", OSL_IN_RAM | OSL_SWIZZLED, OSL_PF_8888);
