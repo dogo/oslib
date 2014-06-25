@@ -283,7 +283,7 @@ int oslResolveAddress(char *address, char *resolvedIP){
 int oslNetGetFile(const char *url, const char *filepath)
 {
 	int template, connection, request, ret, status, dataend, fd, byteswritten;
-	SceULong64 contentsize;
+	//SceULong64 contentsize;
 	unsigned char readbuffer[8192];
 /*										//<-- STAS: HTTP library was already initialized (see oslNetInit()) !
 	ret = sceHttpInit(20000);

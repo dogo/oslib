@@ -11,15 +11,16 @@
 
 static void LogoDrawTiles(OSL_IMAGE *img, float positions[TABH][TABW])
 {
-	OSL_FAST_VERTEX *vertices, *vptr;
+	OSL_FAST_VERTEX *vertices;
 	int nbVertices, x, y;
 	oslSetTexture(img);
 
-	for (y=0;y<HAUT/TILE;y++)			{
+	for (y=0; y < HAUT/TILE; y++) 
+	{
 		vertices = (OSL_FAST_VERTEX*)sceGuGetMemory((LARG/TILE) * 2 * sizeof(OSL_FAST_VERTEX));
-		vptr = vertices;
 		nbVertices = 0;
-		for (x=0;x<LARG/TILE;x++)			{
+		for (x=0;x<LARG/TILE;x++)
+		{
 			vertices[nbVertices].u = x * TILE;
 			vertices[nbVertices].v = y * TILE;
 			vertices[nbVertices].x = x * TILE;
@@ -33,7 +34,7 @@ static void LogoDrawTiles(OSL_IMAGE *img, float positions[TABH][TABW])
 			vertices[nbVertices].z = 0;
 			nbVertices ++;
 		}
-		//Dessine
+		//Draw
 		if (nbVertices > 0)
 			sceGuDrawArray(GU_SPRITES,GU_TEXTURE_16BIT|GU_VERTEX_16BIT|GU_TRANSFORM_2D, nbVertices, 0, vertices);
 	}

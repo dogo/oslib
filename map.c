@@ -114,7 +114,7 @@ void oslDrawMap(OSL_MAP *m)
 	u32 tilesPerLine = m->img->sizeX / m->tileX, tilesPerLineOpt = 0;
 	u32 firstTileOpaque = !(m->flags & OSL_MF_TILE1_TRANSPARENT);
 	u16 *map = (u16*)m->map;
-	OSL_FAST_VERTEX *vertices, *vptr;
+	OSL_FAST_VERTEX *vertices;
 	int nbVertices;
 
 	oslSetTexture(m->img);
@@ -153,7 +153,6 @@ void oslDrawMap(OSL_MAP *m)
 				mX = dX;
 				xTile = -sX;
 				vertices = (OSL_FAST_VERTEX*)sceGuGetMemory(dsX * 2 * sizeof(OSL_FAST_VERTEX));
-				vptr = vertices;
 				nbVertices = 0;
 				if (tilesPerLineOpt)			{
 					for (x=0;x<dsX;x++)			{
@@ -219,7 +218,6 @@ void oslDrawMap(OSL_MAP *m)
 				mX = dX;
 				xTile = -sX;
 				vertices = (OSL_FAST_VERTEX*)sceGuGetMemory(dsX * 2 * sizeof(OSL_FAST_VERTEX));
-				vptr = vertices;
 				nbVertices = 0;
 				for (x=0;x<dsX;x++)			{
 					int flags;

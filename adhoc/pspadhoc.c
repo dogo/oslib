@@ -81,11 +81,10 @@ int _adhocctlConnect()
 
 void _adhocctlState()
 {
-    int encore =1, ret;
-    int s;
+    int encore = 1, s;
     while( encore)
     {
-        ret = sceNetAdhocctlGetState(&s);
+        sceNetAdhocctlGetState(&s);
         if (s == 1)
         {
             encore=0; /* connected */
@@ -396,15 +395,14 @@ void oslAdhocTerm()
 {
     if(state != ADHOC_INIT) return;
 
-    int ret = 0;
-	ret = sceNetAdhocctlDisconnect();
-    ret = sceNetAdhocPdpDelete(pdpHD, 0);
-    ret = sceNetAdhocMatchingStop(matchingHD);
-    ret = sceNetAdhocMatchingDelete( matchingHD);
-    ret = sceNetAdhocMatchingTerm();
-    ret = sceNetAdhocctlTerm();
-    ret = sceNetAdhocTerm();
-    ret = sceNetTerm();
+	sceNetAdhocctlDisconnect();
+    sceNetAdhocPdpDelete(pdpHD, 0);
+    sceNetAdhocMatchingStop(matchingHD);
+    sceNetAdhocMatchingDelete( matchingHD);
+    sceNetAdhocMatchingTerm();
+    sceNetAdhocctlTerm();
+    sceNetAdhocTerm();
+    sceNetTerm();
 
     memset(myMacAddress, 0, 8*sizeof(u8));
 	matchingHD = 0;

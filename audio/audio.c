@@ -350,19 +350,24 @@ void oslAudioCallback(unsigned int i, void* buf, unsigned int length) {
 }
 
 #ifdef PSP
-int oslAudioPowerCallback(int unknown, int pwrflags,void *common)			{
-	static signed char audio[OSL_NUM_AUDIO_CHANNELS];
+int oslAudioPowerCallback(int unknown, int pwrflags,void *common)
+{
+	//static signed char audio[OSL_NUM_AUDIO_CHANNELS];
 	OSL_SOUND *s;
 	VIRTUAL_FILE *f = NULL;
 	int i;
 	
-	if ((pwrflags & PSP_POWER_CB_POWER_SWITCH))		{
+	if ((pwrflags & PSP_POWER_CB_POWER_SWITCH))	
+	{
 		osl_audioStandBy = 1;
-		for (i=0;i<OSL_NUM_AUDIO_CHANNELS;i++)			{
+		for (i=0; i < OSL_NUM_AUDIO_CHANNELS; i++)
+		{
 			s = osl_audioVoices[i].sound;
-			if (s)			{
-				if (s->isStreamed)		{
-					audio[i] = osl_audioActive[i];
+			if (s)
+			{
+				if (s->isStreamed)
+				{
+					//audio[i] = osl_audioActive[i];
 					osl_audioActive[i] = 3;					//3 = suspendu/invalide
 					f = s->standBySound(s);
 					osl_filesave[i] = VirtualFileTell(f);
@@ -386,7 +391,8 @@ int oslAudioPowerCallback(int unknown, int pwrflags,void *common)			{
 //		fcloseall();
 		osl_suspendNumber++;
 	}
-	else if(pwrflags & PSP_POWER_CB_RESUME_COMPLETE)		{
+	else if(pwrflags & PSP_POWER_CB_RESUME_COMPLETE)
+	{
 		osl_audioStandBy = 0;
 	}
 	

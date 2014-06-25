@@ -353,9 +353,11 @@ void oslSysBenchmarkDisplay()			{
 
 int oslSyncFrameEx(int frameskip, int max_frameskip, int vsync)
 {
-	#ifdef OSL_SYSTEM_BENCHMARK_ENABLED
+//dogo: unused
+/*	#ifdef OSL_SYSTEM_BENCHMARK_ENABLED
 	int lastOslSkip;
 	#endif
+*/	
 	int i, wasDrawing=0;
 	if (osl_isDrawingStarted)
 		oslEndDrawing(), wasDrawing=1;
@@ -399,7 +401,8 @@ int oslSyncFrameEx(int frameskip, int max_frameskip, int vsync)
 		else
 			osl_vblCallCount+=frameskip;  <-- STAS END -->*/
 		#ifdef OSL_SYSTEM_BENCHMARK_ENABLED
-		lastOslSkip = osl_skip;
+		//dogo: unused
+		//lastOslSkip = osl_skip;
 		if (osl_skip)
 			oslMeanBenchmarkTestEx(OSL_BENCH_END, 5);
 		else			{

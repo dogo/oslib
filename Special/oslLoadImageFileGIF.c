@@ -59,7 +59,7 @@ int DGifGetLineByte(GifFileType *GifFile, GifPixelType *Line, int LineLen, int p
 OSL_IMAGE *oslLoadImageFileGIF(char *filename, int location, int pixelFormat)
 {
 	OSL_IMAGE *img = NULL;
- 	int i, j, alpha, Row=0, Col=0, Width, Height, ExtCode, Count;
+ 	int i, j, alpha, Row=0, Col=0, Width, Height, ExtCode;
 	u32 *Palette = NULL;
 	GifRecordType RecordType;
 	GifByteType *Extension;
@@ -130,7 +130,7 @@ OSL_IMAGE *oslLoadImageFileGIF(char *filename, int location, int pixelFormat)
 
 					if (GifFile->Image.Interlace) {
 						// Need to perform 4 passes on the images:
-						for (Count = i = 0; i < 4; i++) {
+						for (i = 0; i < 4; i++) {
 							for (j = Row + InterlacedOffset[i]; j < Row + Height;
 								j += InterlacedJumps[i]) {
 								DGifGetLineByte(GifFile, (GifPixelType*)oslGetImagePixelAdr(img, Col, j), Width, pixelFormat, transparentColor);
