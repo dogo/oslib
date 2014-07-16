@@ -1,5 +1,11 @@
 language: c
 os:
-  - linux
   - osx
+before_install:
+- export PSPDEV="$TRAVIS_BUILD_DIR/opt/pspsdk"
+- export PSPSDK="$PSPDEV/psp/sdk"
+- export PATH="$PATH:$PSPDEV/bin:$PSPSDK/bin"
+echo yes | $PSPDEV $PSPSDK $PATH
+intstall:
+- wget https://dl.dropboxusercontent.com/u/12595498/pspsdk.tar.gz -nv
 script: make
