@@ -42,8 +42,8 @@ cp -f $SOURCE_DIR/text.h $TARGET/Install/oslib/
 cp -f $SOURCE_DIR/usb.h $TARGET/Install/oslib/
 cp -f $SOURCE_DIR/vfpu_ops.h $TARGET/Install/oslib/
 cp -f $SOURCE_DIR/VirtualFile.h $TARGET/Install/oslib/
-cp -f $SOURCE_DIR/ram_mgr.h $TARGET/Install/oslib/
-cp -f $SOURCE_DIR/cc.h $TARGET/Install/oslib/
+cp -f $SOURCE_DIR/vram_mgr.h $TARGET/Install/oslib/
+cp -f $SOURCE_DIR/ccc.h $TARGET/Install/oslib/
 cp -f $SOURCE_DIR/sfont.h $TARGET/Install/oslib/
 
 echo "Copying other files...."
