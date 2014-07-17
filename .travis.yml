@@ -2,7 +2,8 @@ language: c
 os:
   - osx
 install:
-  - wget https://dl.dropboxusercontent.com/u/12595498/pspsdk.tar.gz -nv
+  - wget https://dl.dropboxusercontent.com/u/12595498/pspsdk.tar.gz
+  - tar -vzxf pspsdk.tar.gz
   #- export PSPDEV="$TRAVIS_BUILD_DIR/opt/pspsdk"
   #- export PSPSDK="$PSPDEV/psp/sdk"
   #- export PATH="$PATH:$PSPDEV/bin:$PSPSDK/bin"
