@@ -4,10 +4,12 @@ os:
 install:
   - wget https://dl.dropboxusercontent.com/u/12595498/pspsdk.tar.gz
   - tar -vzxf pspsdk.tar.gz
-  - export PSPDEV="$TRAVIS_BUILD_DIR/pspsdk"
   #- export PSPSDK="$PSPDEV/psp/sdk"
   #- export PATH="$PATH:$PSPDEV/bin:$PSPSDK/bin"
 #echo yes | $PSPDEV $PSPSDK $PATH > log.txt
+before_script:
+	#- export PSPDEV="$TRAVIS_BUILD_DIR/pspsdk"
+	- export PSPDEV=`pwd`/pspsdk
 echo yes | $PSPDEV > log.txt
 echo yes | $TRAVIS_BUILD_DIR > log2.txt
 script: make
