@@ -8,6 +8,6 @@ install:
   #- export PATH="$PATH:$PSPDEV/bin:$PSPSDK/bin"
 #echo yes | $PSPDEV $PSPSDK $PATH > log.txt
 before_script:
-	- export PSPDEV="$TRAVIS_BUILD_DIR/pspsdk"
-	#- export PSPDEV=`pwd`/pspsdk
+	#- export PSPDEV="$TRAVIS_BUILD_DIR/pspsdk"
+	- export PSPDEV=`pwd`/pspsdk
 script: make
