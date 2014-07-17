@@ -1,8 +1,8 @@
 language: c
 os:
   - osx
+before_install: ./travis-environment.sh  
 install:
   - wget https://dl.dropboxusercontent.com/u/12595498/pspsdk.tar.gz
   - tar -vzxf pspsdk.tar.gz
- 	- ./travis-environment.sh	
 script: make
