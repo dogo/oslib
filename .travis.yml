@@ -4,8 +4,5 @@ os:
 install:
   - wget https://dl.dropboxusercontent.com/u/12595498/pspsdk.tar.gz
   - tar -vzxf pspsdk.tar.gz
-before_install:
-	- export "PSPDEV=$TRAVIS_BUILD_DIR/pspdev"
-	- export "PSPSDK=$PSPDEV/psp"
-	- export "PATH=$PATH:$PSPDEV/bin:$PSPSDK/bin"
+before_script: ./travis-environment.sh
 script: make
