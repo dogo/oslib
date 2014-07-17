@@ -2,8 +2,9 @@ language: objective-c
 os:
   - osx
 compiler:
-  - clang  
+  - clang
+before_install: ./travis-dependencies.sh
 install:
   - wget https://dl.dropboxusercontent.com/u/12595498/pspsdk.tar.gz
   - tar -vzxf pspsdk.tar.gz
-script: ./travis-environment.sh
+script: ./travis-build.sh
