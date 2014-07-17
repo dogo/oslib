@@ -1,4 +1,5 @@
 OldSchool Library (OSLib) MODv2
+[![Build Status](https://travis-ci.org/dogo/oslibmodv2.svg?branch=master)](https://travis-ci.org/dogo/oslibmodv2)
 -----------------------------
 Source code online:
 	Online Browse : https://github.com/dogo/oslibmodv2
