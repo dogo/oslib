@@ -11,7 +11,7 @@ http://www.sakya.it/forums/viewforum.php?f=7
 
 # CURRENT RELEASE
 -----------------
-https://dl.dropboxusercontent.com/u/12595498/OSLibmodv2_112.zip
+- [OSLib Modv2](https://dl.dropboxusercontent.com/u/12595498/OSLibmodv2_112.zip)
 
 # DOCUMENTATION
 ---------------
