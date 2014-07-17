@@ -1,5 +1,5 @@
 #----------------------------------------------------------------------------
-#       MAKEFILE
+#   MAKEFILE
 #
 #	Controlling makefile for File Assistant
 #
@@ -24,8 +24,8 @@ PSP_FW_VERSION=371
 
 #<-- STAS: pack all the necessary MikMod stuff directly into libosl.a
 #          in order to avoid conflict with the newest libmikmod releases.
-SOURCE_DIR := ./
-MM_DIR := $(SOURCE_DIR)mikmod
+SOURCE_DIR := src
+MM_DIR := $(SOURCE_DIR)/mikmod
 INCLUDE_DIR := $(MM_DIR)
 #<-- STAS END -->
 
@@ -33,52 +33,52 @@ INCLUDE_DIR := $(MM_DIR)
 #	Source to make
 #	--------------
 
-SFONTOBJS :=                $(SOURCE_DIR)sfont.o
+SFONTOBJS :=                $(SOURCE_DIR)/sfont.o
 
-PSPMATHOBJS := 	            $(SOURCE_DIR)libpspmath/printMatrixFloat.o \
-                            $(SOURCE_DIR)libpspmath/vfpu_srand.o \
-                            $(SOURCE_DIR)libpspmath/vfpu_randf.o \
-                            $(SOURCE_DIR)libpspmath/vfpu_rand_8888.o \
-                            $(SOURCE_DIR)libpspmath/vfpu_identity_matrix.o \
-                            $(SOURCE_DIR)libpspmath/vfpu_translate_matrix.o \
-                            $(SOURCE_DIR)libpspmath/vfpu_perspective_matrix.o \
-                            $(SOURCE_DIR)libpspmath/vfpu_ortho_matrix.o \
-                            $(SOURCE_DIR)libpspmath/vfpu_sinf.o \
-                            $(SOURCE_DIR)libpspmath/vfpu_cosf.o \
-                            $(SOURCE_DIR)libpspmath/vfpu_tanf.o \
-                            $(SOURCE_DIR)libpspmath/vfpu_asinf.o \
-                            $(SOURCE_DIR)libpspmath/vfpu_acosf.o \
-                            $(SOURCE_DIR)libpspmath/vfpu_atanf.o \
-                            $(SOURCE_DIR)libpspmath/vfpu_sinhf.o \
-                            $(SOURCE_DIR)libpspmath/vfpu_coshf.o \
-                            $(SOURCE_DIR)libpspmath/vfpu_tanhf.o \
-                            $(SOURCE_DIR)libpspmath/vfpu_sincos.o \
-                            $(SOURCE_DIR)libpspmath/vfpu_expf.o \
-                            $(SOURCE_DIR)libpspmath/vfpu_logf.o \
-                            $(SOURCE_DIR)libpspmath/vfpu_fabsf.o \
-                            $(SOURCE_DIR)libpspmath/vfpu_sqrtf.o \
-                            $(SOURCE_DIR)libpspmath/vfpu_powf.o \
-                            $(SOURCE_DIR)libpspmath/vfpu_fmodf.o \
-                            $(SOURCE_DIR)libpspmath/vfpu_fminf.o \
-                            $(SOURCE_DIR)libpspmath/vfpu_fmaxf.o \
-                            $(SOURCE_DIR)libpspmath/vfpu_ease_in_out.o \
-                            $(SOURCE_DIR)libpspmath/vfpu_normalize_vector.o \
-                            $(SOURCE_DIR)libpspmath/vfpu_zero_vector.o \
-                            $(SOURCE_DIR)libpspmath/vfpu_scale_vector.o \
-                            $(SOURCE_DIR)libpspmath/vfpu_add_vector.o \
-                            $(SOURCE_DIR)libpspmath/vfpu_envmap_matrix.o \
-                            $(SOURCE_DIR)libpspmath/vfpu_sphere_to_cartesian.o \
-                            $(SOURCE_DIR)libpspmath/vfpu_quaternion_identity.o \
-                            $(SOURCE_DIR)libpspmath/vfpu_quaternion_copy.o \
-                            $(SOURCE_DIR)libpspmath/vfpu_quaternion_multiply.o \
-                            $(SOURCE_DIR)libpspmath/vfpu_quaternion_normalize.o \
-                            $(SOURCE_DIR)libpspmath/vfpu_quaternion_exp.o \
-                            $(SOURCE_DIR)libpspmath/vfpu_quaternion_ln.o \
-                            $(SOURCE_DIR)libpspmath/vfpu_quaternion_sample_linear.o \
-                            $(SOURCE_DIR)libpspmath/vfpu_quaternion_from_euler.o \
-                            $(SOURCE_DIR)libpspmath/vfpu_quaternion_to_matrix.o \
-                            $(SOURCE_DIR)libpspmath/vfpu_quaternion_sample_hermite.o \
-                            $(SOURCE_DIR)libpspmath/vfpu_quaternion_hermite_tangent.o
+PSPMATHOBJS := 	            $(SOURCE_DIR)/libpspmath/printMatrixFloat.o \
+                            $(SOURCE_DIR)/libpspmath/vfpu_srand.o \
+                            $(SOURCE_DIR)/libpspmath/vfpu_randf.o \
+                            $(SOURCE_DIR)/libpspmath/vfpu_rand_8888.o \
+                            $(SOURCE_DIR)/libpspmath/vfpu_identity_matrix.o \
+                            $(SOURCE_DIR)/libpspmath/vfpu_translate_matrix.o \
+                            $(SOURCE_DIR)/libpspmath/vfpu_perspective_matrix.o \
+                            $(SOURCE_DIR)/libpspmath/vfpu_ortho_matrix.o \
+                            $(SOURCE_DIR)/libpspmath/vfpu_sinf.o \
+                            $(SOURCE_DIR)/libpspmath/vfpu_cosf.o \
+                            $(SOURCE_DIR)/libpspmath/vfpu_tanf.o \
+                            $(SOURCE_DIR)/libpspmath/vfpu_asinf.o \
+                            $(SOURCE_DIR)/libpspmath/vfpu_acosf.o \
+                            $(SOURCE_DIR)/libpspmath/vfpu_atanf.o \
+                            $(SOURCE_DIR)/libpspmath/vfpu_sinhf.o \
+                            $(SOURCE_DIR)/libpspmath/vfpu_coshf.o \
+                            $(SOURCE_DIR)/libpspmath/vfpu_tanhf.o \
+                            $(SOURCE_DIR)/libpspmath/vfpu_sincos.o \
+                            $(SOURCE_DIR)/libpspmath/vfpu_expf.o \
+                            $(SOURCE_DIR)/libpspmath/vfpu_logf.o \
+                            $(SOURCE_DIR)/libpspmath/vfpu_fabsf.o \
+                            $(SOURCE_DIR)/libpspmath/vfpu_sqrtf.o \
+                            $(SOURCE_DIR)/libpspmath/vfpu_powf.o \
+                            $(SOURCE_DIR)/libpspmath/vfpu_fmodf.o \
+                            $(SOURCE_DIR)/libpspmath/vfpu_fminf.o \
+                            $(SOURCE_DIR)/libpspmath/vfpu_fmaxf.o \
+                            $(SOURCE_DIR)/libpspmath/vfpu_ease_in_out.o \
+                            $(SOURCE_DIR)/libpspmath/vfpu_normalize_vector.o \
+                            $(SOURCE_DIR)/libpspmath/vfpu_zero_vector.o \
+                            $(SOURCE_DIR)/libpspmath/vfpu_scale_vector.o \
+                            $(SOURCE_DIR)/libpspmath/vfpu_add_vector.o \
+                            $(SOURCE_DIR)/libpspmath/vfpu_envmap_matrix.o \
+                            $(SOURCE_DIR)/libpspmath/vfpu_sphere_to_cartesian.o \
+                            $(SOURCE_DIR)/libpspmath/vfpu_quaternion_identity.o \
+                            $(SOURCE_DIR)/libpspmath/vfpu_quaternion_copy.o \
+                            $(SOURCE_DIR)/libpspmath/vfpu_quaternion_multiply.o \
+                            $(SOURCE_DIR)/libpspmath/vfpu_quaternion_normalize.o \
+                            $(SOURCE_DIR)/libpspmath/vfpu_quaternion_exp.o \
+                            $(SOURCE_DIR)/libpspmath/vfpu_quaternion_ln.o \
+                            $(SOURCE_DIR)/libpspmath/vfpu_quaternion_sample_linear.o \
+                            $(SOURCE_DIR)/libpspmath/vfpu_quaternion_from_euler.o \
+                            $(SOURCE_DIR)/libpspmath/vfpu_quaternion_to_matrix.o \
+                            $(SOURCE_DIR)/libpspmath/vfpu_quaternion_sample_hermite.o \
+                            $(SOURCE_DIR)/libpspmath/vfpu_quaternion_hermite_tangent.o
 
 MMLoaderObjs :=				$(MM_DIR)/mloader.o $(MM_DIR)/mlreg.o $(MM_DIR)/npertab.o \
 							$(MM_DIR)/sloader.o $(MM_DIR)/load_uni.o $(MM_DIR)/mwav.o \
@@ -103,58 +103,58 @@ LIBOBJS :=					$(SFONTOBJS) \
 							$(PSPMATHOBJS) \
 							$(MMIOOBJS) \
 							$(MIKMODLIBOBJS) \
-							$(SOURCE_DIR)oslib.o \
-							$(SOURCE_DIR)vfpu.o \
-							$(SOURCE_DIR)drawing.o \
-							$(SOURCE_DIR)image.o \
-							$(SOURCE_DIR)palette.o \
-							$(SOURCE_DIR)shape.o \
-							$(SOURCE_DIR)map.o \
-							$(SOURCE_DIR)messagebox.o \
-							$(SOURCE_DIR)oslHandleLoadNoFailError.o \
-							$(SOURCE_DIR)keys.o \
-							$(SOURCE_DIR)text.o \
-							$(SOURCE_DIR)vram_mgr.o \
-							$(SOURCE_DIR)stub.o \
-							$(SOURCE_DIR)audio/audio.o \
-							$(SOURCE_DIR)audio/bgm.o \
-							$(SOURCE_DIR)audio/mod.o \
-							$(SOURCE_DIR)audio/media.o \
-							$(SOURCE_DIR)usb.o \
-							$(SOURCE_DIR)dialog.o \
-							$(SOURCE_DIR)osk.o \
-							$(SOURCE_DIR)saveload.o \
-							$(SOURCE_DIR)net.o \
-							$(SOURCE_DIR)browser.o \
-							$(SOURCE_DIR)adhoc/pspadhoc.o \
-							$(SOURCE_DIR)vfile/VirtualFile.o \
-							$(SOURCE_DIR)vfile/vfsFile.o \
-							$(SOURCE_DIR)image/oslConvertImageTo.o \
-							$(SOURCE_DIR)image/oslSetImagePixel.o \
-							$(SOURCE_DIR)image/oslGetImagePixel.o \
-							$(SOURCE_DIR)image/oslDrawImage.o \
-							$(SOURCE_DIR)image/oslDrawImageSimple.o \
-							$(SOURCE_DIR)image/oslDrawImageBig.o \
-							$(SOURCE_DIR)image/oslLockImage.o \
-							$(SOURCE_DIR)image/oslMoveImageTo.o \
-							$(SOURCE_DIR)image/oslSwizzleImage.o \
-							$(SOURCE_DIR)image/oslUnswizzleImage.o \
-							$(SOURCE_DIR)image/oslSetDrawBuffer.o \
-							$(SOURCE_DIR)image/oslResetImageProperties.o \
-							$(SOURCE_DIR)image/oslScaleImage.o \
-							$(SOURCE_DIR)gif/dev2gif.o $(SOURCE_DIR)gif/dgif_lib.o $(SOURCE_DIR)gif/egif_lib.o \
-							$(SOURCE_DIR)gif/gif_err.o $(SOURCE_DIR)gif/gifalloc.o $(SOURCE_DIR)gif/quantize.o \
-							$(SOURCE_DIR)Special/oslLoadImageFilePNG.o	\
-							$(SOURCE_DIR)Special/oslWriteImageFilePNG.o	\
-							$(SOURCE_DIR)Special/oslLoadImageFileJPG.o	\
-							$(SOURCE_DIR)Special/oslLoadImageFileGIF.o	\
-							$(SOURCE_DIR)Special/oslLoadImageFile.o	\
-							$(SOURCE_DIR)Special/oslWriteImageFile.o \
-							$(SOURCE_DIR)splash/oslShowSplashScreen1.o \
-							$(SOURCE_DIR)splash/oslShowSplashScreen2.o \
-							$(SOURCE_DIR)mem/oslGetRamStatus.o \
-							$(SOURCE_DIR)intraFont/intraFont.o \
-							$(SOURCE_DIR)intraFont/libccc.o
+							$(SOURCE_DIR)/oslib.o \
+							$(SOURCE_DIR)/vfpu.o \
+							$(SOURCE_DIR)/drawing.o \
+							$(SOURCE_DIR)/image.o \
+							$(SOURCE_DIR)/palette.o \
+							$(SOURCE_DIR)/shape.o \
+							$(SOURCE_DIR)/map.o \
+							$(SOURCE_DIR)/messagebox.o \
+							$(SOURCE_DIR)/oslHandleLoadNoFailError.o \
+							$(SOURCE_DIR)/keys.o \
+							$(SOURCE_DIR)/text.o \
+							$(SOURCE_DIR)/vram_mgr.o \
+							$(SOURCE_DIR)/stub.o \
+							$(SOURCE_DIR)/audio/audio.o \
+							$(SOURCE_DIR)/audio/bgm.o \
+							$(SOURCE_DIR)/audio/mod.o \
+							$(SOURCE_DIR)/audio/media.o \
+							$(SOURCE_DIR)/usb.o \
+							$(SOURCE_DIR)/dialog.o \
+							$(SOURCE_DIR)/osk.o \
+							$(SOURCE_DIR)/saveload.o \
+							$(SOURCE_DIR)/net.o \
+							$(SOURCE_DIR)/browser.o \
+							$(SOURCE_DIR)/adhoc/pspadhoc.o \
+							$(SOURCE_DIR)/vfile/VirtualFile.o \
+							$(SOURCE_DIR)/vfile/vfsFile.o \
+							$(SOURCE_DIR)/image/oslConvertImageTo.o \
+							$(SOURCE_DIR)/image/oslSetImagePixel.o \
+							$(SOURCE_DIR)/image/oslGetImagePixel.o \
+							$(SOURCE_DIR)/image/oslDrawImage.o \
+							$(SOURCE_DIR)/image/oslDrawImageSimple.o \
+							$(SOURCE_DIR)/image/oslDrawImageBig.o \
+							$(SOURCE_DIR)/image/oslLockImage.o \
+							$(SOURCE_DIR)/image/oslMoveImageTo.o \
+							$(SOURCE_DIR)/image/oslSwizzleImage.o \
+							$(SOURCE_DIR)/image/oslUnswizzleImage.o \
+							$(SOURCE_DIR)/image/oslSetDrawBuffer.o \
+							$(SOURCE_DIR)/image/oslResetImageProperties.o \
+							$(SOURCE_DIR)/image/oslScaleImage.o \
+							$(SOURCE_DIR)/gif/dev2gif.o $(SOURCE_DIR)/gif/dgif_lib.o $(SOURCE_DIR)/gif/egif_lib.o \
+							$(SOURCE_DIR)/gif/gif_err.o $(SOURCE_DIR)/gif/gifalloc.o $(SOURCE_DIR)/gif/quantize.o \
+							$(SOURCE_DIR)/Special/oslLoadImageFilePNG.o	\
+							$(SOURCE_DIR)/Special/oslWriteImageFilePNG.o	\
+							$(SOURCE_DIR)/Special/oslLoadImageFileJPG.o	\
+							$(SOURCE_DIR)/Special/oslLoadImageFileGIF.o	\
+							$(SOURCE_DIR)/Special/oslLoadImageFile.o	\
+							$(SOURCE_DIR)/Special/oslWriteImageFile.o \
+							$(SOURCE_DIR)/splash/oslShowSplashScreen1.o \
+							$(SOURCE_DIR)/splash/oslShowSplashScreen2.o \
+							$(SOURCE_DIR)/mem/oslGetRamStatus.o \
+							$(SOURCE_DIR)/intraFont/intraFont.o \
+							$(SOURCE_DIR)/intraFont/libccc.o
 
 OBJS :=						$(LIBOBJS)
 
@@ -163,6 +163,7 @@ OBJS :=						$(LIBOBJS)
 #	-------------------
 
 INCDIR   :=					$(INCDIR) \
+							$(SOURCE_DIR) \
 							$(INCLUDE_DIR)
 
 #----------------------------------------------------------------------------
