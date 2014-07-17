@@ -3,8 +3,8 @@ os:
   - osx
 compiler:
   - clang
-before_install: ./travis-dependencies.sh
+before_install: ./travis/travis-dependencies.sh
 install:
   - wget https://dl.dropboxusercontent.com/u/12595498/pspsdk_v2.tar.gz
   - tar -vzxf pspsdk_v2.tar.gz
-script: ./travis-build.sh
+script: ./travis/travis-build.sh
