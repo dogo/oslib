@@ -9,7 +9,7 @@ install:
 #echo yes | $PSPDEV $PSPSDK $PATH > log.txt
 before_script:
 	#- export PSPDEV="$TRAVIS_BUILD_DIR/pspsdk"
-	- export PSPDEV=`pwd`/pspsdk
-echo yes | $PSPDEV > log.txt
-echo yes | $TRAVIS_BUILD_DIR > log2.txt
+	#- export PSPDEV=`pwd`/pspsdk
+echo yes | `pwd` > log.txt
+echo yes | `ls` > log2.txt
 script: make
