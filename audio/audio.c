@@ -589,8 +589,7 @@ void oslPauseSound(OSL_SOUND *s, int pause)
 */
 void oslAudioCallback_PlaySound_WAV(OSL_SOUND *s)
 {
-//	if (s->format == OSL_FMT_WAV)
-	{
+//	if (s->format == OSL_FMT_WAV) {
 		if (s->isStreamed)
 			VirtualFileSeek(((WAVE_SRC*)s->dataplus)->fp, ((WAVE_SRC*)s->dataplus)->basefp, SEEK_SET);
 		else
