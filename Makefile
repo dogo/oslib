@@ -246,30 +246,30 @@ install: lib
 	install -d $(DESTDIR)$(PSPDIR)/include/oslib/intraFont/
 	install -d $(DESTDIR)$(PSPDIR)/include/oslib/libpspmath/
 	install -d $(DESTDIR)$(PSPDIR)/include/oslib/adhoc/
-	install -m644 intraFont/intraFont.h $(DESTDIR)$(PSPDIR)/include/oslib/intraFont/
-	install -m644 intraFont/libccc.h $(DESTDIR)$(PSPDIR)/include/oslib/intraFont/
-	install -m644 libpspmath/pspmath.h $(DESTDIR)$(PSPDIR)/include/oslib/libpspmath/
-	install -m644 adhoc/pspadhoc.h $(DESTDIR)$(PSPDIR)/include/oslib/adhoc/
-	install -m644 oslmath.h $(DESTDIR)$(PSPDIR)/include/oslib/
-	install -m644 net.h $(DESTDIR)$(PSPDIR)/include/oslib/
-	install -m644 browser.h $(DESTDIR)$(PSPDIR)/include/oslib/
-	install -m644 audio.h $(DESTDIR)$(PSPDIR)/include/oslib/
-	install -m644 bgm.h $(DESTDIR)$(PSPDIR)/include/oslib/
-	install -m644 dialog.h $(DESTDIR)$(PSPDIR)/include/oslib/
-	install -m644 drawing.h $(DESTDIR)$(PSPDIR)/include/oslib/
-	install -m644 keys.h $(DESTDIR)$(PSPDIR)/include/oslib/
-	install -m644 map.h $(DESTDIR)$(PSPDIR)/include/oslib/
-	install -m644 messagebox.h $(DESTDIR)$(PSPDIR)/include/oslib/
-	install -m644 osk.h $(DESTDIR)$(PSPDIR)/include/oslib/
-	install -m644 saveload.h $(DESTDIR)$(PSPDIR)/include/oslib/
-	install -m644 oslib.h $(DESTDIR)$(PSPDIR)/include/oslib/
-	install -m644 text.h $(DESTDIR)$(PSPDIR)/include/oslib/
-	install -m644 usb.h $(DESTDIR)$(PSPDIR)/include/oslib/
-	install -m644 vfpu_ops.h $(DESTDIR)$(PSPDIR)/include/oslib/
-	install -m644 VirtualFile.h $(DESTDIR)$(PSPDIR)/include/oslib/
-	install -m644 vram_mgr.h $(DESTDIR)$(PSPDIR)/include/oslib/
-	install -m644 ccc.h $(DESTDIR)$(PSPDIR)/include/oslib/
-	install -m644 sfont.h $(DESTDIR)$(PSPDIR)/include/oslib/
+	install -m644 $(SOURCE_DIR)/intraFont/intraFont.h $(DESTDIR)$(PSPDIR)/include/oslib/intraFont/
+	install -m644 $(SOURCE_DIR)/intraFont/libccc.h $(DESTDIR)$(PSPDIR)/include/oslib/intraFont/
+	install -m644 $(SOURCE_DIR)/libpspmath/pspmath.h $(DESTDIR)$(PSPDIR)/include/oslib/libpspmath/
+	install -m644 $(SOURCE_DIR)/adhoc/pspadhoc.h $(DESTDIR)$(PSPDIR)/include/oslib/adhoc/
+	install -m644 $(SOURCE_DIR)/oslmath.h $(DESTDIR)$(PSPDIR)/include/oslib/
+	install -m644 $(SOURCE_DIR)/net.h $(DESTDIR)$(PSPDIR)/include/oslib/
+	install -m644 $(SOURCE_DIR)/browser.h $(DESTDIR)$(PSPDIR)/include/oslib/
+	install -m644 $(SOURCE_DIR)/audio.h $(DESTDIR)$(PSPDIR)/include/oslib/
+	install -m644 $(SOURCE_DIR)/bgm.h $(DESTDIR)$(PSPDIR)/include/oslib/
+	install -m644 $(SOURCE_DIR)/dialog.h $(DESTDIR)$(PSPDIR)/include/oslib/
+	install -m644 $(SOURCE_DIR)/drawing.h $(DESTDIR)$(PSPDIR)/include/oslib/
+	install -m644 $(SOURCE_DIR)/keys.h $(DESTDIR)$(PSPDIR)/include/oslib/
+	install -m644 $(SOURCE_DIR)/map.h $(DESTDIR)$(PSPDIR)/include/oslib/
+	install -m644 $(SOURCE_DIR)/messagebox.h $(DESTDIR)$(PSPDIR)/include/oslib/
+	install -m644 $(SOURCE_DIR)/osk.h $(DESTDIR)$(PSPDIR)/include/oslib/
+	install -m644 $(SOURCE_DIR)/saveload.h $(DESTDIR)$(PSPDIR)/include/oslib/
+	install -m644 $(SOURCE_DIR)/oslib.h $(DESTDIR)$(PSPDIR)/include/oslib/
+	install -m644 $(SOURCE_DIR)/text.h $(DESTDIR)$(PSPDIR)/include/oslib/
+	install -m644 $(SOURCE_DIR)/usb.h $(DESTDIR)$(PSPDIR)/include/oslib/
+	install -m644 $(SOURCE_DIR)/vfpu_ops.h $(DESTDIR)$(PSPDIR)/include/oslib/
+	install -m644 $(SOURCE_DIR)/VirtualFile.h $(DESTDIR)$(PSPDIR)/include/oslib/
+	install -m644 $(SOURCE_DIR)/vram_mgr.h $(DESTDIR)$(PSPDIR)/include/oslib/
+	install -m644 $(SOURCE_DIR)/ccc.h $(DESTDIR)$(PSPDIR)/include/oslib/
+	install -m644 $(SOURCE_DIR)/sfont.h $(DESTDIR)$(PSPDIR)/include/oslib/
 
 gendoc:	
 	doxygen
