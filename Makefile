@@ -22,12 +22,7 @@ PSP_FW_VERSION=371
 #	Project folders
 #	---------------
 
-#<-- STAS: pack all the necessary MikMod stuff directly into libosl.a
-#          in order to avoid conflict with the newest libmikmod releases.
 SOURCE_DIR := src
-MM_DIR := $(SOURCE_DIR)/mikmod
-INCLUDE_DIR := $(MM_DIR)
-#<-- STAS END -->
 
 #----------------------------------------------------------------------------
 #	Source to make
@@ -80,29 +75,8 @@ PSPMATHOBJS := 	            $(SOURCE_DIR)/libpspmath/printMatrixFloat.o \
                             $(SOURCE_DIR)/libpspmath/vfpu_quaternion_sample_hermite.o \
                             $(SOURCE_DIR)/libpspmath/vfpu_quaternion_hermite_tangent.o
 
-MMLoaderObjs :=				$(MM_DIR)/mloader.o $(MM_DIR)/mlreg.o $(MM_DIR)/npertab.o \
-							$(MM_DIR)/sloader.o $(MM_DIR)/load_uni.o $(MM_DIR)/mwav.o \
-							$(MM_DIR)/load_mod.o $(MM_DIR)/load_m15.o $(MM_DIR)/load_mtm.o \
-							$(MM_DIR)/load_s3m.o $(MM_DIR)/load_stm.o $(MM_DIR)/load_669.o \
-							$(MM_DIR)/load_far.o $(MM_DIR)/load_dsm.o $(MM_DIR)/load_med.o \
-							$(MM_DIR)/load_xm.o $(MM_DIR)/load_ult.o $(MM_DIR)/load_it.o \
-							$(MM_DIR)/s3m_it.o $(MM_DIR)/load_wav.o
-
-MMDriverObjs :=				$(MM_DIR)/mdriver.o $(MM_DIR)/mdreg.o $(MM_DIR)/drv_nos.o
-
-MMPlayerObjs :=				$(MM_DIR)/mplayer.o
-
-MMIOOBJS :=					$(MM_DIR)/mmio/mmalloc.o \
-							$(MM_DIR)/mmio/mmerror.o $(MM_DIR)/mmio/mmio.o
-
-MIKMODLIBOBJS :=			$(MM_DIR)/stream.o \
-							$(MM_DIR)/virtch.o $(MM_DIR)/munitrk.o \
-							$(MMLoaderObjs) $(MMDriverObjs) $(MMPlayerObjs)
-
 LIBOBJS :=					$(SFONTOBJS) \
 							$(PSPMATHOBJS) \
-							$(MMIOOBJS) \
-							$(MIKMODLIBOBJS) \
 							$(SOURCE_DIR)/oslib.o \
 							$(SOURCE_DIR)/vfpu.o \
 							$(SOURCE_DIR)/drawing.o \
@@ -163,8 +137,7 @@ OBJS :=						$(LIBOBJS)
 #	-------------------
 
 INCDIR   :=					$(INCDIR) \
-							$(SOURCE_DIR) \
-							$(INCLUDE_DIR)
+							$(SOURCE_DIR)
 
 #----------------------------------------------------------------------------
 #	Addditional libraries
@@ -239,7 +212,7 @@ lib: $(STATICLIB)
 $(STATICLIB): $(LIBOBJS)
 	$(AR) rcs $@ $(LIBOBJS)
 	$(RANLIB) $@
-	
+
 install: lib
 	install -d $(DESTDIR)$(PSPDIR)/lib
 	install -m644 $(TARGET_LIB) $(DESTDIR)$(PSPDIR)/lib
@@ -271,7 +244,7 @@ install: lib
 	install -m644 $(SOURCE_DIR)/ccc.h $(DESTDIR)$(PSPDIR)/include/oslib/
 	install -m644 $(SOURCE_DIR)/sfont.h $(DESTDIR)$(PSPDIR)/include/oslib/
 
-gendoc:	
+gendoc:
 	doxygen
 
 ghpages: gendoc
