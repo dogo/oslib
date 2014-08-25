@@ -782,7 +782,6 @@ INPUT                  = src/oslib.h \
                          src/oslmath.h \
                          src/ccc.h \
                          src/VirtualFile.h \
-                         ./Doc/mainpage.txt \
                          ./Doc/mainpage.txt
 
 # This tag can be used to specify the character encoding of the source files
