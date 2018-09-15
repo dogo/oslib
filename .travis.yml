@@ -5,6 +5,6 @@ compiler:
   - clang
 before_install: ./travis/travis-dependencies.sh
 install:
-  - wget https://dl.dropboxusercontent.com/u/12595498/pspsdk_v2.tar.gz
+  - wget https://www.dropbox.com/s/4dkkw6h6v2ubuuo/pspsdk_v2.tar.gz
   - tar -vzxf pspsdk_v2.tar.gz
 script: ./travis/travis-build.sh
