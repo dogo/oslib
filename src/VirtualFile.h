@@ -232,7 +232,7 @@ extern void *oslReadEntireFileToMemory(VIRTUAL_FILE *f, int *size);
 
 
 /*
-	Source par défaut: mémoire
+	Source par dï¿½faut: mï¿½moire
 */
 extern int vfsMemOpen(void *param1, int param2, int type, int mode, VIRTUAL_FILE* f);
 extern int vfsMemClose(VIRTUAL_FILE *f);
@@ -266,7 +266,7 @@ int oslInitVfsFile();
 	\param source
 		Can be VF_FILE, VF_MEMORY or any virtual file device registered by you.
 */
-extern inline void oslSetDefaultVirtualFileSource(int source)		{
+static inline void oslSetDefaultVirtualFileSource(int source)		{
 	osl_defaultVirtualFileSource = source;
 }
 
@@ -288,7 +288,7 @@ extern int VF_FILE;
 
 
 /** Gets the name of the temporary file. See #oslSetTempFileData for a code sample. */
-extern inline char *oslGetTempFileName()		{
+static inline char *oslGetTempFileName()		{
 	return (char*)osl_tempFileName;
 }
 

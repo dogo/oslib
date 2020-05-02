@@ -162,7 +162,7 @@ black. You can get some nice effects once you've understood correctly what color
 extern void oslSetAlpha2(u32 effect, u32 coeff1, u32 coeff2);
 
 /** See oslSetAlpha2. */
-extern inline void oslSetAlpha(u32 effect, u32 coeff1)			{
+static inline void oslSetAlpha(u32 effect, u32 coeff1)			{
 	oslSetAlpha2(effect, coeff1, 0xffffffff);
 }
 
@@ -178,14 +178,14 @@ extern int osl_currentAlphaEffect;
 extern OSL_COLOR osl_currentAlphaCoeff, osl_currentAlphaCoeff2;
 
 /** Stores the current alpha parameters to an OSL_ALPHA_PARAMS structure. */
-extern inline void oslGetAlphaEx(OSL_ALPHA_PARAMS *alpha)		{
+static inline void oslGetAlphaEx(OSL_ALPHA_PARAMS *alpha)		{
 	alpha->effect = osl_currentAlphaEffect;
 	alpha->coeff1 = osl_currentAlphaCoeff;
 	alpha->coeff2 = osl_currentAlphaCoeff2;
 }
 
 /** Sets the current alpha parameters using an OSL_ALPHA_PARAMS structure. */
-extern inline void oslSetAlphaEx(OSL_ALPHA_PARAMS *alpha)		{
+static inline void oslSetAlphaEx(OSL_ALPHA_PARAMS *alpha)		{
 	oslSetAlpha2(alpha->effect, alpha->coeff1, alpha->coeff2);
 }
 
@@ -517,7 +517,7 @@ oslLoadImageFilePNG("test.png", OSL_IN_RAM | OSL_SWIZZLED, OSL_PF_5551);
 //Will swizzle if osl_autoSwizzleImages is set to true.
 oslLoadImageFilePNG("test.png", OSL_IN_RAM, OSL_PF_5551);
 \endcode */
-extern inline void oslSetImageAutoSwizzle(int enabled)		{
+static inline void oslSetImageAutoSwizzle(int enabled)		{
 	osl_autoSwizzleImages = enabled;
 }
 
@@ -839,7 +839,7 @@ That is, the following coordinates:
 \endcode
 
 \b Important: The maximum size of an image is 512x512! See considerations with #oslCreateImage. */
-extern inline void oslSetImageFrameSize(OSL_IMAGE *img, u16 width, u16 height)			{
+static inline void oslSetImageFrameSize(OSL_IMAGE *img, u16 width, u16 height)			{
 	img->frameSizeX = width, img->frameSizeY = height;
 }
 
@@ -935,7 +935,7 @@ oslUncachePalette(img->palette);
 extern OSL_PALETTE *oslCreatePaletteEx(int size, int location, short pixelFormat);
 
 /** Creates a palette. Simpler function without the \e location argument. */
-extern inline OSL_PALETTE *oslCreatePalette(int size, short pixelFormat)		{
+static inline OSL_PALETTE *oslCreatePalette(int size, short pixelFormat)		{
 	return oslCreatePaletteEx(size, OSL_IN_RAM, pixelFormat);
 }
 
@@ -965,7 +965,7 @@ extern void oslUncachePalette(OSL_PALETTE *pal);
 Never forget to call this after you've modified an image in a cached way (by default all the following routines do). See oslUncacheData for more information.
 
 Note: this routine does not flush the associated image palette data! Call oslUncacheImage instead if you need it! */
-extern inline void oslUncacheImageData(OSL_IMAGE *img)		{
+static inline void oslUncacheImageData(OSL_IMAGE *img)		{
     if (img != NULL)
         sceKernelDcacheWritebackInvalidateRange(img->data, img->totalSize);
 }
@@ -1248,7 +1248,7 @@ enum OSL_FX_ALPHATEST		{
 #define oslImageGetAutoStrip(img)				(img->flags & OSL_IMAGE_AUTOSTRIP)
 
 /** Defines if an image is a copy. For internal use only. */
-extern inline void oslImageIsCopySet(OSL_IMAGE *img, bool enabled)			{
+static inline void oslImageIsCopySet(OSL_IMAGE *img, bool enabled)			{
 	if (enabled)
 		img->flags |= OSL_IMAGE_COPY;
 	else
@@ -1256,7 +1256,7 @@ extern inline void oslImageIsCopySet(OSL_IMAGE *img, bool enabled)			{
 }
 
 /** Defines if an image is swizzled. For internal use only */
-extern inline void oslImageIsSwizzledSet(OSL_IMAGE *img, bool enabled)			{
+static inline void oslImageIsSwizzledSet(OSL_IMAGE *img, bool enabled)			{
 	if (enabled)
 		img->flags |= OSL_IMAGE_SWIZZLED;
 	else
@@ -1265,7 +1265,7 @@ extern inline void oslImageIsSwizzledSet(OSL_IMAGE *img, bool enabled)			{
 
 
 /** Defines if an image should be automatically stripped (divided in stripes to be blitted faster if it's very big). You shouldn't care about this. */
-extern inline void oslImageSetAutoStrip(OSL_IMAGE *img, bool enabled)			{
+static inline void oslImageSetAutoStrip(OSL_IMAGE *img, bool enabled)			{
 	if (enabled)
 		img->flags |= OSL_IMAGE_AUTOSTRIP;
 	else
@@ -1353,7 +1353,7 @@ left or the right will be either repeated or clamped depending on the parameter.
 		OSL_TW_CLAMP: Clamp (the same pixel is repeated indefinitely)
 		OSL_TW_REPEAT: The image texture is tiled.
 */
-extern inline void oslSetTextureWrap(int u, int v)		{
+static inline void oslSetTextureWrap(int u, int v)		{
 	sceGuTexWrap(u, v), osl_currentTexWrapU = u, osl_currentTexWrapV = v;
 }
 
@@ -1380,7 +1380,7 @@ extern void oslSetTexturePart(OSL_IMAGE *img, int x, int y);
 OSL_COLOR oslBlendColors(OSL_COLOR c1, OSL_COLOR c2);
 
 /** Applies the alpha parameters to a color, tinting it. This is needed as alpha is not applied to vertex color but only to textures. */
-extern inline OSL_COLOR oslBlendColor(OSL_COLOR c)		{
+static inline OSL_COLOR oslBlendColor(OSL_COLOR c)		{
 	return oslBlendColors(c, osl_currentAlphaCoeff);
 }
 
