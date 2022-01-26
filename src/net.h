@@ -1,7 +1,7 @@
 #ifndef NET_H
 #define NET_H
 
-#include <sys/fd_set.h>
+#include <sys/select.h>
 
 /** @defgroup Network Network
 
