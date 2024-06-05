@@ -1,0 +1,49 @@
+name: Building
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os[0] }}
+    strategy:
+      matrix:
+        os: [
+          [macos-14-arm64, arm64, bash],
+          [macos-14, x86_64, bash],
+          [ubuntu-22.04, x86_64, bash]
+        ]
+      fail-fast: false
+    defaults:
+     run:
+      shell: ${{ matrix.os[2] }} {0}
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install dependencies on required OS
+      run: |
+        # Set OS specific variables
+        if [[ "${{ matrix.os[0] }}" == "ubuntu-22.04" ]]; then
+          URL="https://github.com/pspdev/pspdev/releases/download/v20230818/pspdev-ubuntu-latest.tar.gz"
+          FILE="pspdev-ubuntu-latest.tar.gz"
+        elif [[ "${{ matrix.os[0] }}" == "macos-14" ]] || [[ "${{ matrix.os[0] }}" == "macos-14-arm64" ]]; then
+          URL="https://github.com/pspdev/pspdev/releases/download/v20230818/pspdev-macos-latest.tar.gz"
+          FILE="pspdev-macos-latest.tar.gz"
+        fi
+        
+        # Download the release tarball
+        wget $URL
+        
+        # Extract the tarball
+        tar -xzf $FILE
+        
+        # List extracted files (optional, for debugging purposes)
+        ls -la
+
+    - name: Runs build in shell
+      run: |
+        export PATH="$(brew --prefix gnu-sed)/libexec/gnubin:$PATH" # This really is only needed for macOS
+        export PATH="$(brew --prefix libtool)/libexec/gnubin:$PATH" # This really is only needed for macOS
+        export PKG_CONFIG_PATH="$(brew --prefix libarchive)/lib/pkgconfig:$(brew --prefix openssl)/lib/pkgconfig" # This really is only needed for macOS
+        export PSPDEV=$PWD/pspdev
+        export PATH=$PATH:$PSPDEV/bin
+        make
