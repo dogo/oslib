@@ -39,9 +39,6 @@
 	By default, OSLib will automatically swizzle images when loading them from a file (see #oslLoadImageFile).
 	But it won't swizzle images created manually (see #oslCreateImage). But you can disable swizzling by passing the
 	OSL_UNSWIZZLED flag when loading the image. See #oslSetImageAutoSwizzle.
-
-
-
 */
 
 
