@@ -7,8 +7,8 @@ jobs:
     strategy:
       matrix:
         os: [
-          [macos-14-arm64, arm64, bash],
-          [macos-14, x86_64, bash],
+          [macos-13-xlarge, arm64, bash],
+          [macos-13, x86_64, bash],
           [ubuntu-22.04, x86_64, bash]
         ]
       fail-fast: false
@@ -25,7 +25,7 @@ jobs:
         if [[ "${{ matrix.os[0] }}" == "ubuntu-22.04" ]]; then
           URL="https://github.com/pspdev/pspdev/releases/download/v20230818/pspdev-ubuntu-latest.tar.gz"
           FILE="pspdev-ubuntu-latest.tar.gz"
-        elif [[ "${{ matrix.os[0] }}" == "macos-14" ]] || [[ "${{ matrix.os[0] }}" == "macos-14-arm64" ]]; then
+        elif [[ "${{ matrix.os[0] }}" == "macos-13" ]] || [[ "${{ matrix.os[0] }}" == "macos-13-xlarge" ]]; then
           URL="https://github.com/pspdev/pspdev/releases/download/v20230818/pspdev-macos-latest.tar.gz"
           FILE="pspdev-macos-latest.tar.gz"
         fi
