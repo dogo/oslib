@@ -1,5 +1,5 @@
 # OldSchool Library (OSLib) MODv2
-[![Build Status](https://travis-ci.org/dogo/oslibmodv2.svg?branch=master)](https://travis-ci.org/dogo/oslibmodv2)
+![Build Status](https://github.com/dogo/oslibmodv2/actions/workflows/Build.yml/badge.svg)
 
 This is a modded version of OSLib 2.10 and OSLib MOD
 
