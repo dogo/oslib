@@ -1,25 +1,30 @@
 ## Version 1.1.3
+
 Updated: libpng to 1.6
 Fixed: Make oslib build with newer PSP toolchain
 Fixed: Multiple definitions of...'
 
 ## Version 1.1.2
+
 Updated: libpng to 1.5
 Updated: Doxyfile to 1.8.6
 Fixed: Doxygen warnings
 
 ## Version 1.1.1a
+
 Added: Some Strangelove fixes
 Updated: zlib 1.2.5
 Fixed: oslLoadImageFilePNG.c
 
 ## Version 1.1.1
+
 Added: Net functions (from PGE LUA)
 Added: oslDrawStringLimited (limit a string blit to a fixed width)
 Fixed: Loading an intraFont using Virtual fileSystem
 Fixed: Bugs by STAS (many thanks)
 
 ## Version 1.1.0
+
 Added: VFPU Math Library libpspmath version 4 by MrMr[iCE]
 Added: Remote control functions
 Added: Sony Browser (see the sample)
@@ -32,6 +37,7 @@ Fixed: Debug console
 Fixed: Minor bugs
 
 ## Version 1.0.1
+
 Added: Support for UTF-8 with intraFont (many thanks to nextos!!!)
 Fixed: Corrupted graphic using intraFont
 Fixed: MP3/ATRAC3+ playback under kernel 3.xx (sorry, I didn't test it before)
@@ -39,6 +45,7 @@ Fixed: Crash in MP3 playback after some seconds (many thanks to Drakon for repor
 Fixed: Message boxes work now
 
 ## Version 1.0.0
+
 Added: oslSetReadKeysFunction
 Added: All USB.c functions now works
 Added: OSL_VERSION
