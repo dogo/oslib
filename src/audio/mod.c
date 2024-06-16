@@ -64,12 +64,15 @@ static void PSP_PlayStop(void)
 	VC_PlayStop();
 }
 
-MDRIVER drv_psp =
+MIKMODAPI MDRIVER drv_psp =
 {
 	NULL,
 	"PSP Audio",
 	"PSP Output Driver v1.0 - by Jim Shaw",
 	0,255,
+	"psp",
+	NULL,
+	NULL,
 	PSP_IsThere,
 	(void*)VC_SampleLoad,
 	VC_SampleUnload,
@@ -82,9 +85,13 @@ MDRIVER drv_psp =
 	PSP_PlayStart,
 	PSP_PlayStop,
 	PSP_Update,
+	NULL,
 	VC_VoiceSetVolume,
+	VC_VoiceGetVolume,
 	VC_VoiceSetFrequency,
+	VC_VoiceGetFrequency,
 	VC_VoiceSetPanning,
+	VC_VoiceGetPanning,
 	VC_VoicePlay,
 	VC_VoiceStop,
 	VC_VoiceStopped,
@@ -185,7 +192,7 @@ VIRTUAL_FILE *oslAudioCallback_StandBy_MOD(OSL_SOUND *s)		{
 
 void oslAudioCallback_DeleteSound_MOD(OSL_SOUND *s)		{
 //	Player_Stop();
-	MikMod_FreeSong((MODULE*)s->data);
+	MikMod_free((MODULE*)s->data);
 }
 
 void my_error_handler(void)
@@ -227,7 +234,7 @@ OSL_SOUND *oslLoadSoundFileMOD(const char *filename, int stream)		{
 	if (s)			{
 		//Never forget that! If any member is added to OSL_SOUND, it is assumed to be zero!
 		memset(s, 0, sizeof(OSL_SOUND));
-		mf = MikMod_LoadSong((char*)filename, 128);
+		mf = Player_Load((char*)filename, 128, 0);
 		if (mf)		{
 			s->data = (void*)mf;
 

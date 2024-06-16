@@ -22,10 +22,10 @@ jobs:
       run: |
         # Set OS specific variables
         if [[ "${{ matrix.os[0] }}" == "ubuntu-22.04" ]]; then
-          URL="https://github.com/pspdev/pspdev/releases/download/v20230818/pspdev-ubuntu-latest.tar.gz"
+          URL="https://github.com/pspdev/pspdev/releases/download/v20240609/pspdev-ubuntu-latest-x86_64.tar.gz"
           FILE="pspdev-ubuntu-latest.tar.gz"
         elif [[ "${{ matrix.os[0] }}" == "macos-13" ]]; then
-          URL="https://github.com/pspdev/pspdev/releases/download/v20230818/pspdev-macos-latest.tar.gz"
+          URL="https://github.com/pspdev/pspdev/releases/download/v20240609/pspdev-macos-13-x86_64.tar.gz"
           FILE="pspdev-macos-latest.tar.gz"
         fi
 
