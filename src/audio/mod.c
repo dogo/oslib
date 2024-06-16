@@ -1,7 +1,6 @@
 #include "oslib.h"
 
 #include <mikmod.h>
-#include <mmio.h>
 
 static int osl_modPlaying = 0;
 static int osl_modInitialized = 0;
@@ -89,7 +88,6 @@ MDRIVER drv_psp =
 	VC_VoicePlay,
 	VC_VoiceStop,
 	VC_VoiceStopped,
-	VC_VoiceReleaseSustain,
 	VC_VoiceGetPosition,
 	VC_VoiceRealVolume
 };
@@ -153,7 +151,7 @@ void oslAudioCallback_PlaySound_MOD(OSL_SOUND *s)		{
 	}*/
 
 	Player_Stop();
-	Player_Start((UNIMOD*)s->data);
+	Player_Start((MODULE*)s->data);
 	Player_SetPosition(0);
 }
 
@@ -162,7 +160,7 @@ void oslAudioCallback_StopSound_MOD(OSL_SOUND *s)		{
 }
 
 int oslAudioCallback_AudioCallback_MOD(unsigned int i, void* buf, unsigned int length)			{
-	//Set up playback
+	// Set up playback
 	md_mixfreq = osl_modFrequency;
 	//md_mixshift = osl_modShift;
 
@@ -171,7 +169,7 @@ int oslAudioCallback_AudioCallback_MOD(unsigned int i, void* buf, unsigned int l
 	else
 		memset(buf, 0, length << 2);
 
-	//Fin de la chanson ^^
+	// End of the song
 	if (!Player_Active())
 		return 0;
 	return 1;
@@ -187,17 +185,17 @@ VIRTUAL_FILE *oslAudioCallback_StandBy_MOD(OSL_SOUND *s)		{
 
 void oslAudioCallback_DeleteSound_MOD(OSL_SOUND *s)		{
 //	Player_Stop();
-	MikMod_FreeSong((UNIMOD*)s->data);
+	MikMod_FreeSong((MODULE*)s->data);
 }
 
 void my_error_handler(void)
 {
-	oslDebug("_mm_critical %i\nmm_errno %i\n%s", _mm_critical, _mm_errno, _mm_errmsg[_mm_errno]);
+	oslDebug("_mm_critical %i\nmm_errno %i\n%s", MikMod_critical, MikMod_errno, MikMod_strerror(MikMod_errno));
 	return;
 }
 
 /*
-	Exemple:
+	Example:
 	oslSetModSampleRate(11025, 2);				//Very low CPU, bad sound
 	oslSetModSampleRate(22050, 1);				//Low CPU, medium sound
 	oslSetModSampleRate(44100, 0);				//Normal CPU usage, good sound
@@ -212,15 +210,15 @@ void oslSetModSampleRate(int freq, int stereo, int shift)		{
 
 OSL_SOUND *oslLoadSoundFileMOD(const char *filename, int stream)		{
 	OSL_SOUND *s;
-	UNIMOD *mf;
+	MODULE *mf;
 
 	if (!osl_modInitialized)		{
 //		_mm_RegisterErrorHandler(my_error_handler);
 		MikMod_RegisterAllLoaders();
-		MikMod_RegisterDriver(drv_psp);
+		MikMod_RegisterDriver(&drv_psp);
 
 		md_mode = DMODE_16BITS|DMODE_STEREO|DMODE_SOFT_MUSIC;
-		MikMod_Init();
+		MikMod_Init("");
 
 		osl_modInitialized = 1;
 	}
@@ -270,14 +268,14 @@ OSL_SOUND *oslLoadSoundFileMOD(const char *filename, int stream)		{
 	return s;
 
 /*	VirtualFileRead(&bfh, sizeof(bfh), 1, f);
-	//Vérifie l'en-tête
+	// Check the header
 	if (strcmp(bfh.strVersion, "OSLBGM v01"))		{
 		free(s);
 		VirtualFileClose(f);
 		return NULL;
 	}
 	if (bfh.format == 1)		{
-		//Pour l'adpcm, dataplus contient la structure définissant les données
+		// For ADPCM, dataplus contains the structure defining the data
 		ad = (OSL_ADGlobals*)malloc(sizeof(OSL_ADGlobals));
 		if (!ad)		{
 			free(s);
@@ -339,5 +337,3 @@ OSL_SOUND *oslLoadSoundFileMOD(const char *filename, int stream)		{
 
 	return s;*/
 }
-
-
