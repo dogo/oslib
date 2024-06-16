@@ -12,8 +12,8 @@ jobs:
         ]
       fail-fast: false
     defaults:
-     run:
-      shell: ${{ matrix.os[2] }} {0}
+      run:
+        shell: ${{ matrix.os[2] }} {0}
 
     steps:
     - uses: actions/checkout@v4
@@ -22,12 +22,13 @@ jobs:
       run: |
         # Set OS specific variables
         if [[ "${{ matrix.os[0] }}" == "ubuntu-22.04" ]]; then
-          URL="https://github.com/pspdev/pspdev/releases/download/v20230818/pspdev-ubuntu-latest.tar.gz"
-          FILE="pspdev-ubuntu-latest.tar.gz"
+          URL="https://github.com/pspdev/pspdev/releases/download/v20240609/pspdev-ubuntu-latest-x86_64.tar.gz"
         elif [[ "${{ matrix.os[0] }}" == "macos-13" ]]; then
-          URL="https://github.com/pspdev/pspdev/releases/download/v20230818/pspdev-macos-latest.tar.gz"
-          FILE="pspdev-macos-latest.tar.gz"
+          URL="https://github.com/pspdev/pspdev/releases/download/v20240609/pspdev-macos-13-x86_64.tar.gz"
         fi
+
+        # Extract the file name from the URL
+        FILE=$(basename $URL)
 
         # Download the release tarball
         wget $URL
