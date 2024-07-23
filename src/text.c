@@ -465,7 +465,7 @@ OSL_FONT *oslLoadIntraFontFile(const char *filename, unsigned int options) {
     }
 
     // Set intraFont style
-    intraFontSetStyle(font->intra, 1.0f, 0xFFFFFFFF, 0xFF000000, INTRAFONT_ALIGN_LEFT);
+    intraFontSetStyle(font->intra, 1.0f, 0xFFFFFFFF, 0xFF000000, 0.f, INTRAFONT_ALIGN_LEFT);
 
     // Initialize charWidths and update char widths
     font->charWidths = NULL; 
@@ -497,7 +497,7 @@ void oslLoadAltIntraFontFile(OSL_FONT *font, const char *filename) {
     }
 
     // Set the style for the alternate intraFont
-    intraFontSetStyle(alt, 1.0f, 0xFFFFFFFF, 0xFF000000, INTRAFONT_ALIGN_LEFT);
+    intraFontSetStyle(alt, 1.0f, 0xFFFFFFFF, 0xFF000000, 0.f, INTRAFONT_ALIGN_LEFT);
 
     // Update the character height if the alternate font's height is greater
     if (font->charHeight < alt->texYSize) {
@@ -798,7 +798,7 @@ void oslDrawStringLimited(int x, int y, int width, const char *str) {
     }
     // Handle OSL_FONT_INTRA font type
     else if (osl_curFont->fontType == OSL_FONT_INTRA) {
-        oslIntraFontPrintColumn(osl_curFont, x, y, width, 0, str);
+        oslIntraFontPrintColumn(osl_curFont, x, y, width, str);
     }
 }
 
@@ -1099,28 +1099,28 @@ void oslIntraFontShutdown() {
     intraFontShutdown();
 }
 
-void oslIntraFontSetStyle(OSL_FONT *font, float size, unsigned int color, unsigned int shadowColor, unsigned int options) {
+void oslIntraFontSetStyle(OSL_FONT *font, float size, unsigned int color, unsigned int shadowColor, float angle, unsigned int options) {
     if (font->intra) {
         // Set the style for the main intraFont
-        intraFontSetStyle(font->intra, size, color, shadowColor, options);
+        intraFontSetStyle(font->intra, size, color, shadowColor, angle, options);
 
         // Update character widths after setting the style
         updateIntraFontCharWidth(font, font->intra);
 
         // Set the style for the alternate intraFont if it exists
         if (font->intra->altFont) {
-            intraFontSetStyle(font->intra->altFont, size, color, shadowColor, options);
+            intraFontSetStyle(font->intra->altFont, size, color, shadowColor, angle, options);
         }
     }
 }
 
-float oslIntraFontPrintColumn(OSL_FONT *font, float x, float y, float width, int autoBreakLine, const char *text) {
+float oslIntraFontPrintColumn(OSL_FONT *font, float x, float y, float width, const char *text) {
     if (font->intra) {
         // Adjust vertical position based on font height
         y += (float)font->charHeight / 2.0f + 1.0f;
 
         // Print the text in a column using intraFont
-        return intraFontPrintColumn(font->intra, x, y, width, autoBreakLine, text);
+        return intraFontPrintColumn(font->intra, x, y, width, text);
     }
     return 0;
 }
