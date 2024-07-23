@@ -1,3 +1,9 @@
+## Version 1.2.0
+
+Updated: intraFont to latest version with bug fixes, performance improvements, and new features<br>
+Fixed: Improved oslLoadImageFilePNG code formatting, removed unused code, simplified error handling, and optimized palette handling<br>
+Fixed: Enhanced text functions with better font type support, improved rendering, optimized resource management, detailed comments and improved code readability<br>
+
 ## Version 1.1.3
 
 Updated: libpng to 1.6<br>
