@@ -62,17 +62,17 @@ int main(){
     for (i = 0; i < 16; i++) {
         sprintf(file, "flash0:/font/ltn%d.pgf", i);
         ltn[i] = oslLoadFontFile(file);
-        oslIntraFontSetStyle(ltn[i], 1.0f,WHITE,BLACK,INTRAFONT_ALIGN_LEFT);
+        oslIntraFontSetStyle(ltn[i], 1.0f,WHITE,BLACK, 0.f, INTRAFONT_ALIGN_LEFT);
     }
 
     OSL_FONT* jpn0 = oslLoadIntraFontFile("flash0:/font/jpn0.pgf", INTRAFONT_CACHE_ALL | INTRAFONT_STRING_SJIS); //japanese font with SJIS support
-    oslIntraFontSetStyle(jpn0, 1.0f,WHITE,BLACK, INTRAFONT_ALIGN_LEFT);
+    oslIntraFontSetStyle(jpn0, 1.0f, WHITE, BLACK, 0.f, INTRAFONT_ALIGN_LEFT);
 
 	OSL_FONT* kr0 = oslLoadIntraFontFile("flash0:/font/kr0.pgf", INTRAFONT_STRING_UTF8);  //Korean font (not available on all systems) with UTF-8 encoding
-	oslIntraFontSetStyle(kr0, 0.8f, WHITE, DARKGRAY, 0);                                  //scale to 80%
+	oslIntraFontSetStyle(kr0, 0.8f, WHITE, DARKGRAY, 0, 0.f);                                  //scale to 80%
 
 	OSL_FONT* chn = oslLoadIntraFontFile("flash0:/font/gb3s1518.bwfon", 0);               //chinese font
-	oslIntraFontSetStyle(chn, 0.8f, WHITE, DARKGRAY, 0);                                  //scale to 80%
+	oslIntraFontSetStyle(chn, 0.8f, WHITE, DARKGRAY, 0, 0.f);                                  //scale to 80%
 
     while(!osl_quit){
         if (!skip){
@@ -81,10 +81,10 @@ int main(){
 
             // Draw various text
             float y = 15;
-            oslIntraFontSetStyle(ltn[4], 1.0f,BLACK,WHITE,INTRAFONT_ALIGN_CENTER);
+            oslIntraFontSetStyle(ltn[4], 1.0f,BLACK,WHITE, 0.f, INTRAFONT_ALIGN_CENTER);
             oslSetFont(ltn[4]);
             oslDrawStringf(240, y, "OSLib %s with intraFont by Sakya", OSL_VERSION);
-            oslIntraFontSetStyle(ltn[4], 1.0f,WHITE,BLACK,INTRAFONT_ALIGN_LEFT);
+            oslIntraFontSetStyle(ltn[4], 1.0f,WHITE,BLACK, 0.f, INTRAFONT_ALIGN_LEFT);
 
             y += 30;
             oslSetFont(ltn[8]);
@@ -137,64 +137,64 @@ int main(){
             oslSetFont(ltn[8]);
             oslDrawString(10, y, "JPN (S-JIS): ");
             oslSetFont(jpn0);
-            oslDrawString(180, y, "ƒCƒ“ƒgƒ‰ƒtƒHƒ“ƒg");
+            oslDrawString(180, y, "ï¿½Cï¿½ï¿½ï¿½gï¿½ï¿½ï¿½tï¿½Hï¿½ï¿½ï¿½g");
 
             y += 25;
             oslSetFont(ltn[8]);
             oslDrawString(10, y, "Colors: ");
-            oslIntraFontSetStyle(ltn[8], 1.0f,RED,BLUE,0);
+            oslIntraFontSetStyle(ltn[8], 1.0f,RED,BLUE,0, 0.f);
             oslDrawString(80, y, "colorful, ");
-            oslIntraFontSetStyle(ltn[8], 1.0f,WHITE,0,0);
+            oslIntraFontSetStyle(ltn[8], 1.0f,WHITE,0,0, 0.f);
             oslDrawString(140, y, "no shadow, ");
-            oslIntraFontSetStyle(ltn[8], 1.0f,0,BLACK,0);
+            oslIntraFontSetStyle(ltn[8], 1.0f,0,BLACK,0, 0.f);
             oslDrawString(220, y, "no text, ");
-            oslIntraFontSetStyle(ltn[8], 1.0f,0x7FFFFFFF,BLACK,0);
+            oslIntraFontSetStyle(ltn[8], 1.0f,0x7FFFFFFF,BLACK,0, 0.f);
             oslDrawString(275, y, "transparent, ");
-            oslIntraFontSetStyle(ltn[8], 1.0f,GRAY,WHITE,0);
+            oslIntraFontSetStyle(ltn[8], 1.0f,GRAY,WHITE,0, 0.f);
             oslDrawString(363, y, "glowing, ");
             float t = ((float)(clock() % CLOCKS_PER_SEC)) / ((float)CLOCKS_PER_SEC);
             int val = (t < 0.5f) ? t*511 : (1.0f-t)*511;
-            oslIntraFontSetStyle(ltn[8], 1.0f,LITEGRAY,(0xFF<<24)+(val<<16)+(val<<8)+(val),0);
+            oslIntraFontSetStyle(ltn[8], 1.0f,LITEGRAY,(0xFF<<24)+(val<<16)+(val<<8)+(val),0, 0.f);
             oslDrawString(425, y, "flashing");
-            oslIntraFontSetStyle(ltn[8], 1.0f,WHITE,BLACK,0);
+            oslIntraFontSetStyle(ltn[8], 1.0f,WHITE,BLACK,0, 0.f);
 
             y += 20;
             oslDrawString(10, y, "Spacing: ");
-            oslIntraFontSetStyle(ltn[8], 1.0f,WHITE,BLACK,INTRAFONT_WIDTH_FIX);
+            oslIntraFontSetStyle(ltn[8], 1.0f,WHITE,BLACK,INTRAFONT_WIDTH_FIX, 0.f);
             oslDrawString(80, y, "fixed (default), ");
-            oslIntraFontSetStyle(ltn[8], 1.0f,WHITE,BLACK,INTRAFONT_WIDTH_FIX | 12);
+            oslIntraFontSetStyle(ltn[8], 1.0f,WHITE,BLACK,INTRAFONT_WIDTH_FIX | 12, 0.f);
             oslDrawString(220, y, "fixed (12), ");
-            oslIntraFontSetStyle(ltn[8], 1.0f,WHITE,BLACK,0);
+            oslIntraFontSetStyle(ltn[8], 1.0f,WHITE,BLACK,0, 0.f);
             oslDrawString(360, y, "variable width");
 
             y += 30;
             oslDrawString(10, y, "Scaling: ");
-            oslIntraFontSetStyle(ltn[0], 0.5f,WHITE,BLACK,0);
+            oslIntraFontSetStyle(ltn[0], 0.5f,WHITE,BLACK,0, 0.f);
             oslSetFont(ltn[0]);
             oslDrawString(80, y, "tiny, ");
-            oslIntraFontSetStyle(ltn[0], 0.75f,WHITE,BLACK,0);
+            oslIntraFontSetStyle(ltn[0], 0.75f,WHITE,BLACK,0, 0.f);
             oslDrawString(110, y, "small, ");
-            oslIntraFontSetStyle(ltn[0], 1.0f,WHITE,BLACK,0);
+            oslIntraFontSetStyle(ltn[0], 1.0f,WHITE,BLACK,0, 0.f);
             oslDrawString(160, y, "regular, ");
-            oslIntraFontSetStyle(ltn[0], 1.25f,WHITE,BLACK,0);
+            oslIntraFontSetStyle(ltn[0], 1.25f,WHITE,BLACK,0, 0.f);
             oslDrawString(250, y, "large, ");
-            oslIntraFontSetStyle(ltn[0], 1.5f,WHITE,BLACK,0);
+            oslIntraFontSetStyle(ltn[0], 1.5f,WHITE,BLACK,0, 0.f);
             oslDrawString(330, y, "huge");
-            oslIntraFontSetStyle(ltn[0], 1.0f,WHITE,BLACK,0);
+            oslIntraFontSetStyle(ltn[0], 1.0f,WHITE,BLACK,0, 0.f);
 
             y += 20;
             oslSetFont(ltn[8]);
             oslDrawString(10, y, "Align: ");
-            oslIntraFontSetStyle(ltn[8], 1.0f,WHITE,BLACK,INTRAFONT_ALIGN_LEFT);
+            oslIntraFontSetStyle(ltn[8], 1.0f,WHITE,BLACK, 0.f, INTRAFONT_ALIGN_LEFT);
             oslDrawString(80, y, "left");
-            oslIntraFontSetStyle(ltn[8], 1.0f,WHITE,BLACK,INTRAFONT_ALIGN_CENTER);
+            oslIntraFontSetStyle(ltn[8], 1.0f,WHITE,BLACK, 0.f, INTRAFONT_ALIGN_CENTER);
             oslDrawString((80+470)/2, y, "center");
-            oslIntraFontSetStyle(ltn[8], 1.0f,WHITE,BLACK,INTRAFONT_ALIGN_RIGHT);
+            oslIntraFontSetStyle(ltn[8], 1.0f,WHITE,BLACK, 0.f, INTRAFONT_ALIGN_RIGHT);
             oslDrawString(470, y, "right");
-            oslIntraFontSetStyle(ltn[8], 1.0f,WHITE,BLACK,0);
+            oslIntraFontSetStyle(ltn[8], 1.0f,WHITE,BLACK,0, 0.f);
 
             y += 25;
-            oslIntraFontSetStyle(ltn[4], 1.0f,BLACK,WHITE,INTRAFONT_ALIGN_CENTER);
+            oslIntraFontSetStyle(ltn[4], 1.0f,BLACK,WHITE, 0.f, INTRAFONT_ALIGN_CENTER);
             oslSetFont(ltn[4]);
             oslDrawString(240, y, "Press X to quit");
 

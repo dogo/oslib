@@ -71,7 +71,7 @@ int main(){
 
     //Load fonts:
     OSL_FONT *pgfFont = oslLoadFontFile("flash0:/font/ltn0.pgf");
-    oslIntraFontSetStyle(pgfFont, 0.5, RGBA(255,255,255,255), RGBA(0,0,0,0), INTRAFONT_ALIGN_LEFT);
+    oslIntraFontSetStyle(pgfFont, 0.5, RGBA(255,255,255,255), RGBA(0,0,0,0), 0.f, INTRAFONT_ALIGN_LEFT);
 
     OSL_FONT *oftFont = oslLoadFontFile("font.oft");
     oslSetTextColor(RGBA(255,255,255,255));

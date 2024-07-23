@@ -25,7 +25,7 @@ void initOSLib(){
 void printInfo()
 {
 	u8 *macAddress = oslAdhocGetMacAddress();
-	oslIntraFontSetStyle(pgfFont, 1.0, RGBA(255,255,255,255), RGBA(0,0,0,0), INTRAFONT_ALIGN_LEFT);
+	oslIntraFontSetStyle(pgfFont, 1.0, RGBA(255,255,255,255), RGBA(0,0,0,0), 0.f, INTRAFONT_ALIGN_LEFT);
 	oslDrawStringf(10, 10, "Current state: %s", oslAdhocGetState() == ADHOC_INIT ? "OK" : "KO");
 	oslDrawStringf(10, 25, "Your MAC address: %02X:%02X:%02X:%02X:%02X:%02X", macAddress[0], macAddress[1], macAddress[2], macAddress[3], macAddress[4], macAddress[5]);
 }
@@ -93,9 +93,9 @@ void doClient()
 			for (i=0; i < oslAdhocGetRemotePspCount(); i++)
 			{
 				if (i == current)
-				    oslIntraFontSetStyle(pgfFont, 1.0, RGBA(100,100,100,255), RGBA(0,0,0,0), INTRAFONT_ALIGN_LEFT);
+				    oslIntraFontSetStyle(pgfFont, 1.0, RGBA(100,100,100,255), RGBA(0,0,0,0), 0.f, INTRAFONT_ALIGN_LEFT);
 				else
-				    oslIntraFontSetStyle(pgfFont, 1.0, RGBA(255,255,255,255), RGBA(0,0,0,0), INTRAFONT_ALIGN_LEFT);
+				    oslIntraFontSetStyle(pgfFont, 1.0, RGBA(255,255,255,255), RGBA(0,0,0,0), 0.f, INTRAFONT_ALIGN_LEFT);
 				oslDrawString(10, 100 + 15 * i, oslAdhocGetPspByIndex(i)->name);
 			}
             oslEndDrawing();
@@ -274,7 +274,7 @@ int main(){
 
     //Load font:
     pgfFont = oslLoadFontFile("flash0:/font/ltn0.pgf");
-    oslIntraFontSetStyle(pgfFont, 1.0, RGBA(255,255,255,255), RGBA(0,0,0,0), INTRAFONT_ALIGN_LEFT);
+    oslIntraFontSetStyle(pgfFont, 1.0, RGBA(255,255,255,255), RGBA(0,0,0,0), 0.f, INTRAFONT_ALIGN_LEFT);
     oslSetFont(pgfFont);
 
     while(!osl_quit){
@@ -283,7 +283,7 @@ int main(){
 
             oslDrawImageXY(bkg, 0, 0);
 
-			oslIntraFontSetStyle(pgfFont, 1.0, RGBA(255,255,255,255), RGBA(0,0,0,0), INTRAFONT_ALIGN_LEFT);
+			oslIntraFontSetStyle(pgfFont, 1.0, RGBA(255,255,255,255), RGBA(0,0,0,0), 0.f, INTRAFONT_ALIGN_LEFT);
 			if (oslIsWlanPowerOn())
 			{
 				oslDrawString(10, 10, "Press [] to act like a server");
