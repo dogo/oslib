@@ -231,7 +231,7 @@ extern OSL_FONT *oslLoadIntraFontFile(const char *filename, unsigned int options
 extern void oslLoadAltIntraFontFile(OSL_FONT *font, const char *filename);
 
 /**Sets style for a pgf font (works ONLY with pgf font) */
-extern void oslIntraFontSetStyle(OSL_FONT *f, float size, unsigned int color, unsigned int shadowColor, unsigned int options);
+extern void oslIntraFontSetStyle(OSL_FONT *f, float size, unsigned int color, unsigned int shadowColor, float angle, unsigned int options);
 
 /**
  * Draw text along the baseline starting at x, y.
@@ -244,13 +244,11 @@ extern void oslIntraFontSetStyle(OSL_FONT *f, float size, unsigned int color, un
  *
  * @param width - column width for automatic line breaking (intraFontPrintColumn... versions only)
  *
- * @param autoBreakLine - char length of text to draw (...Ex versions only)
- *
  * @param text - Text to draw (ASCII & extended ASCII, S-JIS or UTF-8 encoded)
  *
  * @returns The x position after the last char
  */
-extern float oslIntraFontPrintColumn(OSL_FONT *f, float x, float y, float width, int autoBreakLine, const char *text);
+extern float oslIntraFontPrintColumn(OSL_FONT *f, float x, float y, float width, const char *text);
 
 /**Shuts down intraFont */
 extern void oslIntraFontShutdown();
