@@ -23,7 +23,7 @@ A clear and concise description of what you expected to happen.
 **Screenshots**
 If applicable, add screenshots to help explain your problem.
 
-** PSP (please complete the following information):**
+**PSP (please complete the following information):**
  - Device: [e.g. PSP-2000]
  - FW: [e.g. 6.60]
  - OSLib Version [e.g. 1.0.0]
