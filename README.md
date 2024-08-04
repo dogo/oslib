@@ -1,13 +1,5 @@
-# OldSchool Library (OSLib) MODv2
+# OldSchool Library (OSLib)
 ![Build Status](https://github.com/dogo/oslibmodv2/actions/workflows/Build.yml/badge.svg?event=push)
-
-This is a modded version of OSLib 2.10 and OSLib MOD
-
-The original OSLib by Brunni can be found here:
-http://brunni.palib.info/new/index.php?page=pspsoft_oslib
-
-The original OSLib MOD by Sakya can be found here:
-http://www.sakya.it/forums/viewforum.php?f=7
 
 # DOCUMENTATION
 
@@ -16,16 +8,16 @@ http://dogo.github.io/oslibmodv2/
 
 # License
 
-OSLib Modv2 is free software, licensed under the GPLv2; see COPYING for details.
+OSLib is free software, licensed under the GPLv2; see COPYING for details.
 
 # SUPPORT
 
-You can report bugs and talk about OSLib MODv2 here:  
+You can report bugs and talk about OSLib here:  
 diautilio@gmail.com
 
 # INSTALL
 
-To install OSLib MODv2  
+To install OSLib  
 copy libosl.a to $PSPSDK/lib/  
 copy the oslib directory (containing header files) in $PSPSDK/include/
 
