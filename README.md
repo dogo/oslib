@@ -1,34 +1,47 @@
 # OldSchool Library (OSLib)
 ![Build Status](https://github.com/dogo/oslibmodv2/actions/workflows/Build.yml/badge.svg?event=push)
 
-# DOCUMENTATION
+## Overview
 
-You can find the documentation in the Doc directory, or consult it online here:  
-http://dogo.github.io/oslibmodv2/
+OldSchool Library (OSLib) is a lightweight and versatile C++ library designed to provide functionality and tools commonly used in classic game development and retro programming projects. It bridges the gap between modern and old-school development environments, making it easier to create and manage applications with a nostalgic touch.
 
-# License
+## Features
 
-OSLib is free software, licensed under the GPLv2; see COPYING for details.
+- **Graphics and Rendering:** Basic graphics functions and rendering capabilities for 2D game development.
+- **Input Handling:** Manage keyboard, mouse, and gamepad inputs for interactive applications.
+- **Sound Management:** Simple sound and music playback functionalities.
+- **Utility Functions:** A collection of utility functions for handling files, strings, and more.
+- **Cross-Platform Support:** Compatible with multiple platforms, including Windows, macOS, and Linux.
 
-# SUPPORT
+## Installation
 
-You can report bugs and talk about OSLib here:  
-diautilio@gmail.com
+To install OSLib:
+1. Copy `libosl.a` to `$PSPSDK/lib/`.
+2. Copy the `oslib` directory (containing header files) to `$PSPSDK/include/`.
 
-# INSTALL
+## Documentation
 
-To install OSLib  
-copy libosl.a to $PSPSDK/lib/  
-copy the oslib directory (containing header files) in $PSPSDK/include/
+You can find the documentation in the `Doc` directory, or consult it online here:  
+[http://dogo.github.io/oslibmodv2/](http://dogo.github.io/oslibmodv2/)
 
-# THANKS
+## Contributing
 
-uppfinnarn for update libpng and makefile  
-Strangelove for fixing many bugs  
-STAS for tha patch fixing many bugs  
-pspZorba for his adhoc sample  
-MrMr[iCE] for libpspmath  
-InsertWittyName for all the sdk's dialog samples  
-Brunni for OSLib  
-Sakya for OSLib MOD  
-BenHur for intraFont  
+We welcome contributions to OSLib! If you’d like to contribute, please follow these steps:
+
+1. Fork the repository.
+2. Create a feature branch.
+3. Make your changes and commit them.
+4. Push your branch to your fork.
+5. Create a pull request describing your changes.
+
+Please follow the coding guidelines and write tests for any new features or bug fixes.
+
+## License
+
+OSLib is free software, licensed under the GPLv2. See `COPYING` for details.
+
+## Thanks
+
+- **Brunni** for the original OSLib
+- **Sakya** for the first modification of OSLib
+- **BenHur** for intraFont
