@@ -1,27 +1,26 @@
 #include "../oslib.h"
 
-//Generic, includes support for all image types!
+// Generic, includes support for all image types!
 int oslWriteImageFile(OSL_IMAGE *img, const char* filename, int flags)
 {
-	const char *ext;
-	char extension[10];
-	int i;
+    // Check if the image is swizzled; writing swizzled images is not supported
+    if (oslImageIsSwizzled(img))
+        return 0;
 
-	//Impossible to write swizzled images
-	if (oslImageIsSwizzled(img))
-		return 0;
-	ext = strrchr(filename, '.');
-	if (!ext)
-		return 0;
-	i = 0;
-	while(ext[i] && i < sizeof(extension) - 2)
-	{
-		extension[i] = tolower((unsigned char) ext[i]);
-		i++;
-	}
-	extension[i] = 0;
-	if (!strcmp(extension, ".png"))
-		return oslWriteImageFilePNG(img, filename, flags);
-	return 0;
+    const char *ext = strrchr(filename, '.');
+    if (!ext || ext == filename)
+        return 0;
+
+    char extension[10] = {0};
+    int i = 0;
+    while (ext[i] && i < sizeof(extension) - 1) // Leave space for the null terminator
+    {
+        extension[i] = tolower((unsigned char) ext[i]);
+        i++;
+    }
+
+    if (strcmp(extension, ".png") == 0)
+        return oslWriteImageFilePNG(img, filename, flags);
+
+    return 0;
 }
-
