@@ -3,7 +3,9 @@
         {
             "name": "Linux",
             "includePath": [
-                "${workspaceFolder}/**"
+                "${workspaceFolder}/**",
+                "${PSPDEV}/include/**",
+                "${PSPDEV}/psp/**"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",

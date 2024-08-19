@@ -29,7 +29,7 @@ int main(){
     oslIntraFontInit(INTRAFONT_CACHE_MED);
 
     //Loads image:
-    OSL_IMAGE *bkg = oslLoadImageFilePNG("bkg.png", OSL_IN_RAM | OSL_SWIZZLED, OSL_PF_8888);
+    OSL_IMAGE *bkg = oslLoadImageFileJPG("bkg.jpg", OSL_IN_RAM | OSL_SWIZZLED, OSL_PF_8888);
 
     //Load font:
     OSL_FONT *pgfFont = oslLoadFontFile("flash0:/font/ltn0.pgf");
