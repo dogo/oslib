@@ -66,7 +66,7 @@ OSL_IMAGE *oslLoadImageFilePNG(char *filename, int location, int pixelFormat) {
 
     int wantedPixelFormat = pixelFormat;
 
-    // If we don't have a palette in the PNG but the pixel format requires one, 
+    // If we don't have a palette in the PNG but the pixel format requires one,
     // we load the image in 32-bit mode and convert it to paletted later with oslConvertImageTo.
     if (!num_palette && osl_pixelWidth[pixelFormat] <= 8) {
         pixelFormat = OSL_PF_8888;
@@ -87,7 +87,7 @@ OSL_IMAGE *oslLoadImageFilePNG(char *filename, int location, int pixelFormat) {
                     unsigned char g = palette[i].green;
                     unsigned char b = palette[i].blue;
                     unsigned char a = 0xff;
-                    //Color key?
+                    // Color key?
                     if (osl_colorKeyEnabled && RGBA(r, g, b, 0) == (osl_colorKeyValue & 0x00ffffff)) a = 0;
                     ((u32 *)img->palette->data)[i] = RGBA(r, g, b, a);
                 }
