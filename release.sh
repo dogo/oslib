@@ -53,7 +53,7 @@ cp -f install.bat $TARGET
 cp -f install.sh $TARGET
 
 echo "Copying DOC...."
-cp -rf OSLib_MODv2_Documentation $TARGET/Doc
+cp -rf OSLib_Documentation $TARGET/Doc
 
 echo "Copying Samples...."
 cp -rf samples $TARGET/
@@ -62,7 +62,7 @@ echo "Copying Tools...."
 cp -rf tools $TARGET/
 
 echo "Compressing...."
-zip -r OSLibmodv2.zip $TARGET/*
+zip -r OSLib.zip $TARGET/*
 
 echo "Done!"
 echo

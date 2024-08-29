@@ -1,5 +1,5 @@
 # OldSchool Library (OSLib)
-![Build Status](https://github.com/dogo/oslibmodv2/actions/workflows/Build.yml/badge.svg?event=push)
+![Build Status](https://github.com/dogo/oslib/actions/workflows/Build.yml/badge.svg?event=push)
 
 ## Overview
 
@@ -22,7 +22,7 @@ To install OSLib:
 ## Documentation
 
 You can find the documentation in the `Doc` directory, or consult it online here:  
-[http://dogo.github.io/oslibmodv2/](http://dogo.github.io/oslibmodv2/)
+[http://dogo.github.io/oslib/](http://dogo.github.io/oslib/)
 
 ## Contributing
 

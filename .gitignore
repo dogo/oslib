@@ -15,4 +15,4 @@ samples/**/*.prx
 samples/**/*.SFO
 
 # Ignore documentation directory
-OSLib_MODv2_Documentation/
+OSLib_Documentation/
