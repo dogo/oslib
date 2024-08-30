@@ -1,90 +1,68 @@
 #include "oslib.h"
 
-static u32 __ramAvailableLineareMax (void)
-{
-	//Blocks of 1 MB
-	u32 size = 0, sizeblock = 1024 * 1024;
-	u8 *ram;
+static u32 __ramAvailableMaxLinear(void) {
+    // Blocks of 1 MB
+    u32 size = 0;
+    u32 sizeBlock = 1024 * 1024;
+    u8 *ram;
 
-	// Check loop
-	while (sizeblock)
-	{
+    while (sizeBlock) {
 		// Increment size
-		size += sizeblock;
+        size += sizeBlock;
 
 		// Allocate ram
-		ram = (u8*)malloc(size);
+        ram = (u8*)malloc(size);
 
-		// Check allocate
-		if (!(ram))
-		{
-			// Restore old size
-			size -= sizeblock;
+        if (!ram) {
+            size -= sizeBlock; // Restore old size
+            sizeBlock >>= 1; // Reduce the block size by half
+        } else {
+            free(ram);
+        }
+    }
 
-			// Size block / 2
-			sizeblock >>= 1;
-		}
-		else
-			free(ram);
-	}
-
-	return size;
+    return size;
 }
 
-static u32 __ramAvailable (void)
-{
-	u8 **ram, **temp;
-	u32 size, count, x;
+static u32 __ramAvailable(void) {
+    u8 **ram = NULL;
+    u32 size = 0;
+    u32 count = 0;
 
+    while (1) {
+        // Allocate more entries if needed
+        if (count % 10 == 0) {
+            u8 **temp = (u8**)realloc(ram, sizeof(u8*) * (count + 10));
+            if (!temp) break;
 
-	// Init variables
-	ram = NULL;
-	size = 0;
-	count = 0;
+            ram = temp;
+            size += sizeof(u8*) * 10;
+        }
 
-	// Check loop
-	for (;;)
-	{
-		// Check size entries
-		if (!(count % 10))
-		{
-			// Allocate more entries if needed
-			temp = (u8**)realloc(ram,sizeof(u8 *) * (count + 10));
-			if (!(temp)) break;
+        // Find max linear size available
+        u32 maxLinearSize = __ramAvailableMaxLinear();
+        if (!maxLinearSize) break;
 
-			// Update entries and size (size contains also size of entries)
-			ram = temp;
-			size += (sizeof(u8 *) * 10);
-		}
+        // Allocate ram
+        ram[count] = (u8*)malloc(maxLinearSize);
+        if (!ram[count]) break;
 
-		// Find max lineare size available
-		x = __ramAvailableLineareMax();
-		if (!(x)) break;
+        size += maxLinearSize;
+        count++;
+    }
 
-		// Allocate ram
-		ram[count] = (u8*)malloc(x);
-		if (!(ram[count])) break;
+    // Free allocated memory
+    for (u32 i = 0; i < count; i++) {
+        free(ram[i]);
+    }
+    free(ram);
 
-		// Update variables
-		size += x;
-		count++;
-	}
-
-	// Free ram
-	if (ram)
-	{
-		for (x=0;x<count;x++) free(ram[x]);
-		free(ram);
-	}
-
-	return size;
+    return size;
 }
 
-OSL_MEMSTATUS oslGetRamStatus()		{
-	OSL_MEMSTATUS ram;
-	ram.maxAvailable = __ramAvailable();
-	ram.maxBlockSize = __ramAvailableLineareMax();
-	return ram;
+OSL_MEMSTATUS oslGetRamStatus(void) {
+    OSL_MEMSTATUS ram;
+    ram.maxAvailable = __ramAvailable();
+    ram.maxBlockSize = __ramAvailableMaxLinear();
+    return ram;
 }
-
-
