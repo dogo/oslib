@@ -1,5 +1,5 @@
 /**
- * @file osl_bgm.h
+ * @file bgm.h
  * @brief Defines the BGM_FORMAT_HEADER structure for BGM file format in OSLib.
  */
 

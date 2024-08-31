@@ -470,7 +470,6 @@ extern void oslAudioVSync();
 #define oslSetSoundLoop(s, loop)        oslSetSoundEndCallback(s, (loop) ? oslSoundLoopFunc : NULL)
 
 /**
- * @enum OSL_FMT_GENERAL
  * General audio format flags for basic settings and operations within OSLib.
  */
 enum {
@@ -478,15 +477,13 @@ enum {
 };
 
 /**
- * @enum OSL_FMT_GENERAL
- * General audio format flags for basic settings and operations within OSLib.
+ * Mask flags used to isolate or filter out specific bits from format flags, typically used in bitwise operations.
  */
 enum {
     OSL_FMT_MASK = 0xff  //!< Mask used to isolate or filter out specific bits from format flags, typically used in bitwise operations.
 };
 
 /**
- * @enum OSL_FMT_AUDIO_CONFIG
  * Defines the audio output configuration and streaming capabilities for playback in OSLib.
  * These flags are used to set the properties of audio channels and to control how audio data is processed and delivered.
  */
@@ -497,7 +494,6 @@ enum {
 };
 
 /**
- * @enum OSL_FMT_SAMPLE_RATE
  * Sample rate options for audio playback.
  */
 enum {
@@ -613,6 +609,7 @@ extern OSL_AUDIO_VOICE osl_audioVoices[OSL_NUM_AUDIO_CHANNELS];
  * @param voice The channel number on which the sound was playing.
  * @return Always returns 1 to indicate that the sound should continue playing.
  */
+extern int oslSoundLoopFunc(OSL_SOUND *s, int voice);
 
 /** @} */ // end of audio_adv
 
