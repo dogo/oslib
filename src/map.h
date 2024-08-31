@@ -1,3 +1,12 @@
+/**
+ * @file map.h
+ * @brief Map handling functions and structures in OSLib.
+ *
+ * This header defines the structures and functions used to create, manage, 
+ * and draw maps in the OSLib framework. Maps are composed of tiles from a tileset 
+ * image, and this file provides functions to manipulate these maps.
+ */
+
 #ifndef _OSL_MAP_H_
 #define _OSL_MAP_H_
 
@@ -5,88 +14,133 @@
 extern "C" {
 #endif
 
-
-
 /** @defgroup maps Maps
+ *  @brief Map functions in OSLib.
+ *  @{
+ */
 
-	Map functions in OSLib.
-	@{
-*/
-
-/** Map structure. */
-typedef struct		{
-	OSL_IMAGE *img;
-	void *map;
-	int scrollX, scrollY;
-	int tileX, tileY;
-	int drawSizeX, drawSizeY;
-	int mapSizeX, mapSizeY;
-	u8 format, flags;
-	u8 addit1;
+/**
+ * @brief Structure representing a map.
+ * 
+ * The `OSL_MAP` structure holds all the necessary information about a map, 
+ * including its tileset image, map data, scrolling values, tile sizes, 
+ * and the format of the map.
+ */
+typedef struct {
+    OSL_IMAGE *img;       /**< Pointer to the tileset image used by the map. */
+    void *map;            /**< Pointer to the raw binary map data. */
+    int scrollX;          /**< Horizontal scroll position (in pixels). */
+    int scrollY;          /**< Vertical scroll position (in pixels). */
+    int tileX;            /**< Width of a tile in the tileset (in pixels). */
+    int tileY;            /**< Height of a tile in the tileset (in pixels). */
+    int drawSizeX;        /**< Width of the drawing area (in pixels). */
+    int drawSizeY;        /**< Height of the drawing area (in pixels). */
+    int mapSizeX;         /**< Width of the map (in tiles). */
+    int mapSizeY;         /**< Height of the map (in tiles). */
+    u8 format;            /**< Format of the map, defined by `OSL_MAP_FORMATS`. */
+    u8 flags;             /**< Flags defining map properties, see `OSL_MAP_FLAGS`. */
+    u8 addit1;            /**< Additional map data used for special formats. */
 } OSL_MAP;
 
-/** Available map formats. */
+/**
+ * @brief Enum representing the available map formats.
+ * 
+ * This enum defines the possible formats a map can have, such as 16-bit formats 
+ * with different tile numbering schemes.
+ */
 enum OSL_MAP_FORMATS {
-	OSL_MF_U16=1,								//!< 16 bit format
-	OSL_MF_U16_GBA=2,							//!< 16 bit, 10 bit for the tile number, 2 for the mirror, palette is unsupported - addit1 holds the number of tile bits (10 by default), the two next bits are for mirroring (11 = horizontal and 12 = vertical)
+    OSL_MF_U16 = 1,       /**< 16-bit format. */
+    OSL_MF_U16_GBA = 2,   /**< 16-bit, 10 bits for the tile number, 2 bits for mirroring. 
+                               Palette is unsupported. `addit1` holds the number of tile bits 
+                               (default 10), and the next two bits are for mirroring 
+                               (11 = horizontal, 12 = vertical). */
 };
 
-/** Internal map flags. */
+/**
+ * @brief Enum representing internal map flags.
+ * 
+ * These flags are used internally to define certain properties of the map, such 
+ * as transparency and drawing methods.
+ */
 typedef enum OSL_MAP_FLAGS {
-	OSL_MF_SIMPLE=1,							//!< Defines if the map is "simple" (oslDrawMapSimple) - UNSUPPORTED YET, DO NOT USE IT!
-	OSL_MF_TILE1_TRANSPARENT=2,					//!< Defines if the first tile is always transparent, no matter its pattern.
+    OSL_MF_SIMPLE = 1,               /**< Defines if the map is "simple" (`oslDrawMapSimple`). 
+                                           Currently unsupported, do not use. */
+    OSL_MF_TILE1_TRANSPARENT = 2,    /**< Defines if the first tile is always transparent, 
+                                           regardless of its pattern. */
 } OSL_MAP_FLAGS;
 
-/** Creates a new map.
-	\param img
-		Image used as tileset. Remember the maximum size of images is 512x512, neither the width or the height can exceed 512. In a tileset image, tiles are placed from in lines from left to right
-		and from top to bottom. Each tile has a specific size.
-	\param map_data
-		Binary data representing the map data in its raw format. This is a table of entries, where each entry is 16-bit (or something else depending on the map format) and represents a tile number to
-		be displayed. Please note that tile entries, just like tilesets, are placed from left to right, and then from top to bottom. To retrieve a specific map entry (x = horizontal position,
-		y = vertical position), the algorithm is the following: ((map_type*)map_data)[y * width + x].
-	\param tileX, tileY
-		Size of a tile in the tileset.
-	\param mapSizeX, mapSizeY
-		Width and height of the map. Maps are wrapped around (that is, when you're all to the right, the left is displayed again, same vertically).
-	\param map_format
-		One of the #OSL_MAP_FORMATS values.
-
-	\return
-		NULL in case of error, a pointer to a map object in case of success.
-*/
+/**
+ * @brief Creates a new map.
+ * 
+ * This function initializes a new map using the provided tileset image and raw 
+ * map data. It sets up the map's dimensions and format, returning a pointer to 
+ * the created `OSL_MAP` structure.
+ * 
+ * @param img Pointer to the tileset image. The maximum size of images is 512x512 pixels.
+ *            In the tileset image, tiles are arranged from left to right and top to bottom.
+ * @param map_data Pointer to the raw binary map data. This is an array where each entry 
+ *                represents a tile number to be displayed.
+ * @param tileX Width of a tile in the tileset (in pixels).
+ * @param tileY Height of a tile in the tileset (in pixels).
+ * @param mapSizeX Width of the map (in tiles).
+ * @param mapSizeY Height of the map (in tiles).
+ * @param map_format Format of the map, one of the `OSL_MAP_FORMATS` values.
+ * 
+ * @return Pointer to the created `OSL_MAP` structure, or `NULL` in case of error.
+ */
 extern OSL_MAP *oslCreateMap(OSL_IMAGE *img, void *map_data, int tileX, int tileY, int mapSizeX, int mapSizeY, int map_format);
 
-/** Draws a map on the screen, using the map properties:
-	- scrollX, scrollY: respectively horizontal and vertical scrolling values (in pixels).
-	The map is always drawn on the whole screen.
-*/
+/**
+ * @brief Draws a map on the screen.
+ * 
+ * This function renders the map on the screen using the properties defined 
+ * in the `OSL_MAP` structure, such as scroll positions and tile sizes.
+ * 
+ * @param m Pointer to the `OSL_MAP` structure to be drawn.
+ */
 extern void oslDrawMap(OSL_MAP *m);
 
-/** Same as oslDrawMap, only here for backward compatibility. Do not use! */
-extern void oslDrawMapSimple(OSL_MAP *m);					//tileX, tileY, img->sizeX doivent être des puissances de deux!
+/**
+ * @brief Draws a map using a simple method (deprecated).
+ * 
+ * This function is provided for backward compatibility. It draws a map 
+ * similarly to `oslDrawMap`, but is not recommended for use in new code.
+ * 
+ * @param m Pointer to the `OSL_MAP` structure to be drawn.
+ * 
+ * @deprecated This function is deprecated and should not be used.
+ */
+extern void oslDrawMapSimple(OSL_MAP *m);
 
-/** Deletes a map. Call this after you've finished with a map. Please note that the map data you supplied to #oslCreateMap
-was your own data, passed by reference, and thus it will not be freed! Example:
-\code
-unsigned short *mapData;
-OSL_MAP *map;
-//Data for a 128x64 map
-mapData = malloc(128 * 64 * sizeof(*mapData));
-//Create a map with this
-map = oslCreateMap(anImage, mapData, 16, 16, 128, 64, OSL_MF_U16);
-//Now delete this map
-oslDeleteMap(map);
-//Don't forget to free the map data too
-free(mapData);
-\endcode */
+/**
+ * @brief Deletes a map.
+ * 
+ * This function frees the resources associated with a map. Note that the raw 
+ * map data passed to `oslCreateMap` is not freed by this function and must be 
+ * managed separately by the user.
+ * 
+ * @param m Pointer to the `OSL_MAP` structure to be deleted.
+ * 
+ * Example:
+ * @code
+ * unsigned short *mapData;
+ * OSL_MAP *map;
+ * // Allocate memory for map data
+ * mapData = malloc(128 * 64 * sizeof(*mapData));
+ * // Create a map with this data
+ * map = oslCreateMap(anImage, mapData, 16, 16, 128, 64, OSL_MF_U16);
+ * // Delete the map
+ * oslDeleteMap(map);
+ * // Free the map data
+ * free(mapData);
+ * @endcode
+ */
 extern void oslDeleteMap(OSL_MAP *m);
 
-/** @} */ // end of keys
-
+/** @} */ // end of maps
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif
+#endif /* _OSL_MAP_H_ */
