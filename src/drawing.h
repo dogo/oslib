@@ -10,7 +10,7 @@ extern "C"
 #undef RGB
 #endif
 
-/** Boolean type */
+/// Boolean type 
 #ifndef __cplusplus
 #define bool char
 #endif
@@ -231,9 +231,9 @@ extern "C"
 	 */
 	typedef struct
 	{
-		int effect;  //!< Current alpha special effect identifier.
-		int coeff1;  //!< First coefficient for the alpha effect.
-		int coeff2;  //!< Second coefficient for the alpha effect.
+		int effect;  ///< Current alpha special effect identifier.
+		int coeff1;  ///< First coefficient for the alpha effect.
+		int coeff2;  ///< Second coefficient for the alpha effect.
 	} OSL_ALPHA_PARAMS;
 
 	/** 
@@ -373,11 +373,11 @@ extern "C"
 
 	enum
 	{
-		OSL_FX_NONE = 0,      //!< No special effect.
-		OSL_FX_FLAT,          //!< Flat shading effect.
-		OSL_FX_ALPHA,         //!< Alpha blending effect.
-		OSL_FX_ADD,           //!< Additive blending effect.
-		OSL_FX_SUB            //!< Subtractive blending effect.
+		OSL_FX_NONE = 0,      ///< No special effect.
+		OSL_FX_FLAT,          ///< Flat shading effect.
+		OSL_FX_ALPHA,         ///< Alpha blending effect.
+		OSL_FX_ADD,           ///< Additive blending effect.
+		OSL_FX_SUB            ///< Subtractive blending effect.
 	};
 
 	/** 
@@ -689,10 +689,10 @@ extern "C"
 	/** @} */ // end of drawing_color
 
 	/** @defgroup drawing_shapes Shapes
-
-		Formerly untextured geometry.
-		@{
-	*/
+	 *
+	 *  Formerly untextured geometry.
+	 *  @{
+	 */
 
 	/** @brief Draws a line from (x0, y0) to (x1, y1).
 	 *
@@ -752,10 +752,10 @@ extern "C"
 	/** @} */ // end of drawing_shapes
 
 	/** @defgroup drawing_adv Advanced
-
-		Advanced drawing tasks.
-		@{
-	*/
+	 *
+	 * Advanced drawing tasks.
+	 * @{
+	 */
 
 	/** @brief Swizzles texture data.
 
@@ -798,10 +798,10 @@ extern "C"
 	extern void oslDrawTile(int u, int v, int x, int y, int tX, int tY);
 
 	/** @defgroup image Images
-
-		Image support in OSLib.
-		@{
-	*/
+	 *
+	 * Image support in OSLib.
+	 * @{
+	 */
 
 	/** @brief Type definition for 16-bit palette data.
 
@@ -842,10 +842,10 @@ extern "C"
 	*/
 	typedef struct
 	{
-		short pixelFormat; //!< Pixel format of palette entries
-		short nElements;   //!< Number of entries
-		short location;    //!< Location of the palette (always use OSL_IN_RAM)
-		void *data;        //!< Actual (raw) data, representing color entries in their pixel format
+		short pixelFormat; ///< Pixel format of palette entries
+		short nElements;   ///< Number of entries
+		short location;    ///< Location of the palette (always use OSL_IN_RAM)
+		void *data;        ///< Actual (raw) data, representing color entries in their pixel format
 	} OSL_PALETTE;
 
 	/** @brief Constants for the flags member of OSL_IMAGE.
@@ -862,9 +862,9 @@ extern "C"
 	*/
 	enum OSL_IMAGE_FLAGS
 	{
-		OSL_IMAGE_SWIZZLED = 1,	//!< Image is swizzled
-		OSL_IMAGE_COPY = 2,		//!< Image is a copy
-		OSL_IMAGE_AUTOSTRIP = 4	//!< Image can be automatically stripped (let it one)
+		OSL_IMAGE_SWIZZLED = 1,	///< Image is swizzled
+		OSL_IMAGE_COPY = 2,		///< Image is a copy
+		OSL_IMAGE_AUTOSTRIP = 4	///< Image can be automatically stripped (let it one)
 	};
 
 	/** @brief Structure representing an image loaded in memory.
@@ -926,27 +926,27 @@ extern "C"
 	typedef struct
 	{
 		// Protected
-		u16 sizeX, sizeY;          //!< Displayable size
-		u16 sysSizeX, sysSizeY;    //!< Size aligned to the next power of two
-		u16 realSizeX, realSizeY;  //!< Actual buffer size (never write outside of these dimensions!)
-		void *data;                //!< Raw image data in memory
-		u8 flags;                  //!< Special image flags
-		int totalSize;             //!< Total image size in bytes
-		short location;            //!< Image location (OSL_IN_RAM or OSL_IN_VRAM)
-		short pixelFormat;         //!< Image pixel format
+		u16 sizeX, sizeY;          ///< Displayable size
+		u16 sysSizeX, sysSizeY;    ///< Size aligned to the next power of two
+		u16 realSizeX, realSizeY;  ///< Actual buffer size (never write outside of these dimensions!)
+		void *data;                ///< Raw image data in memory
+		u8 flags;                  ///< Special image flags
+		int totalSize;             ///< Total image size in bytes
+		short location;            ///< Image location (OSL_IN_RAM or OSL_IN_VRAM)
+		short pixelFormat;         ///< Image pixel format
 
 		// Public
-		OSL_PALETTE *palette;      //!< Palette for 4 and 8-bit modes
-		u16 frameSizeX, frameSizeY; //!< Size of a frame in the image
+		OSL_PALETTE *palette;      ///< Palette for 4 and 8-bit modes
+		u16 frameSizeX, frameSizeY; ///< Size of a frame in the image
 
 		// Special
-		int x, y;                  //!< Image positions
-		int stretchX, stretchY;    //!< Final image size when drawn (stretched)
+		int x, y;                  ///< Image positions
+		int stretchX, stretchY;    ///< Final image size when drawn (stretched)
 		// Morceau
-		float offsetX0, offsetY0, offsetX1, offsetY1; //!< Offset in the texture
+		float offsetX0, offsetY0, offsetX1, offsetY1; ///< Offset in the texture
 		// Rotation
-		int centerX, centerY;      //!< Rotation center
-		int angle;                 //!< Angle (rotation) in degrees
+		int centerX, centerY;      ///< Rotation center
+		int angle;                 ///< Angle (rotation) in degrees
 
 	} OSL_IMAGE;
 
@@ -971,12 +971,12 @@ extern "C"
 	*/
 	typedef enum OSL_LOCATION_FLAGS
 	{
-		OSL_IN_NONE = 0,        //!< Doesn't exist
-		OSL_IN_VRAM = 1,        //!< In VRAM
-		OSL_IN_RAM = 2,         //!< In RAM
-		OSL_LOCATION_MASK = 7,  //!< There will probably never be more than 8 locations...
-		OSL_SWIZZLED = 8,       //!< Directly swizzle image (only works for oslLoadImage[...] functions!)
-		OSL_UNSWIZZLED = 16     //!< Force no swizzling (oslLoadImage[...])
+		OSL_IN_NONE = 0,        ///< Doesn't exist
+		OSL_IN_VRAM = 1,        ///< In VRAM
+		OSL_IN_RAM = 2,         ///< In RAM
+		OSL_LOCATION_MASK = 7,  ///< There will probably never be more than 8 locations...
+		OSL_SWIZZLED = 8,       ///< Directly swizzle image (only works for oslLoadImage[...] functions!)
+		OSL_UNSWIZZLED = 16     ///< Force no swizzling (oslLoadImage[...])
 	} OSL_LOCATION_FLAGS;
 
 	/** @brief Pixel formats used for defining color modes in OSLib.
@@ -1006,12 +1006,12 @@ extern "C"
 	*/
 	enum OSL_PIXELFORMATS
 	{
-		OSL_PF_5650 = GU_PSM_5650, //!< 16 bits, 5 bits per component, except green which has 6, no alpha
-		OSL_PF_5551 = GU_PSM_5551, //!< 15 bits, 5 bits per component, 1 alpha bit
-		OSL_PF_4444 = GU_PSM_4444, //!< 12 bits, 4 bits per component, 4 alpha bits
-		OSL_PF_8888 = GU_PSM_8888, //!< 32 bits, 8 bits per component, 8 alpha bits
-		OSL_PF_4BIT = GU_PSM_T4,   //!< Paletted format, 4 bits (16 colors), cannot be set as drawbuffer
-		OSL_PF_8BIT = GU_PSM_T8    //!< Paletted format, 8 bits (256 colors), cannot be set as drawbuffer
+		OSL_PF_5650 = GU_PSM_5650, ///< 16 bits, 5 bits per component, except green which has 6, no alpha
+		OSL_PF_5551 = GU_PSM_5551, ///< 15 bits, 5 bits per component, 1 alpha bit
+		OSL_PF_4444 = GU_PSM_4444, ///< 12 bits, 4 bits per component, 4 alpha bits
+		OSL_PF_8888 = GU_PSM_8888, ///< 32 bits, 8 bits per component, 8 alpha bits
+		OSL_PF_4BIT = GU_PSM_T4,   ///< Paletted format, 4 bits (16 colors), cannot be set as drawbuffer
+		OSL_PF_8BIT = GU_PSM_T8    ///< Paletted format, 8 bits (256 colors), cannot be set as drawbuffer
 	};
 
 	/** 
@@ -1227,12 +1227,12 @@ extern "C"
 	 *
 	 * This function allocates the necessary memory for an image based on its size and pixel format as defined in the `OSL_IMAGE` structure. It should be called before accessing or manipulating the image data.
 	 *
-	 * \param img
+	 * @param img
 	 *    Pointer to an `OSL_IMAGE` structure for which memory needs to be allocated.
-	 * \param location
+	 * @param location
 	 *    Specifies the location where the image data should be allocated. Valid values are typically `OSL_IN_RAM` or `OSL_IN_VRAM`.
 	 * 
-	 * \return
+	 * @return
 	 *    Returns a pointer to the allocated memory for the image data. If memory allocation fails, it may return `NULL`. Always check for `NULL` to avoid accessing invalid memory.
 	 * 
 	 * \b Important: Ensure that the image's `data` member is properly initialized before using it. This function only allocates memory and does not initialize the data.
@@ -1246,7 +1246,7 @@ extern "C"
 	 *
 	 * This function deallocates the memory previously allocated for an image's data. It should be called to release memory and prevent memory leaks when the image is no longer needed.
 	 *
-	 * \param img
+	 * @param img
 	 *    Pointer to an `OSL_IMAGE` structure for which memory should be freed.
 	 * 
 	 * \b Important: After calling this function, the `data` member of the `OSL_IMAGE` structure becomes invalid. Ensure that the pointer is not used after memory has been freed.
@@ -1260,10 +1260,10 @@ extern "C"
 	 *
 	 * This macro modifies an address by adding a VRAM prefix. It is used to convert a given address to its VRAM-mapped address by setting the appropriate prefix bit.
 	 *
-	 * \param adr
+	 * @param adr
 	 *    The original address to which the VRAM prefix will be added.
 	 * 
-	 * \return
+	 * @return
 	 *    The address with the VRAM prefix added. The prefix is added by setting the highest bit of the address.
 	 * 
 	 * \b Example:
@@ -1279,10 +1279,10 @@ extern "C"
 	 *
 	 * This macro removes the VRAM prefix from an address. It is used to convert a VRAM-mapped address back to its original address by clearing the VRAM prefix bit.
 	 *
-	 * \param adr
+	 * @param adr
 	 *    The VRAM-mapped address from which the VRAM prefix will be removed.
 	 * 
-	 * \return
+	 * @return
 	 *    The address with the VRAM prefix removed. The prefix is removed by clearing the highest bit of the address.
 	 * 
 	 * \b Example:
@@ -1298,10 +1298,10 @@ extern "C"
 	 * 
 	 * This function determines if the image located at a specific location is swizzled. Swizzling is a technique used to improve performance by rearranging image data in memory.
 	 *
-	 * \param location
+	 * @param location
 	 *    The location identifier of the image to check. This can be an address or flag indicating where the image is stored.
 	 * 
-	 * \return
+	 * @return
 	 *    Returns a non-zero value if the image at the specified location is swizzled, and 0 if it is not.
 	 * 
 	 * \b Note:
@@ -1309,13 +1309,11 @@ extern "C"
 	 */
 	extern int oslImageLocationIsSwizzled(int location);
 
-	/** @} */ // end of image_creation
-
 	/** @defgroup image_drawing Drawing images
-
-		Image support in OSLib.
-		@{
-	*/
+	 * 
+	 * Image support in OSLib.
+	 * @{
+	 */
 
 	#ifdef PSP
 	/** 
@@ -1323,11 +1321,11 @@ extern "C"
 	 * 
 	 * This macro sets the position of the image `img` to the coordinates `(px, py)` and then draws it using the `oslDrawImage` function.
 	 *
-	 * \param img
+	 * @param img
 	 *    Pointer to the image to be drawn.
-	 * \param px
+	 * @param px
 	 *    The x-coordinate where the image should be drawn.
-	 * \param py
+	 * @param py
 	 *    The y-coordinate where the image should be drawn.
 	 * 
 	 * \note
@@ -1340,11 +1338,11 @@ extern "C"
 	 * 
 	 * This macro is similar to `oslDrawImageXY`, but uses the `oslDrawImageSimple` function for drawing. It is kept for backward compatibility and is not recommended for new code.
 	 *
-	 * \param img
+	 * @param img
 	 *    Pointer to the image to be drawn.
-	 * \param px
+	 * @param px
 	 *    The x-coordinate where the image should be drawn.
-	 * \param py
+	 * @param py
 	 *    The y-coordinate where the image should be drawn.
 	 * 
 	 * \note
@@ -1357,11 +1355,11 @@ extern "C"
 	 * 
 	 * This macro sets the position of the image `img` to the coordinates `(px, py)` and then draws it using the `oslDrawImage` function.
 	 *
-	 * \param img
+	 * @param img
 	 *    Pointer to the image to be drawn.
-	 * \param px
+	 * @param px
 	 *    The x-coordinate where the image should be drawn.
-	 * \param py
+	 * @param py
 	 *    The y-coordinate where the image should be drawn.
 	 * 
 	 * \note
@@ -1378,11 +1376,11 @@ extern "C"
 	 * 
 	 * This macro is similar to `oslDrawImageXY`, but uses the `oslDrawImageSimple` function for drawing. It is kept for backward compatibility and is not recommended for new code.
 	 *
-	 * \param img
+	 * @param img
 	 *    Pointer to the image to be drawn.
-	 * \param px
+	 * @param px
 	 *    The x-coordinate where the image should be drawn.
-	 * \param py
+	 * @param py
 	 *    The y-coordinate where the image should be drawn.
 	 * 
 	 * \note
@@ -1400,7 +1398,7 @@ extern "C"
 	 * 
 	 * This function renders the image specified by the `img` parameter at the position stored in the image's `x` and `y` attributes. The image must be properly initialized and loaded before calling this function.
 	 * 
-	 * \param img
+	 * @param img
 	 *    Pointer to the `OSL_IMAGE` structure representing the image to be drawn.
 	 * 
 	 * \note
@@ -1413,7 +1411,7 @@ extern "C"
 	 * 
 	 * This function renders the image specified by the `img` parameter at the position stored in the image's `x` and `y` attributes. It is provided for backward compatibility with older code but should not be used in new code.
 	 * 
-	 * \param img
+	 * @param img
 	 *    Pointer to the `OSL_IMAGE` structure representing the image to be drawn.
 	 * 
 	 * \note
@@ -1434,7 +1432,7 @@ extern "C"
 	 * \warning
 	 *    Using this function may severely impact performance. Always try to rescale your images to an acceptable size (less than 512x512) during loading. This function is available if you need it, but it's essential to understand its limitations and performance implications.
 	 * 
-	 * \param img
+	 * @param img
 	 *    Pointer to the `OSL_IMAGE` structure representing the image to be drawn.
 	 * 
 	 * \deprecated
@@ -1445,10 +1443,10 @@ extern "C"
 	/** @} */ // end of image_drawing
 
 	/** @defgroup image_placement Image placement
-
-		Image placement in OSLib.
-		@{
-	*/
+	 *
+	 * Image placement in OSLib.
+	 * @{
+	 */
 
 #ifdef PSP
 	/**
@@ -1953,10 +1951,10 @@ extern "C"
 	/** @} */ // end of image_placement
 
 	/** @defgroup image_manip Image manipulation
-
-		Image manipulation in OSLib.
-		@{
-	*/
+	 *
+	 * Image manipulation in OSLib.
+	 * @{
+	 */
 
 	/** Creates an alternate image referencing a part (tile) of another one.
 
@@ -2245,11 +2243,11 @@ extern "C"
 	extern int oslWriteImageFile(OSL_IMAGE *img, const char *filename, int flags);
 	
 	/** Writes an image to a PNG file. Same remarks as oslWriteImageFile apply.
-		\param img
+		@param img
 			The image you want to write.
-		\param filename
+		@param filename
 			The name of the file that you want to write to.
-		\param flags
+		@param flags
 			Either 0 or OSL_WRI_ALPHA. If OSL_WRI_ALPHA is specified, the alpha will be written to the PNG image file, making it semi-transparent. Else, alpha is ignored and always set to opaque.
 
 		You can pass for example OSL_SECONDARY_BUFFER (the buffer which is currently displayed on the screen) to take a screenshot.
@@ -2350,26 +2348,26 @@ extern "C"
 	*/
 	enum OSL_WRITE_FLAGS
 	{
-		OSL_WRI_ALPHA = 1 //!< Writes the alpha channel of the image. If set, the alpha channel data will be included in the output file.
+		OSL_WRI_ALPHA = 1 ///< Writes the alpha channel of the image. If set, the alpha channel data will be included in the output file.
 	};
 
 	/** @} */ // end of image_manip
 
 	/** @defgroup image_sprites Simili sprite system
-
-		A basic system allowing you to cut your images just as if they were sprites. Remember that the maximum size of an image is 512x512!
-		@{
-	*/
+	 *
+	 * A basic system allowing you to cut your images just as if they were sprites. Remember that the maximum size of an image is 512x512!
+	 * @{
+	 */
 
 	/** Defines the size of a frame in an image, preparing it for use as a sprite sheet.
 
 		A sprite sheet is an image where multiple sprites (small images) are arranged in a grid. Each sprite in the sheet has the same dimensions, and the grid is typically filled from left to right and top to bottom.
 
-		\param img
+		@param img
 			Pointer to the image to be used as a sprite sheet.
-		\param width
+		@param width
 			The width of each sprite frame in pixels.
-		\param height
+		@param height
 			The height of each sprite frame in pixels.
 
 		For example, if you have a 64x64 image containing 32x32 sprites, the image will be divided into four sprites as follows:
@@ -2399,9 +2397,9 @@ extern "C"
 
 		This function prepares the image to display a specific frame from a sprite sheet. A sprite sheet is an image where multiple sprites (small images) are arranged in a grid. This function is used to select the sprite frame that you want to draw.
 
-		\param img
+		@param img
 			Pointer to the image to set the frame for.
-		\param frame
+		@param frame
 			The index of the frame to be displayed. Frames are indexed starting from 0.
 
 		\b Example:
@@ -2455,20 +2453,20 @@ extern "C"
 	/** @} */ // end of image_sprites
 
 	/** @defgroup image_palette Image palettes
-
-		Palette for 4 and 8-bit images.
-		@{
-	*/
+	 *
+	 * Palette for 4 and 8-bit images.
+	 * @{
+	 */
 
 	/** Creates a new (empty) palette with the specified pixel format.
 
 		This function creates a new palette that can be used with 4-bit or 8-bit images. The palette is allocated in the specified location and uses the provided pixel format. For most cases, the pixel format should be `OSL_PF_8888` as palettes are generally small in size.
 
-		\param size
+		@param size
 			The number of colors in the palette. For example, a 4-bit image palette will have 16 colors (2^4), and an 8-bit image palette will have 256 colors (2^8).
-		\param location
+		@param location
 			The memory location where the palette will be stored. Use `OSL_IN_RAM` to allocate the palette in RAM.
-		\param pixelFormat
+		@param pixelFormat
 			The pixel format of each palette entry. Typically, this should be `OSL_PF_8888` to match the common palette size.
 
 		\b Note:
@@ -2499,12 +2497,12 @@ extern "C"
 
 		This is a simpler function for creating a new palette. It allocates the palette in RAM and uses the provided pixel format. This function is a wrapper around `oslCreatePaletteEx` with the location parameter set to `OSL_IN_RAM`.
 
-		\param size
+		@param size
 			The number of colors in the palette (e.g., 16 for 4-bit images, 256 for 8-bit images).
-		\param pixelFormat
+		@param pixelFormat
 			The pixel format of each palette entry, typically `OSL_PF_8888`.
 
-		\return
+		@return
 			A pointer to the newly created palette.
 
 		\b Example:
@@ -2521,14 +2519,14 @@ extern "C"
 
 		This function creates a palette using data that already exists. The data is not copied; it is used directly. You need to specify the size of the palette and the pixel format of the data.
 
-		\param data
+		@param data
 			Pointer to the existing palette data.
-		\param size
+		@param size
 			The number of colors in the palette.
-		\param pixelFormat
+		@param pixelFormat
 			The pixel format of each palette entry.
 
-		\return
+		@return
 			A pointer to the newly created palette.
 
 		\b Note:
@@ -2547,7 +2545,7 @@ extern "C"
 
 		This function frees the memory used by an `OSL_PALETTE` structure. If the palette was created using `oslCreatePaletteFrom`, the data used to create the palette is not freed.
 
-		\param p
+		@param p
 			Pointer to the palette to be deleted.
 
 		\b Example:
@@ -2561,12 +2559,12 @@ extern "C"
 
 		This function retrieves a color from the palette at a specified index. The color value is in the same pixel format as the palette.
 
-		\param p
+		@param p
 			Pointer to the palette.
-		\param index
+		@param index
 			The index of the color entry to retrieve.
 
-		\return
+		@return
 			The color value at the specified index.
 
 		\b Example:
@@ -2580,7 +2578,7 @@ extern "C"
 
 		After accessing palette data in a cached way (e.g., through `pal->data`), you must uncache the palette to ensure changes are applied correctly.
 
-		\param pal
+		@param pal
 			Pointer to the palette to uncache.
 
 		\b Example:
@@ -2593,16 +2591,16 @@ extern "C"
 	/** @} */ // end of image_palette
 
 	/** @defgroup image_pixel Pixel access
-
-		Low-level access to images.
-		@{
-	*/
+	 *
+	 * Low-level access to images.
+	 * @{
+	 */
 
 	/** Flushes the image data from the cache.
 
 		This function is necessary to call after modifying an image's data directly (e.g., manipulating `img->data` manually). It ensures that the image data is properly written back and invalidated in the cache.
 
-		\param img
+		@param img
 			Pointer to the image whose data needs to be flushed from the cache.
 
 		\b Note:
@@ -2624,7 +2622,7 @@ extern "C"
 
 		This function not only flushes the image data from the cache but also handles the associated palette data, ensuring that both are properly uncached.
 
-		\param img
+		@param img
 			Pointer to the image to be uncached.
 
 		\b Note:
@@ -2641,14 +2639,14 @@ extern "C"
 
 		This function retrieves the value of a pixel at a specified position from an image. Note that caching is enabled, so after reading and/or writing pixels, you should uncache the image. The recommended approach is to use #oslLockImage and #oslUnlockImage for proper management. For an example of usage, see #oslGetImagePixel.
 
-		\param img
+		@param img
 			Pointer to the image from which the pixel is read.
-		\param x
+		@param x
 			The x-coordinate of the pixel to be read.
-		\param y
+		@param y
 			The y-coordinate of the pixel to be read.
 
-		\return
+		@return
 			The value of the pixel at the specified position. The returned value depends on the pixel format of the image. It could be a palette entry number for paletted images or a color value in the image's format. You might need to convert this value depending on your needs.
 
 		\b Example:
@@ -2667,13 +2665,13 @@ extern "C"
 
 		This function sets the value of a pixel at a specified position in the image. The value should be in the image's destination format, which could be a palette entry or a color value. If needed, perform conversions to match the image's format.
 
-		\param img
+		@param img
 			Pointer to the image where the pixel will be set.
-		\param x
+		@param x
 			The x-coordinate of the pixel to be set.
-		\param y
+		@param y
 			The y-coordinate of the pixel to be set.
-		\param pixelValue
+		@param pixelValue
 			The value to set at the specified pixel position. This value should be in the format used by the image (e.g., a color value or a palette entry).
 
 		\b Example:
@@ -2703,12 +2701,12 @@ extern "C"
 
 		This macro provides access to the raw data of a specific line in the image. When using this macro, make sure to respect the pixel format of the image. For images with 16-bit pixel formats (e.g., 4444, 5551, or 5650), use a `u16` pointer and the appropriate RGBxx macros for accessing pixel values.
 
-		\param img
+		@param img
 			Pointer to the image from which the line address is obtained.
-		\param y
+		@param y
 			The line number (0 is the first line, 1 is the second, and so on).
 
-		\return
+		@return
 			A pointer to the beginning of the specified line in the image's raw data.
 
 		\b Example:
@@ -2737,14 +2735,14 @@ extern "C"
 
 		This macro provides a pointer to the address of a specific pixel in the image. It is designed to work with pixel formats ranging from 8 to 32 bits per pixel. Note that this macro does not handle 4-bit images correctly, as a byte in 4-bit images represents two pixels. For 4-bit images, this macro returns a pointer to the corresponding byte, and additional bit manipulation is required to access individual pixels.
 
-		\param img
+		@param img
 			Pointer to the image from which to retrieve the pixel address.
-		\param x
+		@param x
 			The x-coordinate of the pixel.
-		\param y
+		@param y
 			The y-coordinate of the pixel.
 
-		\return
+		@return
 			A pointer to the address of the specified pixel in the image's raw data.
 
 		\b Example:
@@ -2786,14 +2784,14 @@ extern "C"
 	 * Returns the address of a pixel, even if the image is swizzled.
 	 * This implementation is slower but works in every case, including swizzled images.
 	 *
-	 * \param img
+	 * @param img
 	 *     Pointer to the OSL_IMAGE structure representing the image.
-	 * \param x
+	 * @param x
 	 *     The x-coordinate of the pixel.
-	 * \param y
+	 * @param y
 	 *     The y-coordinate of the pixel.
 	 *
-	 * \return
+	 * @return
 	 *     A pointer to the address of the pixel in the image's raw data. The exact type of this pointer
 	 *     depends on the image's pixel format and needs to be cast appropriately.
 	 *
@@ -2852,7 +2850,7 @@ extern "C"
 	 * This function automatically handles drawing to the drawbuffer, uncaching the image when finished, 
 	 * and flushing the texture cache to avoid rendering issues when the image is modified during drawing.
 	 * 
-	 * \param img
+	 * @param img
 	 *     Pointer to the OSL_IMAGE structure representing the image to lock.
 	 * 
 	 * \note
@@ -2882,7 +2880,7 @@ extern "C"
 	 * This function should be called after using `oslLockImage` to release the lock and finalize any 
 	 * pending operations.
 	 * 
-	 * \param img
+	 * @param img
 	 *     Pointer to the OSL_IMAGE structure representing the image to unlock.
 	 * 
 	 * \note
@@ -2920,15 +2918,15 @@ extern "C"
 	/** @} */ // end of image_pixel
 
 	/** @defgroup image_drawbuf Drawbuffers
-
-		Drawbuffers is an advanced and powerful capability of OSLib images. It allows you to draw directly on an image exactly as if you were drawing on the screen!
-		See #oslSetDrawBuffer for a basic code sample.
-		@{
-	*/
+	 *
+	 * Drawbuffers is an advanced and powerful capability of OSLib images. It allows you to draw directly on an image exactly as if you were drawing on the screen!
+	 * See #oslSetDrawBuffer for a basic code sample.
+	 * @{
+	 */
 
 	/** Returns the current drawbuffer as an OSL_IMAGE. You can save it to restore it later.
 	 * 
-	 * \return
+	 * @return
 	 *     A pointer to the current drawbuffer image.
 	 */
 	#define oslGetDrawBuffer() osl_curBuf
@@ -2949,14 +2947,14 @@ extern "C"
 
 	/** Returns the width of the current drawbuffer.
 	 * 
-	 * \return
+	 * @return
 	 *     The width of the current drawbuffer in pixels. For the default drawbuffer (i.e., the screen), it will be 480 pixels, which is the resolution of the PSP LCD.
 	 */
 	#define OSL_SCREEN_WIDTH (osl_curBuf->sizeX)
 
 	/** Returns the height of the current drawbuffer.
 	 * 
-	 * \return
+	 * @return
 	 *     The height of the current drawbuffer in pixels. For the default drawbuffer (i.e., the screen), it will be 272 pixels, which is the resolution of the PSP LCD.
 	 */
 	#define OSL_SCREEN_HEIGHT (osl_curBuf->sizeY)
@@ -2982,10 +2980,10 @@ extern "C"
 		- The image must be in video memory (OSL_IN_VRAM). The GPU can only write to video memory and can only read from regular RAM.
 		- A common issue is that the image may not be displayed if its alpha is null. To avoid this, either clear the image after creation or temporarily disable alpha blending by calling `oslSetAlpha(OSL_FX_NONE, 0)`.
 
-		\param img
+		@param img
 			The image to set as the current drawbuffer.
 		
-		\return
+		@return
 			None.
 	*/
 	extern void oslSetDrawBuffer(OSL_IMAGE *img);
@@ -3094,10 +3092,10 @@ extern "C"
 	/** @} */ // end of image_drawbuf
 
 	/** @defgroup image_adv Advanced
-
-		Advanced routines for working with images.
-		@{
-	*/
+	 *
+	 * Advanced routines for working with images.
+	 * @{
+	 */
 
 	/** Returns a nonzero value if the image is a copy of another image, or 0 if it is an original.
 		A copy is an image that was created as a clone of another image, rather than being directly created.
@@ -3115,9 +3113,9 @@ extern "C"
 	#define oslImageGetAutoStrip(img) (img->flags & OSL_IMAGE_AUTOSTRIP)
 
 	/** Sets or clears the copy flag for an image. This function is for internal use only and controls whether the image is marked as a copy of another image.
-		\param img
+		@param img
 			Pointer to the `OSL_IMAGE` structure whose copy flag is to be set or cleared.
-		\param enabled
+		@param enabled
 			`true` to set the image as a copy, `false` to clear the copy flag.
 	*/
 	static inline void oslImageIsCopySet(OSL_IMAGE *img, bool enabled)
@@ -3129,9 +3127,9 @@ extern "C"
 	}
 
 	/** Sets or clears the swizzled flag for an image. This function is for internal use only and determines whether the image is marked as swizzled.
-		\param img
+		@param img
 			Pointer to the `OSL_IMAGE` structure whose swizzled flag is to be set or cleared.
-		\param enabled
+		@param enabled
 			`true` to set the image as swizzled, `false` to clear the swizzled flag.
 	*/
 	static inline void oslImageIsSwizzledSet(OSL_IMAGE *img, bool enabled)
@@ -3143,9 +3141,9 @@ extern "C"
 	}
 
 	/** Sets or clears the automatic striping flag for an image. This function is for internal use only and manages whether the image should be automatically divided into stripes for faster blitting.
-		\param img
+		@param img
 			Pointer to the `OSL_IMAGE` structure whose automatic striping flag is to be set or cleared.
-		\param enabled
+		@param enabled
 			`true` to enable automatic striping, `false` to disable it.
 	*/
 	static inline void oslImageSetAutoStrip(OSL_IMAGE *img, bool enabled)
@@ -3296,8 +3294,8 @@ extern "C"
 	/** Available values for #oslSetTextureWrap. */
 	enum OSL_TEXWRAP_MODES
 	{
-		OSL_TW_REPEAT = GU_REPEAT, //!< Repeats the texture. The texture tiles indefinitely.
-		OSL_TW_CLAMP = GU_CLAMP,   //!< Clamps the texture. The last pixel of the texture is repeated indefinitely beyond its bounds.
+		OSL_TW_REPEAT = GU_REPEAT, ///< Repeats the texture. The texture tiles indefinitely.
+		OSL_TW_CLAMP = GU_CLAMP,   ///< Clamps the texture. The last pixel of the texture is repeated indefinitely beyond its bounds.
 	};
 
 	/** 
@@ -3412,10 +3410,10 @@ extern "C"
 	// Don't access this
 
 	/** @defgroup drawing_lowlev_vertex Vertex types
-
-		Low level drawing routines, nearer to the hardware and thus faster.
-		@{
-	*/
+	 *
+	 * Low level drawing routines, nearer to the hardware and thus faster.
+	 * @{
+	 */
 
 	/**
 	 * @brief Precise vertex with texture.
@@ -3424,8 +3422,8 @@ extern "C"
 	 */
 	typedef struct
 	{
-		float u, v;  //!< Texture coordinates (floating point)
-		float x, y, z;  //!< Spatial coordinates (floating point)
+		float u, v;  ///< Texture coordinates (floating point)
+		float x, y, z;  ///< Spatial coordinates (floating point)
 	} OSL_PRECISE_VERTEX;
 
 	/**
@@ -3435,8 +3433,8 @@ extern "C"
 	 */
 	typedef struct
 	{
-		unsigned short u, v;  //!< Texture coordinates (16-bit)
-		short x, y, z;  //!< Spatial coordinates (16-bit)
+		unsigned short u, v;  ///< Texture coordinates (16-bit)
+		short x, y, z;  ///< Spatial coordinates (16-bit)
 	} OSL_FAST_VERTEX;
 
 	/**
@@ -3446,9 +3444,9 @@ extern "C"
 	 */
 	typedef struct
 	{
-		unsigned short u, v;  //!< Texture coordinates (16-bit)
-		unsigned long color;  //!< Color value (32-bit)
-		short x, y, z;  //!< Spatial coordinates (16-bit)
+		unsigned short u, v;  ///< Texture coordinates (16-bit)
+		unsigned long color;  ///< Color value (32-bit)
+		short x, y, z;  ///< Spatial coordinates (16-bit)
 	} OSL_FAST_VERTEX_COLOR32;
 
 	/**
@@ -3458,8 +3456,8 @@ extern "C"
 	 */
 	typedef struct
 	{
-		unsigned long color;  //!< Color value (32-bit)
-		short x, y, z;  //!< Spatial coordinates (16-bit)
+		unsigned long color;  ///< Color value (32-bit)
+		short x, y, z;  ///< Spatial coordinates (16-bit)
 	} OSL_LINE_VERTEX;
 
 	/**
@@ -3469,8 +3467,8 @@ extern "C"
 	 */
 	typedef struct
 	{
-		unsigned long color;  //!< Color value (32-bit)
-		short x, y, z;  //!< Spatial coordinates (16-bit)
+		unsigned long color;  ///< Color value (32-bit)
+		short x, y, z;  ///< Spatial coordinates (16-bit)
 	} OSL_LINE_VERTEX_COLOR32;
 
 	/**
@@ -3480,29 +3478,31 @@ extern "C"
 	 */
 	typedef struct
 	{
-		float u, v;  //!< Texture coordinates (floating point)
-		short x, y, z;  //!< Spatial coordinates (16-bit)
+		float u, v;  ///< Texture coordinates (floating point)
+		short x, y, z;  ///< Spatial coordinates (16-bit)
 	} OSL_UVFLOAT_VERTEX;
 
 	/** @} */ // end of drawing_lowlev_vertex
 
 	/** @} */ // end of drawing_lowlev
 
+	/** @} */ // end of drawing
+
 	// *** Image ***
 
-	// *** Général ***
+	// *** General ***
 
-	// *** Interne ***
+	// *** Internal ***
 
-	// Graphique::image
+	// Graphics::image
 
-	// Graphique::palette
+	// Graphics::palette
 
-	// Graphique::dessin
+	// Graphics::drawing
 
-	// Graphique::écran
+	// Graphics::screen
 
-	// Graphique::alpha
+	// Graphics::alpha
 
 #ifdef __cplusplus
 }
