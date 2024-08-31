@@ -1,4 +1,4 @@
-name: Building
+name: Build and Publish Docs
 on: [push, pull_request]
 
 jobs:
@@ -44,3 +44,22 @@ jobs:
         export PSPDEV=$PWD/pspdev
         export PATH=$PATH:$PSPDEV/bin
         make
+
+  publish-docs:
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Generate documentation
+      run: make gendoc
+
+    - name: Publish to GitHub Pages
+      run: |
+        make ghpages
+      env:
+        GIT_AUTHOR_NAME: github-actions
+        GIT_AUTHOR_EMAIL: github-actions@github.com
+        GIT_COMMITTER_NAME: github-actions
+        GIT_COMMITTER_EMAIL: github-actions@github.com
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
