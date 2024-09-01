@@ -3,12 +3,13 @@
  * @brief Header file for character code conversion functions in OSLib.
  * 
  * This file provides macros that map to functions in BenHur's intraFont library for character code conversion.
- * The functions allow for converting characters from various encodings to UCS2, setting error characters, 
- * and shutting down the Character Code Conversion Library.
+ * These functions enable converting characters from various encodings to UCS2, setting error characters, 
+ * and managing the shutdown of the Character Code Conversion Library.
+ */
+
+/** @defgroup CharacterCodeConversion Character Code Conversion (ccc)
  * 
- * @defgroup CharacterCodeConversion Character Code Conversion (ccc)
- * 
- * Functions to convert characters from BenHur's intraFont.
+ * Functions for character code conversion using BenHur's intraFont library.
  * @{
  */
 
@@ -104,7 +105,7 @@ extern "C" {
  */
 #define oslCccShutDown  cccShutDown
 
-/** @} */ // end of Character Code Conversion
+/** @} */ // end of Character Code Conversion (ccc)
 
 #ifdef __cplusplus
 }
