@@ -1,3 +1,12 @@
+/**
+ * @file vfpu.h
+ * @brief VFPU functions for PSP.
+ *
+ * This file contains functions that utilize the PSP's Vector Floating Point Unit (VFPU)
+ * for performing fast mathematical operations. These functions are particularly optimized 
+ * for angles given in radians and operations involving a radius (rayon).
+ */
+
 #ifndef __OSL_VFPU_H__
 #define __OSL_VFPU_H__
 
@@ -5,42 +14,48 @@
 extern "C" {
 #endif
 
-/** @defgroup vfpu VFPU functions
+/**
+ * @defgroup vfpu VFPU functions
+ * @brief Functions using the Vector Floating Point Unit (VFPU).
+ *
+ * This module provides functions that perform various mathematical operations using
+ * the VFPU on the PSP. These operations are optimized for speed and efficiency.
+ * @{
+ */
 
-	Functions using the Vector Floating Point Unit (VFPU).
-	@{
-*/
-
-//PC has no VFPU
 #ifdef PSP
 
-//	#include "vfpu_ops.h"
-	#include <psptypes.h>
-	#include <libpspmath/pspmath.h>
-
-	//extern float vfpu_vars[4] __attribute__((aligned(64)));
+#include <psptypes.h>
+#include <libpspmath/pspmath.h>
 
 #endif
 
-//Angle in radians, rayon = multiplication of the number.
-/** Calculates the sine of an angle using the VFPU (very fast). Please note that #oslSin also uses the VFPU but first converts the angle from degrees to radians.
-	\param angle
-		Angle in radians
-	\param rayon
-		Radius
-	\return
-		sin(angle) * rayon
-*/
+/**
+ * @brief Calculates the sine of an angle using the VFPU.
+ *
+ * This function computes the sine of an angle (given in radians) multiplied by the radius (rayon).
+ * It is optimized for very fast execution on the PSP's VFPU.
+ * 
+ * @param angle The angle in radians.
+ * @param rayon The radius (multiplier).
+ * @return The sine of the angle multiplied by the radius.
+ * 
+ * @note This function uses the VFPU for fast computation. For angles in degrees, consider using #oslSin.
+ */
 extern float oslVfpu_sinf(float angle, float rayon);
 
-/** Calculates the cosine of an angle using the VFPU (very fast). Please note that #oslCos also uses the VFPU but first converts the angle from degrees to radians.
-	\param angle
-		Angle in radians
-	\param rayon
-		Radius
-	\return
-		cos(angle) * rayon
-*/
+/**
+ * @brief Calculates the cosine of an angle using the VFPU.
+ *
+ * This function computes the cosine of an angle (given in radians) multiplied by the radius (rayon).
+ * It is optimized for very fast execution on the PSP's VFPU.
+ * 
+ * @param angle The angle in radians.
+ * @param rayon The radius (multiplier).
+ * @return The cosine of the angle multiplied by the radius.
+ * 
+ * @note This function uses the VFPU for fast computation. For angles in degrees, consider using #oslCos.
+ */
 extern float oslVfpu_cosf(float angle, float rayon);
 
 /** @} */ // end of vfpu
@@ -49,4 +64,4 @@ extern float oslVfpu_cosf(float angle, float rayon);
 }
 #endif
 
-#endif
+#endif // __OSL_VFPU_H__
