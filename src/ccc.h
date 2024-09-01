@@ -1,3 +1,17 @@
+/**
+ * @file ccc.h
+ * @brief Header file for character code conversion functions in OSLib.
+ * 
+ * This file provides macros that map to functions in BenHur's intraFont library for character code conversion.
+ * The functions allow for converting characters from various encodings to UCS2, setting error characters, 
+ * and shutting down the Character Code Conversion Library.
+ * 
+ * @defgroup CharacterCodeConversion Character Code Conversion (ccc)
+ * 
+ * Functions to convert characters from BenHur's intraFont.
+ * @{
+ */
+
 #ifndef __OSL_CCC_H__
 #define __OSL_CCC_H__
 
@@ -6,50 +20,94 @@ extern "C" {
 #endif
 
 #include "intraFont/libccc.h"
-/** @defgroup Character code conversion (ccc)
-
-	Functions to convert characters from BenHur's intraFont
-	@{
-*/
 
 /**
- * Character code conversion
- *
- * @param dst - output string
- *
- * @param count - size of output buffer
- *
- * @param str - input string
- *
- * @param cp - codepage
- *
- * @returns number of converted character codes
+ * @brief Convert characters from Shift JIS encoding to UCS2 encoding.
+ * 
+ * @param dst Output buffer for the converted string.
+ * @param count Size of the output buffer.
+ * @param str Input string in Shift JIS encoding.
+ * @param cp Code page to use for conversion.
+ * @return Number of converted character codes.
  */
 #define oslCccSJIStoUCS2    cccSJIStoUCS2
+
+/**
+ * @brief Convert characters from GBK encoding to UCS2 encoding.
+ * 
+ * @param dst Output buffer for the converted string.
+ * @param count Size of the output buffer.
+ * @param str Input string in GBK encoding.
+ * @param cp Code page to use for conversion.
+ * @return Number of converted character codes.
+ */
 #define oslCccGBKtoUCS2     cccGBKtoUCS2
+
+/**
+ * @brief Convert characters from Korean encoding to UCS2 encoding.
+ * 
+ * @param dst Output buffer for the converted string.
+ * @param count Size of the output buffer.
+ * @param str Input string in Korean encoding.
+ * @param cp Code page to use for conversion.
+ * @return Number of converted character codes.
+ */
 #define oslCccKORtoUCS2     cccKORtoUCS2
+
+/**
+ * @brief Convert characters from BIG5 encoding to UCS2 encoding.
+ * 
+ * @param dst Output buffer for the converted string.
+ * @param count Size of the output buffer.
+ * @param str Input string in BIG5 encoding.
+ * @param cp Code page to use for conversion.
+ * @return Number of converted character codes.
+ */
 #define oslCccBIG5toUCS2    cccBIG5toUCS2
+
+/**
+ * @brief Convert characters from UTF-8 encoding to UCS2 encoding.
+ * 
+ * @param dst Output buffer for the converted string.
+ * @param count Size of the output buffer.
+ * @param str Input string in UTF-8 encoding.
+ * @param cp Code page to use for conversion.
+ * @return Number of converted character codes.
+ */
 #define oslCccUTF8toUCS2    cccUTF8toUCS2
+
+/**
+ * @brief Convert characters from a specified code page to UCS2 encoding.
+ * 
+ * @param dst Output buffer for the converted string.
+ * @param count Size of the output buffer.
+ * @param str Input string in the specified code page.
+ * @param cp Code page to use for conversion.
+ * @return Number of converted character codes.
+ */
 #define oslCccCodetoUCS2    cccCodetoUCS2
 
 /**
- * Set error character (character that's used for code points where conversion failed)
- *
- * @param code - new error character (default: 0)
- *
- * @returns previous error character
+ * @brief Set the error character for failed code conversions.
+ * 
+ * The error character is used when a code point cannot be converted to UCS2.
+ * 
+ * @param code New error character (default: 0).
+ * @return Previous error character.
  */
 #define oslCccSetErrorCharUCS2  cccSetErrorCharUCS2
 
 /**
- * Shutdown the Character Code Conversion Library
+ * @brief Shutdown the Character Code Conversion Library.
+ * 
+ * This function cleans up any resources used by the Character Code Conversion Library.
  */
 #define oslCccShutDown  cccShutDown
 
-/** @} */ // end of Character code conversion
+/** @} */ // end of Character Code Conversion
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif
+#endif // __OSL_CCC_H__
