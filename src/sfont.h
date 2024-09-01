@@ -1,3 +1,11 @@
+/**
+ * @file sfont.h
+ * @brief Functions and structures to manage SFonts in the OSLib.
+ *
+ * This file contains the definitions and function declarations for working with SFonts,
+ * which are bitmap-based fonts used in the OSLib.
+ */
+
 #ifndef _SFONT_H
 #define _SFONT_H
 
@@ -6,71 +14,63 @@ extern "C" {
 #endif
 
 /** @defgroup SFont SFont
+ *  @brief Functions to manage SFonts
+ *  @{
+ */
 
-	Functions to manage SFonts
-	@{
-*/
-
-/**Struct describing a signle SFont letter
-	\param letter
-        The image representing the letter
-	\param width
-        The letter's width
-*/
+/**
+ * @brief Struct describing a single SFont letter.
+ */
 typedef struct
 {
-      OSL_IMAGE *letter;
-      unsigned int width;
+    OSL_IMAGE *letter; /**< The image representing the letter. */
+    unsigned int width; /**< The letter's width in pixels. */
 } OSL_SFLETTER;
 
-/**Struct describing a SFont
-	\param letters
-        Single letters
-	\param lettersCount
-        Total number of letters
-*/
+/**
+ * @brief Struct describing a SFont.
+ */
 typedef struct
 {
-	OSL_SFLETTER *letters[256];
-	int height;
-	int lettersCount;
+    OSL_SFLETTER *letters[256]; /**< Array of pointers to single letters. */
+    int height; /**< The height of the font in pixels. */
+    int lettersCount; /**< The total number of letters in the font. */
 } OSL_SFONT;
 
-/** Load an SFont
-	Returns a pointer to the loaded OSL_SFONT or NULL
-	\param filename
-        file name
-	\param pixelFormat
-		pixel format
-*/
+/**
+ * @brief Load an SFont from a file.
+ * 
+ * @param filename The name of the file to load the SFont from.
+ * @param pixelFormat The pixel format to use for the SFont.
+ * @return A pointer to the loaded OSL_SFONT, or NULL on failure.
+ */
 OSL_SFONT *oslLoadSFontFile(char *filename, int pixelFormat);
 
-/** Delete a loaded SFont
-	\param sfont
-        SFont to delete
-*/
+/**
+ * @brief Delete a loaded SFont.
+ * 
+ * @param sfont The SFont to delete.
+ */
 void oslDeleteSFont(OSL_SFONT *sfont);
 
-/** Get the text width using a SFont
-	Returns width in pixel of the string rendered with the given SFont
-	\param sfont
-        SFont
-	\param text
-        Text to measure
-*/
+/**
+ * @brief Get the text width using an SFont.
+ * 
+ * @param sfont The SFont to use for measurement.
+ * @param text The text string to measure.
+ * @return The width in pixels of the string rendered with the given SFont.
+ */
 int oslGetSFontTextWidth(OSL_SFONT *sfont, char *text);
 
-/** Print a string using SFont
-	Returns the string end position
-    \param sfont
-        SFont to use
-	\param x
-        X position
-	\param y
-        Y position
-	\param text
-        Text to print
-*/
+/**
+ * @brief Print a string using an SFont.
+ * 
+ * @param sfont The SFont to use for printing.
+ * @param x The X position on the screen to start printing.
+ * @param y The Y position on the screen to start printing.
+ * @param text The text string to print.
+ * @return The X position of the end of the rendered string.
+ */
 int oslSFontDrawText(OSL_SFONT *sfont, int x, int y, char *text);
 
 /** @} */ // end of SFont
@@ -79,4 +79,4 @@ int oslSFontDrawText(OSL_SFONT *sfont, int x, int y, char *text);
 }
 #endif
 
-#endif
+#endif /* _SFONT_H */
