@@ -1,60 +1,65 @@
 #include "oslib.h"
 
-void oslUnswizzleTexture(u8* out, const u8* in, unsigned int width, unsigned int height)
-{
-   unsigned int blockx, blocky;
-   unsigned int j;
+void oslUnswizzleTexture(u8* out, const u8* in, unsigned int width, unsigned int height) {
+    unsigned int blockX, blockY;
+    unsigned int rowOffset;
 
-   unsigned int width_blocks = (width / 16);
-   unsigned int height_blocks = (height / 8);
+    unsigned int widthBlocks = width / 16;
+    unsigned int heightBlocks = height / 8;
 
-   unsigned int dst_pitch = (width-16)/4;
-   unsigned int dst_row = width * 8;
+    unsigned int dstPitch = (width - 16) / 4;
+    unsigned int dstRowSize = width * 8;
 
-   u32* src = (u32*)in;
-   u8* ydst = out;
+    const u32* src = (const u32*)in;
+    u8* destRow = out;
 
 #ifndef PSP
-   memcpy(out, in, width * height);
-   return;
+    // For non-PSP platforms, simply copy the data as is.
+    memcpy(out, in, width * height);
+    return;
 #endif
 
-   for (blocky = 0; blocky < height_blocks; ++blocky)
-   {
-      const u8* xdst = ydst;
-      for (blockx = 0; blockx < width_blocks; ++blockx)
-      {
-         u32* dst= (u32*)xdst;
-         for (j = 0; j < 8; ++j)
-         {
-            *(dst++) = *(src++);
-            *(dst++) = *(src++);
-            *(dst++) = *(src++);
-            *(dst++) = *(src++);
-            dst += dst_pitch;
-         }
-         xdst += 16;
-     }
-     ydst += dst_row;
-   }
+    for (blockY = 0; blockY < heightBlocks; ++blockY) {
+        u8* destBlock = destRow;
+        for (blockX = 0; blockX < widthBlocks; ++blockX) {
+            u32* dest = (u32*)destBlock;
+            for (rowOffset = 0; rowOffset < 8; ++rowOffset) {
+                *(dest++) = *(src++);
+                *(dest++) = *(src++);
+                *(dest++) = *(src++);
+                *(dest++) = *(src++);
+                dest += dstPitch;
+            }
+            destBlock += 16;
+        }
+        destRow += dstRowSize;
+    }
 }
 
+void oslUnswizzleImage(OSL_IMAGE *img) {
+    // Check if the image is already unswizzled
+    if (!oslImageIsSwizzled(img))
+        return;
 
-void oslUnswizzleImage(OSL_IMAGE *img)		{
-	void *block;
+    // Allocate memory for the temporary buffer
+    void *tempBuffer = malloc(img->totalSize);
+    if (!tempBuffer) {
+        // Handle memory allocation failure
+        return;
+    }
 
-	//Not swizzled yet?
-	if (!oslImageIsSwizzled(img))
-		return;
+    // Copy image data to the temporary buffer
+    memcpy(tempBuffer, img->data, img->totalSize);
 
-	block = (void*)malloc(img->totalSize);
-	if (!block)
-		return;
-	memcpy(block, img->data, img->totalSize);
-	oslUnswizzleTexture((u8*)img->data, (u8*)block, (img->realSizeX * osl_pixelWidth[img->pixelFormat]) >> 3, img->realSizeY);
-	free(block);
+    // Unswizzle the texture
+    oslUnswizzleTexture((u8*)img->data, (u8*)tempBuffer, 
+        (img->realSizeX * osl_pixelWidth[img->pixelFormat]) >> 3, 
+        img->realSizeY);
 
-	oslUncacheImageData(img);
-	oslImageIsSwizzledSet(img, 0);
+    // Free the temporary buffer
+    free(tempBuffer);
+
+    // Update the image metadata
+    oslUncacheImageData(img);
+    oslImageIsSwizzledSet(img, 0);
 }
-
