@@ -1,69 +1,75 @@
 #include "oslib.h"
 
-extern inline int oslFindColorInPalette(OSL_PALETTE *pal, int count, OSL_COLOR color)		{
-   int i;
-
-   for (i=0;i<count;i++)		{
-	   //Get a 32 bit value for the current palette entry
-	   u32 pixel = oslConvertColor(OSL_PF_8888, pal->pixelFormat, oslGetPaletteColor(pal, i));
-	   if (pixel == color)
-		   return i;
-   }
-   return -1;
+extern int oslFindColorInPalette(OSL_PALETTE *palette, int paletteSize, OSL_COLOR targetColor) {
+    for (int i = 0; i < paletteSize; i++) {
+        // Convert the current palette entry to a 32-bit value
+        u32 currentColor = oslConvertColor(OSL_PF_8888, palette->pixelFormat, oslGetPaletteColor(palette, i));
+        if (currentColor == targetColor) {
+            return i;
+        }
+    }
+    return -1;
 }
 
-OSL_IMAGE *oslConvertImageTo(OSL_IMAGE *imgOriginal, int newLocation, int newFormat)			{
-	int palSize = 1 << osl_paletteSizes[newFormat];
-	int width = imgOriginal->sizeX, height = imgOriginal->sizeY;
-	OSL_IMAGE *img;
-	int i, j;
-	int palCount;
+OSL_IMAGE *oslConvertImageTo(OSL_IMAGE *originalImage, int newLocation, int newFormat) {
+    int paletteSize = 1 << osl_paletteSizes[newFormat];
+    int width = originalImage->sizeX, height = originalImage->sizeY;
+    OSL_IMAGE *newImage;
+    int paletteCount = 0;
 
-	img = oslCreateImage(width, height, newLocation, newFormat);
-	if (osl_pixelWidth[newFormat] <= 8)
-		img->palette = oslCreatePalette(palSize, OSL_PF_8888);
+    // Create a new image with the specified location and format
+    newImage = oslCreateImage(width, height, newLocation, newFormat);
+    if (!newImage) {
+        return NULL; // Return NULL if image creation failed
+    }
 
-	if (img)			{
-		//D'abord: tout à zéro
-		memset(img->data, 0, img->totalSize);
-		palCount = 0;
+    // If the new format uses a palette, create one
+    if (osl_pixelWidth[newFormat] <= 8) {
+        newImage->palette = oslCreatePalette(paletteSize, OSL_PF_8888);
+    }
 
-		//On parcourt toute l'image pour créer les index de la palette
-		for (j=0;j<height;j++)		{
-			for (i=0;i<width;i++)			{
-				u32 pixel;
-				//In paletted mode, we need a bit of work
-				if (osl_pixelWidth[newFormat] <= 8)			{
-					u32 *palette = (u32*)img->palette->data;
+    // Initialize the new image data to zero
+    memset(newImage->data, 0, newImage->totalSize);
 
-					//Get a 32 bit value for the pixel
-					pixel = oslConvertColorEx(imgOriginal->palette, OSL_PF_8888, imgOriginal->pixelFormat, oslGetImagePixel(imgOriginal, i, j));
+    // Iterate over each pixel in the original image
+    for (int y = 0; y < height; y++) {
+        for (int x = 0; x < width; x++) {
+            u32 pixel;
 
-					//Does the color already exist?
-					int colorNb = oslFindColorInPalette(img->palette, palCount, pixel);
+            // Paletted mode: need to handle palette indexing
+            if (osl_pixelWidth[newFormat] <= 8) {
+                u32 *paletteData = (u32*)newImage->palette->data;
 
-					if (colorNb < 0)			{
-						if (palCount < palSize)			{
-							palette[palCount] = pixel;
-							colorNb = palCount++;
-						}
-						//Pas assez de couleurs, on pourrait essayer d'approcher au max mais le résultat serait assez mauvais parce que seules les couleurs des premiers pixels seraient disponibles.
-						else
-							colorNb = 0;
-					}
-					//We can finally write the color
-					oslSetImagePixel(img, i, j, colorNb);
-				}
-				else	{
-					//True color mode
-					pixel = oslConvertColorEx(imgOriginal->palette, newFormat, imgOriginal->pixelFormat, oslGetImagePixel(imgOriginal, i, j));
-					oslSetImagePixel(img, i, j, pixel);
-				}
-			}
-		}
-		oslDeleteImage(imgOriginal);
-		oslUncacheImage(img);
-	}
-	return img;
+                // Convert the pixel color to 32-bit format
+                pixel = oslConvertColorEx(originalImage->palette, OSL_PF_8888, originalImage->pixelFormat, oslGetImagePixel(originalImage, x, y));
+
+                // Check if the color already exists in the palette
+                int colorIndex = oslFindColorInPalette(newImage->palette, paletteCount, pixel);
+
+                if (colorIndex < 0) {
+                    // If the color is not found, add it to the palette if there is space
+                    if (paletteCount < paletteSize) {
+                        paletteData[paletteCount] = pixel;
+                        colorIndex = paletteCount++;
+                    } else {
+                        // Not enough colors in the palette; fallback to the first color
+                        colorIndex = 0;
+                    }
+                }
+
+                // Set the pixel color in the new image using the palette index
+                oslSetImagePixel(newImage, x, y, colorIndex);
+            } else {
+                // True color mode: directly convert and set the pixel color
+                pixel = oslConvertColorEx(originalImage->palette, newFormat, originalImage->pixelFormat, oslGetImagePixel(originalImage, x, y));
+                oslSetImagePixel(newImage, x, y, pixel);
+            }
+        }
+    }
+
+    // Clean up the original image
+    oslDeleteImage(originalImage);
+    oslUncacheImage(newImage);
+
+    return newImage;
 }
-
