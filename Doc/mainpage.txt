@@ -1,44 +1,35 @@
 /**
-	\mainpage OldSchool Library Documentation
+    \mainpage OldSchool Library (OSLib) Documentation
 
-	\section intro Introduction
+    \section intro Introduction
 
-	Welcome to the OldSchool Library documentation. To begin, you can access the function reference by clicking on the
-	"Modules" tab.
+    Welcome to the OldSchool Library (OSLib) documentation! This comprehensive guide is intended to help you navigate and utilize the various functions and features provided by OSLib. To get started, you can access the function reference by clicking on the "Modules" tab in the navigation menu.
 
-	This page includes some tutorials that you can read before beginning.
-	If you are a beginner, it is strongly recommended that you check the official OSLib site: http://oslib.playeradvance.org.
+    This documentation also includes a selection of tutorials designed to help you understand and make the most of OSLib's capabilities. If you are new to PSP development, it is highly recommended that you first explore the resources available on the official PSPDev site: [PSPDev Official Site](https://pspdev.github.io). There, you will find a variety of beginner-friendly tutorials to get you up and running.
 
-	On this you will be able to find some simple tutorials to begin with. The documentation you are reading is designed for more
-	advanced users.
+    Please note that the documentation you are currently reading is intended for more advanced users who already have a foundational understanding of PSP development.
 
-	\section concepts Concepts
+    \section concepts Key Concepts
 
-	As said before, this documentation is not made for beginners, and you should check the official OSLib site where you will
-	be able to find the excellent tutorials made by Yodajr, which are ideal to begin with.
+    As mentioned earlier, this documentation is tailored for users with prior experience in PSP development. If you are a beginner, we strongly encourage you to visit the official OSLib site, where you will find excellent tutorials created by Yodajr. These tutorials provide a great starting point for anyone new to the library.
 
-	\ref swizzling "What is image swizzling?"
+    For more advanced topics, such as optimizing image rendering using swizzling, please refer to the detailed explanations provided in the \ref swizzling "What is image swizzling?" section.
 */
 
 /**
-	\page swizzling About image swizzling...
+    \page swizzling About Image Swizzling in OSLib
 
-	In the OSLib documentation, you will often hear about a term named "swizzling".
+    In the OSLib documentation, you will often come across a term called "swizzling." This concept is particularly important when working with images in the PSP's graphics system, and understanding it can greatly impact the performance of your application.
 
-	The image swizzling is a process that reorders the pixels in an image to make it more adapted to the way the graphic
-	processor reads it. For more information, please read: http://wiki.ps2dev.org/psp:ge_faq.
+    \b Image \b swizzling is a process that reorganizes the arrangement of pixels in an image to better align with the memory access patterns of the graphics processor (GPU). The GPU reads image data in a specific way, and swizzling ensures that the pixels are ordered in a manner that optimizes this reading process. As a result, the GPU can render swizzled images much faster than unswizzled ones, leading to significant performance improvements in graphics rendering, particularly when images are stored in RAM and frequently accessed.
 
-	As a result, images are drawn way faster. But the downside is that the pixels are no more contiguous,
-	making it harder to modify images, because you can't access a single pixel by its position anymore, but need some quite
-	complicated calculation to find the real reordered pixel position on the image.
+    However, this performance gain comes with certain drawbacks. When an image is swizzled, the pixels are no longer stored contiguously in memory as they would be in a traditional, linear image. This discontinuity complicates direct pixel manipulation because the straightforward method of accessing a pixel by its x and y coordinates no longer applies. Instead, you would need to perform complex calculations to determine the actual position of a specific pixel within the swizzled data. This complexity can make tasks like real-time image modification or pixel-based effects much more challenging and computationally expensive.
 
-	So, if you want to access the image data, easily and quickly (for example for an oldschool framebuffered demo), you should
-	use unswizzled (normal) images. For images loaded from files that you don't plan to modify later, you should use
-	swizzled images, as it's really a lot faster (especially if the image is put in RAM).
+    For example, if you are working on an old-school framebuffer demo or any other application where you need to access and modify individual pixels frequently and directly, you would benefit from using \b unswizzled (normal) images. Unswizzled images store pixel data in a linear fashion, making it easy to access and manipulate individual pixels using simple arithmetic based on their coordinates.
 
-	By default, OSLib will automatically swizzle images when loading them from a file (see #oslLoadImageFile).
-	But it won't swizzle images created manually (see #oslCreateImage). But you can disable swizzling by passing the
-	OSL_UNSWIZZLED flag when loading the image. See #oslSetImageAutoSwizzle.
+    On the other hand, if your images are loaded from files and are intended primarily for rendering rather than modification, it is advisable to use \b swizzled images. The performance benefits are particularly noticeable when these images are placed in RAM, as swizzled images allow the GPU to render them more efficiently, reducing the load on the system and enabling smoother graphics performance.
+
+    In OSLib, the image loading process is designed with this in mind. By default, when you load an image from a file using functions like #oslLoadImageFile, OSLib will automatically swizzle the image data to optimize rendering performance. However, if you manually create an image using functions like #oslCreateImage, OSLib will not swizzle the image by default, giving you the flexibility to choose the format that best suits your needs.
+
+    If, for any reason, you prefer not to have the images swizzled automatically when loading them from files, you can disable this behavior. By passing the `OSL_UNSWIZZLED` flag during the image loading process, you can instruct OSLib to keep the image in its unswizzled state, which might be preferable for certain applications where direct pixel manipulation is required. For more information on how to control this behavior, see #oslSetImageAutoSwizzle.
 */
-
-
