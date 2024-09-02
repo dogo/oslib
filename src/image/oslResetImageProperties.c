@@ -2,19 +2,24 @@
 
 void oslResetImageProperties(OSL_IMAGE *img)
 {
-	//Positions
-	img->x = img->y = 0;
+    if (!img) return;
 
-	//Offset
-	img->offsetX0 = img->offsetY0 = 0;
-	img->offsetX1 = img->sizeX;
-	img->offsetY1 = img->sizeY;
+    // Reset position
+    img->x = 0;
+    img->y = 0;
 
-	//Rotation	
-	img->centerX = img->centerY = img->angle = 0;
+    // Reset offset
+    img->offsetX0 = 0;
+    img->offsetY0 = 0;
+    img->offsetX1 = img->sizeX;
+    img->offsetY1 = img->sizeY;
 
-	//Scaling
-	img->stretchX = img->sizeX;
-	img->stretchY = img->sizeY;
+    // Reset rotation
+    img->centerX = 0;
+    img->centerY = 0;
+    img->angle = 0;
+
+    // Reset scaling
+    img->stretchX = img->sizeX;
+    img->stretchY = img->sizeY;
 }
-
