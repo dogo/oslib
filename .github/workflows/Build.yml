@@ -51,6 +51,18 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+    - name: Setup PSPDEV Environment
+      run: |
+        URL="https://github.com/pspdev/pspdev/releases/download/v20240609/pspdev-ubuntu-latest-x86_64.tar.gz"
+        FILE=$(basename $URL)
+        wget $URL
+        tar -xzf $FILE
+        export PATH="$(brew --prefix gnu-sed)/libexec/gnubin:$PATH" # This really is only needed for macOS
+        export PATH="$(brew --prefix libtool)/libexec/gnubin:$PATH" # This really is only needed for macOS
+        export PKG_CONFIG_PATH="$(brew --prefix libarchive)/lib/pkgconfig:$(brew --prefix openssl)/lib/pkgconfig" # This really is only needed for macOS
+        export PSPDEV=$PWD/pspdev
+        export PATH=$PATH:$PSPDEV/bin
+
     - name: Generate documentation
       run: make gendoc
 
