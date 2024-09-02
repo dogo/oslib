@@ -1,6 +1,9 @@
 # Ignore compiled object files
 *.o
 
+# Ignore build directory
+build
+
 # Ignore macOS system file
 .DS_Store
 
