@@ -16,7 +16,6 @@
 **
 */
 
-
 #define RGBA_GETR(pixel)	((pixel)&0xff)
 #define RGBA_GETG(pixel)	(((pixel)>>8)&0xff)
 #define RGBA_GETB(pixel)	(((pixel)>>16)&0xff)
@@ -124,11 +123,6 @@ static void horizontalScale(const float rs[], const float gs[], const float bs[]
             fraccoltofill -= fraccolleft;
         }
     }
-
-//    if (newcol < newcols-1 || newcol > newcols)
-//        pm_error("Internal error: last column filled is %d, but %d "
-//                 "is the rightmost output column.",
-//                 newcol, newcols-1);
 
     if (newcol < newcols ) {
         /* We were still working on the last output column when we
@@ -245,15 +239,22 @@ void oslScaleImage(OSL_IMAGE *dstImg, OSL_IMAGE *srcImg, int newX, int newY, int
 
 OSL_IMAGE *oslScaleImageCreate(OSL_IMAGE *img, short newLocation, int newWidth, int newHeight, short newPixelFormat)
 {
-	OSL_IMAGE* newImg;
-	if(!img)
-		return NULL;
-	newImg = oslCreateImage(newWidth, newHeight, newLocation, newPixelFormat);
-	if (newImg) {
-		oslScaleImage(newImg, img, 0, 0, newWidth, newHeight);
-		if (newImg != NULL && oslImageLocationIsSwizzled(newLocation))
-			oslSwizzleImage(newImg);
-        oslUncacheImage(newImg);
-	}
-	return newImg;
+    if (!img) {
+        return NULL;
+    }
+
+    OSL_IMAGE *newImg = oslCreateImage(newWidth, newHeight, newLocation, newPixelFormat);
+    if (!newImg) {
+        return NULL;
+    }
+
+    oslScaleImage(newImg, img, 0, 0, newWidth, newHeight);
+
+    if (oslImageLocationIsSwizzled(newLocation)) {
+        oslSwizzleImage(newImg);
+    }
+
+    oslUncacheImage(newImg);
+
+    return newImg;
 }
