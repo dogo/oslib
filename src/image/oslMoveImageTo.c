@@ -1,33 +1,37 @@
 #include "oslib.h"
 
-bool oslMoveImageTo(OSL_IMAGE *img, int newLocation)		{
-	bool success = 0;
-	//On ne gère pas ça sur PC
+bool oslMoveImageTo(OSL_IMAGE *img, int newLocation) {
+    // On PC, this function doesn't manage image relocation, so we return success.
 #ifndef PSP
-	return 1;
+    return 1;
 #endif
 
-	//Moves the image
-	if (img->location != newLocation)		{
-		//We keep the old pointer in order to recopy the old data to the new image
-		OSL_IMAGE oldImage = *img;
+    // If the image is already in the desired location, no need to move it.
+    if (img->location == newLocation) {
+        return 1;
+    }
 
-		//Allocate some new data for the image. Setting data to NULL prevents oslAllocImageData from freeing memory automatically (we need this memory later to copy the old image contents).
-		img->data = NULL;
+    // Keep the old image data to copy to the new location.
+    OSL_IMAGE oldImage = *img;
 
-		oslAllocImageData(img, newLocation);
-		if (img->data)		{
-			//Copy the old image to the new one
-			memcpy(img->data, oldImage.data, img->totalSize);
+    // Prevent automatic freeing of memory during reallocation by setting data to NULL.
+    img->data = NULL;
 
-			//We can now free the old image data
-			oslFreeImageData(&oldImage);
-			
-			oslUncacheImageData(img);
-			success = 1;
-		}
-	}
-	
-	return success;
+    // Allocate new data for the image at the new location.
+    if (!oslAllocImageData(img, newLocation)) {
+        // If allocation fails, restore the original data pointer and return failure.
+        img->data = oldImage.data;
+        return 0;
+    }
+
+    // Copy the old image data to the new memory location.
+    memcpy(img->data, oldImage.data, img->totalSize);
+
+    // Free the old image data since it has been copied successfully.
+    oslFreeImageData(&oldImage);
+
+    // Update image caching after moving.
+    oslUncacheImageData(img);
+
+    return 1;
 }
-
