@@ -23,9 +23,10 @@ void oslSwizzleTexture(u8* out, const u8* in, unsigned int width, unsigned int h
         for (blockx = 0; blockx < width_blocks; ++blockx) {
             const u32* src = (const u32*)xsrc;
             for (j = 0; j < 8; ++j) {
-                for (int i = 0; i < 4; ++i) {
-                    *(dst++) = *(src++);
-                }
+                *(dst++) = *(src++);
+                *(dst++) = *(src++);
+                *(dst++) = *(src++);
+                *(dst++) = *(src++);
                 src += src_pitch;
             }
             xsrc += 16;
