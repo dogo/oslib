@@ -166,6 +166,30 @@ target_link_libraries(${TARGET_LIB}
     -lpng -ljpeg -lz -lm
 )
 
+# Get the PSP prefix using psp-config
+execute_process(
+    COMMAND psp-config --psp-prefix
+    OUTPUT_VARIABLE PSPDIR
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+
 # Installation instructions
-install(TARGETS ${TARGET_LIB} DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
-install(DIRECTORY src/ DESTINATION ${CMAKE_INSTALL_PREFIX}/include/oslib FILES_MATCHING PATTERN "*.h")
+install(TARGETS ${TARGET_LIB} DESTINATION ${PSPDIR}/lib)
+
+# Include directories installation (headers)
+install(FILES ${SOURCE_DIR}/intraFont/intraFont.h ${SOURCE_DIR}/intraFont/libccc.h
+    DESTINATION ${PSPDIR}/include/oslib/intraFont)
+
+install(FILES ${SOURCE_DIR}/libpspmath/pspmath.h
+    DESTINATION ${PSPDIR}/include/oslib/libpspmath)
+
+install(FILES ${SOURCE_DIR}/adhoc/pspadhoc.h
+    DESTINATION ${PSPDIR}/include/oslib/adhoc)
+
+install(FILES ${SOURCE_DIR}/oslmath.h ${SOURCE_DIR}/net.h ${SOURCE_DIR}/browser.h ${SOURCE_DIR}/audio.h
+    ${SOURCE_DIR}/bgm.h ${SOURCE_DIR}/dialog.h ${SOURCE_DIR}/drawing.h ${SOURCE_DIR}/keys.h
+    ${SOURCE_DIR}/map.h ${SOURCE_DIR}/messagebox.h ${SOURCE_DIR}/osk.h ${SOURCE_DIR}/saveload.h
+    ${SOURCE_DIR}/oslib.h ${SOURCE_DIR}/text.h ${SOURCE_DIR}/usb.h ${SOURCE_DIR}/vfpu_ops.h
+    ${SOURCE_DIR}/VirtualFile.h ${SOURCE_DIR}/vram_mgr.h ${SOURCE_DIR}/ccc.h ${SOURCE_DIR}/sfont.h
+    DESTINATION ${PSPDIR}/include/oslib)
+
