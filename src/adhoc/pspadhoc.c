@@ -229,13 +229,17 @@ void _matchingCB(int unk1, int event, unsigned char *macSource, int size, void *
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 int oslAdhocInit(char *productID)
 {
-    if( state != ADHOC_UNINIT) return 0;
+    if (state != ADHOC_UNINIT) return 0;
 
-    memset(myMacAddress, 0, 8*sizeof(u8) );
-    strncpy(product.product, productID, 9);
+    memset(myMacAddress, 0, 8 * sizeof(u8));
+
+    // Ensure null termination after copying
+    strncpy(product.product, productID, 8); // Copy up to 8 characters
+    product.product[8] = '\0'; // Null-terminate explicitly
+
     product.unknown = 0;
-    matchingHD=-1;
-    pdpHD=-1;
+    matchingHD = -1;
+    pdpHD = -1;
     port = 0x309;
     allRemotePSPCount = 0;
 
@@ -245,9 +249,7 @@ int oslAdhocInit(char *productID)
     if (_getMacAddress() < 0)
         return ADHOC_ERROR_MAC;
 
-	_loadModules();
-    /*if (_loadModules())
-        return ADHOC_ERROR_MODULES;*/
+    _loadModules();
 
     if (_libNetInit() < 0)
         return ADHOC_ERROR_NET_INIT;

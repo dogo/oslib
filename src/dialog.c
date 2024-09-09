@@ -98,7 +98,7 @@ int oslDialogGetResult() {
 }
 
 void oslDrawDialog() {
-    int status;
+    int status = PSP_UTILITY_DIALOG_NONE;
 
     if (dialogType == OSL_DIALOG_MESSAGE || dialogType == OSL_DIALOG_ERROR) {
         status = sceUtilityMsgDialogGetStatus();

@@ -18,53 +18,53 @@ static SceUID vpl;
 static pspUtilityHtmlViewerParam params;
 static int browserIsActive = 0;
 
-int oslBrowserInit(char *url, char *downloadDir, int browserMemory, unsigned int displaymode, unsigned int options, unsigned int interfacemode, unsigned int connectmode){
-	int res;
-    if (browserMemory <= 0)
+int oslBrowserInit(char *url, char *downloadDir, int browserMemory, unsigned int displaymode, unsigned int options, unsigned int interfacemode, unsigned int connectmode) {
+    int res;
+
+    if (browserMemory <= 0) {
         browserMemory = BROWSER_MEMORY;
+    }
 
-	vpl = sceKernelCreateVpl("BrowserVpl", PSP_MEMORY_PARTITION_USER, 0, browserMemory + 256, NULL);
-	if (vpl < 0)
-		return OSL_BROWSER_ERROR_MEMORY;
+    vpl = sceKernelCreateVpl("BrowserVpl", PSP_MEMORY_PARTITION_USER, 0, browserMemory + 256, NULL);
+    if (vpl < 0)
+        return OSL_BROWSER_ERROR_MEMORY;
 
-	memset(&params, 0, sizeof(pspUtilityHtmlViewerParam));
+    memset(&params, 0, sizeof(pspUtilityHtmlViewerParam));
 
-	params.base.size = sizeof(pspUtilityHtmlViewerParam);
+    params.base.size = sizeof(pspUtilityHtmlViewerParam);
 
-	sceUtilityGetSystemParamInt(PSP_SYSTEMPARAM_ID_INT_LANGUAGE, &params.base.language);
-	sceUtilityGetSystemParamInt(PSP_SYSTEMPARAM_ID_INT_UNKNOWN, &params.base.buttonSwap);
+    sceUtilityGetSystemParamInt(PSP_SYSTEMPARAM_ID_INT_LANGUAGE, &params.base.language);
+    sceUtilityGetSystemParamInt(PSP_SYSTEMPARAM_ID_INT_UNKNOWN, &params.base.buttonSwap);
 
-	params.base.graphicsThread = 17;
-	params.base.accessThread = 19;
-	params.base.fontThread = 18;
-	params.base.soundThread = 16;
-	params.memsize = browserMemory;
-	params.initialurl = url;
-	params.numtabs = 1;
-	params.cookiemode = PSP_UTILITY_HTMLVIEWER_COOKIEMODE_DEFAULT;
-	params.homeurl = url;
-	params.textsize = PSP_UTILITY_HTMLVIEWER_TEXTSIZE_NORMAL;
-	params.displaymode = displaymode;
-	params.options = options;
-	params.interfacemode = interfacemode;
-	params.connectmode = connectmode;
+    params.base.graphicsThread = 17;
+    params.base.accessThread = 19;
+    params.base.fontThread = 18;
+    params.base.soundThread = 16;
+    params.memsize = browserMemory;
+    params.initialurl = url;
+    params.numtabs = 1;
+    params.cookiemode = PSP_UTILITY_HTMLVIEWER_COOKIEMODE_DEFAULT;
+    params.homeurl = url;
+    params.textsize = PSP_UTILITY_HTMLVIEWER_TEXTSIZE_NORMAL;
+    params.displaymode = displaymode;
+    params.options = options;
+    params.interfacemode = interfacemode;
+    params.connectmode = connectmode;
 
-	// WITHOUT 'ms0:' on the paths
-	params.dldirname = downloadDir;
+    // WITHOUT 'ms0:' on the paths
+    params.dldirname = downloadDir;
 
-	res = sceKernelAllocateVpl(vpl, params.memsize, &params.memaddr, NULL);
-	if (res < 0)
-		return OSL_BROWSER_ERROR_MEMORY;
+    res = sceKernelAllocateVpl(vpl, params.memsize, &params.memaddr, NULL);
+    if (res < 0)
+        return OSL_BROWSER_ERROR_MEMORY;
 
-	res = sceUtilityHtmlViewerInitStart(&params);
-	if (res < 0)
-		return res;								//<-- STAS: Such a return value is more informative...
-//		return OSL_BROWSER_ERROR_INIT;
+    res = sceUtilityHtmlViewerInitStart(&params);
+    if (res < 0)
+        return res;  // This return value is more informative
 
-	browserIsActive = 1;
-	return 0;
+    browserIsActive = 1;
+    return 0;
 }
-
 
 void oslDrawBrowser()
 {
