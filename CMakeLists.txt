@@ -193,3 +193,30 @@ install(FILES ${SOURCE_DIR}/oslmath.h ${SOURCE_DIR}/net.h ${SOURCE_DIR}/browser.
     ${SOURCE_DIR}/VirtualFile.h ${SOURCE_DIR}/vram_mgr.h ${SOURCE_DIR}/ccc.h ${SOURCE_DIR}/sfont.h
     DESTINATION ${PSPDIR}/include/oslib)
 
+# Add Cppcheck execution
+find_program(CPPCHECK cppcheck)
+
+if(CPPCHECK)
+    set(CPPCHECK_COMMAND ${CPPCHECK} --enable=all --inconclusive --quiet)
+    add_custom_target(
+        cppcheck
+        COMMAND ${CPPCHECK_COMMAND} ${CMAKE_SOURCE_DIR}/src
+        COMMENT "Running Cppcheck..."
+    )
+else()
+    message(WARNING "Cppcheck not found, skipping static analysis.")
+endif()
+
+# Add Uncrustify execution
+find_program(UNCRUSTIFY uncrustify)
+
+if(UNCRUSTIFY)
+    set(UNCRUSTIFY_COMMAND ${UNCRUSTIFY} -c ${CMAKE_SOURCE_DIR}/uncrustify.cfg --no-backup)
+    add_custom_target(
+        uncrustify
+        COMMAND ${UNCRUSTIFY_COMMAND} --replace ${CMAKE_SOURCE_DIR}/src/*.c ${CMAKE_SOURCE_DIR}/src/*.h
+        COMMENT "Running Uncrustify to format the code without creating backups..."
+    )
+else()
+    message(WARNING "Uncrustify not found, skipping code formatting.")
+endif()
