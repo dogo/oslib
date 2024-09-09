@@ -9,19 +9,20 @@ void toggleTexturing(int enable) {
 }
 
 OSL_COLOR oslBlendColors(OSL_COLOR color1, OSL_COLOR color2) {
-    if (color2 == 0xffffffff)  // No blending needed
+    if (color2 == 0xffffffff) {  // No blending needed
         return color1;
+    }
 
-	if ((color2 & 0x00ffffff) == 0x00ffffff) {
-		// No tinting, simple alpha blending
-		return (color1 & 0xffffff) | (((color1 >> 24) * (color2 >> 24) >> 8) << 24);
-	} else {
-		return
-			((((u64)(color1 & 0xff000000) * (color2 & 0xff000000)) >> 32) & 0xff000000) |
-			((((u64)(color1 & 0xff0000) * (color2 & 0xff0000)) >> 24) & 0xff0000) |
-			((((color1 & 0xff00) * (color2 & 0xff00)) >> 16) & 0xff00) |
-			(((color1 & 0xff) * (color2 & 0xff)) >> 8);
-	}
+    if ((color2 & 0x00ffffff) == 0x00ffffff) {
+        // No tinting, simple alpha blending
+        return (color1 & 0xffffff) | (((color1 >> 24) * (color2 >> 24) >> 8) << 24);
+    } else {
+        return
+            ((((u64)(color1 & 0xff000000) * (color2 & 0xff000000)) >> 32) & 0xff000000) |
+            ((((u64)(color1 & 0xff0000) * (color2 & 0xff0000)) >> 24) & 0xff0000) |
+            ((((color1 & 0xff00) * (color2 & 0xff00)) >> 16) & 0xff00) |
+            (((color1 & 0xff) * (color2 & 0xff)) >> 8);
+    }
 }
 
 void oslDrawLine(int x0, int y0, int x1, int y1, OSL_COLOR color) {

@@ -193,32 +193,36 @@ int oslNetTerm()
 }
 
 int oslGetIPaddress(char *IPaddress){
-	union SceNetApctlInfo apctlInfo;
+    union SceNetApctlInfo apctlInfo;
     strcpy(IPaddress, "");
-    if (sceNetApctlGetInfo(PSP_NET_APCTL_INFO_IP, &apctlInfo))
+
+    if (sceNetApctlGetInfo(PSP_NET_APCTL_INFO_IP, &apctlInfo)) {
         return OSL_ERR_APCTL_GETINFO;
-	strcpy(IPaddress, apctlInfo.ip);
+    }
+
+    strcpy(IPaddress, apctlInfo.ip);
     return 0;
 }
 
-
 int oslConnectToAP(int config, int timeout,
                    int (*apctlCallback)(int state)){
-	int err = 0;
-	int stateLast = -1;
+    int err = 0;
+    int stateLast = -1;
 
-    if (!oslIsWlanPowerOn())
+    if (!oslIsWlanPowerOn()) {
         return OSL_ERR_WLAN_OFF;
+    }
 
-	err = sceNetApctlConnect(config);
-	if (err)
-		return OSL_ERR_APCTL_CONNECT;
+    err = sceNetApctlConnect(config);
+    if (err)
+        return OSL_ERR_APCTL_CONNECT;
 
     time_t startTime;
     time_t currTime;
     time(&startTime);
-	while (!osl_quit){
-        //Check timeout:
+
+    while (!osl_quit){
+        // Check timeout
         time(&currTime);
         if (currTime - startTime >= timeout){
             if (apctlCallback != NULL)
@@ -227,17 +231,19 @@ int oslConnectToAP(int config, int timeout,
             err = OSL_ERR_APCTL_TIMEOUT;
             break;
         }
-		int state;
-		err = sceNetApctlGetState(&state);
-		if (err){
+
+        int state;
+        err = sceNetApctlGetState(&state);
+        if (err){
             if (apctlCallback != NULL)
                 (*apctlCallback)(OSL_ERR_APCTL_GETSTATE);
             oslDisconnectFromAP();
             err = OSL_ERR_APCTL_GETSTATE;
             break;
         }
-		if (state > stateLast){
-			stateLast = state;
+
+        if (state > stateLast){
+            stateLast = state;
             if (apctlCallback != NULL){
                 if ((*apctlCallback)(state)){
                     err = OSL_USER_ABORTED;
@@ -245,12 +251,14 @@ int oslConnectToAP(int config, int timeout,
                 }
             }
         }
-		if (state == PSP_NET_APCTL_STATE_GOT_IP)
-			break;  // connected with static IP
-		sceKernelDelayThread(50*1000);
-	}
 
-	return err;
+        if (state == PSP_NET_APCTL_STATE_GOT_IP)
+            break;  // connected with static IP
+
+        sceKernelDelayThread(50*1000);
+    }
+
+    return err;
 }
 
 int oslDisconnectFromAP(){
@@ -325,7 +333,7 @@ int oslNetGetFile(const char *url, const char *filepath)
 
 	if(status != 200)
 		return 0;
-	
+
 	/* Strangelove fix
 	ret = sceHttpGetContentLength(request, &contentsize);
 	if(ret < 0)
