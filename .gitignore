@@ -7,12 +7,8 @@ build
 # Ignore macOS system file
 .DS_Store
 
-# Exception: Include specific image file
-!samples/bkg.png
-
 # Ignore various file types within the "samples" directory and its subdirectories
 samples/**/*.elf
-samples/**/*.png
 samples/**/*.PBP
 samples/**/*.prx
 samples/**/*.SFO
