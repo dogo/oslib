@@ -23,7 +23,7 @@ OSL_VIRTUALFILENAME osl_tempFile;
 
 
 // Registers a new source
-int virtualFileRegisterSource(VIRTUAL_FILE_SOURCE *vfs) {
+int VirtualFileRegisterSource(VIRTUAL_FILE_SOURCE *vfs) {
     // Check for free space
     if (VirtualFileSourcesNb >= VF_MAX_SOURCES)
         return -1;
@@ -32,7 +32,7 @@ int virtualFileRegisterSource(VIRTUAL_FILE_SOURCE *vfs) {
     return VirtualFileSourcesNb++;
 }
 
-VIRTUAL_FILE *virtualFileOpen(void *param1, int param2, int type, int mode) {
+VIRTUAL_FILE *VirtualFileOpen(void *param1, int param2, int type, int mode) {
     VIRTUAL_FILE *f = NULL;
     if (type == VF_AUTO) {
         if (param2 == 0) {
@@ -61,7 +61,7 @@ VIRTUAL_FILE *virtualFileOpen(void *param1, int param2, int type, int mode) {
     return f;
 }
 
-int virtualFileClose(VIRTUAL_FILE *f) {
+int VirtualFileClose(VIRTUAL_FILE *f) {
     int result = VirtualFileGetSource(f)->fClose(f);
     if (result)
         free(f);
@@ -273,10 +273,10 @@ OSL_VIRTUALFILENAME *oslFindFileInVirtualFilenameList(const char *fname, int typ
     return NULL;
 }
 
-void virtualFileInit() {
+void VirtualFileInit() {
    // Register default sources
    if (VF_MEMORY < 0)
-        VF_MEMORY = virtualFileRegisterSource(&vfsMemory);
+        VF_MEMORY = VirtualFileRegisterSource(&vfsMemory);
    if (VF_FILE < 0)
         VF_FILE = oslInitVfsFile();
     // By default, load from files
