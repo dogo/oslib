@@ -197,7 +197,10 @@ install(FILES ${SOURCE_DIR}/oslmath.h ${SOURCE_DIR}/net.h ${SOURCE_DIR}/browser.
 find_program(CPPCHECK cppcheck)
 
 if(CPPCHECK)
-    set(CPPCHECK_COMMAND ${CPPCHECK} --enable=all --inconclusive --quiet)
+    set(CPPCHECK_COMMAND
+        ${CPPCHECK} --enable=all --inconclusive --quiet
+        --suppressions-list=${CMAKE_SOURCE_DIR}/.cppcheck-suppress
+    )
     add_custom_target(
         cppcheck
         COMMAND ${CPPCHECK_COMMAND} ${CMAKE_SOURCE_DIR}/src

@@ -1,0 +1,9 @@
+*:src/gif/*
+*:src/intraFont/*
+*:src/libpspmath/*
+*:src/png.h
+*:src/pngconf.h
+*:src/pnglibconf.h
+*:src/zconf.h
+*:src/zlib.h
+*:src/zlibInterface.h
