@@ -141,14 +141,14 @@ void InitMaps()
 	const int mapWidth = 64;
 	const int mapHeight = 34;
 
-	maps[0] = oslCreateMap(tilesets[0], nuages_map, tileSize, tileSize, mapWidth, mapHeight, OSL_MF_U16);
-	maps[1] = oslCreateMap(tilesets[1], grassland_map, tileSize, tileSize, mapWidth, mapHeight, OSL_MF_U16);
-	maps[2] = oslCreateMap(tilesets[2], nuage1_map, tileSize, tileSize, mapWidth, mapHeight, OSL_MF_U16);
-	maps[3] = oslCreateMap(tilesets[3], nuage2_map, tileSize, tileSize, mapWidth, mapHeight, OSL_MF_U16);
-	maps[4] = oslCreateMap(tilesets[4], montagne_map, tileSize, tileSize, mapWidth, mapHeight, OSL_MF_U16);
-	maps[5] = oslCreateMap(tilesets[5], niveau_map, tileSize, tileSize, mapWidth, mapHeight, OSL_MF_U16);
-	maps[6] = oslCreateMap(tilesets[6], decors_map, tileSize, tileSize, mapWidth, mapHeight, OSL_MF_U16);
-	maps[7] = oslCreateMap(tilesets[7], sol_map, tileSize, tileSize, mapWidth, mapHeight, OSL_MF_U16);
+	maps[0] = oslCreateMap(tilesets[0], (void *)nuages_map, tileSize, tileSize, mapWidth, mapHeight, OSL_MF_U16);
+	maps[1] = oslCreateMap(tilesets[1], (void *)grassland_map, tileSize, tileSize, mapWidth, mapHeight, OSL_MF_U16);
+	maps[2] = oslCreateMap(tilesets[2], (void *)nuage1_map, tileSize, tileSize, mapWidth, mapHeight, OSL_MF_U16);
+	maps[3] = oslCreateMap(tilesets[3], (void *)nuage2_map, tileSize, tileSize, mapWidth, mapHeight, OSL_MF_U16);
+	maps[4] = oslCreateMap(tilesets[4], (void *)montagne_map, tileSize, tileSize, mapWidth, mapHeight, OSL_MF_U16);
+	maps[5] = oslCreateMap(tilesets[5], (void *)niveau_map, tileSize, tileSize, mapWidth, mapHeight, OSL_MF_U16);
+	maps[6] = oslCreateMap(tilesets[6], (void *)decors_map, tileSize, tileSize, mapWidth, mapHeight, OSL_MF_U16);
+	maps[7] = oslCreateMap(tilesets[7], (void *)sol_map, tileSize, tileSize, mapWidth, mapHeight, OSL_MF_U16);
 }
 
 OSL_IMAGE *LoadTileset(const char *filename)
