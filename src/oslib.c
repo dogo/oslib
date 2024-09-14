@@ -1,14 +1,14 @@
 #include "oslib.h"
 
 /*
-	GRAPHICS CONSTANTS
-*/
+        GRAPHICS CONSTANTS
+ */
 #define OSL_MAX_ANGLE 360
 const int OSL_TRIGO_FACTOR = 16384;
 
 /*
-	Global Variables
-*/
+        Global Variables
+ */
 int osl_intraInit = 0;
 int osl_quit = 0;
 int osl_vblInterruptNumber = 0;
@@ -89,33 +89,33 @@ inline void oslFlushDataCache() {
 }
 
 int oslMeanBenchmarkTestEx(int startend, int slot) {
-    static int val[OSL_BENCH_SLOTS] = {0};
-    static int curr_ms[OSL_BENCH_SLOTS] = {0};
-    static struct timeval start[OSL_BENCH_SLOTS], end;
-    static int time[OSL_BENCH_SLOTS] = {0};
+	static int val[OSL_BENCH_SLOTS] = {0};
+	static int curr_ms[OSL_BENCH_SLOTS] = {0};
+	static struct timeval start[OSL_BENCH_SLOTS], end;
+	static int time[OSL_BENCH_SLOTS] = {0};
 
-    if (startend == OSL_BENCH_INIT) {
-        val[slot] = 0;
-        time[slot] = 0;
-        curr_ms[slot] = 0;
-        gettimeofday(&start[slot], NULL);
-    } else if (startend == OSL_BENCH_START) {
-        gettimeofday(&start[slot], NULL);
-    } else if (startend == OSL_BENCH_END) {
-        gettimeofday(&end, NULL);
-        time[slot] += (end.tv_sec - start[slot].tv_sec) * 1000000 + (end.tv_usec - start[slot].tv_usec);
-        val[slot]++;
-        if (val[slot] >= OSL_BENCH_SAMPLES) {
-            curr_ms[slot] = time[slot] / OSL_BENCH_SAMPLES;
-            val[slot] = 0;
-            time[slot] = 0;
-        }
-    } else if (startend == OSL_BENCH_GET_LAST) { // Returns the last measure
+	if (startend == OSL_BENCH_INIT) {
+		val[slot] = 0;
+		time[slot] = 0;
+		curr_ms[slot] = 0;
+		gettimeofday(&start[slot], NULL);
+	} else if (startend == OSL_BENCH_START) {
+		gettimeofday(&start[slot], NULL);
+	} else if (startend == OSL_BENCH_END) {
+		gettimeofday(&end, NULL);
+		time[slot] += (end.tv_sec - start[slot].tv_sec) * 1000000 + (end.tv_usec - start[slot].tv_usec);
+		val[slot]++;
+		if (val[slot] >= OSL_BENCH_SAMPLES) {
+			curr_ms[slot] = time[slot] / OSL_BENCH_SAMPLES;
+			val[slot] = 0;
+			time[slot] = 0;
+		}
+	} else if (startend == OSL_BENCH_GET_LAST) { // Returns the last measure
 		if (val[slot] != 0) {
 			return time[slot] / val[slot];
 		}
 	}
-    return curr_ms[slot];
+	return curr_ms[slot];
 }
 
 int oslBenchmarkTestEx(int startend, int slot) {
@@ -136,92 +136,92 @@ int oslBenchmarkTestEx(int startend, int slot) {
 static int osl_exitCbId = 0; // Stores the OSL's standard exit callback ID
 
 void oslQuit() {
-    // Set the quit flag to indicate that the application should terminate
-    osl_quit = 1;
+	// Set the quit flag to indicate that the application should terminate
+	osl_quit = 1;
 
-    // Allow other threads some time to handle the quit marker
-    sceKernelDelayThread(500000); // Delay by 500 milliseconds (500000 microseconds)
+	// Allow other threads some time to handle the quit marker
+	sceKernelDelayThread(500000); // Delay by 500 milliseconds (500000 microseconds)
 
-    // Check if an exit callback is registered
-    if (osl_exitCbId == 0) {
-        // No callback set, proceed to exit the game immediately
-        sceKernelExitGame();
-    } else {
-        // Notify the registered callback that an exit event has occurred
-        sceKernelNotifyCallback(osl_exitCbId, 0);
+	// Check if an exit callback is registered
+	if (osl_exitCbId == 0) {
+		// No callback set, proceed to exit the game immediately
+		sceKernelExitGame();
+	} else {
+		// Notify the registered callback that an exit event has occurred
+		sceKernelNotifyCallback(osl_exitCbId, 0);
 
-        // Put the current thread to sleep indefinitely until it is explicitly woken up
-        // This prevents further execution and gives control to the exit callback
-        sceKernelSleepThreadCB();
-    }
+		// Put the current thread to sleep indefinitely until it is explicitly woken up
+		// This prevents further execution and gives control to the exit callback
+		sceKernelSleepThreadCB();
+	}
 }
 
 #ifdef PSP
-	/* Exit callback */
-	int oslStandardExitCallback(int arg1, int arg2, void *common) {
-		osl_quit = 1;
-		if (osl_exitCallback) {
-			osl_exitCallback(arg1, arg2, common);
-		}
-		sceKernelExitGame();
+/* Exit callback */
+int oslStandardExitCallback(int arg1, int arg2, void *common) {
+	osl_quit = 1;
+	if (osl_exitCallback) {
+		osl_exitCallback(arg1, arg2, common);
+	}
+	sceKernelExitGame();
+	return 0;
+}
+
+int oslStandardPowerCallback(int unknown, int pwrflags, void *common) {
+	if (osl_powerCallback) {
+		return osl_powerCallback(unknown, pwrflags, common);
+	} else {
 		return 0;
 	}
+}
 
-	int oslStandardPowerCallback(int unknown, int pwrflags, void *common) {
-		if (osl_powerCallback) {
-			return osl_powerCallback(unknown, pwrflags, common);
-		} else {
-			return 0;
-		}
+/* Callback thread */
+int oslCallbackThread(SceSize args, void *argp) {
+	int cbid;
+	cbid = sceKernelCreateCallback("exitCallback", oslStandardExitCallback, NULL);
+	sceKernelRegisterExitCallback(cbid);
+	osl_exitCbId = cbid;
+
+	cbid = sceKernelCreateCallback("powerCallback", oslStandardPowerCallback, NULL);
+	scePowerRegisterCallback(0, cbid);
+
+	sceKernelSleepThreadCB();
+	return 0;
+}
+
+/* Sets up the callback thread and returns its thread id */
+int oslSetupCallbacks() {
+	int thid = sceKernelCreateThread("update_thread", oslCallbackThread, 0x11, 0xFA0, 0, 0);
+	if (thid >= 0) {
+		sceKernelStartThread(thid, 0, 0);
 	}
-
-	/* Callback thread */
-	int oslCallbackThread(SceSize args, void *argp) {
-		int cbid;
-		cbid = sceKernelCreateCallback("exitCallback", oslStandardExitCallback, NULL);
-		sceKernelRegisterExitCallback(cbid);
-		osl_exitCbId = cbid;
-
-		cbid = sceKernelCreateCallback("powerCallback", oslStandardPowerCallback, NULL);
-		scePowerRegisterCallback(0, cbid);
-
-		sceKernelSleepThreadCB();
-		return 0;
-	}
-
-	/* Sets up the callback thread and returns its thread id */
-	int oslSetupCallbacks() {
-		int thid = sceKernelCreateThread("update_thread", oslCallbackThread, 0x11, 0xFA0, 0, 0);
-		if (thid >= 0) {
-			sceKernelStartThread(thid, 0, 0);
-		}
-		return thid;
-	}
+	return thid;
+}
 #endif
 
 /*
     VSync and Frame Synchronization
-*/
+ */
 volatile int osl_vblCount = 0, osl_vblCountMultiple = 0, osl_currentFrameRate = 60, osl_vblCallCount = 0, osl_skip = 0, osl_nbSkippedFrames = 0;
 volatile int osl_vblankCounterActive = 1, osl_vblShouldSwap = 0;
 
 void oslVblankNextFrame() {
-    osl_vblCountMultiple += osl_currentFrameRate;
-    if (osl_vblCountMultiple >= 60) {
-        osl_vblCountMultiple -= 60;
-        osl_vblCount++;
-    }
+	osl_vblCountMultiple += osl_currentFrameRate;
+	if (osl_vblCountMultiple >= 60) {
+		osl_vblCountMultiple -= 60;
+		osl_vblCount++;
+	}
 }
 
 void oslVblankInterrupt(int sub, void *parg) {
-    if (osl_vblankCounterActive) {
-        oslVblankNextFrame();
-    }
+	if (osl_vblankCounterActive) {
+		oslVblankNextFrame();
+	}
 
-    if (osl_vblShouldSwap) {
-        oslSwapBuffers();
-        osl_vblShouldSwap = 0;
-    }
+	if (osl_vblShouldSwap) {
+		oslSwapBuffers();
+		osl_vblShouldSwap = 0;
+	}
 }
 
 int osl_maxFrameskip = 0, osl_vsyncEnabled = 0, osl_frameskip = 0;
@@ -229,42 +229,42 @@ int osl_maxFrameskip = 0, osl_vsyncEnabled = 0, osl_frameskip = 0;
 void oslInit(int flags) {
 	void *arg = 0;
 
-    osl_keys = &osl_pad;
-    osl_remotekeys = &osl_remote;
+	osl_keys = &osl_pad;
+	osl_remotekeys = &osl_remote;
 
-    osl_quit = 0;
-    osl_vblCount = 0;
-    osl_vblCallCount = 0;
-    osl_skip = 0;
-    osl_nbSkippedFrames = 0;
-    osl_maxFrameskip = 5;
-    osl_vsyncEnabled = 4;
-    osl_frameskip = 0;
-    osl_currentFrameRate = 60;
+	osl_quit = 0;
+	osl_vblCount = 0;
+	osl_vblCallCount = 0;
+	osl_skip = 0;
+	osl_nbSkippedFrames = 0;
+	osl_maxFrameskip = 5;
+	osl_vsyncEnabled = 4;
+	osl_frameskip = 0;
+	osl_currentFrameRate = 60;
 
-    oslSetKeyAutorepeat(OSL_KEYMASK_UP | OSL_KEYMASK_RIGHT | OSL_KEYMASK_DOWN | OSL_KEYMASK_LEFT | OSL_KEYMASK_R | OSL_KEYMASK_L, 0, 0);
+	oslSetKeyAutorepeat(OSL_KEYMASK_UP | OSL_KEYMASK_RIGHT | OSL_KEYMASK_DOWN | OSL_KEYMASK_LEFT | OSL_KEYMASK_R | OSL_KEYMASK_L, 0, 0);
 
 #ifdef PSP
-    if (!(flags & OSL_IF_USEOWNCALLBACKS)) {
-        oslSetupCallbacks();
-    }
+	if (!(flags & OSL_IF_USEOWNCALLBACKS)) {
+		oslSetupCallbacks();
+	}
 
-    if (!(flags & OSL_IF_NOVBLANKIRQ)) {
-        sceKernelRegisterSubIntrHandler(PSP_VBLANK_INT, osl_vblInterruptNumber, oslVblankInterrupt, arg);
-        sceKernelEnableSubIntr(PSP_VBLANK_INT, osl_vblInterruptNumber);
-    }
+	if (!(flags & OSL_IF_NOVBLANKIRQ)) {
+		sceKernelRegisterSubIntrHandler(PSP_VBLANK_INT, osl_vblInterruptNumber, oslVblankInterrupt, arg);
+		sceKernelEnableSubIntr(PSP_VBLANK_INT, osl_vblInterruptNumber);
+	}
 #endif
 
-    for (int i = 0; i < OSL_BENCH_SLOTS; i++) {
-        oslMeanBenchmarkTestEx(OSL_BENCH_INIT, i);
-    }
+	for (int i = 0; i < OSL_BENCH_SLOTS; i++) {
+		oslMeanBenchmarkTestEx(OSL_BENCH_INIT, i);
+	}
 
-    VirtualFileInit();
+	VirtualFileInit();
 
 #ifndef PSP
-    emuInitGfx();
-    emuStartDrawing();
-    emuInitGL();
+	emuInitGfx();
+	emuStartDrawing();
+	emuInitGL();
 #endif
 }
 
@@ -272,38 +272,38 @@ void oslInit(int flags) {
 
 void oslSysBenchmarkDisplay() {
 #ifdef OSL_SYSTEM_BENCHMARK_ENABLED
-    int ms4 = oslMeanBenchmarkTestEx(OSL_BENCH_GET_LAST, 4);
-    int ms5 = oslMeanBenchmarkTestEx(OSL_BENCH_GET_LAST, 5);
-    int ms6 = oslMeanBenchmarkTestEx(OSL_BENCH_GET_LAST, 6);
+	int ms4 = oslMeanBenchmarkTestEx(OSL_BENCH_GET_LAST, 4);
+	int ms5 = oslMeanBenchmarkTestEx(OSL_BENCH_GET_LAST, 5);
+	int ms6 = oslMeanBenchmarkTestEx(OSL_BENCH_GET_LAST, 6);
 
-    oslSetTextColor(RGB(255, 255, 255));
-    oslSetBkColor(RGBA(0, 0, 0, 0x80));
-    oslPrintf_xy(0, 0, "%i.%03i + %i.%03i = %i.%03i", ms4 / 1000, ms4 % 1000, ms5 / 1000, ms5 % 1000, ms6 / 1000, ms6 % 1000);
+	oslSetTextColor(RGB(255, 255, 255));
+	oslSetBkColor(RGBA(0, 0, 0, 0x80));
+	oslPrintf_xy(0, 0, "%i.%03i + %i.%03i = %i.%03i", ms4 / 1000, ms4 % 1000, ms5 / 1000, ms5 % 1000, ms6 / 1000, ms6 % 1000);
 #endif
 }
 
 /*
-	Frameskip:
-				0: No frameskip (normal)
-				1: Normal frameskip
-				>1: Depends on vsync, skips 1 frame out of X
+        Frameskip:
+                                0: No frameskip (normal)
+                                1: Normal frameskip
+                                >1: Depends on vsync, skips 1 frame out of X
 
-	Max frameskip:
-				>=1: Maximum allowed frameskip
-	VSync:
-				0: No VSync
-				1: VSync enabled
-				+4: If added with frameskip > 1, synchronizes at desired framerate (e.g., 2 -> 30 fps)
-				+8: Maximal synchronization (similar to triple buffering) without vsync
-				+16: No buffer swapping
-	Examples:
-		// 30 fps, no frameskip
-		oslSyncFrameEx(2, 0, 0);
-		// 30 fps, game runs at 60 fps with max frameskip of 2, meaning no more than one frame skipped for every one displayed
-		oslSyncFrameEx(2, 2, 4);
-		// Synchronize at 60 fps, no frameskip
-		oslSyncFrameEx(0, 0, 0);
-*/
+        Max frameskip:
+                                >=1: Maximum allowed frameskip
+        VSync:
+                                0: No VSync
+                                1: VSync enabled
+ +4: If added with frameskip > 1, synchronizes at desired framerate (e.g., 2 -> 30 fps)
+ +8: Maximal synchronization (similar to triple buffering) without vsync
+ +16: No buffer swapping
+        Examples:
+                // 30 fps, no frameskip
+                oslSyncFrameEx(2, 0, 0);
+                // 30 fps, game runs at 60 fps with max frameskip of 2, meaning no more than one frame skipped for every one displayed
+                oslSyncFrameEx(2, 2, 4);
+                // Synchronize at 60 fps, no frameskip
+                oslSyncFrameEx(0, 0, 0);
+ */
 int oslSyncFrameEx(int frameskip, int max_frameskip, int vsync) {
 	int i = 0, wasDrawing = 0;
 
@@ -354,7 +354,7 @@ int oslSyncFrameEx(int frameskip, int max_frameskip, int vsync) {
 
 		// Check if we are lagging behind
 		if ((osl_vblCount + i > osl_vblCallCount + frameskip - 1 || (vsync & 4 && osl_vblCallCount % frameskip)) &&
-			osl_nbSkippedFrames < max_frameskip - 1) {
+		    osl_nbSkippedFrames < max_frameskip - 1) {
 
 			// If we haven't skipped a frame yet, display it
 			if (!osl_skip) {
@@ -447,5 +447,5 @@ int oslSyncFrameEx(int frameskip, int max_frameskip, int vsync) {
 }
 
 void oslEndFrame() {
-    oslAudioVSync();
+	oslAudioVSync();
 }

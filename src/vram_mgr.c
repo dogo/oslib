@@ -12,17 +12,17 @@ u32 osl_currentVramPtr;
 
 int osl_vramBlocksMax = 0, osl_vramBlocksNb = 0;
 
-typedef struct		{
+typedef struct          {
 	u32 offset, size;
 } OSL_VRAMBLOCK;
 
-#define isBlockFree(i)				(osl_vramBlocks[i].size & 0x80000000)
-#define getBlockSize(i)				(osl_vramBlocks[i].size & 0x7fffffff)
-#define getBlockOffset(i)			(osl_vramBlocks[i].offset)
+#define isBlockFree(i)                          (osl_vramBlocks[i].size & 0x80000000)
+#define getBlockSize(i)                         (osl_vramBlocks[i].size & 0x7fffffff)
+#define getBlockOffset(i)                       (osl_vramBlocks[i].offset)
 
-#define setBlockFree(i, free)		(osl_vramBlocks[i].size = (osl_vramBlocks[i].size & ((free)? 0xffffffff : 0x7fffffff)) | ((free)? 0x80000000 : 0))
-#define setBlockSize(i, nsize)		(osl_vramBlocks[i].size = (osl_vramBlocks[i].size & ~0x7fffffff) | (nsize))
-#define setBlockOffset(i, noffset)	(osl_vramBlocks[i].offset = noffset)
+#define setBlockFree(i, free)           (osl_vramBlocks[i].size = (osl_vramBlocks[i].size & ((free)? 0xffffffff : 0x7fffffff)) | ((free)? 0x80000000 : 0))
+#define setBlockSize(i, nsize)          (osl_vramBlocks[i].size = (osl_vramBlocks[i].size & ~0x7fffffff) | (nsize))
+#define setBlockOffset(i, noffset)      (osl_vramBlocks[i].offset = noffset)
 
 OSL_VRAMBLOCK *osl_vramBlocks;
 
@@ -159,7 +159,7 @@ int oslVramMgrFreeBlock(void *blockAddress, int blockSize) {
 		for (j = 0; j < osl_vramBlocksNb - 1; j++) {
 			// Let's look for two adjacent blocks
 			if ((isBlockFree(j) && isBlockFree(j + 1))
-				|| (isBlockFree(j) && getBlockSize(j) == 0)) {
+			    || (isBlockFree(j) && getBlockSize(j) == 0)) {
 				// Merge these blocks now
 				int newSize = getBlockSize(j) + getBlockSize(j + 1), newAdd = getBlockOffset(j);
 				memmove(osl_vramBlocks + j, osl_vramBlocks + j + 1, sizeof(OSL_VRAMBLOCK) * (osl_vramBlocksNb - j - 1));
@@ -178,9 +178,9 @@ int oslVramMgrFreeBlock(void *blockAddress, int blockSize) {
 }
 
 int oslVramMgrSetParameters(void *baseAddr, int size) {
-   int curVramSize = osl_vramSize;
-   int blockNum = osl_vramBlocksNb - 1;
-   int sizeDiff;
+	int curVramSize = osl_vramSize;
+	int blockNum = osl_vramBlocksNb - 1;
+	int sizeDiff;
 
 	if (!osl_useVramManager)
 		return 0;
@@ -189,7 +189,7 @@ int oslVramMgrSetParameters(void *baseAddr, int size) {
 		size += 16;
 
 	// Size difference (negative for reduction, positive for increase)
-   sizeDiff = size - curVramSize;
+	sizeDiff = size - curVramSize;
 
 	// The last block is ALWAYS free, even if there are 0 bytes left. See the workaround in ulTexVramAlloc
 	if (isBlockFree(blockNum) && getBlockSize(blockNum) + sizeDiff >= 0) {

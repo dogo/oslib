@@ -17,57 +17,57 @@ extern "C" {
 
 /**
  * @brief Represents a sound object in OSLib.
- * 
+ *
  * This structure can handle different sound formats and supports both streamed and normal playback.
  * Users can implement custom drivers for other sound types. However, compatibility with future versions is not guaranteed.
  * Please release your source when creating custom implementations.
  */
 typedef struct OSL_SOUND {
-    char filename[64];  //!< Filename for reopening after standby, used if streamed.
-    void *data;         //!< Pointer to sound data, format-specific.
-    void *dataplus;     //!< Pointer to extended sound data.
-    int baseoffset;     //!< Offset in the file to begin playback, excludes header.
-    int format;         //!< Sound format identifier.
-    int divider;        //!< Divider for playback rate adjustment.
-    int size;           //!< Size of the sound data in bytes.
-    int mono;           //!< Mono (0x10) or Stereo (0) output.
-    int isStreamed;     //!< Indicates if the sound is streamed.
-    u16 volumeLeft;     //!< Volume for the left channel.
-    u16 volumeRight;    //!< Volume for the right channel.
-    int suspendNumber;  //!< Suspend management counter.
-    int (*endCallback)(struct OSL_SOUND*, int); //!< Callback when playback finishes.
-    u8 userdata[32];    //!< Custom user data.
-    int numSamples;     //!< Number of samples per read.
-    void (*playSound)(struct OSL_SOUND*);       //!< Function to start playing the sound.
-    void (*stopSound)(struct OSL_SOUND*);       //!< Function to stop playing the sound.
-    int (*audioCallback)(unsigned int, void*, unsigned int); //!< Buffer fill callback.
-    VIRTUAL_FILE* (*standBySound)(struct OSL_SOUND*);        //!< Handle entering standby.
-    VIRTUAL_FILE** (*reactiveSound)(struct OSL_SOUND*, VIRTUAL_FILE*); //!< Handle exiting standby.
-    void (*deleteSound)(struct OSL_SOUND*);     //!< Function to delete the sound object.
+	char filename[64]; //!< Filename for reopening after standby, used if streamed.
+	void *data;     //!< Pointer to sound data, format-specific.
+	void *dataplus; //!< Pointer to extended sound data.
+	int baseoffset; //!< Offset in the file to begin playback, excludes header.
+	int format;     //!< Sound format identifier.
+	int divider;    //!< Divider for playback rate adjustment.
+	int size;       //!< Size of the sound data in bytes.
+	int mono;       //!< Mono (0x10) or Stereo (0) output.
+	int isStreamed; //!< Indicates if the sound is streamed.
+	u16 volumeLeft; //!< Volume for the left channel.
+	u16 volumeRight; //!< Volume for the right channel.
+	int suspendNumber; //!< Suspend management counter.
+	int (*endCallback)(struct OSL_SOUND*, int); //!< Callback when playback finishes.
+	u8 userdata[32]; //!< Custom user data.
+	int numSamples; //!< Number of samples per read.
+	void (*playSound)(struct OSL_SOUND*);   //!< Function to start playing the sound.
+	void (*stopSound)(struct OSL_SOUND*);   //!< Function to stop playing the sound.
+	int (*audioCallback)(unsigned int, void*, unsigned int); //!< Buffer fill callback.
+	VIRTUAL_FILE* (*standBySound)(struct OSL_SOUND*);    //!< Handle entering standby.
+	VIRTUAL_FILE** (*reactiveSound)(struct OSL_SOUND*, VIRTUAL_FILE*); //!< Handle exiting standby.
+	void (*deleteSound)(struct OSL_SOUND*); //!< Function to delete the sound object.
 } OSL_SOUND;
 
 /** @brief Channel information for internal system use only.
  */
 typedef struct {
-    int active;         //!< Active state of the channel.
-    int threadhandle;   //!< Handle for the associated thread.
-    int handle;         //!< Generic handle, context-specific.
-    void (*callback)(unsigned int channel, void *buf, unsigned int reqn); //!< Callback for this channel.
-    int inProgress;     //!< Flag to indicate if processing is ongoing.
+	int active;     //!< Active state of the channel.
+	int threadhandle; //!< Handle for the associated thread.
+	int handle;     //!< Generic handle, context-specific.
+	void (*callback)(unsigned int channel, void *buf, unsigned int reqn); //!< Callback for this channel.
+	int inProgress; //!< Flag to indicate if processing is ongoing.
 } osl_audio_channelinfo;
 
 /** @brief User-facing channel representation, primarily for sound drivers.
  */
 typedef struct {
-    void *data;         //!< Sound data pointer.
-    void *dataplus;     //!< Extended sound data pointer.
-    int format;         //!< Format of the sound.
-    int divider;        //!< Divider for rate adjustment.
-    int size;           //!< Size of sound data.
-    int mono;           //!< Mono or stereo output.
-    int isStreamed;     //!< Streaming state.
-    int numSamples;     //!< Samples per buffer fill.
-    OSL_SOUND *sound;   //!< Pointer to associated OSL_SOUND object.
+	void *data;     //!< Sound data pointer.
+	void *dataplus; //!< Extended sound data pointer.
+	int format;     //!< Format of the sound.
+	int divider;    //!< Divider for rate adjustment.
+	int size;       //!< Size of sound data.
+	int mono;       //!< Mono or stereo output.
+	int isStreamed; //!< Streaming state.
+	int numSamples; //!< Samples per buffer fill.
+	OSL_SOUND *sound; //!< Pointer to associated OSL_SOUND object.
 } OSL_AUDIO_VOICE;
 
 
@@ -78,21 +78,21 @@ typedef struct {
 
 /**
  * @brief Initializes the audio system.
- * 
+ *
  * This function must be called before any other audio-related functions to ensure proper operation.
  */
 extern int oslInitAudio();
 
 /**
  * @brief Deinitializes the audio system.
- * 
+ *
  * Call this function to stop all audio output and free resources. Make sure to delete all sound objects before calling this function.
  */
 extern void oslDeinitAudio();
 
 /**
  * @brief Initializes Media Engine audio support.
- * 
+ *
  * This function is required for playing AT3 and MP3 files and may need additional privileges depending on the firmware version.
  * @param formats Bitmask of formats to initialize, see oslInitAudioME_formats.
  */
@@ -105,7 +105,7 @@ extern void oslInitAudioME(int formats);
 
 /**
  * @brief Sets the default number of samples per audio buffer read.
- * 
+ *
  * Increasing this number reduces CPU usage but can cause longer blocks of audio processing.
  * @param num New default number of samples per buffer.
  */
@@ -122,7 +122,7 @@ extern int osl_audioDefaultNumSamples; //!< Default number of samples per buffer
 
 /**
  * @brief Loads a sound file and determines its format based on the file extension.
- * 
+ *
  * Supported formats include WAV, MP3, AT3, and BGM. The function selects streaming or full memory loading based on the 'stream' parameter.
  * @param filename Path to the sound file.
  * @param stream Streaming mode; OSL_FMT_STREAM for streaming, OSL_FMT_NONE for full loading.
@@ -134,9 +134,9 @@ extern OSL_SOUND *oslLoadSoundFile(const char *filename, int stream);
  * @brief Loads a WAV sound file.
  *
  * This function specifically handles the loading of WAV sound files. It determines whether to load the file entirely into memory or to stream it from disk based on the 'stream' parameter. For more details on the parameters and the behavior regarding streamed versus fully loaded sounds, refer to oslLoadSoundFile().
- * 
+ *
  * WAV files are a common uncompressed audio format that offers high fidelity, making them suitable for short sound effects where quality is a priority over file size.
- * 
+ *
  * @param filename Path to the WAV sound file. It should be a valid file stored on the memory stick. Alternate file sources have not been tested and may not work properly.
  * @param stream Determines the mode of operation:
  *               - OSL_FMT_STREAM: Sound is streamed from the file, minimizing memory usage but requiring more CPU resources.
@@ -151,11 +151,11 @@ extern OSL_SOUND *oslLoadSoundFileWAV(const char *filename, int stream);
  * @brief Loads a BGM sound file.
  *
  * This function is designed to load BGM (Background Music) files, a custom audio format specific to OSLib. The BGM format is optimized for space efficiency, storing sound data in a mono format which takes up less room compared to uncompressed formats like WAV.
- * 
+ *
  * The function determines whether to stream the sound or load it entirely into memory based on the 'stream' parameter. Streaming uses less memory but requires more CPU resources to handle real-time decoding and playback.
- * 
+ *
  * Encoders for creating BGM files and additional tools for handling them can be found in the OSLib distribution. Additional sound formats and utilities are provided in the OSTools extension library.
- * 
+ *
  * @param filename Path to the BGM sound file. Ensure that this is a valid path on the memory stick as alternate storage locations have not been extensively tested.
  * @param stream Determines the loading method:
  *               - OSL_FMT_STREAM: Stream the sound from the file, which uses less memory.
@@ -172,16 +172,16 @@ extern OSL_SOUND *oslLoadSoundFileBGM(const char *filename, int stream);
  * This function loads MOD format sound files, including variations like .mod, .it, .s3m, and .xm. MOD files are known for their tracker formats, widely used for creating music with pattern sequences.
  * It requires linking with the MikMod library (-lmikmod). Note that OSLib currently supports only one MOD sound being played at a time; attempting to play multiple MOD sounds concurrently may result in
  * unexpected behavior such as increased playback speed and volume.
- * 
+ *
  * @warning Streaming is not supported for MOD files. Always set the `stream` parameter to OSL_FMT_NONE to ensure the sound is loaded entirely into RAM. Using OSL_FMT_STREAM can lead to incompatibilities in future OSLib versions.
- * 
+ *
  * @warning MOD playback is resource-intensive, significantly impacting memory usage and CPU load. It can increase CPU usage by up to 50% with certain tracks. If your application is CPU-intensive, consider using a different sound format or adjusting the MOD sample rate with #oslSetModSampleRate to reduce the load.
- * 
+ *
  * It's less of an issue in applications that are GPU-intensive, where CPU cycles are available during GPU waits. Adjustments to the MOD playback settings should be carefully managed to balance performance and audio quality.
  *
  * @param filename Path to the MOD file. The file should be stored locally on the device as streaming is not supported.
  * @param stream Must be OSL_FMT_NONE. Streaming is not supported for MOD files due to their resource-intensive nature.
- * 
+ *
  * @return Pointer to the loaded OSL_SOUND structure, or NULL if the file fails to load. Ensure proper error handling in your application.
  *
  * @note Linking with -lmikmod is required to use this functionality.
@@ -241,7 +241,7 @@ OSL_SOUND *oslLoadSoundFileAT3(const char *filename, int stream);
  *              Values are powers of two; the actual playback speed is divided by 2^shift.
  *
  * @note Setting sample rates other than 44100, 22050, or 11025 Hz is not recommended as it can lead to untested and unpredictable behavior. Future versions of OSLib might not support such customizations.
- * 
+ *
  * @code
  * // Examples of typical usage:
  * oslSetModSampleRate(11025, 1, 2); // Very low CPU usage, reduced sound quality
@@ -473,14 +473,14 @@ extern void oslAudioVSync();
  * General audio format flags for basic settings and operations within OSLib.
  */
 enum {
-    OSL_FMT_NONE = 0  //!< Indicates no special format settings are applied. Used as a default or placeholder value.
+	OSL_FMT_NONE = 0 //!< Indicates no special format settings are applied. Used as a default or placeholder value.
 };
 
 /**
  * Mask flags used to isolate or filter out specific bits from format flags, typically used in bitwise operations.
  */
 enum {
-    OSL_FMT_MASK = 0xff  //!< Mask used to isolate or filter out specific bits from format flags, typically used in bitwise operations.
+	OSL_FMT_MASK = 0xff //!< Mask used to isolate or filter out specific bits from format flags, typically used in bitwise operations.
 };
 
 /**
@@ -488,18 +488,18 @@ enum {
  * These flags are used to set the properties of audio channels and to control how audio data is processed and delivered.
  */
 enum {
-    OSL_FMT_MONO = 0,     //!< Mono audio output. Indicates that audio is output through a single audio channel.
-    OSL_FMT_STEREO = 0x200, //!< Stereo audio output. Indicates that audio is output through two separate audio channels, typically left and right channels.
-    OSL_FMT_STREAM = 0x400 //!< Stream audio output. Indicates that audio data is streamed from a source rather than being fully preloaded, suitable for large audio files or network streams.
+	OSL_FMT_MONO = 0, //!< Mono audio output. Indicates that audio is output through a single audio channel.
+	OSL_FMT_STEREO = 0x200, //!< Stereo audio output. Indicates that audio is output through two separate audio channels, typically left and right channels.
+	OSL_FMT_STREAM = 0x400 //!< Stream audio output. Indicates that audio data is streamed from a source rather than being fully preloaded, suitable for large audio files or network streams.
 };
 
 /**
  * Sample rate options for audio playback.
  */
 enum {
-    OSL_FMT_44K = 0,          //!< 44,100 Hz sample rate.
-    OSL_FMT_22K = 1,          //!< 22,050 Hz sample rate.
-    OSL_FMT_11K = 2           //!< 11,025 Hz sample rate.
+	OSL_FMT_44K = 0,      //!< 44,100 Hz sample rate.
+	OSL_FMT_22K = 1,      //!< 22,050 Hz sample rate.
+	OSL_FMT_11K = 2       //!< 11,025 Hz sample rate.
 };
 
 /**
@@ -508,9 +508,9 @@ enum {
  * These are used with oslInitAudioME to prepare specific audio codecs.
  */
 enum oslInitAudioME_formats {
-    OSL_FMT_AT3 = 1,          //!< Atrac3 and Atrac3+ formats.
-    OSL_FMT_MP3 = 2,          //!< MPEG Audio-Layer 3 format.
-    OSL_FMT_ALL = 3           //!< All supported formats.
+	OSL_FMT_AT3 = 1,      //!< Atrac3 and Atrac3+ formats.
+	OSL_FMT_MP3 = 2,      //!< MPEG Audio-Layer 3 format.
+	OSL_FMT_ALL = 3       //!< All supported formats.
 };
 
 /** @} */ // end of audio_play
@@ -619,4 +619,4 @@ extern int oslSoundLoopFunc(OSL_SOUND *s, int voice);
 }
 #endif
 
-#endif	// AUDIO_H
+#endif  // AUDIO_H

@@ -7,10 +7,10 @@ extern "C" {
 
 /**
  * @defgroup math Math
- * 
+ *
  * Mathematical functions utilizing the PSP's Vector Floating Point Unit (VFPU).
- * 
- * These functions provide efficient mathematical computations by leveraging the 
+ *
+ * These functions provide efficient mathematical computations by leveraging the
  * VFPU on the PSP. They are based on the `libpspmath` library (version 4) by MrMr[iCE].
  * @{
  */
@@ -20,7 +20,7 @@ extern "C" {
 /**
  * @brief Set the seed for the VFPU random number generator.
  *
- * This function sets the initial seed value for generating random numbers using 
+ * This function sets the initial seed value for generating random numbers using
  * the VFPU random number generator.
  *
  * @param x The seed value to initialize the random number generator.
@@ -30,7 +30,7 @@ extern "C" {
 /**
  * @brief Generate a random floating-point value.
  *
- * This function returns a random floating-point number between the specified minimum 
+ * This function returns a random floating-point number between the specified minimum
  * and maximum values using the VFPU.
  *
  * @param min The minimum value that can be returned.

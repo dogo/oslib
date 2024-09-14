@@ -3,7 +3,7 @@
  * @brief VFPU functions for PSP.
  *
  * This file contains functions that utilize the PSP's Vector Floating Point Unit (VFPU)
- * for performing fast mathematical operations. These functions are particularly optimized 
+ * for performing fast mathematical operations. These functions are particularly optimized
  * for angles given in radians and operations involving a radius (rayon).
  */
 
@@ -35,11 +35,11 @@ extern "C" {
  *
  * This function computes the sine of an angle (given in radians) multiplied by the radius (rayon).
  * It is optimized for very fast execution on the PSP's VFPU.
- * 
+ *
  * @param angle The angle in radians.
  * @param rayon The radius (multiplier).
  * @return The sine of the angle multiplied by the radius.
- * 
+ *
  * @note This function uses the VFPU for fast computation. For angles in degrees, consider using #oslSin.
  */
 extern float oslVfpu_sinf(float angle, float rayon);
@@ -49,11 +49,11 @@ extern float oslVfpu_sinf(float angle, float rayon);
  *
  * This function computes the cosine of an angle (given in radians) multiplied by the radius (rayon).
  * It is optimized for very fast execution on the PSP's VFPU.
- * 
+ *
  * @param angle The angle in radians.
  * @param rayon The radius (multiplier).
  * @return The cosine of the angle multiplied by the radius.
- * 
+ *
  * @note This function uses the VFPU for fast computation. For angles in degrees, consider using #oslCos.
  */
 extern float oslVfpu_cosf(float angle, float rayon);

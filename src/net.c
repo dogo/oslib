@@ -26,7 +26,7 @@
 #include "oslib.h"
 #include "net.h"
 
-static int networkIsActive = 0;			//<-- STAS: network initialization flag
+static int networkIsActive = 0;                 //<-- STAS: network initialization flag
 
 int oslLoadNetModules()
 {
@@ -35,7 +35,7 @@ int oslLoadNetModules()
 	sceUtilityLoadNetModule(PSP_NET_MODULE_PARSEURI);
 	sceUtilityLoadNetModule(PSP_NET_MODULE_PARSEHTTP);
 	sceUtilityLoadNetModule(PSP_NET_MODULE_HTTP);
-    sceUtilityLoadNetModule(PSP_NET_MODULE_SSL);
+	sceUtilityLoadNetModule(PSP_NET_MODULE_SSL);
 	return 0;
 }
 
@@ -55,7 +55,7 @@ int oslUnloadNetModules()
 //Public API
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 int oslIsWlanPowerOn(){
-    return sceWlanDevIsPowerOn();
+	return sceWlanDevIsPowerOn();
 }
 
 
@@ -69,46 +69,46 @@ int oslIsWlanConnected(){
 }
 
 int oslGetNetConfigs(struct oslNetConfig *result){
-    int index = 0;
-    netData name, ip;
+	int index = 0;
+	netData name, ip;
 
-    for (index=1; index<OSL_MAX_NET_CONFIGS; index++){
-       if (sceUtilityCheckNetParam(index))
-          break;
+	for (index=1; index<OSL_MAX_NET_CONFIGS; index++){
+		if (sceUtilityCheckNetParam(index))
+			break;
 
-       sceUtilityGetNetParam(index, PSP_NETPARAM_NAME, &name);
-       sceUtilityGetNetParam(index, PSP_NETPARAM_IP, &ip);
+		sceUtilityGetNetParam(index, PSP_NETPARAM_NAME, &name);
+		sceUtilityGetNetParam(index, PSP_NETPARAM_IP, &ip);
 
-       strcpy(result[index - 1].name, name.asString);
-       strcpy(result[index - 1].IP, ip.asString);
-    }
-    return index - 1;
+		strcpy(result[index - 1].name, name.asString);
+		strcpy(result[index - 1].IP, ip.asString);
+	}
+	return index - 1;
 }
 
 //<-- STAS: intelligent NetTerm routine which takes care of exact oslNetInit step.
 //			Note: PSP sometime reboots when we try to deinitialize things not initialized yet.
 int oslNetTermEx(int step)
 {
-    switch(step) {
-      case 0:
+	switch(step) {
+	case 0:
 		sceHttpSaveSystemCookie();
-      case 7:
+	case 7:
 		sceHttpsEnd();
-      case 6:
+	case 6:
 		sceHttpEnd();
-      case 5:
+	case 5:
 		sceSslEnd();
-      case 4:
+	case 4:
 		sceNetApctlTerm();
-      case 3:
+	case 3:
 		sceNetResolverTerm();
-      case 2:
+	case 2:
 		sceNetInetTerm();
-      case 1:
+	case 1:
 		sceNetTerm();
-    }
+	}
 	oslUnloadNetModules();
-	networkIsActive = 0;			//<-- STAS: network is uninitialized marker
+	networkIsActive = 0;                    //<-- STAS: network is uninitialized marker
 	return 0;
 }
 
@@ -124,7 +124,7 @@ int oslNetInit()
 	int res;
 
 	oslLoadNetModules();
-    res = sceNetInit(128*1024, 42, 4*1024, 42, 4*1024);
+	res = sceNetInit(128*1024, 42, 4*1024, 42, 4*1024);
 	if (res < 0)
 		return OSL_NET_ERROR_NET;
 
@@ -141,7 +141,7 @@ int oslNetInit()
 		return OSL_NET_ERROR_RESOLVER;
 	}
 
-    res = sceNetApctlInit(0x10000, 48);
+	res = sceNetApctlInit(0x10000, 48);
 	if (res < 0)
 	{
 		oslNetTermEx(3);
@@ -182,96 +182,96 @@ int oslNetInit()
 		oslNetTermEx(7);
 		return OSL_NET_ERROR_COOKIE;
 	}
-	networkIsActive = 1;			//<-- STAS: network is initialized marker
+	networkIsActive = 1;                    //<-- STAS: network is initialized marker
 	return 0;
 }
 
 
 int oslNetTerm()
 {
-	return oslNetTermEx(0);			//<-- STAS: full deinitialization
+	return oslNetTermEx(0);                 //<-- STAS: full deinitialization
 }
 
 int oslGetIPaddress(char *IPaddress){
-    union SceNetApctlInfo apctlInfo;
-    strcpy(IPaddress, "");
+	union SceNetApctlInfo apctlInfo;
+	strcpy(IPaddress, "");
 
-    if (sceNetApctlGetInfo(PSP_NET_APCTL_INFO_IP, &apctlInfo)) {
-        return OSL_ERR_APCTL_GETINFO;
-    }
+	if (sceNetApctlGetInfo(PSP_NET_APCTL_INFO_IP, &apctlInfo)) {
+		return OSL_ERR_APCTL_GETINFO;
+	}
 
-    strcpy(IPaddress, apctlInfo.ip);
-    return 0;
+	strcpy(IPaddress, apctlInfo.ip);
+	return 0;
 }
 
 int oslConnectToAP(int config, int timeout,
                    int (*apctlCallback)(int state)){
-    int err = 0;
-    int stateLast = -1;
+	int err = 0;
+	int stateLast = -1;
 
-    if (!oslIsWlanPowerOn()) {
-        return OSL_ERR_WLAN_OFF;
-    }
+	if (!oslIsWlanPowerOn()) {
+		return OSL_ERR_WLAN_OFF;
+	}
 
-    err = sceNetApctlConnect(config);
-    if (err)
-        return OSL_ERR_APCTL_CONNECT;
+	err = sceNetApctlConnect(config);
+	if (err)
+		return OSL_ERR_APCTL_CONNECT;
 
-    time_t startTime;
-    time_t currTime;
-    time(&startTime);
+	time_t startTime;
+	time_t currTime;
+	time(&startTime);
 
-    while (!osl_quit){
-        // Check timeout
-        time(&currTime);
-        if (currTime - startTime >= timeout){
-            if (apctlCallback != NULL)
-                (*apctlCallback)(OSL_ERR_APCTL_TIMEOUT);
-            oslDisconnectFromAP();
-            err = OSL_ERR_APCTL_TIMEOUT;
-            break;
-        }
+	while (!osl_quit){
+		// Check timeout
+		time(&currTime);
+		if (currTime - startTime >= timeout){
+			if (apctlCallback != NULL)
+				(*apctlCallback)(OSL_ERR_APCTL_TIMEOUT);
+			oslDisconnectFromAP();
+			err = OSL_ERR_APCTL_TIMEOUT;
+			break;
+		}
 
-        int state;
-        err = sceNetApctlGetState(&state);
-        if (err){
-            if (apctlCallback != NULL)
-                (*apctlCallback)(OSL_ERR_APCTL_GETSTATE);
-            oslDisconnectFromAP();
-            err = OSL_ERR_APCTL_GETSTATE;
-            break;
-        }
+		int state;
+		err = sceNetApctlGetState(&state);
+		if (err){
+			if (apctlCallback != NULL)
+				(*apctlCallback)(OSL_ERR_APCTL_GETSTATE);
+			oslDisconnectFromAP();
+			err = OSL_ERR_APCTL_GETSTATE;
+			break;
+		}
 
-        if (state > stateLast){
-            stateLast = state;
-            if (apctlCallback != NULL){
-                if ((*apctlCallback)(state)){
-                    err = OSL_USER_ABORTED;
-                    break;
-                }
-            }
-        }
+		if (state > stateLast){
+			stateLast = state;
+			if (apctlCallback != NULL){
+				if ((*apctlCallback)(state)){
+					err = OSL_USER_ABORTED;
+					break;
+				}
+			}
+		}
 
-        if (state == PSP_NET_APCTL_STATE_GOT_IP)
-            break;  // connected with static IP
+		if (state == PSP_NET_APCTL_STATE_GOT_IP)
+			break; // connected with static IP
 
-        sceKernelDelayThread(50*1000);
-    }
+		sceKernelDelayThread(50*1000);
+	}
 
-    return err;
+	return err;
 }
 
 int oslDisconnectFromAP(){
-    sceNetApctlDisconnect();
-    return 0;
+	sceNetApctlDisconnect();
+	return 0;
 }
 
 int oslGetAPState(){
-    int state;
-    int err = sceNetApctlGetState(&state);
-    if (err)
-        return OSL_ERR_APCTL_GETSTATE;
-    return state;
+	int state;
+	int err = sceNetApctlGetState(&state);
+	if (err)
+		return OSL_ERR_APCTL_GETSTATE;
+	return state;
 }
 
 
@@ -284,7 +284,7 @@ int oslResolveAddress(char *address, char *resolvedIP){
 		return OSL_ERR_RESOLVER_RESOLVING;
 
 	sprintf(resolvedIP, inet_ntoa(*((struct in_addr *)host->h_addr)));
-    return 0;
+	return 0;
 }
 
 
@@ -294,11 +294,11 @@ int oslNetGetFile(const char *url, const char *filepath)
 	//SceULong64 contentsize;
 	unsigned char readbuffer[8192];
 /*										//<-- STAS: HTTP library was already initialized (see oslNetInit()) !
-	ret = sceHttpInit(20000);
+        ret = sceHttpInit(20000);
 
-	if(ret < 0)
-		return OSL_ERR_HTTP_INIT;
-*/										//<-- STAS END -->
+        if(ret < 0)
+                return OSL_ERR_HTTP_INIT;
+ */     //<-- STAS END -->
 	template = sceHttpCreateTemplate("OSL-agent/0.0.1 libhttp/1.0.0", 1, 1);
 	if(template < 0)
 		return OSL_ERR_HTTP_TEMPLATE;
@@ -335,10 +335,10 @@ int oslNetGetFile(const char *url, const char *filepath)
 		return 0;
 
 	/* Strangelove fix
-	ret = sceHttpGetContentLength(request, &contentsize);
-	if(ret < 0)
-		return OSL_ERR_HTTP_GENERIC;
-	*/
+	   ret = sceHttpGetContentLength(request, &contentsize);
+	   if(ret < 0)
+	        return OSL_ERR_HTTP_GENERIC;
+	 */
 
 	dataend = 0;
 	byteswritten = 0;
@@ -379,10 +379,10 @@ int oslNetPostForm(const char *url, char *data, char *response, unsigned int res
 {
 	int template, connection, request, ret, status;
 /*										//<-- STAS: HTTP library was already initialized (see oslNetInit()) !
-	ret = sceHttpInit(20000);
-	if(ret < 0)
-		return OSL_ERR_HTTP_INIT;
-*/										//<-- STAS END -->
+        ret = sceHttpInit(20000);
+        if(ret < 0)
+                return OSL_ERR_HTTP_INIT;
+ */     //<-- STAS END -->
 	template = sceHttpCreateTemplate("OSL-agent/0.0.1 libhttp/1.0.0", 1, 1);
 	if(template < 0)
 	{
@@ -600,7 +600,7 @@ int oslNetSocketSetIsMember(int socket, fd_set *set)
 	if(FD_ISSET(socket, set))
 		return 1;
 
-	return 0 ;
+	return 0;
 }
 
 int oslNetSocketSetSelect(unsigned int maxsockets, fd_set *set)

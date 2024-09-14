@@ -31,8 +31,8 @@ void oslInitMultiSaveDialog(struct oslSaveLoad *saveData){
 
 	savedata.base.size = sizeof(SceUtilitySavedataParam);
 
-    sceUtilityGetSystemParamInt(PSP_SYSTEMPARAM_ID_INT_LANGUAGE, &savedata.base.language);
-    sceUtilityGetSystemParamInt(PSP_SYSTEMPARAM_ID_INT_UNKNOWN, &savedata.base.buttonSwap);
+	sceUtilityGetSystemParamInt(PSP_SYSTEMPARAM_ID_INT_LANGUAGE, &savedata.base.language);
+	sceUtilityGetSystemParamInt(PSP_SYSTEMPARAM_ID_INT_UNKNOWN, &savedata.base.buttonSwap);
 	savedata.base.graphicsThread = 0x11;
 	savedata.base.accessThread = 0x13;
 	savedata.base.fontThread = 0x12;
@@ -45,21 +45,21 @@ void oslInitMultiSaveDialog(struct oslSaveLoad *saveData){
 #if _PSP_FW_VERSION >= 200
 	strncpy(savedata.key, key, 16);
 #endif
-	strcpy(savedata.gameName, saveData->gameID);	// First part of the save name, game identifier name
-	strcpy(savedata.saveName, saveData->saveName);	// Second part of the save name, save identifier name
+	strcpy(savedata.gameName, saveData->gameID);    // First part of the save name, game identifier name
+	strcpy(savedata.saveName, saveData->saveName);  // Second part of the save name, save identifier name
 
 	// List of multiple names
 	savedata.saveNameList = saveData->nameList;
 
-	strcpy(savedata.fileName, "DATA.BIN");	// name of the data file
+	strcpy(savedata.fileName, "DATA.BIN");  // name of the data file
 
 	// Allocate buffers used to store various parts of the save data
 	savedata.dataBuf = malloc(saveData->dataSize);
 	savedata.dataBufSize = saveData->dataSize;
 	savedata.dataSize = saveData->dataSize;
 
-    memset(savedata.dataBuf, 0, saveData->dataSize);
-    memcpy(savedata.dataBuf, saveData->data, saveData->dataSize);
+	memset(savedata.dataBuf, 0, saveData->dataSize);
+	memcpy(savedata.dataBuf, saveData->data, saveData->dataSize);
 
 	strcpy(savedata.sfoParam.title, saveData->gameTitle);
 	strcpy(savedata.sfoParam.savedataTitle, saveData->savedataTitle);
@@ -91,8 +91,8 @@ void oslInitMultiSaveDialog(struct oslSaveLoad *saveData){
 	savedata.newData = &newData;
 
 	savedata.focus = PSP_UTILITY_SAVEDATA_FOCUS_FIRSTEMPTY;
-    sceUtilitySavedataInitStart(&savedata);
-    saveLoadType = OSL_DIALOG_SAVE;
+	sceUtilitySavedataInitStart(&savedata);
+	saveLoadType = OSL_DIALOG_SAVE;
 }
 
 void oslInitSingleSaveDialog(struct oslSaveLoad *saveData){
@@ -101,8 +101,8 @@ void oslInitSingleSaveDialog(struct oslSaveLoad *saveData){
 
 	savedata.base.size = sizeof(SceUtilitySavedataParam);
 
-    sceUtilityGetSystemParamInt(PSP_SYSTEMPARAM_ID_INT_LANGUAGE, &savedata.base.language);
-    sceUtilityGetSystemParamInt(PSP_SYSTEMPARAM_ID_INT_UNKNOWN, &savedata.base.buttonSwap);
+	sceUtilityGetSystemParamInt(PSP_SYSTEMPARAM_ID_INT_LANGUAGE, &savedata.base.language);
+	sceUtilityGetSystemParamInt(PSP_SYSTEMPARAM_ID_INT_UNKNOWN, &savedata.base.buttonSwap);
 	savedata.base.graphicsThread = 0x11;
 	savedata.base.accessThread = 0x13;
 	savedata.base.fontThread = 0x12;
@@ -116,21 +116,21 @@ void oslInitSingleSaveDialog(struct oslSaveLoad *saveData){
 #if _PSP_FW_VERSION >= 200
 	strncpy(savedata.key, key, 16);
 #endif
-	strcpy(savedata.gameName, saveData->gameID);	// First part of the save name, game identifier name
-	strcpy(savedata.saveName, saveData->saveName);	// Second part of the save name, save identifier name
+	strcpy(savedata.gameName, saveData->gameID);    // First part of the save name, game identifier name
+	strcpy(savedata.saveName, saveData->saveName);  // Second part of the save name, save identifier name
 
 	// List of multiple names
 	//savedata.saveNameList = saveData->nameList;
 
-	strcpy(savedata.fileName, "DATA.BIN");	// name of the data file
+	strcpy(savedata.fileName, "DATA.BIN");  // name of the data file
 
 	// Allocate buffers used to store various parts of the save data
 	savedata.dataBuf = malloc(saveData->dataSize);
 	savedata.dataBufSize = saveData->dataSize;
 	savedata.dataSize = saveData->dataSize;
 
-    memset(savedata.dataBuf, 0, saveData->dataSize);
-    memcpy(savedata.dataBuf, saveData->data, saveData->dataSize);
+	memset(savedata.dataBuf, 0, saveData->dataSize);
+	memcpy(savedata.dataBuf, saveData->data, saveData->dataSize);
 
 	strcpy(savedata.sfoParam.title, saveData->gameTitle);
 	strcpy(savedata.sfoParam.savedataTitle, saveData->savedataTitle);
@@ -162,8 +162,8 @@ void oslInitSingleSaveDialog(struct oslSaveLoad *saveData){
 	savedata.newData = &newData;
 
 	//savedata.focus = PSP_UTILITY_SAVEDATA_FOCUS_FIRSTEMPTY;
-    sceUtilitySavedataInitStart(&savedata);
-    saveLoadType = OSL_DIALOG_SAVE;
+	sceUtilitySavedataInitStart(&savedata);
+	saveLoadType = OSL_DIALOG_SAVE;
 }
 
 void oslInitAutoSaveDialog(struct oslSaveLoad *saveData){
@@ -172,8 +172,8 @@ void oslInitAutoSaveDialog(struct oslSaveLoad *saveData){
 
 	savedata.base.size = sizeof(SceUtilitySavedataParam);
 
-    sceUtilityGetSystemParamInt(PSP_SYSTEMPARAM_ID_INT_LANGUAGE, &savedata.base.language);
-    sceUtilityGetSystemParamInt(PSP_SYSTEMPARAM_ID_INT_UNKNOWN, &savedata.base.buttonSwap);
+	sceUtilityGetSystemParamInt(PSP_SYSTEMPARAM_ID_INT_LANGUAGE, &savedata.base.language);
+	sceUtilityGetSystemParamInt(PSP_SYSTEMPARAM_ID_INT_UNKNOWN, &savedata.base.buttonSwap);
 	savedata.base.graphicsThread = 0x11;
 	savedata.base.accessThread = 0x13;
 	savedata.base.fontThread = 0x12;
@@ -187,21 +187,21 @@ void oslInitAutoSaveDialog(struct oslSaveLoad *saveData){
 #if _PSP_FW_VERSION >= 200
 	strncpy(savedata.key, key, 16);
 #endif
-	strcpy(savedata.gameName, saveData->gameID);	// First part of the save name, game identifier name
-	strcpy(savedata.saveName, saveData->saveName);	// Second part of the save name, save identifier name
+	strcpy(savedata.gameName, saveData->gameID);    // First part of the save name, game identifier name
+	strcpy(savedata.saveName, saveData->saveName);  // Second part of the save name, save identifier name
 
 	// List of multiple names
 	//savedata.saveNameList = saveData->nameList;
 
-	strcpy(savedata.fileName, "DATA.BIN");	// name of the data file
+	strcpy(savedata.fileName, "DATA.BIN");  // name of the data file
 
 	// Allocate buffers used to store various parts of the save data
 	savedata.dataBuf = malloc(saveData->dataSize);
 	savedata.dataBufSize = saveData->dataSize;
 	savedata.dataSize = saveData->dataSize;
 
-    memset(savedata.dataBuf, 0, saveData->dataSize);
-    memcpy(savedata.dataBuf, saveData->data, saveData->dataSize);
+	memset(savedata.dataBuf, 0, saveData->dataSize);
+	memcpy(savedata.dataBuf, saveData->data, saveData->dataSize);
 
 	strcpy(savedata.sfoParam.title, saveData->gameTitle);
 	strcpy(savedata.sfoParam.savedataTitle, saveData->savedataTitle);
@@ -233,8 +233,8 @@ void oslInitAutoSaveDialog(struct oslSaveLoad *saveData){
 	savedata.newData = &newData;
 
 	//savedata.focus = PSP_UTILITY_SAVEDATA_FOCUS_FIRSTEMPTY;
-    sceUtilitySavedataInitStart(&savedata);
-    saveLoadType = OSL_DIALOG_SAVE;
+	sceUtilitySavedataInitStart(&savedata);
+	saveLoadType = OSL_DIALOG_SAVE;
 }
 
 void oslInitLoadDialog(struct oslSaveLoad *loadData){
@@ -253,8 +253,8 @@ void oslInitMultiLoadDialog(struct oslSaveLoad *loadData){
 	memset(&savedata, 0, sizeof(SceUtilitySavedataParam));
 	savedata.base.size = sizeof(SceUtilitySavedataParam);
 
-    sceUtilityGetSystemParamInt(PSP_SYSTEMPARAM_ID_INT_LANGUAGE, &savedata.base.language);
-    sceUtilityGetSystemParamInt(PSP_SYSTEMPARAM_ID_INT_UNKNOWN, &savedata.base.buttonSwap);
+	sceUtilityGetSystemParamInt(PSP_SYSTEMPARAM_ID_INT_LANGUAGE, &savedata.base.language);
+	sceUtilityGetSystemParamInt(PSP_SYSTEMPARAM_ID_INT_UNKNOWN, &savedata.base.buttonSwap);
 	savedata.base.graphicsThread = 0x11;
 	savedata.base.accessThread = 0x13;
 	savedata.base.fontThread = 0x12;
@@ -267,28 +267,28 @@ void oslInitMultiLoadDialog(struct oslSaveLoad *loadData){
 #if _PSP_FW_VERSION >= 200
 	strncpy(savedata.key, key, 16);
 #endif
-	strcpy(savedata.gameName, loadData->gameID);	// First part of the save name, game identifier name
-	strcpy(savedata.saveName, loadData->saveName);	// Second part of the save name, save identifier name
+	strcpy(savedata.gameName, loadData->gameID);    // First part of the save name, game identifier name
+	strcpy(savedata.saveName, loadData->saveName);  // Second part of the save name, save identifier name
 
 	// List of multiple names
 	savedata.saveNameList = loadData->nameList;
 
-	strcpy(savedata.fileName, "DATA.BIN");	// name of the data file
+	strcpy(savedata.fileName, "DATA.BIN");  // name of the data file
 
-    savedata.dataBuf = loadData->data;
+	savedata.dataBuf = loadData->data;
 	savedata.dataBufSize = loadData->dataSize;
 	savedata.dataSize = loadData->dataSize;
 
-    sceUtilitySavedataInitStart(&savedata);
-    saveLoadType = OSL_DIALOG_LOAD;
+	sceUtilitySavedataInitStart(&savedata);
+	saveLoadType = OSL_DIALOG_LOAD;
 }
 
 void oslInitSingleLoadDialog(struct oslSaveLoad *loadData){
 	memset(&savedata, 0, sizeof(SceUtilitySavedataParam));
 	savedata.base.size = sizeof(SceUtilitySavedataParam);
 
-    sceUtilityGetSystemParamInt(PSP_SYSTEMPARAM_ID_INT_LANGUAGE, &savedata.base.language);
-    sceUtilityGetSystemParamInt(PSP_SYSTEMPARAM_ID_INT_UNKNOWN, &savedata.base.buttonSwap);
+	sceUtilityGetSystemParamInt(PSP_SYSTEMPARAM_ID_INT_LANGUAGE, &savedata.base.language);
+	sceUtilityGetSystemParamInt(PSP_SYSTEMPARAM_ID_INT_UNKNOWN, &savedata.base.buttonSwap);
 	savedata.base.graphicsThread = 0x11;
 	savedata.base.accessThread = 0x13;
 	savedata.base.fontThread = 0x12;
@@ -302,28 +302,28 @@ void oslInitSingleLoadDialog(struct oslSaveLoad *loadData){
 #if _PSP_FW_VERSION >= 200
 	strncpy(savedata.key, key, 16);
 #endif
-	strcpy(savedata.gameName, loadData->gameID);	// First part of the save name, game identifier name
-	strcpy(savedata.saveName, loadData->saveName);	// Second part of the save name, save identifier name
+	strcpy(savedata.gameName, loadData->gameID);    // First part of the save name, game identifier name
+	strcpy(savedata.saveName, loadData->saveName);  // Second part of the save name, save identifier name
 
 	// List of multiple names
 	//savedata.saveNameList = loadData->nameList;
 
-	strcpy(savedata.fileName, "DATA.BIN");	// name of the data file
+	strcpy(savedata.fileName, "DATA.BIN");  // name of the data file
 
-    savedata.dataBuf = loadData->data;
+	savedata.dataBuf = loadData->data;
 	savedata.dataBufSize = loadData->dataSize;
 	savedata.dataSize = loadData->dataSize;
 
-    sceUtilitySavedataInitStart(&savedata);
-    saveLoadType = OSL_DIALOG_LOAD;
+	sceUtilitySavedataInitStart(&savedata);
+	saveLoadType = OSL_DIALOG_LOAD;
 }
 
 void oslInitAutoLoadDialog(struct oslSaveLoad *loadData){
 	memset(&savedata, 0, sizeof(SceUtilitySavedataParam));
 	savedata.base.size = sizeof(SceUtilitySavedataParam);
 
-    sceUtilityGetSystemParamInt(PSP_SYSTEMPARAM_ID_INT_LANGUAGE, &savedata.base.language);
-    sceUtilityGetSystemParamInt(PSP_SYSTEMPARAM_ID_INT_UNKNOWN, &savedata.base.buttonSwap);
+	sceUtilityGetSystemParamInt(PSP_SYSTEMPARAM_ID_INT_LANGUAGE, &savedata.base.language);
+	sceUtilityGetSystemParamInt(PSP_SYSTEMPARAM_ID_INT_UNKNOWN, &savedata.base.buttonSwap);
 	savedata.base.graphicsThread = 0x11;
 	savedata.base.accessThread = 0x13;
 	savedata.base.fontThread = 0x12;
@@ -337,20 +337,20 @@ void oslInitAutoLoadDialog(struct oslSaveLoad *loadData){
 #if _PSP_FW_VERSION >= 200
 	strncpy(savedata.key, key, 16);
 #endif
-	strcpy(savedata.gameName, loadData->gameID);	// First part of the save name, game identifier name
-	strcpy(savedata.saveName, loadData->saveName);	// Second part of the save name, save identifier name
+	strcpy(savedata.gameName, loadData->gameID);    // First part of the save name, game identifier name
+	strcpy(savedata.saveName, loadData->saveName);  // Second part of the save name, save identifier name
 
 	// List of multiple names
 	//savedata.saveNameList = loadData->nameList;
 
-	strcpy(savedata.fileName, "DATA.BIN");	// name of the data file
+	strcpy(savedata.fileName, "DATA.BIN");  // name of the data file
 
-    savedata.dataBuf = loadData->data;
+	savedata.dataBuf = loadData->data;
 	savedata.dataBufSize = loadData->dataSize;
 	savedata.dataSize = loadData->dataSize;
 
-    sceUtilitySavedataInitStart(&savedata);
-    saveLoadType = OSL_DIALOG_LOAD;
+	sceUtilitySavedataInitStart(&savedata);
+	saveLoadType = OSL_DIALOG_LOAD;
 }
 
 void oslInitDeleteDialog(struct oslSaveLoad *deleteData){
@@ -358,8 +358,8 @@ void oslInitDeleteDialog(struct oslSaveLoad *deleteData){
 	memset(&savedata, 0, sizeof(SceUtilitySavedataParam));
 	savedata.base.size = sizeof(SceUtilitySavedataParam);
 
-    sceUtilityGetSystemParamInt(PSP_SYSTEMPARAM_ID_INT_LANGUAGE, &savedata.base.language);
-    sceUtilityGetSystemParamInt(PSP_SYSTEMPARAM_ID_INT_UNKNOWN, &savedata.base.buttonSwap);
+	sceUtilityGetSystemParamInt(PSP_SYSTEMPARAM_ID_INT_LANGUAGE, &savedata.base.language);
+	sceUtilityGetSystemParamInt(PSP_SYSTEMPARAM_ID_INT_UNKNOWN, &savedata.base.buttonSwap);
 	savedata.base.graphicsThread = 0x11;
 	savedata.base.accessThread = 0x13;
 	savedata.base.fontThread = 0x12;
@@ -373,59 +373,59 @@ void oslInitDeleteDialog(struct oslSaveLoad *deleteData){
 #if _PSP_FW_VERSION >= 200
 	strncpy(savedata.key, key, 16);
 #endif
-	strcpy(savedata.gameName, deleteData->gameID);	// First part of the save name, game identifier name
-	strcpy(savedata.saveName, deleteData->saveName);	// Second part of the save name, save identifier name
+	strcpy(savedata.gameName, deleteData->gameID);  // First part of the save name, game identifier name
+	strcpy(savedata.saveName, deleteData->saveName);        // Second part of the save name, save identifier name
 
 	// List of multiple names
 	//char nameList[][20] = {"",""};
 	//strcpy(nameList[0][0],deleteData->saveName);
 	savedata.saveNameList = deleteData->nameList;
 
-	strcpy(savedata.fileName, "DATA.BIN");	// name of the data file
+	strcpy(savedata.fileName, "DATA.BIN");  // name of the data file
 
-    savedata.dataBuf = deleteData->data;
+	savedata.dataBuf = deleteData->data;
 	savedata.dataBufSize = deleteData->dataSize;
 	savedata.dataSize = deleteData->dataSize;
 
-    sceUtilitySavedataInitStart(&savedata);
-    saveLoadType = OSL_DIALOG_DELETE;
+	sceUtilitySavedataInitStart(&savedata);
+	saveLoadType = OSL_DIALOG_DELETE;
 }
 
 void oslDrawSaveLoad(){
 	switch(sceUtilitySavedataGetStatus()) {
-		case PSP_UTILITY_DIALOG_INIT:
-		case PSP_UTILITY_DIALOG_VISIBLE:
-			sceGuFinish();
-			sceGuSync(0,0);
-			sceUtilitySavedataUpdate(1);
-			sceGuStart(GU_DIRECT, osl_list);
-			oslSetAlpha(OSL_FX_RGBA, 0xff);
-            break;
-        case PSP_UTILITY_DIALOG_QUIT:
-            sceUtilitySavedataShutdownStart();
-            break;
-		case PSP_UTILITY_DIALOG_FINISHED:
-        case PSP_UTILITY_DIALOG_NONE:
-			break;
+	case PSP_UTILITY_DIALOG_INIT:
+	case PSP_UTILITY_DIALOG_VISIBLE:
+		sceGuFinish();
+		sceGuSync(0,0);
+		sceUtilitySavedataUpdate(1);
+		sceGuStart(GU_DIRECT, osl_list);
+		oslSetAlpha(OSL_FX_RGBA, 0xff);
+		break;
+	case PSP_UTILITY_DIALOG_QUIT:
+		sceUtilitySavedataShutdownStart();
+		break;
+	case PSP_UTILITY_DIALOG_FINISHED:
+	case PSP_UTILITY_DIALOG_NONE:
+		break;
 	}
 }
 
 
 int oslGetLoadSaveStatus(){
-    return sceUtilitySavedataGetStatus();
+	return sceUtilitySavedataGetStatus();
 }
 
 
 int oslGetSaveLoadType(){
-    return saveLoadType;
+	return saveLoadType;
 }
 
 
 int oslSaveLoadGetResult(){
-    return savedata.base.result;
+	return savedata.base.result;
 }
 
 
 void oslEndSaveLoadDialog(){
-    saveLoadType = OSL_DIALOG_NONE;
+	saveLoadType = OSL_DIALOG_NONE;
 }

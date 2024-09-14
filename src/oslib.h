@@ -2,10 +2,10 @@
  * @file oslib.h
  * @brief Main Oldschool Library header file.
  *
- * This header defines the main structures, macros, and functions used in the 
- * OldSchool Library (OSLib) framework. OSLib provides a comprehensive set of tools 
- * for developing applications on the PSP platform, including graphics, input handling, 
- * memory management, and more. This file includes both general utility functions 
+ * This header defines the main structures, macros, and functions used in the
+ * OldSchool Library (OSLib) framework. OSLib provides a comprehensive set of tools
+ * for developing applications on the PSP platform, including graphics, input handling,
+ * memory management, and more. This file includes both general utility functions
  * and platform-specific implementations for the PSP.
  */
 
@@ -45,8 +45,8 @@ extern "C" {
  * @defgroup main Main
  * @brief Main OSLib section.
  *
- * This section contains the core functionalities of OSLib, including initialization, 
- * termination, and synchronization routines. It also includes various utility functions 
+ * This section contains the core functionalities of OSLib, including initialization,
+ * termination, and synchronization routines. It also includes various utility functions
  * and definitions that are commonly used throughout the library.
  * @{
  */
@@ -55,8 +55,8 @@ extern "C" {
  * @defgroup main_general General
  * @brief General routines to initialize and terminate the library.
  *
- * These functions are responsible for setting up and tearing down the OSLib environment. 
- * Initialization typically involves configuring system settings and allocating necessary 
+ * These functions are responsible for setting up and tearing down the OSLib environment.
+ * Initialization typically involves configuring system settings and allocating necessary
  * resources, while termination handles cleanup and resource deallocation.
  * @{
  */
@@ -65,35 +65,35 @@ extern "C" {
 #define OSL_VERSION "1.3.0"
 
 /** @brief Initializes the library.
- * 
- * This function initializes the OSLib environment. The flags parameter is used 
- * to control specific initialization options, which are primarily intended for 
+ *
+ * This function initializes the OSLib environment. The flags parameter is used
+ * to control specific initialization options, which are primarily intended for
  * advanced users.
  *
- * @param flags Can be formed of one or more of the values from the 
+ * @param flags Can be formed of one or more of the values from the
  * \ref OSL_INITFLAGS enumeration (ORed together).
  */
 extern void oslInit(int flags);
 
 /** @brief Flags for oslInit function.
- * 
+ *
  * These flags control specific aspects of the initialization process.
  */
 enum OSL_INITFLAGS {
-    OSL_IF_USEOWNCALLBACKS = 1, /*!< Do not set up the standard callbacks. You'll have to provide them by yourself as shown in almost all PSPSDK samples. */
-    OSL_IF_NOVBLANKIRQ = 2 /*!< Do not reserve the VBLANK IRQ. You should set up your own VBL handler, which should call oslVblankNextFrame() if osl_vblankCounterActive is TRUE, else oslSyncFrame(Ex) will not work properly. */
+	OSL_IF_USEOWNCALLBACKS = 1, /*!< Do not set up the standard callbacks. You'll have to provide them by yourself as shown in almost all PSPSDK samples. */
+	OSL_IF_NOVBLANKIRQ = 2 /*!< Do not reserve the VBLANK IRQ. You should set up your own VBL handler, which should call oslVblankNextFrame() if osl_vblankCounterActive is TRUE, else oslSyncFrame(Ex) will not work properly. */
 };
 
 /** @brief Exits the application immediately.
- * 
- * This function terminates the application and returns to the XMB (PSP main menu) or 
+ *
+ * This function terminates the application and returns to the XMB (PSP main menu) or
  * to the calling application (e.g., IRShell).
  */
 extern void oslQuit();
 
 /** @brief Sets the "no fail" mode.
- * 
- * In this mode, if OSLib cannot load a file (for example, an image), it will display a 
+ *
+ * In this mode, if OSLib cannot load a file (for example, an image), it will display a
  * message indicating the name of the missing file and then quit immediately.
  *
  * @param enabled Enables or disables the no-fail feature.
@@ -101,8 +101,8 @@ extern void oslQuit();
 #define oslSetQuitOnLoadFailure(enabled) (osl_noFail = (enabled))
 
 /** @brief Sets the function to call in case of failure to load something.
- * 
- * The default behavior is to display a message box. This function allows you to 
+ *
+ * The default behavior is to display a message box. This function allows you to
  * override that behavior with your custom function.
  *
  * @param function Function pointer to be called on load failure.
@@ -110,9 +110,9 @@ extern void oslQuit();
 #define oslSetQuitOnLoadFailureCallback(function) (osl_noFailCallback = function)
 
 /** @brief Sets an exit callback.
- * 
- * This function is executed when the user chooses "Exit" from the HOME menu. 
- * By default, this callback sets osl_quit to true, indicating that the application 
+ *
+ * This function is executed when the user chooses "Exit" from the HOME menu.
+ * By default, this callback sets osl_quit to true, indicating that the application
  * should quit. You can provide your custom callback function to handle the exit process.
  *
  * @param function Function pointer to be executed as the exit callback.
@@ -167,33 +167,33 @@ extern void oslHandleLoadNoFailError(const char *filename);
  * @defgroup main_sync Synchronization
  * @brief Synchronization routines for your game.
  *
- * These functions are used to synchronize the game's frame rate and ensure smooth 
- * rendering and input handling. They include functions for managing frame skipping 
+ * These functions are used to synchronize the game's frame rate and ensure smooth
+ * rendering and input handling. They include functions for managing frame skipping
  * and VSync.
  * @{
  */
 
 /** @brief Sets the current fixed frameskipping value.
- * 
- * @param val 1 enables auto frameskip, 2 or more enables fixed skipping 
+ *
+ * @param val 1 enables auto frameskip, 2 or more enables fixed skipping
  * (val-1 frames out of val are skipped).
  */
 #define oslSetFrameskip(val) (osl_frameskip = val)
 
 /** @brief Sets the maximum frameskip value.
- * 
+ *
  * @param val Maximum frameskip value.
  */
 #define oslSetMaxFrameskip(val) (osl_maxFrameskip = val)
 
 /** @brief Sets the VSync parameter.
- * 
+ *
  * @param val VSync parameter value.
  */
 #define oslSetVSync(val) (osl_vsyncEnabled = val)
 
 /** @brief Synchronization function to be called at the end of a frame.
- * 
+ *
  * This function synchronizes the frame rate based on the current frameskip and VSync settings.
  *
  * @return A boolean value indicating if the game is running late.
@@ -201,8 +201,8 @@ extern void oslHandleLoadNoFailError(const char *filename);
 #define oslSyncFrame() oslSyncFrameEx(osl_frameskip, osl_maxFrameskip, osl_vsyncEnabled)
 
 /** @brief Call this function when a frame has ended.
- * 
- * This function should be called just before calling oslSyncFrame or oslWaitVSync. 
+ *
+ * This function should be called just before calling oslSyncFrame or oslWaitVSync.
  * It handles audio synchronization and other end-of-frame tasks.
  */
 extern void oslEndFrame();
@@ -328,8 +328,8 @@ extern volatile int osl_skip;
 extern volatile int osl_currentFrameRate;
 
 /** @brief Synchronization function with explicit parameters.
- * 
- * This function is similar to oslSyncFrame but allows you to pass all synchronization 
+ *
+ * This function is similar to oslSyncFrame but allows you to pass all synchronization
  * parameters directly in one call.
  *
  * @param frameskip Frameskip value.
@@ -341,18 +341,18 @@ extern volatile int osl_currentFrameRate;
 extern int oslSyncFrameEx(int frameskip, int max_frameskip, int vsync);
 
 /** @brief Sets the framerate for oslSyncFrame(Ex).
- * 
+ *
  * This can be any value from 1 to 60. For example, use 50 to simulate a PAL (European) game.
  *
  * @param framerate Desired framerate.
  */
 static inline void oslSetFramerate(int framerate) {
-    if (framerate <= 60)
-        osl_currentFrameRate = framerate;
+	if (framerate <= 60)
+		osl_currentFrameRate = framerate;
 }
 
 /** @brief Waits for the VSync, synchronizing your game.
- * 
+ *
  * This function is a simpler and less efficient method than oslSyncFrame.
  */
 extern void oslWaitVSync();
@@ -363,14 +363,14 @@ extern void oslWaitVSync();
  * @defgroup main_memory Memory
  * @brief Memory management routines.
  *
- * This section includes functions and macros for managing memory in OSLib, including 
+ * This section includes functions and macros for managing memory in OSLib, including
  * cache management, memory copying, and alignment.
  * @{
  */
 
 /** @brief Copies data using the internal DMAC.
- * 
- * This function is generally faster than memcpy but requires that the data to be copied 
+ *
+ * This function is generally faster than memcpy but requires that the data to be copied
  * is no longer in the cache.
  *
  * @param dest Destination address.
@@ -382,7 +382,7 @@ extern void oslWaitVSync();
 extern int sceDmacMemcpy(void *dest, const void *source, unsigned int size);
 
 /** @brief Same as sceDmacMemcpy.
- * 
+ *
  * This function is identical to sceDmacMemcpy but may be less reliable.
  *
  * @param dest Destination address.
@@ -394,7 +394,7 @@ extern int sceDmacMemcpy(void *dest, const void *source, unsigned int size);
 extern int sceDmacTryMemcpy(void *dest, const void *source, unsigned int size);
 
 /** @brief Does a memset using the 64-bit capabilities of the CPU.
- * 
+ *
  * This function is faster than memcpy for certain operations.
  *
  * @param dst Destination address.
@@ -404,7 +404,7 @@ extern int sceDmacTryMemcpy(void *dest, const void *source, unsigned int size);
 extern void oslFasterMemset(u64 *dst, u64 *src, u32 length);
 
 /** @brief Ensures that the data is no longer in the CPU cache.
- * 
+ *
  * This function flushes the cache, writing the data to the actual memory.
  *
  * @param data Address of the memory area to flush.
@@ -413,8 +413,8 @@ extern void oslFasterMemset(u64 *dst, u64 *src, u32 length);
 #define oslUncacheData(data, size) sceKernelDcacheWritebackInvalidateRange(data, size);
 
 /** @brief Returns a pointer to an uncached address.
- * 
- * This function allows you to bypass the cache, but it is generally less efficient 
+ *
+ * This function allows you to bypass the cache, but it is generally less efficient
  * than using cached addresses.
  *
  * @param adr Cached address.
@@ -424,7 +424,7 @@ extern void oslFasterMemset(u64 *dst, u64 *src, u32 length);
 #define oslGetUncachedPtr(adr) ((void*)((int)(adr) | 0x40000000))
 
 /** @brief Returns a pointer to cached data.
- * 
+ *
  * This function allows you to revert to using cached addresses.
  *
  * @param adr Uncached address.
@@ -434,23 +434,23 @@ extern void oslFasterMemset(u64 *dst, u64 *src, u32 length);
 #define oslGetCachedPtr(adr) ((void*)((int)(adr) & (~0x40000000)))
 
 #ifdef PSP
-    /** @brief Flushes the whole cache.
-     * 
-     * This function is slow and should be avoided if possible. 
-     * Use oslUncacheData instead when appropriate.
-     */
-    extern void oslFlushDataCache();
+/** @brief Flushes the whole cache.
+ *
+ * This function is slow and should be avoided if possible.
+ * Use oslUncacheData instead when appropriate.
+ */
+extern void oslFlushDataCache();
 #else
-    /** @brief Flushes the whole cache.
-     * 
-     * This function is slow and should be avoided if possible. 
-     * Use oslUncacheData instead when appropriate.
-     */
-    extern void oslFlushDataCache();
+/** @brief Flushes the whole cache.
+ *
+ * This function is slow and should be avoided if possible.
+ * Use oslUncacheData instead when appropriate.
+ */
+extern void oslFlushDataCache();
 #endif
 
 /** @brief Allocates a memory block, ensuring it is aligned.
- * 
+ *
  * This function allocates memory with a specified alignment.
  *
  * @param alignment Alignment in bytes.
@@ -465,13 +465,13 @@ void *memalign(size_t alignment, size_t size);
  * This structure contains information about the available memory.
  */
 typedef struct {
-    int maxAvailable; /*!< Maximum available memory */
-    int maxBlockSize; /*!< Maximum linear memory available */
+	int maxAvailable; /*!< Maximum available memory */
+	int maxBlockSize; /*!< Maximum linear memory available */
 } OSL_MEMSTATUS;
 
 /** @brief Gets info about currently available memory in main RAM.
- * 
- * This function returns an OSL_MEMSTATUS structure with information about 
+ *
+ * This function returns an OSL_MEMSTATUS structure with information about
  * the available memory.
  *
  * @return OSL_MEMSTATUS structure containing available memory info.
@@ -484,13 +484,13 @@ OSL_MEMSTATUS oslGetRamStatus();
  * @defgroup main_maths Maths
  * @brief Mathematical functions.
  *
- * This section provides mathematical utilities, such as trigonometric functions, 
+ * This section provides mathematical utilities, such as trigonometric functions,
  * commonly used in game development.
  * @{
  */
 
 /** @brief Returns the absolute value of a number.
- * 
+ *
  * This function returns the positive part of the number.
  *
  * @param x Input value.
@@ -500,7 +500,7 @@ OSL_MEMSTATUS oslGetRamStatus();
 #define oslAbs(x) (((x) < 0) ? (-(x)) : (x))
 
 /** @brief Returns the smallest value between the two.
- * 
+ *
  * This function returns the smaller of the two provided values.
  *
  * @param x First value.
@@ -511,7 +511,7 @@ OSL_MEMSTATUS oslGetRamStatus();
 #define oslMin(x, y) (((x) < (y)) ? (x) : (y))
 
 /** @brief Returns the greatest value between the two.
- * 
+ *
  * This function returns the larger of the two provided values.
  *
  * @param x First value.
@@ -522,7 +522,7 @@ OSL_MEMSTATUS oslGetRamStatus();
 #define oslMax(x, y) (((x) > (y)) ? (x) : (y))
 
 /** @brief Returns a value clamped between a minimum and maximum.
- * 
+ *
  * This function ensures that the provided value is within the specified range.
  *
  * @param x Input value.
@@ -534,7 +534,7 @@ OSL_MEMSTATUS oslGetRamStatus();
 #define oslMinMax(x, min, max) ((x) < (max) ? ((x) > (min) ? (x) : (min)) : (max))
 
 /** @brief Returns the number of objects in an array.
- * 
+ *
  * This function calculates the number of elements in an array.
  *
  * @param n Array.
@@ -544,7 +544,7 @@ OSL_MEMSTATUS oslGetRamStatus();
 #define oslNumberof(n) (sizeof(n) / sizeof(*(n)))
 
 /** @brief Calculates the sine of an angle in degrees multiplied by a radius.
- * 
+ *
  * This function returns the sine of the specified angle, multiplied by the provided radius.
  *
  * @param angle Angle in degrees.
@@ -555,7 +555,7 @@ OSL_MEMSTATUS oslGetRamStatus();
 extern float oslSin(float angle, float dist);
 
 /** @brief Calculates the cosine of an angle in degrees multiplied by a radius.
- * 
+ *
  * This function returns the cosine of the specified angle, multiplied by the provided radius.
  *
  * @param angle Angle in degrees.
@@ -566,7 +566,7 @@ extern float oslSin(float angle, float dist);
 extern float oslCos(float angle, float dist);
 
 /** @brief Returns the sine of an angle in degrees (0 to 360) multiplied by an integer radius.
- * 
+ *
  * This function uses a lookup table for faster computation.
  *
  * @param angle Angle in degrees.
@@ -577,7 +577,7 @@ extern float oslCos(float angle, float dist);
 extern int oslSini(int angle, int dist);
 
 /** @brief Returns the cosine of an angle in degrees (0 to 360) multiplied by an integer radius.
- * 
+ *
  * This function uses a lookup table for faster computation.
  *
  * @param angle Angle in degrees.
@@ -588,7 +588,7 @@ extern int oslSini(int angle, int dist);
 extern int oslCosi(int angle, int dist);
 
 /** @brief Returns the next (upper) power of two of a number.
- * 
+ *
  * This function calculates the next power of two that is greater than or equal to the input value.
  *
  * @param val Input value.
@@ -638,29 +638,29 @@ extern void oslSetupFTrigo();
  * @defgroup main_debug Debug console
  * @brief Debugging features.
  *
- * This section includes functions and macros for debugging, such as printing 
+ * This section includes functions and macros for debugging, such as printing
  * formatted text to the screen and controlling the debug console.
  * @{
  */
 #ifdef PSP
-    /** @brief Prints formatted text to the current position of the cursor.
-     * 
-     * This macro uses a format string similar to printf.
-     *
-     * @param format Formatted text.
-     */
-    #define oslPrintf(format...) ({ char __str[1000]; sprintf(__str, ##format); oslConsolePrint(__str); })
+/** @brief Prints formatted text to the current position of the cursor.
+ *
+ * This macro uses a format string similar to printf.
+ *
+ * @param format Formatted text.
+ */
+    #define oslPrintf(format ...) ({ char __str[1000]; sprintf(__str, ## format); oslConsolePrint(__str); })
 
-    /** @brief Prints formatted text at a specific position on the screen.
-     * 
-     * This macro prints formatted text at the specified screen coordinates.
-     *
-     * @param x X-coordinate (in characters).
-     * @param y Y-coordinate (in characters).
-     * @param str Formatted string.
-     * @param format Additional formatted text.
-     */
-    #define oslPrintf_xy(x, y, str, format...) ({ osl_consolePosX = x; osl_consolePosY = y; oslPrintf(str, ##format); })
+/** @brief Prints formatted text at a specific position on the screen.
+ *
+ * This macro prints formatted text at the specified screen coordinates.
+ *
+ * @param x X-coordinate (in characters).
+ * @param y Y-coordinate (in characters).
+ * @param str Formatted string.
+ * @param format Additional formatted text.
+ */
+    #define oslPrintf_xy(x, y, str, format ...) ({ osl_consolePosX = x; osl_consolePosY = y; oslPrintf(str, ## format); })
 #else
     #define oslPrintf(...) { char __str[1000]; sprintf(__str, __VA_ARGS__); oslConsolePrint(__str); }
     #define oslPrintf_xy(x, y, ...) { osl_consolePosX = x; osl_consolePosY = y; oslPrintf(__VA_ARGS__); }
@@ -673,7 +673,7 @@ extern void oslSetupFTrigo();
 #define oslCls() (oslClearScreen(0), oslMoveTo(0, 0))
 
 /** @brief Moves the cursor to a place on the screen.
- * 
+ *
  * This macro moves the cursor to the specified screen coordinates, using character units.
  *
  * @param x X-coordinate (in characters).
@@ -687,14 +687,14 @@ extern void oslSetupFTrigo();
  * @defgroup main_misc Miscellaneous
  * @brief Miscellaneous utilities.
  *
- * This section includes various utility functions and definitions that do not fall 
+ * This section includes various utility functions and definitions that do not fall
  * under other categories.
  * @{
  */
 
 /** @brief Does a benchmark action.
- * 
- * This function performs a benchmarking action, such as starting or stopping a benchmark, 
+ *
+ * This function performs a benchmarking action, such as starting or stopping a benchmark,
  * or retrieving the elapsed time.
  *
  * @param startend Benchmark action type (e.g., OSL_BENCH_START, OSL_BENCH_END).
@@ -705,7 +705,7 @@ extern void oslSetupFTrigo();
 extern int oslBenchmarkTestEx(int startend, int slot);
 
 /** @brief Same as oslBenchmarkTestEx but does a mean of 20 samples before returning a value.
- * 
+ *
  * This function performs a benchmarking action and returns the mean of 20 samples.
  *
  * @param startend Benchmark action type.
@@ -716,7 +716,7 @@ extern int oslBenchmarkTestEx(int startend, int slot);
 extern int oslMeanBenchmarkTestEx(int startend, int slot);
 
 /** @brief Does a benchmark in slot 0.
- * 
+ *
  * This function performs a benchmarking action in slot 0.
  *
  * @param startend Benchmark action type.
@@ -724,11 +724,11 @@ extern int oslMeanBenchmarkTestEx(int startend, int slot);
  * @return Benchmark result for slot 0.
  */
 static inline int oslBenchmarkTest(int startend) {
-    return oslBenchmarkTestEx(startend, 0);
+	return oslBenchmarkTestEx(startend, 0);
 }
 
 /** @brief Displays the system benchmark results on the top-left corner of the screen.
- * 
+ *
  * This function displays the benchmark results, which can be useful for debugging performance issues.
  */
 extern void oslSysBenchmarkDisplay();
@@ -741,12 +741,12 @@ extern void oslSysBenchmarkDisplay();
  * start, end, and retrieval of benchmark data.
  */
 enum {
-    OSL_BENCH_INIT = 0,    /*!< Initializes the benchmark. This is typically done at the beginning of the benchmarking process. */
-    OSL_BENCH_START,       /*!< Starts the benchmark timer. This marks the beginning of the period you want to measure. */
-    OSL_BENCH_END,         /*!< Ends the benchmark timer. This marks the end of the period you want to measure. */
-    OSL_BENCH_GET,         /*!< Retrieves the time elapsed between the start and end of the benchmark in microseconds. */
-    OSL_BENCH_GET_LAST,    /*!< Retrieves the last benchmark result without starting or ending a new benchmark. */
-    OSL_BENCH_DISPLAY      /*!< Displays the benchmark results. This action is primarily used for debugging and performance analysis. */
+	OSL_BENCH_INIT = 0, /*!< Initializes the benchmark. This is typically done at the beginning of the benchmarking process. */
+	OSL_BENCH_START,   /*!< Starts the benchmark timer. This marks the beginning of the period you want to measure. */
+	OSL_BENCH_END,     /*!< Ends the benchmark timer. This marks the end of the period you want to measure. */
+	OSL_BENCH_GET,     /*!< Retrieves the time elapsed between the start and end of the benchmark in microseconds. */
+	OSL_BENCH_GET_LAST, /*!< Retrieves the last benchmark result without starting or ending a new benchmark. */
+	OSL_BENCH_DISPLAY  /*!< Displays the benchmark results. This action is primarily used for debugging and performance analysis. */
 };
 
 /**
@@ -816,7 +816,7 @@ extern int oslShowSplashScreen1();
 extern int oslShowSplashScreen2();
 
 /** @brief Shows one of the predefined splash screens in OldSchool Library.
- * 
+ *
  * This function displays a predefined splash screen, such as the OSLib or Neoflash logo.
  *
  * @param splashType 1 shows the OSLib logo, 2 shows the Neoflash logo.
@@ -824,21 +824,21 @@ extern int oslShowSplashScreen2();
  * @return 1 in case of success, 0 otherwise.
  */
 static inline int oslShowSplashScreen(int splashType) {
-    if (splashType == 1)
-        return oslShowSplashScreen1();
-    else if (splashType == 2)
-        return oslShowSplashScreen2();
-    return 0;
+	if (splashType == 1)
+		return oslShowSplashScreen1();
+	else if (splashType == 2)
+		return oslShowSplashScreen2();
+	return 0;
 }
 
 /** @brief Shows the Neoflash logo splash screen.
- * 
+ *
  * This function displays the Neoflash logo splash screen.
  *
  * @return 1 in case of success, 0 otherwise.
  */
 static inline int oslShowNeoflashLogo() {
-    return oslShowSplashScreen(2);
+	return oslShowSplashScreen(2);
 }
 
 #ifdef PSP

@@ -9,35 +9,35 @@
  *  This file provides all text-related functions, structures, and macros
  *  necessary for rendering and managing fonts in OSLib, including
  *  loading custom fonts, handling intraFont, and drawing text on the screen.
- *  
+ *
  *  Don't forget to check the 'Debug Console' section (subsection of the 'Main' section)
  *  for further debugging-related functions.
  */
 
 /** @defgroup text Text functions
  *  @brief Text functions in OSLib.
- *  
- *  This module provides various text-related functionalities, including font management, 
- *  text drawing, and intraFont handling. 
+ *
+ *  This module provides various text-related functionalities, including font management,
+ *  text drawing, and intraFont handling.
  *  @{
  */
 
 /** @brief Loaded font structure.
- * 
+ *
  *  This struct represents a loaded font in OSLib, holding its image, character widths,
  *  positions, and other properties like font type and intraFont data.
  */
 typedef struct {
-    OSL_IMAGE *img;                            //!< Image containing character sprites.
-    unsigned char *charWidths;                 //!< Table containing the width of each character (256 entries).
-    unsigned short *charPositions;             //!< Position of characters in the image (16-bits: y:7, x:9).
-    int isCharWidthConstant;                   //!< Internal (to determine if charWidth needs to be freed).
-    int charWidth;                             //!< Width of characters.
-    int charHeight;                            //!< Height of characters (constant).
-    int recentrage;                            //!< Added to text positions when drawing.
-    unsigned char addedSpace;                  //!< Space added between characters on the texture (allows making characters bigger than indicated by charWidths).
-    int fontType;                              //!< Font type (OSL_FONT_OFT or OSL_FONT_INTRA).
-    intraFont *intra;                          //!< IntraFont data.
+	OSL_IMAGE *img;                        //!< Image containing character sprites.
+	unsigned char *charWidths;             //!< Table containing the width of each character (256 entries).
+	unsigned short *charPositions;         //!< Position of characters in the image (16-bits: y:7, x:9).
+	int isCharWidthConstant;               //!< Internal (to determine if charWidth needs to be freed).
+	int charWidth;                         //!< Width of characters.
+	int charHeight;                        //!< Height of characters (constant).
+	int recentrage;                        //!< Added to text positions when drawing.
+	unsigned char addedSpace;              //!< Space added between characters on the texture (allows making characters bigger than indicated by charWidths).
+	int fontType;                          //!< Font type (OSL_FONT_OFT or OSL_FONT_INTRA).
+	intraFont *intra;                      //!< IntraFont data.
 } OSL_FONT;
 
 /** @brief Font information type.
@@ -46,47 +46,47 @@ typedef struct {
  *  palette data, and information about character sizes and widths.
  */
 typedef struct {
-    void *fontdata;                            //!< Character image data.
-    short pixelFormat;                         //!< 1 = 1 bit (default).
-    unsigned char *charWidths;                 //!< Width of characters.
-    int charWidth;                             //!< Default character width (if charWidths is NULL).
-    int charHeight;                            //!< Height of characters (constant).
-    int lineWidth;                             //!< Number of bytes of data per line.
-    int recentrage;                            //!< Added to text positions for drawing text (recentering).
-    unsigned char addedSpace;                  //!< Space added between characters on the texture.
-    unsigned short paletteCount;               //!< Palette count.
-    unsigned long *paletteData;                //!< Palette data.
+	void *fontdata;                        //!< Character image data.
+	short pixelFormat;                     //!< 1 = 1 bit (default).
+	unsigned char *charWidths;             //!< Width of characters.
+	int charWidth;                         //!< Default character width (if charWidths is NULL).
+	int charHeight;                        //!< Height of characters (constant).
+	int lineWidth;                         //!< Number of bytes of data per line.
+	int recentrage;                        //!< Added to text positions for drawing text (recentering).
+	unsigned char addedSpace;              //!< Space added between characters on the texture.
+	unsigned short paletteCount;           //!< Palette count.
+	unsigned long *paletteData;            //!< Palette data.
 } OSL_FONTINFO;
 
-/** @brief Header of a .oft file (Oslib FonT). 
- * 
+/** @brief Header of a .oft file (Oslib FonT).
+ *
  *  This structure represents the header for a font file used in OSLib.
  */
 typedef struct {
-    char strVersion[12];                       //!< "OSLFont v01".
-    unsigned char pixelFormat;                 //!< Number of bits per pixel (1 = 1 bit, default).
-    unsigned char variableWidth;               //!< True if the first 256 bytes specify the character widths.
-    int charWidth, charHeight;                 //!< Mean character sizes (used for the console).
-    int lineWidth;                             //!< Number of bytes of data per line.
-    unsigned char addedSpace;                  //!< Space added between characters on the texture.
-    unsigned short paletteCount;               //!< Palette count.
-    unsigned char reserved[29];                //!< Must be null (reserved).
+	char strVersion[12];                   //!< "OSLFont v01".
+	unsigned char pixelFormat;             //!< Number of bits per pixel (1 = 1 bit, default).
+	unsigned char variableWidth;           //!< True if the first 256 bytes specify the character widths.
+	int charWidth, charHeight;             //!< Mean character sizes (used for the console).
+	int lineWidth;                         //!< Number of bytes of data per line.
+	unsigned char addedSpace;              //!< Space added between characters on the texture.
+	unsigned short paletteCount;           //!< Palette count.
+	unsigned char reserved[29];            //!< Must be null (reserved).
 } OSL_FONT_FORMAT_HEADER;
 
 /** Current font.
- *  
+ *
  *  This pointer holds the currently selected font for text rendering.
  *  You can read from it, but use #oslSetFont to modify it.
  */
 extern OSL_FONT *osl_curFont;
 
 /** @brief Sets the current font.
- *  
- *  Sets the current font to the specified font. Use this function instead of 
+ *
+ *  Sets the current font to the specified font. Use this function instead of
  *  directly modifying #osl_curFont for forward compatibility.
  *
  *  @param f Pointer to the new font to be set as the current font.
- *  
+ *
  *  \code
  *  // Save the current font
  *  OSL_FONT *oldFont = osl_curFont;
@@ -118,19 +118,19 @@ extern OSL_FONT *osl_curFont;
 #define OSL_TEXT_CHARPOSXY(f,i) (f)->charPositions[i]&(OSL_TEXT_TEXWIDTH-1), ((f)->charPositions[i]>>OSL_TEXT_TEXDECAL)*(f)->charHeight
 
 /** @brief Initializes the console.
- *  
+ *
  *  This function is automatically called by #oslInitGfx, so manual initialization
  *  of the console is not required.
  */
 extern void oslInitConsole();
 
 /** @brief Loads a font from a file.
- * 
+ *
  *  Loads a font file (.oft format) from the specified file path.
- *  
+ *
  *  @param filename The path to the .oft font file.
  *  @return A pointer to the loaded font.
- *  
+ *
  *  \code
  *  OSL_FONT *f = oslLoadFontFile("verdana.oft");
  *  oslSetFont(f);
@@ -140,7 +140,7 @@ extern void oslInitConsole();
 extern OSL_FONT *oslLoadFontFile(const char *filename);
 
 /** @brief Loads a font from a #OSL_FONTINFO file (located in RAM).
- * 
+ *
  *  Use this ONLY with OFT fonts (doesn't work with intraFont). It is recommended
  *  to use oslLoadFontFile, which is more user-friendly.
  *
@@ -153,7 +153,7 @@ extern OSL_FONT *oslLoadFont(OSL_FONTINFO *fi);
  *
  *  This function draws a single character at the given coordinates (x, y). For drawing multiple characters,
  *  use oslDrawString for better performance.
- *  
+ *
  *  @param x X position on the screen.
  *  @param y Y position on the screen.
  *  @param c The character to draw.
@@ -163,11 +163,11 @@ extern void oslDrawChar(int x, int y, unsigned char c);
 /** @brief Draws a string literal at the specified position.
  *
  *  This function draws a string at the given coordinates (x, y).
- *  
+ *
  *  @param x X position on the screen.
  *  @param y Y position on the screen.
  *  @param str The string to draw.
- *  
+ *
  *  \code
  *  oslDrawString(0, 0, "Test string");
  *  \endcode
@@ -178,12 +178,12 @@ extern void oslDrawString(int x, int y, const char *str);
  *
  *  This function draws a string at the given coordinates (x, y) but limits the drawing
  *  to a specified width.
- *  
+ *
  *  @param x X position on the screen.
  *  @param y Y position on the screen.
  *  @param width The maximum width for the string.
  *  @param str The string to draw.
- *  
+ *
  *  \code
  *  oslDrawStringLimited(0, 0, 200, "Test string");
  *  \endcode
@@ -193,22 +193,22 @@ extern void oslDrawStringLimited(int x, int y, int width, const char *str);
 /** @brief Draws a formatted string literal at the specified position.
  *
  *  This function allows you to format a string and draw it at the specified coordinates (x, y).
- *  
+ *
  *  @param x X position on the screen.
  *  @param y Y position on the screen.
  *  @param ... The formatted string to draw.
- *  
+ *
  *  \code
  *  oslDrawStringf(0, 0, "Test string %i", 1);
  *  \endcode
  */
-#define oslDrawStringf(x, y, ...) { char __str[1000]; sprintf(__str , __VA_ARGS__); oslDrawString(x, y, __str); }
+#define oslDrawStringf(x, y, ...) { char __str[1000]; sprintf(__str, __VA_ARGS__); oslDrawString(x, y, __str); }
 
 /** @brief Outputs a text to the console at the current cursor position.
  *
  *  This function prints a string to the console at the current cursor position and moves
  *  the cursor. It is intended for debugging purposes.
- *  
+ *
  *  @param str The string to print.
  */
 extern void oslConsolePrint(const char *str);
@@ -297,7 +297,7 @@ extern int oslGetStringWidth(const char *str);
  */
 extern int oslGetTextBoxHeight(int width, int maxHeight, const char *text, int format);
 
-/** Console horizontal position (in pixels). 
+/** Console horizontal position (in pixels).
  *  Use #oslMoveTo to move the cursor.
  */
 extern int osl_consolePosX;
