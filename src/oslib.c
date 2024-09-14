@@ -1,7 +1,4 @@
 #include "oslib.h"
-#ifndef PSP
-	#include "../PC_Main/GL/glext.h"
-#endif
 
 /*
 	GRAPHICS
@@ -16,9 +13,6 @@ OSL_CONTROLLER *osl_keys;
 OSL_REMOTECONTROLLER *osl_remotekeys;
 
 int osl_noFail = 0;
-
-//float osl_fsinus[361];
-//float osl_fcosinus[361];
 int osl_isinus[361];
 int osl_icosinus[361];
 
@@ -27,25 +21,10 @@ void oslSetupFTrigo()		{
 
 	//Precalculate values for integer sine and cosine tables
 	for (i=0;i<361;i++)			{
-//		osl_fsinus[i] = sin(i * 3.1415926535898f / 180.f);
-//		osl_fcosinus[i] = cos(i * 3.1415926535898f / 180.f);
 		osl_isinus[i] = (int)oslSin(i, 16384.0f);
 		osl_icosinus[i] = (int)oslCos(i, 16384.0f);
 	}
 }
-
-//Moved to VFPU.C
-/*float oslCos(float angle, float dist)		{
-	//Degree => Radian
-	angle = angle * 0.0174532925f;
-	return vfpu_cosf(angle, dist);
-}
-
-float oslSin(float angle, float dist)		{
-	//Degree => Radian
-	angle = angle * 0.0174532925f;
-	return vfpu_sinf(angle, dist);
-}*/
 
 int oslCosi(int angle, int dist)		{
 	angle = angle % 360;
@@ -78,7 +57,7 @@ int oslGetNextPower2(int val)			{
 	return val;
 }
 
-//Aligne les données aux align octets près (align doit être une puissance de deux)
+//Aligne les donnï¿½es aux align octets prï¿½s (align doit ï¿½tre une puissance de deux)
 unsigned int oslAlignData(unsigned int data, int align)
 {
 	if (data & (align-1))
@@ -112,7 +91,6 @@ void oslFasterMemset(u64 *dst, u64 *src, u32 length)			{
 
 void oslWaitVSync()
 {
-//	osl_vblCount++;
 	sceDisplayWaitVblankStart();
 }
 
@@ -151,11 +129,6 @@ int oslMeanBenchmarkTestEx(int startend, int slot)		{
 		if (val[slot] != 0)
 			return time[slot] / val[slot];
 	}
-
-/*	else if (startend == OSL_BENCH_DISPLAY)			{
-		pspDebugScreenSetXY(0,0);
-		pspDebugScreenPrintf("%i.%03i", curr_ms[slot]/1000, curr_ms[slot]%1000);
-	}*/
 	return curr_ms[slot];
 }
 
@@ -201,8 +174,6 @@ void oslQuit()
 	}
 
 	int oslStandardPowerCallback(int unknown, int pwrflags,void *common){
-//		int cbid = sceKernelCreateCallback("powerCallback", oslStandardPowerCallback, NULL);
-//		scePowerRegisterCallback(0, cbid);
 		if (osl_powerCallback)
 			return osl_powerCallback(unknown, pwrflags, common);
 		else
@@ -285,7 +256,7 @@ void oslInit(int flags)
 	osl_frameskip=0;
 	osl_currentFrameRate = 60;
 
-	//Configure l'autorepeat (il n'y en a pas au début)
+	//Configure l'autorepeat (il n'y en a pas au dï¿½but)
 	oslSetKeyAutorepeat(OSL_KEYMASK_UP|OSL_KEYMASK_RIGHT|OSL_KEYMASK_DOWN|OSL_KEYMASK_LEFT|OSL_KEYMASK_R|OSL_KEYMASK_L,0,0);
 
 #ifdef PSP
@@ -303,7 +274,7 @@ void oslInit(int flags)
 
 	VirtualFileInit();
 
-	//Initialise l'émulation
+	//Initialise l'ï¿½mulation
 #ifndef PSP
 	emuInitGfx();
 	emuStartDrawing();
@@ -329,35 +300,32 @@ void oslSysBenchmarkDisplay()			{
 	Frameskip:
 				0: pas de frameskip (normal)
 				1: frameskip normal
-				>1: dépend de vsync, saute 1 frame sur X
+				>1: dï¿½pend de vsync, saute 1 frame sur X
 
 	Max frameskip:
-				>=1: Frameskip maximum autorisé
+				>=1: Frameskip maximum autorisï¿½
 	VSync:
 				0: pas de VSync
-				1: vsync activée
-				+4: si on rajoute 4, avec un frameskip >1, synchronise au framerate souhaité, par ex. 2 -> 30 fps
-				+0: sinon, fixe le frameskip minimum (ex. avec 2, le jeu tournera à 60 fps, 30 images par seconde)
+				1: vsync activï¿½e
+				+4: si on rajoute 4, avec un frameskip >1, synchronise au framerate souhaitï¿½, par ex. 2 -> 30 fps
+				+0: sinon, fixe le frameskip minimum (ex. avec 2, le jeu tournera ï¿½ 60 fps, 30 images par seconde)
 				+8: synchro maximale (impression de triple buffering), sans vsync
 				+16: pas de swapbuffers
 	Exemples:
 		//30 fps (pas de frameskip)
 		oslSyncFrameEx(2,0,0);
-		//30 fps, jeu à 60, frameskip max de 2, c'est-à-dire pas plus d'une frame skippée pour une affichée
+		//30 fps, jeu ï¿½ 60, frameskip max de 2, c'est-ï¿½-dire pas plus d'une frame skippï¿½e pour une affichï¿½e
 		oslSyncFrameEx(2,2,4);
-		//synchronise à 60 fps
+		//synchronise ï¿½ 60 fps
 		oslSyncFrameEx(0,0,0);
 */
 
-#if 1
-
 int oslSyncFrameEx(int frameskip, int max_frameskip, int vsync)
 {
-//dogo: unused
-/*	#ifdef OSL_SYSTEM_BENCHMARK_ENABLED
+	#ifdef OSL_SYSTEM_BENCHMARK_ENABLED
 	int lastOslSkip;
 	#endif
-*/	
+
 	int i, wasDrawing=0;
 	if (osl_isDrawingStarted)
 		oslEndDrawing(), wasDrawing=1;
@@ -366,14 +334,6 @@ int oslSyncFrameEx(int frameskip, int max_frameskip, int vsync)
 		oslMeanBenchmarkTestEx(OSL_BENCH_END, 4);
 		oslMeanBenchmarkTestEx(OSL_BENCH_END, 6);
 		#endif
-		//Dans les temps -> vsync
-/*		i = osl_vblCount;
-		if (vsync || osl_vblCallCount+1 > i)			{
-			oslWaitVSync();
-			i++;
-		}
-		osl_vblCallCount = i;*/
-
 		//We need to do this outside of the handler to be more precise
 		osl_vblankCounterActive = 0;
 		if ((vsync & 5) || (osl_vblCallCount+1 > osl_vblCount)) {	//<-- STAS: (vsync&5) is more adequate here
@@ -396,24 +356,19 @@ int oslSyncFrameEx(int frameskip, int max_frameskip, int vsync)
 	else	{
 		osl_vblCallCount++;				//<-- STAS: osl_vblCallCount+=frameskip is not good here
 										//          because it wouldn't change osl_vblCallCount%frameskip value !
-		/*if (vsync&4)
-			osl_vblCallCount++;
-		else
-			osl_vblCallCount+=frameskip;  <-- STAS END -->*/
 		#ifdef OSL_SYSTEM_BENCHMARK_ENABLED
-		//dogo: unused
-		//lastOslSkip = osl_skip;
+		lastOslSkip = osl_skip;
 		if (osl_skip)
 			oslMeanBenchmarkTestEx(OSL_BENCH_END, 5);
 		else			{
 			oslMeanBenchmarkTestEx(OSL_BENCH_END, 4);
 		}
 		#endif
-		//La référence quand vsync = 0
+		//La rï¿½fï¿½rence quand vsync = 0
 		i=((vsync&1) && !osl_skip && !(vsync&8))?1:0;
 		//On est en retard?				  <-- STAS: add frameskip-1 here
 		if ((osl_vblCount+i > osl_vblCallCount+frameskip-1 || (vsync&4 && osl_vblCallCount%frameskip)) && osl_nbSkippedFrames < max_frameskip-1)			{
-			if (!osl_skip)		{		//La frame a été dessinée -> on l'affiche
+			if (!osl_skip)		{		//La frame a ï¿½tï¿½ dessinï¿½e -> on l'affiche
 				#ifdef OSL_SYSTEM_BENCHMARK_ENABLED
 					oslMeanBenchmarkTestEx(OSL_BENCH_END, 6);
 				#endif
@@ -426,7 +381,7 @@ int oslSyncFrameEx(int frameskip, int max_frameskip, int vsync)
 				#endif
 			}
 			osl_nbSkippedFrames++;
-			//Dernière fois -> la prochaine c'est en-dessous
+			//Derniï¿½re fois -> la prochaine c'est en-dessous
 			if (frameskip > 1 && osl_vblCallCount%frameskip == frameskip - 1)
 				osl_skip = 0;
 			else
@@ -439,12 +394,6 @@ int oslSyncFrameEx(int frameskip, int max_frameskip, int vsync)
 			#endif
 			if (vsync&1 && !osl_skip)						//Activer pour avoir vraiment la VSync
 				oslWaitVSync();
-			//Dans les temps
-/*			i = osl_vblCount;
-			while (i < osl_vblCallCount + ((vsync & 8) ? (1 - osl_skip) : (0)))		{
-				oslWaitVSync();
-				i++;
-			}*/
 			if (!(vsync&4))						//<-- STAS: add frameskip-1 to osl_vblCallCount
 				osl_vblCallCount+=frameskip-1;	//          in order to skip correct number of frames
 			//We need to do this outside of the handler to be more precise
@@ -455,12 +404,6 @@ int oslSyncFrameEx(int frameskip, int max_frameskip, int vsync)
 			}
 			osl_vblankCounterActive = 1;
 
-			//La référence (meilleur frameskip), mais bidouillage
-/*			if (osl_vblCount < osl_vblCallCount)		{
-				do	{
-					oslWaitVSync();
-				} while (osl_vblCount+1 <=osl_vblCallCount);
-			}*/
 			if (!osl_skip)			{
 				if (!(vsync & 16))
 					oslSwapBuffers();
@@ -470,11 +413,10 @@ int oslSyncFrameEx(int frameskip, int max_frameskip, int vsync)
 					oslMeanBenchmarkTestEx(OSL_BENCH_START, 6);
 			#endif
 			//Trop de frameskip tue le frameskip
-//			if (osl_nbSkippedFrames >= max_frameskip-1)			//<-- STAS: this is ALWAYS true at this point !
-				osl_vblCallCount = osl_vblCount;
-//			osl_nbSkippedFrames=0;								//<-- STAS: osl_nbSkippedFrames shouldn't be reset here
+
+			osl_vblCallCount = osl_vblCount;
 			osl_skip = 0;
-			//Bidouille pour le frameskip fixé -> on repasse en-dessus
+			//Bidouille pour le frameskip fixï¿½ -> on repasse en-dessus
 			if (vsync&4 && frameskip > 1 && osl_vblCallCount%frameskip == 0)
 				osl_skip = 1;
 		}
@@ -490,248 +432,7 @@ int oslSyncFrameEx(int frameskip, int max_frameskip, int vsync)
 		oslStartDrawing();
 	return osl_skip;
 }
-#else
-
-//Routine originale, écrite entre deux. La nouvelle est dégueulasse mais elle permet d'éviter le cisaillement du haut de l'écran quand un son demande trop de puissance.
-#if 0
-static void waitNextFrame()		{
-	osl_vblankCounterActive = 0;
-//	while (osl_vblCallCount >= osl_vblCount)		{
-		oslWaitVSync();
-		oslVblankNextFrame();
-//	}
-	osl_vblankCounterActive = 1;
-}
-
-int oslSyncFrameEx(int frameskip, int max_frameskip, int vsync)
-{
-//	int lastOslSkip = osl_skip;
-	int wasDrawing=0;
-
-	if (osl_isDrawingStarted)
-		oslEndDrawing(), wasDrawing=1;
-
-	//We need to do this outside of the handler to be more precise
-//	osl_vblankCounterActive = 0;
-	osl_vblCallCount++;
-
-	#ifdef OSL_SYSTEM_BENCHMARK_ENABLED
-	if (!osl_skip)
-		oslMeanBenchmarkTestEx(OSL_BENCH_END, 4);
-	else
-		oslMeanBenchmarkTestEx(OSL_BENCH_END, 5);
-	#endif
-
-	//Soit on est en retard, soit on a un frameskip fixé. oslMax => éviter une division par zéro ;)
-	if (osl_vblCallCount < osl_vblCount
-		|| (osl_vblCallCount % oslMax(frameskip, 1)))		{
-		//Do not skip more frames than indicated
-		osl_nbSkippedFrames++;
-		if (osl_nbSkippedFrames >= max_frameskip)		{
-			osl_vblCallCount = osl_vblCount;
-			goto noskip;
-		}
-		osl_skip = 1;
-		#ifdef OSL_SYSTEM_BENCHMARK_ENABLED
-			oslMeanBenchmarkTestEx(OSL_BENCH_START, 5);
-		#endif
-	}
-	else		{
-		/*
-			En mettant le label noskip ici au lieu d'en bas, on évite le problème qui fait que lorsqu'on dépasse le frameskip max la VSync n'est plus prise en compte. Dans ce cas la VSync est toujours
-			attendue, même si le frameskip max a été dépassé, alors que pour l'instant ce n'est pas le cas: si le frameskip max a été dépassé, la VSync n'est pas attendue, quel que soit le paramètre
-			Vsync actuel.
-		*/
-noskip:
-
-		#ifdef OSL_SYSTEM_BENCHMARK_ENABLED
-		//To measure the total time of a frame (until it has been swapped)
-		oslMeanBenchmarkTestEx(OSL_BENCH_END, 6);
-		#endif
-
-		//Pour attendre la prochaine frame - toujours en mode VSync, si on a assez d'avance en mode Auto
-		/*
-			Note: Le fait qu'on le fasse lorsque le skip passe à zéro fait que le framerate se remet de lui même au max. possible, alors qu'en le mettant dans le cas où lastOslSkip est 0 "fixe" le framerate
-			à 30 fps, il est difficile de remonter, ça évite un peu les saccades aléatoires, à voir.
-			Attention: Pareil pour swapbuffers!
-		*/
-		if (vsync & 1)		{
-			while (osl_vblCallCount >= osl_vblCount)
-				waitNextFrame();
-		}
-		else	{
-			while (osl_vblCallCount > osl_vblCount)
-				waitNextFrame();
-		}
-
-//noskip:
-		osl_skip = 0;
-		osl_nbSkippedFrames = 0;
-	}
-
-	//Pas de support pour le frameskip? On n'active jamais le skip.
-	if (!frameskip)
-		osl_skip = 0;
-
-	#ifdef OSL_SYSTEM_BENCHMARK_ENABLED
-	if (!osl_skip)		{
-		oslMeanBenchmarkTestEx(OSL_BENCH_START, 4);
-		oslMeanBenchmarkTestEx(OSL_BENCH_START, 6);
-	}
-	else		{
-		oslMeanBenchmarkTestEx(OSL_BENCH_START, 5);
-	}
-	#endif
-
-	//Flag 16 pour ne pas swapper les buffers
-	if (!(vsync & 16) && !osl_skip)			{
-		oslSwapBuffers();
-	}
-
-	return osl_skip;
-}
-
-#else
-
-#ifdef PSP
-#define swap()		({ if (!(vsync & 16) && !swapped) osl_vblShouldSwap = 1; swapped = 1; })
-#else
-#define swap()
-#endif
-
-static void waitNextFrame()		{
-	osl_vblankCounterActive = 0;
-//	while (osl_vblCallCount >= osl_vblCount)		{
-		oslWaitVSync();
-		oslVblankNextFrame();
-//	}
-	osl_vblankCounterActive = 1;
-}
-
-int oslSyncFrameEx(int frameskip, int max_frameskip, int vsync)
-{
-//	int lastOslSkip = osl_skip;
-	int wasDrawing=0, swapped = 0;
-
-	if (osl_isDrawingStarted)
-		oslEndDrawing(), wasDrawing=1;
-
-	//We need to do this outside of the handler to be more precise
-//	osl_vblankCounterActive = 0;
-	osl_vblCallCount++;
-
-	#ifdef OSL_SYSTEM_BENCHMARK_ENABLED
-	if (!osl_skip)
-		oslMeanBenchmarkTestEx(OSL_BENCH_END, 4);
-	else
-		oslMeanBenchmarkTestEx(OSL_BENCH_END, 5);
-	#endif
-
-	//Soit on est en retard, soit on a un frameskip fixé. oslMax => éviter une division par zéro ;)
-	if (osl_vblCallCount < osl_vblCount
-		|| (osl_vblCallCount % oslMax(frameskip, 1)))		{
-		//Do not skip more frames than indicated
-		osl_nbSkippedFrames++;
-		if (osl_nbSkippedFrames >= max_frameskip)		{
-			osl_vblCallCount = osl_vblCount;
-			goto noskip;
-		}
-		osl_skip = 1;
-		#ifdef OSL_SYSTEM_BENCHMARK_ENABLED
-			oslMeanBenchmarkTestEx(OSL_BENCH_START, 5);
-		#endif
-	}
-	else		{
-		/*
-			En mettant le label noskip ici au lieu d'en bas, on évite le problème qui fait que lorsqu'on dépasse le frameskip max la VSync n'est plus prise en compte. Dans ce cas la VSync est toujours
-			attendue, même si le frameskip max a été dépassé, alors que pour l'instant ce n'est pas le cas: si le frameskip max a été dépassé, la VSync n'est pas attendue, quel que soit le paramètre
-			Vsync actuel.
-		*/
-noskip:
-
-		#ifdef OSL_SYSTEM_BENCHMARK_ENABLED
-		//To measure the total time of a frame (until it has been swapped)
-		oslMeanBenchmarkTestEx(OSL_BENCH_END, 6);
-		#endif
-
-		//Pour attendre la prochaine frame - toujours en mode VSync, si on a assez d'avance en mode Auto
-		/*
-			Note: Le fait qu'on le fasse lorsque le skip passe à zéro fait que le framerate se remet de lui même au max. possible, alors qu'en le mettant dans le cas où lastOslSkip est 0 "fixe" le framerate
-			à 30 fps, il est difficile de remonter, ça évite un peu les saccades aléatoires, à voir.
-			Attention: Pareil pour swapbuffers!
-		*/
-		if (vsync & 1)		{
-			if (osl_vblCallCount >= osl_vblCount)			{
-				swap();
-			}
-			while (osl_vblCallCount >= osl_vblCount)
-				waitNextFrame();
-		}
-		else	{
-			if (osl_vblCallCount > osl_vblCount)			{
-				swap();
-			}
-			while (osl_vblCallCount > osl_vblCount)
-				waitNextFrame();
-		}
-
-//noskip:
-		osl_skip = 0;
-		osl_nbSkippedFrames = 0;
-	}
-
-	//Pas de support pour le frameskip? On n'active jamais le skip.
-	if (!frameskip)
-		osl_skip = 0;
-
-	#ifdef OSL_SYSTEM_BENCHMARK_ENABLED
-	if (!osl_skip)		{
-		oslMeanBenchmarkTestEx(OSL_BENCH_START, 4);
-		oslMeanBenchmarkTestEx(OSL_BENCH_START, 6);
-	}
-	else		{
-		oslMeanBenchmarkTestEx(OSL_BENCH_START, 5);
-	}
-	#endif
-
-	//Flag 16 pour ne pas swapper les buffers
-	if (!swapped && !(vsync & 16) && !osl_skip)			{
-		oslSwapBuffers();
-	}
-
-	return osl_skip;
-}
-#endif
-#endif
-
-/*int oslSyncFrameEx(int frameskip, int max_frameskip, int vsync)
-{
-	osl_vblCallCount++;
-	if (osl_vblCount > osl_vblCallCount)			{
-		if (!osl_skip)		{
-//			if (vsync)
-//				oslWaitVSync();
-			oslSwapBuffers();
-		}
-		osl_skip = 1;
-	}
-	else	{
-		if (osl_vblCount <= osl_vblCallCount)		{
-			do	{
-				oslWaitVSync();
-			} while (osl_vblCount+1 <=osl_vblCallCount);
-		}
-		if (!osl_skip)			{
-			oslSwapBuffers();
-		}
-		osl_nbSkippedFrames=0;
-		osl_skip = 0;
-	}
-
-	return osl_skip;
-}*/
 
 void oslEndFrame()		{
 	oslAudioVSync();
 }
-
