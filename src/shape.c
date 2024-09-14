@@ -1,13 +1,5 @@
 #include "oslib.h"
 
-// Helper function to enable/disable texturing
-void toggleTexturing(int enable) {
-    if (enable)
-        oslEnableTexturing();
-    else
-        oslDisableTexturing();
-}
-
 OSL_COLOR oslBlendColors(OSL_COLOR color1, OSL_COLOR color2) {
     if (color2 == 0xffffffff) {  // No blending needed
         return color1;
@@ -27,29 +19,31 @@ OSL_COLOR oslBlendColors(OSL_COLOR color1, OSL_COLOR color2) {
 
 void oslDrawLine(int x0, int y0, int x1, int y1, OSL_COLOR color) {
     OSL_LINE_VERTEX* vertices = (OSL_LINE_VERTEX*)sceGuGetMemory(2 * sizeof(OSL_LINE_VERTEX));
-    color = oslBlendColors(color, osl_currentAlphaCoeff);
+    color = oslBlendColor(color);
 
-    vertices[0].color = color;
-    vertices[0].x = x0;
-    vertices[0].y = y0;
-    vertices[0].z = 0;
+	vertices[0].color = color;
+	vertices[0].x = x0;
+	vertices[0].y = y0;
+	vertices[0].z = 0;
 
-    vertices[1].color = color;
-    vertices[1].x = x1;
-    vertices[1].y = y1;
-    vertices[1].z = 0;
+	vertices[1].color = color;
+	vertices[1].x = x1;
+	vertices[1].y = y1;
+	vertices[1].z = 0;
 
-    int wasEnabled = osl_textureEnabled;
-    toggleTexturing(0); // Disable texturing
+	int wasEnabled = osl_textureEnabled;
+	oslDisableTexturing();
 
-    sceGuDrawArray(GU_LINES, GU_COLOR_8888 | GU_VERTEX_16BIT | GU_TRANSFORM_2D, 2, 0, vertices);
+	sceGuDrawArray(GU_LINES, GU_COLOR_8888 | GU_VERTEX_16BIT | GU_TRANSFORM_2D, 2, 0, vertices);
     sceKernelDcacheWritebackRange(vertices, 2 * sizeof(OSL_LINE_VERTEX));
-    toggleTexturing(wasEnabled); // Restore previous state
+	if (wasEnabled) {
+		oslEnableTexturing();
+	}
 }
 
 void oslDrawRect(int x0, int y0, int x1, int y1, OSL_COLOR color) {
-    OSL_LINE_VERTEX* vertices = (OSL_LINE_VERTEX*)sceGuGetMemory(8 * sizeof(OSL_LINE_VERTEX));
-    color = oslBlendColors(color, osl_currentAlphaCoeff);
+	OSL_LINE_VERTEX* vertices = (OSL_LINE_VERTEX*)sceGuGetMemory(8 * sizeof(OSL_LINE_VERTEX));
+	color = oslBlendColor(color);
 
     // Ensure correct rectangle coordinates
     if (x1 < x0) {
@@ -63,37 +57,59 @@ void oslDrawRect(int x0, int y0, int x1, int y1, OSL_COLOR color) {
         y1 = temp;
     }
 
-    vertices[0].color = color;
-    vertices[0].x = x0;
-    vertices[0].y = y0;
-    vertices[0].z = 0;
+	vertices[0].color = color;
+	vertices[0].x = x0;
+	vertices[0].y = y0+1;
+	vertices[0].z = 0;
 
-    vertices[1].color = color;
-    vertices[1].x = x0;
-    vertices[1].y = y1;
-    vertices[1].z = 0;
+	vertices[1].color = color;
+	vertices[1].x = x0;
+	vertices[1].y = y1;
+	vertices[1].z = 0;
 
-    vertices[2].color = color;
-    vertices[2].x = x1;
-    vertices[2].y = y1;
-    vertices[2].z = 0;
+	vertices[2].color = color;
+	vertices[2].x = x0+1;
+	vertices[2].y = y1-1;
+	vertices[2].z = 0;
 
-    vertices[3].color = color;
-    vertices[3].x = x1;
-    vertices[3].y = y0;
-    vertices[3].z = 0;
+	vertices[3].color = color;
+	vertices[3].x = x1;
+	vertices[3].y = y1-1;
+	vertices[3].z = 0;
 
-    int wasEnabled = osl_textureEnabled;
-    toggleTexturing(0); // Disable texturing
+	vertices[4].color = color;
+	vertices[4].x = x1-1;
+	vertices[4].y = y0;
+	vertices[4].z = 0;
+
+	vertices[5].color = color;
+	vertices[5].x = x1-1;
+	vertices[5].y = y1-1;
+	vertices[5].z = 0;
+
+	vertices[6].color = color;
+	vertices[6].x = x0;
+	vertices[6].y = y0;
+	vertices[6].z = 0;
+
+	vertices[7].color = color;
+	vertices[7].x = x1-1;
+	vertices[7].y = y0;
+	vertices[7].z = 0;
+
+	int wasEnabled = osl_textureEnabled;
+	oslDisableTexturing();
 
     sceGuDrawArray(GU_LINES, GU_COLOR_8888 | GU_VERTEX_16BIT | GU_TRANSFORM_2D, 8, 0, vertices);
     sceKernelDcacheWritebackRange(vertices, 8 * sizeof(OSL_LINE_VERTEX));
-    toggleTexturing(wasEnabled); // Restore previous state
+	if (wasEnabled) {
+		oslEnableTexturing();
+	}
 }
 
 void oslDrawFillRect(int x0, int y0, int x1, int y1, OSL_COLOR color) {
-    OSL_LINE_VERTEX* vertices = (OSL_LINE_VERTEX*)sceGuGetMemory(2 * sizeof(OSL_LINE_VERTEX));
-    color = oslBlendColors(color, osl_currentAlphaCoeff);
+	OSL_LINE_VERTEX* vertices = (OSL_LINE_VERTEX*)sceGuGetMemory(2 * sizeof(OSL_LINE_VERTEX));
+    color = oslBlendColor(color);
 
     vertices[0].color = color;
     vertices[0].x = x0;
@@ -106,46 +122,50 @@ void oslDrawFillRect(int x0, int y0, int x1, int y1, OSL_COLOR color) {
     vertices[1].z = 0;
 
     int wasEnabled = osl_textureEnabled;
-    toggleTexturing(0); // Disable texturing
+    oslDisableTexturing();
 
     sceGuDrawArray(GU_SPRITES, GU_COLOR_8888 | GU_VERTEX_16BIT | GU_TRANSFORM_2D, 2, 0, vertices);
     sceKernelDcacheWritebackRange(vertices, 2 * sizeof(OSL_LINE_VERTEX));
-    toggleTexturing(wasEnabled); // Restore previous state
+    if (wasEnabled) {
+        oslEnableTexturing();
+	}
 }
 
 void oslDrawGradientRect(int x0, int y0, int x1, int y1, OSL_COLOR colorTopLeft, OSL_COLOR colorTopRight, OSL_COLOR colorBottomLeft, OSL_COLOR colorBottomRight) {
     OSL_LINE_VERTEX* vertices = (OSL_LINE_VERTEX*)sceGuGetMemory(4 * sizeof(OSL_LINE_VERTEX));
 
     // Pre-blend colors
-    colorTopLeft = oslBlendColors(colorTopLeft, osl_currentAlphaCoeff);
-    colorTopRight = oslBlendColors(colorTopRight, osl_currentAlphaCoeff);
-    colorBottomLeft = oslBlendColors(colorBottomLeft, osl_currentAlphaCoeff);
-    colorBottomRight = oslBlendColors(colorBottomRight, osl_currentAlphaCoeff);
+    colorTopLeft = oslBlendColor(colorTopLeft);
+    colorTopRight = oslBlendColor(colorTopRight);
+    colorBottomLeft = oslBlendColor(colorBottomLeft);
+    colorBottomRight = oslBlendColor(colorBottomRight);
 
-    vertices[0].color = colorTopLeft;
-    vertices[0].x = x0;
-    vertices[0].y = y0;
-    vertices[0].z = 0;
+	vertices[0].color = colorTopLeft;
+	vertices[0].x = x0;
+	vertices[0].y = y0;
+	vertices[0].z = 0;
 
-    vertices[1].color = colorTopRight;
-    vertices[1].x = x1;
-    vertices[1].y = y0;
-    vertices[1].z = 0;
+	vertices[1].color = colorTopRight;
+	vertices[1].x = x1;
+	vertices[1].y = y0;
+	vertices[1].z = 0;
 
-    vertices[2].color = colorBottomLeft;
-    vertices[2].x = x0;
-    vertices[2].y = y1;
-    vertices[2].z = 0;
+	vertices[2].color = colorBottomLeft;
+	vertices[2].x = x0;
+	vertices[2].y = y1;
+	vertices[2].z = 0;
 
-    vertices[3].color = colorBottomRight;
-    vertices[3].x = x1;
-    vertices[3].y = y1;
-    vertices[3].z = 0;
+	vertices[3].color = colorBottomRight;
+	vertices[3].x = x1;
+	vertices[3].y = y1;
+	vertices[3].z = 0;
 
     int wasEnabled = osl_textureEnabled;
-    toggleTexturing(0); // Disable texturing
+    oslDisableTexturing();
 
     sceGuDrawArray(GU_TRIANGLE_STRIP, GU_COLOR_8888 | GU_VERTEX_16BIT | GU_TRANSFORM_2D, 4, 0, vertices);
     sceKernelDcacheWritebackRange(vertices, 4 * sizeof(OSL_LINE_VERTEX));
-    toggleTexturing(wasEnabled); // Restore previous state
+    if (wasEnabled) {
+        oslEnableTexturing();
+	}
 }
