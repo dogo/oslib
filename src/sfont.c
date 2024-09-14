@@ -241,6 +241,8 @@ OSL_SFONT *oslLoadSFontFile(char *filename, int pixelFormat) {
     int letterCount = 0;
     int x = 0;
 
+    sfont->lettersCount = 0;
+
     // Process each column in the PNG image to extract font letters
     while (x < img->sizeX) {
         int color = _getPixel(img, x, 0);
