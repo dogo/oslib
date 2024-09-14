@@ -80,58 +80,58 @@ set(PSPMATH_SOURCES
 )
 
 set(LIB_SOURCES
-    ${SOURCE_DIR}/oslib.c
-    ${SOURCE_DIR}/vfpu.c
-    ${SOURCE_DIR}/drawing.c
-    ${SOURCE_DIR}/image.c
-    ${SOURCE_DIR}/palette.c
-    ${SOURCE_DIR}/shape.c
-    ${SOURCE_DIR}/map.c
-    ${SOURCE_DIR}/messagebox.c
-    ${SOURCE_DIR}/oslHandleLoadNoFailError.c
-    ${SOURCE_DIR}/keys.c
-    ${SOURCE_DIR}/text.c
-    ${SOURCE_DIR}/vram_mgr.c
+    ${SOURCE_DIR}/adhoc/pspadhoc.c
     ${SOURCE_DIR}/audio/audio.c
     ${SOURCE_DIR}/audio/bgm.c
-    ${SOURCE_DIR}/audio/mod.c
     ${SOURCE_DIR}/audio/media.c
-    ${SOURCE_DIR}/usb.c
-    ${SOURCE_DIR}/dialog.c
-    ${SOURCE_DIR}/osk.c
-    ${SOURCE_DIR}/saveload.c
-    ${SOURCE_DIR}/net.c
+    ${SOURCE_DIR}/audio/mod.c
     ${SOURCE_DIR}/browser.c
-    ${SOURCE_DIR}/adhoc/pspadhoc.c
-    ${SOURCE_DIR}/vfile/VirtualFile.c
-    ${SOURCE_DIR}/vfile/vfsFile.c
-    ${SOURCE_DIR}/image/oslConvertImageTo.c
-    ${SOURCE_DIR}/image/oslSetImagePixel.c
-    ${SOURCE_DIR}/image/oslGetImagePixel.c
-    ${SOURCE_DIR}/image/oslDrawImage.c
-    ${SOURCE_DIR}/image/oslDrawImageSimple.c
-    ${SOURCE_DIR}/image/oslDrawImageBig.c
-    ${SOURCE_DIR}/image/oslLockImage.c
-    ${SOURCE_DIR}/image/oslMoveImageTo.c
-    ${SOURCE_DIR}/image/oslSwizzleImage.c
-    ${SOURCE_DIR}/image/oslUnswizzleImage.c
-    ${SOURCE_DIR}/image/oslSetDrawBuffer.c
-    ${SOURCE_DIR}/image/oslResetImageProperties.c
-    ${SOURCE_DIR}/image/oslScaleImage.c
+    ${SOURCE_DIR}/dialog.c
+    ${SOURCE_DIR}/drawing.c
     ${SOURCE_DIR}/gif/dev2gif.c ${SOURCE_DIR}/gif/dgif_lib.c ${SOURCE_DIR}/gif/egif_lib.c
     ${SOURCE_DIR}/gif/gif_err.c ${SOURCE_DIR}/gif/gifalloc.c ${SOURCE_DIR}/gif/quantize.c
-    ${SOURCE_DIR}/Special/oslLoadImageFilePNG.c
-    ${SOURCE_DIR}/Special/oslWriteImageFilePNG.c
-    ${SOURCE_DIR}/Special/oslLoadImageFileJPG.c
-    ${SOURCE_DIR}/Special/oslLoadImageFileGIF.c
-    ${SOURCE_DIR}/Special/oslLoadImageFile.c
-    ${SOURCE_DIR}/Special/oslWriteImageFile.c
-    ${SOURCE_DIR}/splash/oslShowSplashScreen1.c
-    ${SOURCE_DIR}/splash/oslShowSplashScreen2.c
-    ${SOURCE_DIR}/mem/oslGetRamStatus.c
+    ${SOURCE_DIR}/image.c
+    ${SOURCE_DIR}/image/oslConvertImageTo.c
+    ${SOURCE_DIR}/image/oslDrawImage.c
+    ${SOURCE_DIR}/image/oslDrawImageBig.c
+    ${SOURCE_DIR}/image/oslDrawImageSimple.c
+    ${SOURCE_DIR}/image/oslGetImagePixel.c
+    ${SOURCE_DIR}/image/oslLockImage.c
+    ${SOURCE_DIR}/image/oslMoveImageTo.c
+    ${SOURCE_DIR}/image/oslResetImageProperties.c
+    ${SOURCE_DIR}/image/oslScaleImage.c
+    ${SOURCE_DIR}/image/oslSetDrawBuffer.c
+    ${SOURCE_DIR}/image/oslSetImagePixel.c
+    ${SOURCE_DIR}/image/oslSwizzleImage.c
+    ${SOURCE_DIR}/image/oslUnswizzleImage.c
     ${SOURCE_DIR}/intraFont/intraFont.c
     ${SOURCE_DIR}/intraFont/libccc.c
+    ${SOURCE_DIR}/keys.c
+    ${SOURCE_DIR}/map.c
+    ${SOURCE_DIR}/mem/oslGetRamStatus.c
+    ${SOURCE_DIR}/messagebox.c
+    ${SOURCE_DIR}/net.c
+    ${SOURCE_DIR}/osk.c
+    ${SOURCE_DIR}/oslHandleLoadNoFailError.c
+    ${SOURCE_DIR}/oslib.c
+    ${SOURCE_DIR}/palette.c
+    ${SOURCE_DIR}/saveload.c
+    ${SOURCE_DIR}/shape.c
+    ${SOURCE_DIR}/Special/oslLoadImageFile.c
+    ${SOURCE_DIR}/Special/oslLoadImageFileGIF.c
+    ${SOURCE_DIR}/Special/oslLoadImageFileJPG.c
+    ${SOURCE_DIR}/Special/oslLoadImageFilePNG.c
+    ${SOURCE_DIR}/Special/oslWriteImageFile.c
+    ${SOURCE_DIR}/Special/oslWriteImageFilePNG.c
+    ${SOURCE_DIR}/splash/oslShowSplashScreen1.c
+    ${SOURCE_DIR}/splash/oslShowSplashScreen2.c
     ${SOURCE_DIR}/stub.S
+    ${SOURCE_DIR}/text.c
+    ${SOURCE_DIR}/usb.c
+    ${SOURCE_DIR}/vfile/vfsFile.c
+    ${SOURCE_DIR}/vfile/VirtualFile.c
+    ${SOURCE_DIR}/vfpu.c
+    ${SOURCE_DIR}/vram_mgr.c
 )
 
 # Specify that stub.S is an assembly file
