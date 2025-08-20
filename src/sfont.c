@@ -319,7 +319,7 @@ void oslDeleteSFont(OSL_SFONT *sfont) {
 
 	// Free the sfont struct itself
 	free(sfont);
-	sfont = NULL;
+	// Note: Use oslDeleteSFontSafe() macro to automatically set pointer to NULL
 }
 
 int oslGetSFontTextWidth(OSL_SFONT *sfont, char *text) {

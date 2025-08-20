@@ -54,6 +54,21 @@ OSL_SFONT *oslLoadSFontFile(char *filename, int pixelFormat);
 void oslDeleteSFont(OSL_SFONT *sfont);
 
 /**
+ * @brief Safely deletes an SFont and sets the pointer to NULL.
+ * 
+ * This macro safely deletes an SFont and automatically sets the pointer to NULL
+ * to prevent accidental use of the deleted SFont pointer.
+ * 
+ * @param sfont_ptr Pointer to the OSL_SFONT pointer to be deleted and nullified.
+ */
+#define oslDeleteSFontSafe(sfont_ptr) do { \
+    if (sfont_ptr) { \
+        oslDeleteSFont(sfont_ptr); \
+        (sfont_ptr) = NULL; \
+    } \
+} while(0)
+
+/**
  * @brief Get the text width using an SFont.
  *
  * @param sfont The SFont to use for measurement.

@@ -9,15 +9,26 @@ int xLoadBitmap(char *fichier, unsigned long **data, int *width, int *height)		{
 	HDC hdcEcran;
 	int x,y;
 
+	// Input validation
+	if (!data || !width || !height || !fichier) {
+		return 0;
+	}
+	
 	hdcEcran = GetDC(NULL);
 	hbmConv = (HBITMAP) LoadImage(NULL, fichier, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE|LR_CREATEDIBSECTION);
 	if (!hbmConv)	{
+		ReleaseDC(NULL, hdcEcran); // Clean up before returning
 		return 0;
 	}
 	GetObject(hbmConv, sizeof(bmConv), &bmConv);
 	*width = bmConv.bmWidth;
 	*height = bmConv.bmHeight;
-	*data = (unsigned long*)malloc((*width) * (*height) * sizeof(*data));
+	*data = (unsigned long*)malloc((*width) * (*height) * sizeof(unsigned long));
+	if (!*data) {
+		DeleteObject(hbmConv);
+		ReleaseDC(NULL, hdcEcran);
+		return 0;
+	}
 
 	hdcConv = CreateCompatibleDC(hdcEcran);
 	SelectObject(hdcConv, hbmConv);
@@ -45,6 +56,11 @@ int xWriteBmpFile(HDC hdc, char *pszflname, int width, int height)
 	RECT rct; 
 	int i;
 
+	// Bounds validation
+	if (!pszflname || width <= 0 || height <= 0) {
+		return 0;
+	}
+	
 //	hdc = GetWindowDC(hwnd); 
 	if(!hdc) return 0;
 	rct.bottom = height;
@@ -96,7 +112,7 @@ int xWriteBmpFile(HDC hdc, char *pszflname, int width, int height)
 	DeleteDC(memdc); 
 	return 1; 
 errato: 
-	DeleteDC(memdc); 
+	if (memdc) DeleteDC(memdc);  // Ensure memdc is valid before deleting
 relHwndDc:
 	return 0;
 //	ReleaseDC(hwnd, hdc); return 0; 

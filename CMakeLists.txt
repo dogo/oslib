@@ -1,6 +1,12 @@
 cmake_minimum_required(VERSION 3.10)
 project(OSLib C CXX ASM)
 
+# Set C and C++ standards
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 # Load the PSP platform configuration
 set(CMAKE_SYSTEM_NAME PSP)
 set(CMAKE_SYSTEM_VERSION 1)

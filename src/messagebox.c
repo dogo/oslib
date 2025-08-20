@@ -100,7 +100,7 @@ unsigned int oslMessageBox(const char *text, const char *title, unsigned int fla
 			break;
 
 		buttons[i].key = (flags & 31);
-		if (buttons[i].key >= 1 && buttons[i].key <= 24) {
+		if (buttons[i].key >= 1 && buttons[i].key <= 23) { // Fix: Array has 23 elements (0-22), so max key should be 23
 			c = keys[buttons[i].key - 1];
 		} else {
 			c = ' ';

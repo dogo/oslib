@@ -1,9 +1,18 @@
+# Cppcheck suppressions for OSLib
+# Suppress warnings for third-party code and headers
+
+# Third-party libraries that we don't modify
 *:src/gif/*
 *:src/intraFont/*
 *:src/libpspmath/*
+
+# Third-party headers (PNG, zlib, etc.)
 *:src/png.h
 *:src/pngconf.h
 *:src/pnglibconf.h
 *:src/zconf.h
 *:src/zlib.h
 *:src/zlibInterface.h
+
+# Suppress missing include warnings for PSP-specific headers
+missingIncludeSystem:*

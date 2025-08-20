@@ -28,5 +28,13 @@ link_directories(
 set(CMAKE_CROSSCOMPILING TRUE)
 
 # Set common PSP compile flags
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -G0 -Wall -D__PSP__ -DPSP -O2")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -G0 -Wall -D__PSP__ -DPSP -O2")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -G0 -Wall -Wextra -Wstrict-prototypes -Wmissing-prototypes -D__PSP__ -DPSP -O2")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -G0 -Wall -Wextra -D__PSP__ -DPSP -O2")
+
+# Add debug flags for Debug builds
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -g -O0 -DDEBUG")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -O0 -DDEBUG")
+
+# Add optimization flags for Release builds  
+set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O3 -DNDEBUG")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -DNDEBUG")

@@ -13,7 +13,7 @@ OSL_IMAGE *oslLoadImageFile(char *filename, int location, int pixelFormat) {
 
     char extension[10] = {0};
     int i = 0;
-    while (ext[i] && i < sizeof(extension) - 1) // Leave space for the null terminator
+    while (i < sizeof(extension) - 1 && ext[i]) // Check bounds first to prevent array index issue
     {
         extension[i] = tolower((unsigned char) ext[i]);
         i++;

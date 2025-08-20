@@ -68,7 +68,10 @@ short *oslDecodeADMono(OSL_ADGlobals *ad, short *dst, const unsigned char *src, 
 
 	// Allocate stream buffer if streaming
 	if (streaming) {
-		streambuffer = (unsigned char *)alloca(len >> 1);
+		streambuffer = (unsigned char *)malloc(len >> 1);
+		if (!streambuffer) {
+			return NULL; // Handle allocation failure
+		}
 		VirtualFileRead(streambuffer, len >> 1, 1, (VIRTUAL_FILE *)src);
 	}
 
@@ -107,6 +110,12 @@ short *oslDecodeADMono(OSL_ADGlobals *ad, short *dst, const unsigned char *src, 
 	ad->last_index = index;
 	ad->last_sample = last_sample;
 	ad->data = src;
+	
+	// Clean up allocated memory if streaming
+	if (streaming && streambuffer) {
+		free(streambuffer);
+	}
+	
 	return dst;
 }
 

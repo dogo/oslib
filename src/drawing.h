@@ -1055,6 +1055,21 @@ extern OSL_IMAGE *oslCreateImage(int larg, int haut, short location, short pixel
 extern void oslDeleteImage(OSL_IMAGE *img);
 
 /**
+ * @brief Safely deletes an image and sets the pointer to NULL.
+ * 
+ * This macro safely deletes an image and automatically sets the pointer to NULL
+ * to prevent accidental use of the deleted image pointer.
+ * 
+ * @param img_ptr Pointer to the OSL_IMAGE pointer to be deleted and nullified.
+ */
+#define oslDeleteImageSafe(img_ptr) do { \
+    if (img_ptr) { \
+        oslDeleteImage(img_ptr); \
+        (img_ptr) = NULL; \
+    } \
+} while(0)
+
+/**
  * @brief Loads an image from a file, allowing selection of its location and pixel format.
  *
  * This function loads an image from a specified file, automatically handling the details of format detection and memory management based on the provided location and pixel format.

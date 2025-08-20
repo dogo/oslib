@@ -311,6 +311,10 @@ struct remotePsp *oslAdhocGetPspByIndex(int index)
 
 int oslAdhocRequestConnection(struct remotePsp *aPsp, int timeOut, int (*requestConnectionCB)(int aPspState))
 {
+    // Check pointer validity first
+    if (aPsp == NULL)
+        return -1;
+    
 	int ret = sceNetAdhocMatchingSelectTarget(matchingHD, (unsigned char *) aPsp->macAddress, 0, 0);
     if( ret <0) return ret;
 
@@ -321,9 +325,6 @@ int oslAdhocRequestConnection(struct remotePsp *aPsp, int timeOut, int (*request
 
     while(!quit)
     {
-		if (aPsp == NULL)
-			return -1;
-
 		if (requestConnectionCB != NULL)
 			quit = requestConnectionCB(aPsp->connectionState);
 

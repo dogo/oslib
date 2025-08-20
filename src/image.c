@@ -100,7 +100,7 @@ void oslDeleteImage(OSL_IMAGE *img)
 			oslDeletePalette(img->palette);
 	}
 	free(img);
-	img = NULL;
+	// Note: Use oslDeleteImageSafe() macro to automatically set pointer to NULL
 }
 
 
