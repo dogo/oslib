@@ -16,3 +16,9 @@ samples/**/*.SFO
 # Ignore documentation directory
 OSLib_Documentation/
 src/libpspmath/*.a
+
+# Ignore test files and executables
+test_*
+*_test
+*_test.c
+*_test.cpp

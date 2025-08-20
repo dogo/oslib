@@ -268,6 +268,21 @@ extern void oslDrawTextBoxByWords(int x0, int y0, int x1, int y1, const char *te
  */
 extern void oslDeleteFont(OSL_FONT *f);
 
+/**
+ * @brief Safely deletes a font and sets the pointer to NULL.
+ * 
+ * This macro safely deletes a font and automatically sets the pointer to NULL
+ * to prevent accidental use of the deleted font pointer.
+ * 
+ * @param font_ptr Pointer to the OSL_FONT pointer to be deleted and nullified.
+ */
+#define oslDeleteFontSafe(font_ptr) do { \
+    if (font_ptr) { \
+        oslDeleteFont(font_ptr); \
+        (font_ptr) = NULL; \
+    } \
+} while(0)
+
 /** @brief Returns the width of a string in pixels.
  *
  *  Calculates the width of a string using the currently selected font. To center text horizontally
