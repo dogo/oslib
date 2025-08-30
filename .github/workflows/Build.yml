@@ -49,11 +49,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - *setup_pspdev
+      - name: Setup PSPDEV Environment
+        run: |
+          # Set OS specific variables
+          URL="https://github.com/pspdev/pspdev/releases/download/v20240609/pspdev-ubuntu-latest-x86_64.tar.gz"
+          FILE=$(basename $URL)
+          wget $URL
+          tar -xzf $FILE
+          echo "PSPDEV=$PWD/pspdev" >> $GITHUB_ENV
+          echo "$PWD/pspdev/bin" >> $GITHUB_PATH
       - name: Generate documentation
         run: make gendoc
-      - &publish_docs
-        name: Publish to GitHub Pages
+      - name: Publish to GitHub Pages
         run: make ghpages
         env:
           GIT_AUTHOR_NAME: github-actions
@@ -67,7 +74,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - *setup_pspdev
+      - name: Setup PSPDEV Environment
+        run: |
+          # Set OS specific variables
+          URL="https://github.com/pspdev/pspdev/releases/download/v20240609/pspdev-ubuntu-latest-x86_64.tar.gz"
+          FILE=$(basename $URL)
+          wget $URL
+          tar -xzf $FILE
+          echo "PSPDEV=$PWD/pspdev" >> $GITHUB_ENV
+          echo "$PWD/pspdev/bin" >> $GITHUB_PATH
       - name: Build project
         run: make
       - name: Generate release files
@@ -75,10 +90,17 @@ jobs:
       - name: Compress release
         run: |
           mkdir -p dist
-          tar -czf dist/oslib-release-${GITHUB_REF##*/}.tar.gz release/
+          tar -czf dist/oslib-release-${GITHUB_REF##*/}.tar.gz Distrib/
       - name: Generate documentation
         run: make gendoc
-      - *publish_docs
+      - name: Publish to GitHub Pages
+        run: make ghpages
+        env:
+          GIT_AUTHOR_NAME: github-actions
+          GIT_AUTHOR_EMAIL: github-actions@github.com
+          GIT_COMMITTER_NAME: github-actions
+          GIT_COMMITTER_EMAIL: github-actions@github.com
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Publish release on GitHub Releases
         uses: softprops/action-gh-release@v1
         with:

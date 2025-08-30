@@ -247,6 +247,9 @@ install: lib
 gendoc:
 	doxygen
 
+release: lib
+	./release.sh
+
 ghpages: gendoc
 	rm -rf /tmp/ghpages
 	mkdir -p /tmp/ghpages
@@ -254,9 +257,11 @@ ghpages: gendoc
 
 	cd /tmp/ghpages && \
 		git init && \
+		git config user.name "$${GIT_AUTHOR_NAME:-github-actions}" && \
+		git config user.email "$${GIT_AUTHOR_EMAIL:-github-actions@github.com}" && \
 		git add . && \
 		git commit -q -m "Automatic gh-pages"
 	cd /tmp/ghpages && \
-		git remote add remote git@github.com:dogo/oslib.git && \
+		git remote add remote https://x-access-token:$${GITHUB_TOKEN}@github.com/dogo/oslib.git && \
 		git push --force remote +master:gh-pages
 	rm -rf /tmp/ghpages
