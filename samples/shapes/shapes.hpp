@@ -26,7 +26,7 @@ namespace sys
 		oslSetKeyAutorepeatInterval(10);
 		return true;
 	}
-	inline void keys()
+	inline bool feed()
 	{
 		oslReadKeys();
 		if (osl_keys->pressed.cross)
@@ -40,6 +40,7 @@ namespace sys
 		else if (osl_keys->pressed.start)
 			oslQuit();
 		quit = osl_quit;
+		return !quit;
 	}
 	inline bool swap()
 	{
