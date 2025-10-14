@@ -1,5 +1,5 @@
 #!/bin/sh
-export TARGET="./Distrib"
+export TARGET="./dist"
 export SOURCE_DIR="./src"
 
 echo
@@ -53,7 +53,7 @@ cp -f install.bat $TARGET
 cp -f install.sh $TARGET
 
 echo "Copying DOC...."
-cp -rf OSLib_Documentation $TARGET/Doc
+cp -rf doc $TARGET/doc
 
 echo "Copying Samples...."
 cp -rf samples $TARGET/

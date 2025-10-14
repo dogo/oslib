@@ -1,6 +1,6 @@
 @echo off
 
-set TARGET=..\Distrib
+set TARGET=..\dist
 set SOURCE_DIR=.\src
 
 echo
@@ -56,7 +56,7 @@ xcopy install.bat %TARGET%
 xcopy install.sh %TARGET%
 
 echo "xcopying DOC...."
-xcopy OSLib_Documentation %TARGET%\Doc
+xcopy doc %TARGET%\doc
 
 echo "xcopying Samples...."
 xcopy samples /e %TARGET%\Install\samples

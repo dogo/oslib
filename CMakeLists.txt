@@ -2,21 +2,16 @@ cmake_minimum_required(VERSION 3.10)
 project(OSLib C CXX ASM)
 
 # Set C and C++ standards
-set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD 23)
 set(CMAKE_C_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_C_EXTENSIONS ON)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS ON)
 
 # Load the PSP platform configuration
-set(CMAKE_SYSTEM_NAME PSP)
-set(CMAKE_SYSTEM_VERSION 1)
-set(CMAKE_SYSTEM_PROCESSOR mips)
-set(CMAKE_SYSTEM_CMAKE_PLATFORM_PATH "${CMAKE_SOURCE_DIR}/Platform")
-
-include("${CMAKE_SYSTEM_CMAKE_PLATFORM_PATH}/PSP.cmake")
-
-# PSP Firmware version
-add_definitions(-DPSP_FW_VERSION=371)
+set(CMAKE_SYSTEM_CMAKE_PLATFORM_PATH "${CMAKE_SOURCE_DIR}/cmake")
+include(${CMAKE_SYSTEM_CMAKE_PLATFORM_PATH}/PSP.cmake)
 
 # Set the output library
 set(TARGET_LIB osl)
@@ -145,39 +140,6 @@ set_source_files_properties(${SOURCE_DIR}/stub.S PROPERTIES LANGUAGE ASM)
 
 # Add sources to the target
 target_sources(${TARGET_LIB} PRIVATE ${SFONT_SOURCES} ${PSPMATH_SOURCES} ${LIB_SOURCES})
-
-# Define preprocessor defines
-target_compile_definitions(${TARGET_LIB} PRIVATE _DEBUG PSP)
-
-# Set the C flags
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O2 -G0 -ggdb -Wall -DHAVE_AV_CONFIG_H -fno-strict-aliasing -fverbose-asm")
-
-# Set the C++ flags
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_C_FLAGS} -fno-exceptions -fno-rtti")
-
-# Linker flags
-target_link_libraries(${TARGET_LIB}
-    -lpspsdk
-    -lpspctrl -lpsphprm
-    -lpspumd
-    -lpsprtc
-    -lpspgu -lpspgum
-    -lpspaudiolib
-    -lpspaudio -lpspaudiocodec
-    -lpsppower
-    -lpspusb -lpspusbstor
-    -lpsputility
-    -lpspssl -lpsphttp -lpspwlan
-    -lpspnet_adhoc -lpspnet_adhocctl -lpspnet_adhocmatching
-    -lpng -ljpeg -lz -lm
-)
-
-# Get the PSP prefix using psp-config
-execute_process(
-    COMMAND psp-config --psp-prefix
-    OUTPUT_VARIABLE PSPDIR
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-)
 
 # Installation instructions
 install(TARGETS ${TARGET_LIB} DESTINATION ${PSPDIR}/lib)

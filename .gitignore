@@ -1,6 +1,8 @@
 # Ignore compiled object files
 *.o
-
+*.a
+*.so
+*.lib
 # Ignore build directory
 build
 
@@ -14,9 +16,15 @@ samples/**/*.prx
 samples/**/*.SFO
 
 # Ignore documentation directory
-OSLib_Documentation/
+doc/html
 src/libpspmath/*.a
 
 # Ignore release artifacts
-Distrib/
+dist/
 OSLib.zip
+
+# CMake
+install_manifest.txt
+cmake_install.cmake
+CMakeFiles/
+CMakeCache.txt

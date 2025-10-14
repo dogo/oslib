@@ -21,7 +21,7 @@ To install OSLib:
 
 ## Documentation
 
-You can find the documentation in the `Doc` directory, or consult it online here:  
+You can find the documentation in the `doc` directory, or consult it online here:  
 [http://dogo.github.io/oslib/](http://dogo.github.io/oslib/)
 
 ## Contributing
