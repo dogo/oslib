@@ -147,10 +147,10 @@ install(TARGETS ${TARGET_LIB} DESTINATION ${PSPDIR}/lib)
 
 # Include directories installation (headers)
 install(FILES lib/libintraFont/include/intraFont.h lib/libintraFont/include/libccc.h
-    DESTINATION ${PSPDIR}/include/oslib/intraFont)
+	DESTINATION ${PSPDIR}/include/oslib)
 
 install(FILES lib/libpspmath/include/pspmath.h
-    DESTINATION ${PSPDIR}/include/oslib/libpspmath)
+	DESTINATION ${PSPDIR}/include/oslib)
 
 install(FILES ${SOURCE_DIR}/adhoc/pspadhoc.h
     DESTINATION ${PSPDIR}/include/oslib/adhoc)

@@ -216,12 +216,11 @@ $(STATICLIB): $(LIBOBJS)
 install: lib
 	install -d $(DESTDIR)$(PSPDIR)/lib
 	install -m644 $(TARGET_LIB) $(DESTDIR)$(PSPDIR)/lib
-	install -d $(DESTDIR)$(PSPDIR)/include/oslib/intraFont/
-	install -d $(DESTDIR)$(PSPDIR)/include/oslib/libpspmath/
+	install -d $(DESTDIR)$(PSPDIR)/include/oslib/
 	install -d $(DESTDIR)$(PSPDIR)/include/oslib/adhoc/
-	install -m644 $(LIB_DIR)/libintraFont/include/intraFont.h $(DESTDIR)$(PSPDIR)/include/oslib/intraFont/
-	install -m644 $(LIB_DIR)/libintraFont/include/libccc.h $(DESTDIR)$(PSPDIR)/include/oslib/intraFont/
-	install -m644 $(LIB_DIR)/libpspmath/include/pspmath.h $(DESTDIR)$(PSPDIR)/include/oslib/libpspmath/
+	install -m644 $(LIB_DIR)/libintraFont/include/intraFont.h $(DESTDIR)$(PSPDIR)/include/oslib/
+	install -m644 $(LIB_DIR)/libintraFont/include/libccc.h $(DESTDIR)$(PSPDIR)/include/oslib/
+	install -m644 $(LIB_DIR)/libpspmath/include/pspmath.h $(DESTDIR)$(PSPDIR)/include/oslib/
 	install -m644 $(SOURCE_DIR)/adhoc/pspadhoc.h $(DESTDIR)$(PSPDIR)/include/oslib/adhoc/
 	install -m644 $(SOURCE_DIR)/oslmath.h $(DESTDIR)$(PSPDIR)/include/oslib/
 	install -m644 $(SOURCE_DIR)/net.h $(DESTDIR)$(PSPDIR)/include/oslib/
