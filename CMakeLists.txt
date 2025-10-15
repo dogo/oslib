@@ -81,6 +81,20 @@ set(PSPMATH_SOURCES
     lib/libpspmath/src/vfpu_quaternion_hermite_tangent.c
 )
 
+set(GIFLIB_SOURCES
+    lib/giflib/gif2rgb.c
+    lib/giflib/dgif_lib.c
+    lib/giflib/egif_lib.c
+    lib/giflib/gif_err.c
+    lib/giflib/gifalloc.c
+    lib/giflib/quantize.c
+)
+
+set(INTRAFONT_SOURCES
+    lib/libintraFont/src/intraFont.c
+    lib/libintraFont/src/libccc.c
+)
+
 set(LIB_SOURCES
     ${SOURCE_DIR}/adhoc/pspadhoc.c
     ${SOURCE_DIR}/audio/audio.c
@@ -90,8 +104,6 @@ set(LIB_SOURCES
     ${SOURCE_DIR}/browser.c
     ${SOURCE_DIR}/dialog.c
     ${SOURCE_DIR}/drawing.c
-    lib/giflib/gif2rgb.c lib/giflib/dgif_lib.c lib/giflib/egif_lib.c
-    lib/giflib/gif_err.c lib/giflib/gifalloc.c lib/giflib/quantize.c
     ${SOURCE_DIR}/image.c
     ${SOURCE_DIR}/image/oslConvertImageTo.c
     ${SOURCE_DIR}/image/oslDrawImage.c
@@ -106,8 +118,6 @@ set(LIB_SOURCES
     ${SOURCE_DIR}/image/oslSetImagePixel.c
     ${SOURCE_DIR}/image/oslSwizzleImage.c
     ${SOURCE_DIR}/image/oslUnswizzleImage.c
-    lib/libintraFont/src/intraFont.c
-    lib/libintraFont/src/libccc.c
     ${SOURCE_DIR}/keys.c
     ${SOURCE_DIR}/map.c
     ${SOURCE_DIR}/mem/oslGetRamStatus.c
@@ -140,7 +150,7 @@ set(LIB_SOURCES
 set_source_files_properties(${SOURCE_DIR}/stub.S PROPERTIES LANGUAGE ASM)
 
 # Add sources to the target
-target_sources(${TARGET_LIB} PRIVATE ${SFONT_SOURCES} ${PSPMATH_SOURCES} ${LIB_SOURCES})
+target_sources(${TARGET_LIB} PRIVATE ${SFONT_SOURCES} ${PSPMATH_SOURCES} ${GIFLIB_SOURCES} ${INTRAFONT_SOURCES} ${LIB_SOURCES})
 
 # Installation instructions
 install(TARGETS ${TARGET_LIB} DESTINATION ${PSPDIR}/lib)

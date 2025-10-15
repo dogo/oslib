@@ -75,6 +75,16 @@ PSPMATHOBJS := 	            $(LIB_DIR)/libpspmath/src/printMatrixFloat.o \
                             $(LIB_DIR)/libpspmath/src/vfpu_quaternion_sample_hermite.o \
                             $(LIB_DIR)/libpspmath/src/vfpu_quaternion_hermite_tangent.o
 
+INTRAFONTOBJS :=		    $(LIB_DIR)/libintraFont/src/intraFont.o \
+							$(LIB_DIR)/libintraFont/src/libccc.o
+
+GIFLIBOBJS :=				${LIB_DIR}/giflib/gif2rgb.o \
+							${LIB_DIR}/giflib/dgif_lib.o \
+							${LIB_DIR}/giflib/egif_lib.o \
+							${LIB_DIR}/giflib/gif_err.o \
+							${LIB_DIR}/giflib/gifalloc.o \
+							${LIB_DIR}/giflib/quantize.o
+
 LIBOBJS :=					$(SFONTOBJS) \
 							$(PSPMATHOBJS) \
 							$(SOURCE_DIR)/oslib.o \
@@ -116,8 +126,6 @@ LIBOBJS :=					$(SFONTOBJS) \
 							$(SOURCE_DIR)/image/oslSetDrawBuffer.o \
 							$(SOURCE_DIR)/image/oslResetImageProperties.o \
 							$(SOURCE_DIR)/image/oslScaleImage.o \
-							${LIB_DIR}/giflib/gif2rgb.o ${LIB_DIR}/giflib/dgif_lib.o ${LIB_DIR}/giflib/egif_lib.o \
-							${LIB_DIR}/giflib/gif_err.o ${LIB_DIR}/giflib/gifalloc.o ${LIB_DIR}/giflib/quantize.o \
 							$(SOURCE_DIR)/image/format/oslLoadImageFilePNG.o	\
 							$(SOURCE_DIR)/image/format/oslWriteImageFilePNG.o	\
 							$(SOURCE_DIR)/image/format/oslLoadImageFileJPG.o	\
@@ -126,11 +134,9 @@ LIBOBJS :=					$(SFONTOBJS) \
 							$(SOURCE_DIR)/image/oslWriteImageFile.o \
 							$(SOURCE_DIR)/splash/oslShowSplashScreen1.o \
 							$(SOURCE_DIR)/splash/oslShowSplashScreen2.o \
-							$(SOURCE_DIR)/mem/oslGetRamStatus.o \
-							${LIB_DIR}/libintraFont/src/intraFont.o \
-							${LIB_DIR}/libintraFont/src/libccc.o
+							$(SOURCE_DIR)/mem/oslGetRamStatus.o
 
-OBJS :=						$(LIBOBJS)
+OBJS :=						$(LIBOBJS) $(INTRAFONTOBJS) $(GIFLIBOBJS)
 
 #----------------------------------------------------------------------------
 #	Additional includes
