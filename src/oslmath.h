@@ -15,7 +15,7 @@ extern "C" {
  * @{
  */
 
-#include "libpspmath/pspmath.h"
+#include "pspmath.h"
 
 /**
  * @brief Set the seed for the VFPU random number generator.

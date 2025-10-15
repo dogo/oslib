@@ -2,7 +2,7 @@
 # Suppress warnings for third-party code and headers
 
 # Third-party libraries that we don't modify
-*:src/gif/*
+*:lib/giflib/*
 *:src/intraFont/*
 *:src/libpspmath/*
 

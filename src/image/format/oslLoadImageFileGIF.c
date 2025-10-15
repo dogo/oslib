@@ -1,5 +1,5 @@
 #include "oslib.h"
-#include "gif/gif_lib.h"
+#include "gif_lib.h"
 
 /*
     Note: The temporary palette here is 32-bit, but it would be easy to adapt to other formats, 
@@ -60,7 +60,7 @@ int DGifGetLineByte(GifFileType *GifFile, GifPixelType *Line, int LineLen, int p
 OSL_IMAGE *oslLoadImageFileGIF(char *filename, int location, int pixelFormat)
 {
     OSL_IMAGE *img = NULL;
-    int i, j, alpha, Row = 0, Col = 0, Width, Height, ExtCode;
+    int i, j, alpha, Row = 0, Col = 0, Width, Height, ExtCode, ErrorCode;
     u32 *Palette = NULL;
     GifRecordType RecordType;
     GifByteType *Extension;
@@ -83,7 +83,7 @@ OSL_IMAGE *oslLoadImageFileGIF(char *filename, int location, int pixelFormat)
     // Open the GIF file using the virtual file system
     f = VirtualFileOpen((void*)filename, 0, VF_AUTO, VF_O_READ);
     if (f) {
-        GifFile = DGifOpen(f, fnGifReadFunc);
+        GifFile = DGifOpen(f, fnGifReadFunc, &ErrorCode);
 
         // Scan the content of the GIF file and load the image(s)
         do {
@@ -160,7 +160,7 @@ OSL_IMAGE *oslLoadImageFileGIF(char *filename, int location, int pixelFormat)
         } while (RecordType != TERMINATE_RECORD_TYPE);
 
         // Close the file when done
-        DGifCloseFile(GifFile);
+        DGifCloseFile(GifFile, &ErrorCode);
         VirtualFileClose(f);
 
         // Free the memory allocated for the temporary palette

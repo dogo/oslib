@@ -15,7 +15,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
+        with:
+          submodules: 'true'
       - name: Setup PSPDEV Environment
         run: |
           URL="https://github.com/pspdev/pspdev/releases/download/v20240609/pspdev-ubuntu-latest-x86_64.tar.gz"
@@ -45,6 +46,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: 'true'
 
       - name: Setup PSPDEV Environment
         run: |
@@ -64,7 +67,7 @@ jobs:
       - name: Compress release
         run: |
           mkdir -p dist
-          tar -czf dist/oslib-release-${GITHUB_REF##*/}.tar.gz Distrib/
+          tar -czf dist/oslib-release-${GITHUB_REF##*/}.tar.gz dist/
 
       - name: Install doxygen
         run: sudo apt-get update && sudo apt-get install -y doxygen

@@ -4,15 +4,7 @@ int main(int argc, char** argv)
 {
 	sys::init();
 
-	while(!sys::quit)
-	{
-		if(!sys::skip)
-		{
-			sys::keys();
-			sys::draw();
-			sys::swap();
-		}
-	}
+	while(sys::feed()) if(!sys::skip) { sys::draw(); sys::swap(); }
 
 	sys::halt();
 

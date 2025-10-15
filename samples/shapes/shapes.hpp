@@ -13,9 +13,9 @@ namespace sys
 	float ratio = (float)w/(float)h;
 	float     z = 1.0f;
 	float     x = 0.0f;
-	bool skip   = false;
-	bool quit   = false;
-	int  mode   = 0;
+	bool   skip = false;
+	bool   quit = false;
+	int    mode = 0;
 	inline bool init()
 	{
 		oslInit(0);
@@ -26,7 +26,7 @@ namespace sys
 		oslSetKeyAutorepeatInterval(10);
 		return true;
 	}
-	inline void keys()
+	inline bool feed()
 	{
 		oslReadKeys();
 		if (osl_keys->pressed.cross)
@@ -39,7 +39,7 @@ namespace sys
 			mode = 4;
 		else if (osl_keys->pressed.start)
 			oslQuit();
-		quit = osl_quit;
+		return !(quit = osl_quit);
 	}
 	inline bool swap()
 	{

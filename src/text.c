@@ -1,5 +1,5 @@
 #include "oslib.h"
-#include "intraFont/intraFont.h"
+#include "intraFont.h"
 
 unsigned int intra_options = 0;
 

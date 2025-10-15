@@ -26,7 +26,7 @@ extern "C" {
 #ifdef PSP
 
 #include <psptypes.h>
-#include <libpspmath/pspmath.h>
+#include "pspmath.h"
 
 #endif
 

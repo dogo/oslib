@@ -74,7 +74,7 @@ PROJECT_ICON           =
 # entered, it will be relative to the location where Doxygen was started. If
 # left blank the current directory will be used.
 
-OUTPUT_DIRECTORY       = ./OSLib_Documentation
+OUTPUT_DIRECTORY       = ./doc
 
 # If the CREATE_SUBDIRS tag is set to YES then Doxygen will create up to 4096
 # sub-directories (in 2 levels) under the output directory of each output format
@@ -983,7 +983,7 @@ INPUT                  = src/oslib.h \
                          src/oslmath.h \
                          src/ccc.h \
                          src/VirtualFile.h \
-                         ./Doc/mainpage.txt
+                         ./doc/mainpage.txt
 
 # This tag can be used to specify the character encoding of the source files
 # that Doxygen parses. Internally Doxygen uses the UTF-8 encoding. Doxygen uses

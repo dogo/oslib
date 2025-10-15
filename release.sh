@@ -1,5 +1,5 @@
 #!/bin/sh
-export TARGET="./Distrib"
+export TARGET="./dist"
 export SOURCE_DIR="./src"
 
 echo
@@ -21,9 +21,9 @@ echo "Copying lib...."
 cp -f  libosl.a $TARGET/Install
 
 echo "Copying header files...."
-cp -f $SOURCE_DIR/intraFont/intraFont.h $TARGET/Install/oslib/intraFont/
-cp -f $SOURCE_DIR/intraFont/libccc.h $TARGET/Install/oslib/intraFont/
-cp -f $SOURCE_DIR/libpspmath/pspmath.h $TARGET/Install/oslib/libpspmath/
+cp -f lib/libintraFont/include/intraFont.h $TARGET/Install/oslib/intraFont/
+cp -f lib/libintraFont/include/libccc.h $TARGET/Install/oslib/intraFont/
+cp -f lib/libpspmath/include/pspmath.h $TARGET/Install/oslib/libpspmath/
 cp -f $SOURCE_DIR/adhoc/pspadhoc.h $TARGET/Install/oslib/adhoc/
 cp -f $SOURCE_DIR/oslmath.h $TARGET/Install/oslib/
 cp -f $SOURCE_DIR/net.h $TARGET/Install/oslib/
@@ -53,7 +53,7 @@ cp -f install.bat $TARGET
 cp -f install.sh $TARGET
 
 echo "Copying DOC...."
-cp -rf OSLib_Documentation $TARGET/Doc
+cp -rf doc $TARGET/doc
 
 echo "Copying Samples...."
 cp -rf samples $TARGET/
