@@ -20,7 +20,7 @@
 extern "C" {
 #endif
 
-#include "intraFont/libccc.h"
+#include "libccc.h"
 
 /**
  * @brief Convert characters from Shift JIS encoding to UCS2 encoding.

@@ -1,4 +1,4 @@
-src/gif/
+lib/giflib/
 src/intraFont/
 src/libpspmath/
 src/png.h

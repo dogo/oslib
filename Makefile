@@ -21,7 +21,7 @@ PSP_FW_VERSION=371
 #----------------------------------------------------------------------------
 #	Project folders
 #	---------------
-
+LIB_DIR := lib
 SOURCE_DIR := src
 
 #----------------------------------------------------------------------------
@@ -116,19 +116,19 @@ LIBOBJS :=					$(SFONTOBJS) \
 							$(SOURCE_DIR)/image/oslSetDrawBuffer.o \
 							$(SOURCE_DIR)/image/oslResetImageProperties.o \
 							$(SOURCE_DIR)/image/oslScaleImage.o \
-							$(SOURCE_DIR)/gif/dev2gif.o $(SOURCE_DIR)/gif/dgif_lib.o $(SOURCE_DIR)/gif/egif_lib.o \
-							$(SOURCE_DIR)/gif/gif_err.o $(SOURCE_DIR)/gif/gifalloc.o $(SOURCE_DIR)/gif/quantize.o \
-							$(SOURCE_DIR)/Special/oslLoadImageFilePNG.o	\
-							$(SOURCE_DIR)/Special/oslWriteImageFilePNG.o	\
-							$(SOURCE_DIR)/Special/oslLoadImageFileJPG.o	\
-							$(SOURCE_DIR)/Special/oslLoadImageFileGIF.o	\
-							$(SOURCE_DIR)/Special/oslLoadImageFile.o	\
-							$(SOURCE_DIR)/Special/oslWriteImageFile.o \
+							${LIB_DIR}/giflib/gif2rgb.o ${LIB_DIR}/giflib/dgif_lib.o ${LIB_DIR}/giflib/egif_lib.o \
+							${LIB_DIR}/giflib/gif_err.o ${LIB_DIR}/giflib/gifalloc.o ${LIB_DIR}/giflib/quantize.o \
+							$(SOURCE_DIR)/image/format/oslLoadImageFilePNG.o	\
+							$(SOURCE_DIR)/image/format/oslWriteImageFilePNG.o	\
+							$(SOURCE_DIR)/image/format/oslLoadImageFileJPG.o	\
+							$(SOURCE_DIR)/image/format/oslLoadImageFileGIF.o	\
+							$(SOURCE_DIR)/image/oslLoadImageFile.o	\
+							$(SOURCE_DIR)/image/oslWriteImageFile.o \
 							$(SOURCE_DIR)/splash/oslShowSplashScreen1.o \
 							$(SOURCE_DIR)/splash/oslShowSplashScreen2.o \
 							$(SOURCE_DIR)/mem/oslGetRamStatus.o \
-							$(SOURCE_DIR)/intraFont/intraFont.o \
-							$(SOURCE_DIR)/intraFont/libccc.o
+							${LIB_DIR}/libintraFont/src/intraFont.o \
+							${LIB_DIR}/libintraFont/src/libccc.o
 
 OBJS :=						$(LIBOBJS)
 
@@ -137,7 +137,7 @@ OBJS :=						$(LIBOBJS)
 #	-------------------
 
 INCDIR   :=					$(INCDIR) \
-							$(SOURCE_DIR)
+							$(SOURCE_DIR) $(LIB_DIR)/libintraFont/include $(LIB_DIR)/giflib
 
 #----------------------------------------------------------------------------
 #	Addditional libraries
@@ -219,8 +219,8 @@ install: lib
 	install -d $(DESTDIR)$(PSPDIR)/include/oslib/intraFont/
 	install -d $(DESTDIR)$(PSPDIR)/include/oslib/libpspmath/
 	install -d $(DESTDIR)$(PSPDIR)/include/oslib/adhoc/
-	install -m644 $(SOURCE_DIR)/intraFont/intraFont.h $(DESTDIR)$(PSPDIR)/include/oslib/intraFont/
-	install -m644 $(SOURCE_DIR)/intraFont/libccc.h $(DESTDIR)$(PSPDIR)/include/oslib/intraFont/
+	install -m644 $(LIB_DIR)/libintraFont/include/intraFont.h $(DESTDIR)$(PSPDIR)/include/oslib/intraFont/
+	install -m644 $(LIB_DIR)/libintraFont/include/libccc.h $(DESTDIR)$(PSPDIR)/include/oslib/intraFont/
 	install -m644 $(SOURCE_DIR)/libpspmath/pspmath.h $(DESTDIR)$(PSPDIR)/include/oslib/libpspmath/
 	install -m644 $(SOURCE_DIR)/adhoc/pspadhoc.h $(DESTDIR)$(PSPDIR)/include/oslib/adhoc/
 	install -m644 $(SOURCE_DIR)/oslmath.h $(DESTDIR)$(PSPDIR)/include/oslib/

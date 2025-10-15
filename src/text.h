@@ -1,7 +1,7 @@
 #ifndef TEXT_H
 #define TEXT_H
 
-#include "intraFont/intraFont.h"
+#include "intraFont.h"
 
 /** @file text.h
  *  @brief Text handling functions in OSLib.

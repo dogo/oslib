@@ -25,9 +25,10 @@ set_target_properties(${TARGET_LIB} PROPERTIES
 # Include directories
 include_directories(
     src
-    src/intraFont
+    INTERFACE PUBLIC_HEADER $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/lib/libintraFont/include>
     src/libpspmath
     src/adhoc
+    INTERFACE PRIVATE_HEADER $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/lib/giflib>
 )
 
 # Define the source files
@@ -89,8 +90,8 @@ set(LIB_SOURCES
     ${SOURCE_DIR}/browser.c
     ${SOURCE_DIR}/dialog.c
     ${SOURCE_DIR}/drawing.c
-    ${SOURCE_DIR}/gif/dev2gif.c ${SOURCE_DIR}/gif/dgif_lib.c ${SOURCE_DIR}/gif/egif_lib.c
-    ${SOURCE_DIR}/gif/gif_err.c ${SOURCE_DIR}/gif/gifalloc.c ${SOURCE_DIR}/gif/quantize.c
+    lib/giflib/gif2rgb.c lib/giflib/dgif_lib.c lib/giflib/egif_lib.c
+    lib/giflib/gif_err.c lib/giflib/gifalloc.c lib/giflib/quantize.c
     ${SOURCE_DIR}/image.c
     ${SOURCE_DIR}/image/oslConvertImageTo.c
     ${SOURCE_DIR}/image/oslDrawImage.c
@@ -105,8 +106,8 @@ set(LIB_SOURCES
     ${SOURCE_DIR}/image/oslSetImagePixel.c
     ${SOURCE_DIR}/image/oslSwizzleImage.c
     ${SOURCE_DIR}/image/oslUnswizzleImage.c
-    ${SOURCE_DIR}/intraFont/intraFont.c
-    ${SOURCE_DIR}/intraFont/libccc.c
+    lib/libintraFont/src/intraFont.c
+    lib/libintraFont/src/libccc.c
     ${SOURCE_DIR}/keys.c
     ${SOURCE_DIR}/map.c
     ${SOURCE_DIR}/mem/oslGetRamStatus.c
@@ -118,12 +119,12 @@ set(LIB_SOURCES
     ${SOURCE_DIR}/palette.c
     ${SOURCE_DIR}/saveload.c
     ${SOURCE_DIR}/shape.c
-    ${SOURCE_DIR}/Special/oslLoadImageFile.c
-    ${SOURCE_DIR}/Special/oslLoadImageFileGIF.c
-    ${SOURCE_DIR}/Special/oslLoadImageFileJPG.c
-    ${SOURCE_DIR}/Special/oslLoadImageFilePNG.c
-    ${SOURCE_DIR}/Special/oslWriteImageFile.c
-    ${SOURCE_DIR}/Special/oslWriteImageFilePNG.c
+    ${SOURCE_DIR}/image/oslLoadImageFile.c
+    ${SOURCE_DIR}/image/format/oslLoadImageFileGIF.c
+    ${SOURCE_DIR}/image/format/oslLoadImageFileJPG.c
+    ${SOURCE_DIR}/image/format/oslLoadImageFilePNG.c
+    ${SOURCE_DIR}/image/oslWriteImageFile.c
+    ${SOURCE_DIR}/image/format/oslWriteImageFilePNG.c
     ${SOURCE_DIR}/splash/oslShowSplashScreen1.c
     ${SOURCE_DIR}/splash/oslShowSplashScreen2.c
     ${SOURCE_DIR}/stub.S
@@ -145,7 +146,7 @@ target_sources(${TARGET_LIB} PRIVATE ${SFONT_SOURCES} ${PSPMATH_SOURCES} ${LIB_S
 install(TARGETS ${TARGET_LIB} DESTINATION ${PSPDIR}/lib)
 
 # Include directories installation (headers)
-install(FILES ${SOURCE_DIR}/intraFont/intraFont.h ${SOURCE_DIR}/intraFont/libccc.h
+install(FILES lib/libintraFont/include/intraFont.h lib/libintraFont/include/libccc.h
     DESTINATION ${PSPDIR}/include/oslib/intraFont)
 
 install(FILES ${SOURCE_DIR}/libpspmath/pspmath.h

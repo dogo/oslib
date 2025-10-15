@@ -1,6 +1,5 @@
 # Ignore compiled object files
 *.o
-*.a
 *.so
 *.lib
 # Ignore build directory

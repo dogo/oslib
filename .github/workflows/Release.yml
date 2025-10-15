@@ -15,7 +15,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
+        with:
+          submodules: 'true'
       - name: Setup PSPDEV Environment
         run: |
           URL="https://github.com/pspdev/pspdev/releases/download/v20240609/pspdev-ubuntu-latest-x86_64.tar.gz"
@@ -45,6 +46,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: 'true'
 
       - name: Setup PSPDEV Environment
         run: |

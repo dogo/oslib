@@ -22,6 +22,8 @@ jobs:
         shell: ${{ matrix.os[2] }} {0}
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: 'true'
       - &setup_pspdev
         name: Setup PSPDEV Environment
         run: |

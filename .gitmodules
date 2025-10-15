@@ -1,0 +1,6 @@
+[submodule "lib/giflib"]
+	path = lib/giflib
+	url = https://git.code.sf.net/p/giflib/code
+[submodule "lib/libintraFont"]
+	path = lib/libintraFont
+	url = https://github.com/pspdev/libintraFont

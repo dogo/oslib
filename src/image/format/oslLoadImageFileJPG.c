@@ -1,4 +1,4 @@
-#include "../oslib.h"
+#include "../../oslib.h"
 #include <jpeglib.h>
 #include <stdio.h>
 
