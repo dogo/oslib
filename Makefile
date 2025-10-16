@@ -193,6 +193,9 @@ CFLAGS   := $(DEFINES) -O2 -G0 -ggdb -Wall -DHAVE_AV_CONFIG_H -fno-strict-aliasi
 CXXFLAGS := $(CFLAGS) -fno-exceptions -fno-rtti
 ASFLAGS  := $(CFLAGS)
 
+# Suppress warnings for third-party library sources
+CFLAGS_THIRD_PARTY := $(DEFINES) -O2 -G0 -ggdb -w -DHAVE_AV_CONFIG_H -fno-strict-aliasing -fverbose-asm
+
 LIBDIR   :=
 LDFLAGS  :=
 
@@ -277,3 +280,19 @@ ghpages: gendoc
 		git remote add remote https://x-access-token:$${GITHUB_TOKEN}@github.com/dogo/oslib.git && \
 		git push --force remote +master:gh-pages
 	rm -rf /tmp/ghpages
+
+#----------------------------------------------------------------------------
+#   Third-party library rules (suppress warnings)
+#   ---------------------------------------------
+
+# libpspmath objects
+$(PSPMATHOBJS): %.o: %.c
+	$(CC) $(CFLAGS_THIRD_PARTY) $(addprefix -I,$(INCDIR)) -c $< -o $@
+
+# giflib objects
+$(GIFLIBOBJS): %.o: %.c
+	$(CC) $(CFLAGS_THIRD_PARTY) $(addprefix -I,$(INCDIR)) -c $< -o $@
+
+# libintraFont objects
+$(INTRAFONTOBJS): %.o: %.c
+	$(CC) $(CFLAGS_THIRD_PARTY) $(addprefix -I,$(INCDIR)) -c $< -o $@

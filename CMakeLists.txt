@@ -31,6 +31,13 @@ include_directories(
     src/adhoc
 )
 
+# Treat third-party library directories as system includes to suppress warnings
+include_directories(SYSTEM
+    ${PROJECT_SOURCE_DIR}/lib/giflib
+    ${PROJECT_SOURCE_DIR}/lib/libintraFont/include
+    ${PROJECT_SOURCE_DIR}/lib/libpspmath/include
+)
+
 # Define the source files
 set(SOURCE_DIR src)
 set(SFONT_SOURCES
@@ -145,6 +152,15 @@ include(${CMAKE_SYSTEM_CMAKE_PLATFORM_PATH}/IMG.cmake)
 
 # Specify that stub.S is an assembly file
 set_source_files_properties(${SOURCE_DIR}/stub.S PROPERTIES LANGUAGE ASM)
+
+# Suppress warnings for third-party library sources
+set_source_files_properties(
+    ${PSPMATH_SOURCES}
+    ${GIFLIB_SOURCES}
+    ${INTRAFONT_SOURCES}
+    PROPERTIES
+    COMPILE_FLAGS "-w"
+)
 
 # Add sources to the target
 target_sources(${TARGET_LIB} PRIVATE

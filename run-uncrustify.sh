@@ -26,7 +26,7 @@ for file in $files; do
 
     for pattern in "${ignored_patterns[@]}"; do
         # Remove trailing slashes and convert to relative path
-        rel_path="${file#${SCRIPT_DIR}/}"
+        rel_path="${file#"${SCRIPT_DIR}"/}"
 
         # Check if file matches pattern
         if [[ "$rel_path" == $pattern* ]] || [[ "$rel_path" == *"$pattern"* ]]; then
