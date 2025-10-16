@@ -4,13 +4,18 @@
 #include <zlib.h>
 #include <zconf.h>
 
+// Forward declarations
+static void oslPngReadFn(png_structp png_ptr, png_bytep data, png_size_t length);
+static void oslPngFlushFn(png_structp png_ptr);
+
 // Read / Write PNG
-void oslPngReadFn(png_structp png_ptr, png_bytep data, png_size_t length) {
+static void oslPngReadFn(png_structp png_ptr, png_bytep data, png_size_t length) {
 	VIRTUAL_FILE *f = (VIRTUAL_FILE *)png_get_io_ptr(png_ptr);
 	VirtualFileRead(data, length, 1, f);
 }
 
-void oslPngFlushFn(png_structp png_ptr) {
+static void oslPngFlushFn(png_structp png_ptr) {
+	(void)png_ptr; // Suppress unused parameter warning
 	// No operation
 }
 
@@ -97,7 +102,7 @@ OSL_IMAGE *oslLoadImageFilePNG(char *filename, int location, int pixelFormat) {
 		u32 *p_dest4 = (u32 *)img->data;
 		u16 *p_dest2 = (u16 *)img->data;
 		u8 *p_dest1 = (u8 *)img->data;
-		int color_per_entry = 8 / depth;
+		size_t color_per_entry = 8 / depth;
 		int mask = (1 << depth) - 1;
 
 		for (u32 y = 0; y < height; ++y) {

@@ -57,7 +57,7 @@ OSL_IMAGE *oslLoadImageFileJPG(char *filename, int location, int pixelFormat) {
 		row_pointer[0] = (unsigned char *)malloc(cinfo.output_width * cinfo.num_components);
 
 		if (row_pointer[0]) {
-			int x;
+			JDIMENSION x;
 			while (cinfo.output_scanline < cinfo.image_height) {
 				jpeg_read_scanlines(&cinfo, row_pointer, 1);
 				for (x = 0; x < cinfo.image_width; x++) {
