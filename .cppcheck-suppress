@@ -6,13 +6,5 @@
 *:lib/libintraFont/*
 *:lib/libpspmath/*
 
-# Third-party headers (PNG, zlib, etc.)
-*:src/png.h
-*:src/pngconf.h
-*:src/pnglibconf.h
-*:src/zconf.h
-*:src/zlib.h
-*:src/zlibInterface.h
-
 # Suppress missing include warnings for PSP-specific headers
 missingIncludeSystem:*

@@ -129,11 +129,7 @@ set(LIB_SOURCES
     ${SOURCE_DIR}/saveload.c
     ${SOURCE_DIR}/shape.c
     ${SOURCE_DIR}/image/oslLoadImageFile.c
-    ${SOURCE_DIR}/image/format/oslLoadImageFileGIF.c
-    ${SOURCE_DIR}/image/format/oslLoadImageFileJPG.c
-    ${SOURCE_DIR}/image/format/oslLoadImageFilePNG.c
     ${SOURCE_DIR}/image/oslWriteImageFile.c
-    ${SOURCE_DIR}/image/format/oslWriteImageFilePNG.c
     ${SOURCE_DIR}/splash/oslShowSplashScreen1.c
     ${SOURCE_DIR}/splash/oslShowSplashScreen2.c
     ${SOURCE_DIR}/stub.S
@@ -144,6 +140,8 @@ set(LIB_SOURCES
     ${SOURCE_DIR}/vfpu.c
     ${SOURCE_DIR}/vram_mgr.c
 )
+
+include(${CMAKE_SYSTEM_CMAKE_PLATFORM_PATH}/IMG.cmake)
 
 # Specify that stub.S is an assembly file
 set_source_files_properties(${SOURCE_DIR}/stub.S PROPERTIES LANGUAGE ASM)

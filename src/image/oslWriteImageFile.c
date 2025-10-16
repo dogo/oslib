@@ -18,9 +18,9 @@ int oslWriteImageFile(OSL_IMAGE *img, const char* filename, int flags)
 		extension[i] = tolower((unsigned char) ext[i]);
 		i++;
 	}
-
+#ifdef OSL_IMAGE_WRITER_PNG
 	if (strcmp(extension, ".png") == 0)
 		return oslWriteImageFilePNG(img, filename, flags);
-
+#endif
 	return 0;
 }

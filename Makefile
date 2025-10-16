@@ -130,7 +130,7 @@ LIBOBJS := \
 	$(SOURCE_DIR)/image/oslScaleImage.o \
 	$(SOURCE_DIR)/image/format/oslLoadImageFilePNG.o \
 	$(SOURCE_DIR)/image/format/oslWriteImageFilePNG.o \
-	$(SOURCE_DIR)/image/format/oslLoadImageFileJPG.o \
+	$(SOURCE_DIR)/image/format/oslLoadImageFileJPEG.o \
 	$(SOURCE_DIR)/image/format/oslLoadImageFileGIF.o \
 	$(SOURCE_DIR)/image/oslLoadImageFile.o \
 	$(SOURCE_DIR)/image/oslWriteImageFile.o \
@@ -179,7 +179,11 @@ LIBS := $(EXTERN_LIBS) $(SDK_LIBS) -lm
 
 DEFINES := \
 	-D_DEBUG \
-	-DPSP
+	-DPSP \
+	-DOSL_IMAGE_LOADER_PNG \
+	-DOSL_IMAGE_LOADER_JPEG \
+	-DOSL_IMAGE_LOADER_GIF \
+	-DOSL_IMAGE_WRITER_PNG
 
 #----------------------------------------------------------------------------
 #   Compiler settings

@@ -20,13 +20,18 @@ OSL_IMAGE *oslLoadImageFile(char *filename, int location, int pixelFormat) {
 	}
 
 	// Load the appropriate image type based on the extension
-	if (strcmp(extension, ".png") == 0) {
+#ifdef OSL_IMAGE_LOADER_PNG
+    if (strcmp(extension, ".png") == 0)
 		return oslLoadImageFilePNG(filename, location, pixelFormat);
-	} else if (strcmp(extension, ".jpg") == 0) {
+#endif
+#ifdef OSL_IMAGE_LOADER_JPEG
+    if (strcmp(extension, ".jpg") == 0)
 		return oslLoadImageFileJPG(filename, location, pixelFormat);
-	} else if (strcmp(extension, ".gif") == 0) {
+#endif
+#ifdef OSL_IMAGE_LOADER_GIF
+    if (strcmp(extension, ".gif") == 0)
 		return oslLoadImageFileGIF(filename, location, pixelFormat);
-	}
+#endif
 
 	return NULL;
 }

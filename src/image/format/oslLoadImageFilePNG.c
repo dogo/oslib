@@ -1,9 +1,8 @@
 #include "../../oslib.h"
-#include "../../png.h"
-#include "../../pngconf.h"
-#include "../../zlibInterface.h"
-#include "../../zlib.h"
-#include "../../zconf.h"
+#include <png.h>
+#include <pngconf.h>
+#include <zlib.h>
+#include <zconf.h>
 
 // Read / Write PNG
 void oslPngReadFn(png_structp png_ptr, png_bytep data, png_size_t length) {

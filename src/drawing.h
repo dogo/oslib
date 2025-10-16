@@ -1083,6 +1083,7 @@ extern void oslDeleteImage(OSL_IMAGE *img);
  */
 extern OSL_IMAGE *oslLoadImageFile(char *filename, int location, int pixelFormat);
 
+#ifdef OSL_IMAGE_LOADER_PNG
 /**
  * @brief Loads an image from a PNG file.
  *
@@ -1108,7 +1109,9 @@ extern OSL_IMAGE *oslLoadImageFile(char *filename, int location, int pixelFormat
  * The same considerations that apply to `oslLoadImageFile` also apply here, including the 512x512 size limit and the importance of handling `NULL` pointers.
  */
 extern OSL_IMAGE *oslLoadImageFilePNG(char *filename, int location, int pixelFormat);
+#endif
 
+#ifdef OSL_IMAGE_LOADER_JPEG
 /**
  * @brief Loads an image from a JPG file.
  *
@@ -1138,7 +1141,9 @@ extern OSL_IMAGE *oslLoadImageFilePNG(char *filename, int location, int pixelFor
  * @see oslLoadImageFile
  */
 extern OSL_IMAGE *oslLoadImageFileJPG(char *filename, int location, int pixelFormat);
+#endif
 
+#ifdef OSL_IMAGE_LOADER_GIF
 /**
  * @brief Loads an image from a GIF file.
  *
@@ -1163,6 +1168,7 @@ extern OSL_IMAGE *oslLoadImageFileJPG(char *filename, int location, int pixelFor
  * @see oslLoadImageFile
  */
 extern OSL_IMAGE *oslLoadImageFileGIF(char *filename, int location, int pixelFormat);
+#endif
 
 /**
  * @brief Controls automatic swizzling of images.
@@ -2242,6 +2248,7 @@ extern void oslClearImage(OSL_IMAGE *img, int color);         // A tester!!!
  */
 extern int oslWriteImageFile(OSL_IMAGE *img, const char *filename, int flags);
 
+#ifdef OSL_IMAGE_WRITER_PNG
 /** Writes an image to a PNG file. Same remarks as oslWriteImageFile apply.
         @param img
                 The image you want to write.
@@ -2257,6 +2264,7 @@ extern int oslWriteImageFile(OSL_IMAGE *img, const char *filename, int flags);
 
    \b Note: The same considerations as #oslWriteImageFile apply. */
 extern int oslWriteImageFilePNG(OSL_IMAGE *img, const char *filename, int flags);
+#endif
 
 /** Resets the properties of an image, including its position, tile settings, angle, rotation center, and stretching.
 
