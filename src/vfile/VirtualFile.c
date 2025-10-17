@@ -85,15 +85,26 @@ int vfsMemOpen(void *param1, int param2, int type, int mode, VIRTUAL_FILE* f) {
 	f->offset = 0;
 	f->ioPtr = param1;
 	f->maxSize = param2;
+	f->mode = mode; // Store the open mode for validation
 	return 1;
 }
 
 int vfsMemClose(VIRTUAL_FILE *f) {
-	return 1;
+    // Memory-based files don't need cleanup
+    // The memory pointed to by f->ioPtr is managed externally
+    // The VIRTUAL_FILE structure itself is freed by VirtualFileClose()
+    (void)f; // Suppress unused parameter warning
+    return 1;
 }
 
 int vfsMemWrite(const void *ptr, size_t size, size_t n, VIRTUAL_FILE* f) {
 	int realSize = size * n, writeSize = 0;
+
+	// Check if write is allowed
+	if (f->mode == VF_O_READ) {
+		return 0; // Cannot write in read-only mode
+	}
+
 	if (f->ioPtr) {
 		// Overflow?
 		writeSize = oslMin(realSize, f->maxSize - f->offset);
@@ -107,6 +118,11 @@ int vfsMemWrite(const void *ptr, size_t size, size_t n, VIRTUAL_FILE* f) {
 
 int vfsMemRead(void *ptr, size_t size, size_t n, VIRTUAL_FILE* f) {
 	int readSize = 0, realSize = size * n;
+
+	// Check if read is allowed
+	if (f->mode == VF_O_WRITE) {
+		return 0; // Cannot read in write-only mode
+	}
 
 	if (f->ioPtr) {
 		// min => avoid overflow
@@ -130,6 +146,12 @@ int vfsMemGetc(VIRTUAL_FILE *f) {
 
 int vfsMemPutc(int caractere, VIRTUAL_FILE *f) {
 	unsigned char car = caractere;
+
+	// Check if write is allowed
+	if (f->mode == VF_O_READ) {
+		return -1; // Cannot write in read-only mode
+	}
+
 	if (VirtualFileWrite(&car, sizeof(car), 1, f) < 1)
 		return -1;
 	else
@@ -174,6 +196,11 @@ char *vfsMemGets(char *str, int maxLen, VIRTUAL_FILE *f) {
 }
 
 void vfsMemPuts(const char *s, VIRTUAL_FILE *f) {
+	// Check if write is allowed
+	if (f->mode == VF_O_READ) {
+		return; // Cannot write in read-only mode
+	}
+
 	VirtualFileWrite(s, strlen(s), 1, f);
 }
 

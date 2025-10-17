@@ -26,6 +26,7 @@ extern "C" {
 typedef struct {
 	void *ioPtr;            //!< User data for IO processing (usually a pointer to data, FILE*, etc.)
 	unsigned short type;    //!< Virtual file type (source number).
+	unsigned short mode;    //!< File open mode (VF_O_READ, VF_O_WRITE, VF_O_READWRITE).
 	unsigned long userData; //!< Additional data
 	int offset, maxSize;    //!< Internal variables for memory-based (RAM / ROM) sources
 } VIRTUAL_FILE;

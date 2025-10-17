@@ -22,6 +22,7 @@ int vfsFileOpen(void *param1, int param2, int type, int mode, VIRTUAL_FILE* f) {
 	}
 
 	f->ioPtr = (void*)sceIoOpen((char*)param1, stdMode, 0777);
+	f->mode = mode; // Store the open mode
 	return (s32)f->ioPtr >= 0; // Return true if file descriptor is valid
 }
 
