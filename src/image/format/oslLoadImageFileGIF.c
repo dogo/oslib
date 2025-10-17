@@ -10,7 +10,7 @@ const short InterlacedOffset[] = { 0, 4, 2, 1 }; /* The way Interlaced image sho
 const short InterlacedJumps[] = { 8, 8, 4, 2 };  /* The way Interlaced image should be read - jumps */
 GifPixelType osl_gifLineBuf[2048]; // Temporary buffer
 
-int fnGifReadFunc(GifFileType* GifFile, GifByteType* buf, int count)
+static int fnGifReadFunc(GifFileType* GifFile, GifByteType* buf, int count)
 {
 	// Read data from the virtual file associated with the GIF
 	VirtualFileRead(buf, 1, count, (VIRTUAL_FILE*)GifFile->UserData);
@@ -18,7 +18,7 @@ int fnGifReadFunc(GifFileType* GifFile, GifByteType* buf, int count)
 	return count;
 }
 
-void fnCopyLine(void* dst, void* src, int count, int pixelFormat, int transparentColor)
+static void fnCopyLine(void* dst, void* src, int count, int pixelFormat)
 {
 	int x;
 	u8 *p_dest1 = (u8*)dst;
@@ -49,11 +49,11 @@ void fnCopyLine(void* dst, void* src, int count, int pixelFormat, int transparen
 	}
 }
 
-int DGifGetLineByte(GifFileType *GifFile, GifPixelType *Line, int LineLen, int pixelFormat, int transparentColor)
+static int DGifGetLineByte(GifFileType *GifFile, GifPixelType *Line, int LineLen, int pixelFormat)
 {
 	// Get the next line of pixels from the GIF and copy it to the destination buffer
 	int result = DGifGetLine(GifFile, osl_gifLineBuf, LineLen);
-	fnCopyLine(Line, osl_gifLineBuf, LineLen, pixelFormat, transparentColor);
+	fnCopyLine(Line, osl_gifLineBuf, LineLen, pixelFormat);
 	return result;
 }
 
@@ -124,13 +124,13 @@ OSL_IMAGE *oslLoadImageFileGIF(char *filename, int location, int pixelFormat)
 					// Perform 4 passes for interlaced images
 					for (i = 0; i < 4; i++) {
 						for (j = Row + InterlacedOffset[i]; j < Row + Height; j += InterlacedJumps[i]) {
-							DGifGetLineByte(GifFile, (GifPixelType*)oslGetImagePixelAdr(img, Col, j), Width, pixelFormat, transparentColor);
+							DGifGetLineByte(GifFile, (GifPixelType*)oslGetImagePixelAdr(img, Col, j), Width, pixelFormat);
 						}
 					}
 				} else {
 					// For non-interlaced images, read the lines sequentially
 					for (i = 0; i < Height; i++) {
-						DGifGetLineByte(GifFile, (GifPixelType*)oslGetImagePixelAdr(img, Col, Row), Width, pixelFormat, transparentColor);
+						DGifGetLineByte(GifFile, (GifPixelType*)oslGetImagePixelAdr(img, Col, Row), Width, pixelFormat);
 						Row++;
 					}
 				}
