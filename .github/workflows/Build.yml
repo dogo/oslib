@@ -13,8 +13,11 @@ jobs:
     strategy:
       matrix:
         os: [
-          [macos-13, x86_64, bash],
-          [ubuntu-22.04, x86_64, bash]
+          [macos-13, x86_64, bash], # Temporaryly keep macos-13 for compatibility
+          [macos-latest, arm64, bash],
+          # [macos-15-intel, x86_64, bash], #disable temporarily due no releases available from PSPDEV
+          [ubuntu-latest, x86_64, bash],
+          [ubuntu-24.04-arm, arm64, bash]
         ]
       fail-fast: false
     defaults:
@@ -27,11 +30,8 @@ jobs:
       - &setup_pspdev
         name: Setup PSPDEV Environment
         run: |
-          if [[ "$RUNNER_OS" == "Linux" ]]; then
-            URL="https://github.com/pspdev/pspdev/releases/download/v20240609/pspdev-ubuntu-latest-x86_64.tar.gz"
-          elif [[ "$RUNNER_OS" == "macOS" ]]; then
-            URL="https://github.com/pspdev/pspdev/releases/download/v20240609/pspdev-macos-13-x86_64.tar.gz"
-          fi
+          RELEASE_TAG="v20251001"
+          URL="https://github.com/pspdev/pspdev/releases/download/${RELEASE_TAG}/pspdev-${{ matrix.os[0] }}-${{ matrix.os[1] }}.tar.gz"
           FILE=$(basename $URL)
           wget $URL
           tar -xzf $FILE
