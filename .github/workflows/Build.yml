@@ -30,18 +30,7 @@ jobs:
       - &setup_pspdev
         name: Setup PSPDEV Environment
         run: |
-          RELEASE_TAG="v20251001"
-          URL="https://github.com/pspdev/pspdev/releases/download/${RELEASE_TAG}/pspdev-${{ matrix.os[0] }}-${{ matrix.os[1] }}.tar.gz"
-          FILE=$(basename $URL)
-          wget $URL
-          tar -xzf $FILE
-          echo "PSPDEV=$PWD/pspdev" >> $GITHUB_ENV
-          echo "$PWD/pspdev/bin" >> $GITHUB_PATH
-          if command -v brew >/dev/null 2>&1; then
-            echo "$(brew --prefix gnu-sed)/libexec/gnubin" >> $GITHUB_PATH
-            echo "$(brew --prefix libtool)/libexec/gnubin" >> $GITHUB_PATH
-            echo "PKG_CONFIG_PATH=$(brew --prefix libarchive)/lib/pkgconfig:$(brew --prefix openssl)/lib/pkgconfig" >> $GITHUB_ENV
-          fi
+          .github/scripts/setup_pspdev.sh "${{ matrix.os[0] }}" "${{ matrix.os[1] }}"
       - name: Runs build in shell
         run: |
           make

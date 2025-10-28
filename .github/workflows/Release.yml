@@ -10,40 +10,22 @@ permissions:
   contents: write
 
 jobs:
-  publish-docs:
-    name: publish-docs
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: 'true'
-      - name: Setup PSPDEV Environment
-        run: |
-          URL="https://github.com/pspdev/pspdev/releases/download/v20240609/pspdev-ubuntu-latest-x86_64.tar.gz"
-          FILE=$(basename "$URL")
-          wget "$URL"
-          tar -xzf "$FILE"
-          echo "PSPDEV=$PWD/pspdev" >> "$GITHUB_ENV"
-          echo "$PWD/pspdev/bin" >> "$GITHUB_PATH"
-
-      - name: Install doxygen
-        run: sudo apt-get update && sudo apt-get install -y doxygen
-
-      - name: Generate documentation
-        run: make gendoc
-
-      - name: Publish to GitHub Pages
-        run: make ghpages
-        env:
-          GIT_AUTHOR_NAME: github-actions
-          GIT_AUTHOR_EMAIL: github-actions@github.com
-          GIT_COMMITTER_NAME: github-actions
-          GIT_COMMITTER_EMAIL: github-actions@github.com
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
   publish:
     name: publish
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os[0] }}
+    strategy:
+      matrix:
+        os: [
+          [macos-13, x86_64, bash], # Temporaryly keep macos-13 for compatibility
+          [macos-latest, arm64, bash],
+          # [macos-15-intel, x86_64, bash], #disable temporarily due no releases available from PSPDEV
+          [ubuntu-latest, x86_64, bash],
+          [ubuntu-24.04-arm, arm64, bash]
+        ]
+      fail-fast: false
+    defaults:
+      run:
+        shell: ${{ matrix.os[2] }} {0}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -51,12 +33,7 @@ jobs:
 
       - name: Setup PSPDEV Environment
         run: |
-          URL="https://github.com/pspdev/pspdev/releases/download/v20240609/pspdev-ubuntu-latest-x86_64.tar.gz"
-          FILE=$(basename "$URL")
-          wget "$URL"
-          tar -xzf "$FILE"
-          echo "PSPDEV=$PWD/pspdev" >> "$GITHUB_ENV"
-          echo "$PWD/pspdev/bin" >> "$GITHUB_PATH"
+          .github/scripts/setup_pspdev.sh "${{ matrix.os[0] }}" "${{ matrix.os[1] }}"
 
       - name: Build project
         run: make
@@ -65,9 +42,34 @@ jobs:
         run: make release
 
       - name: Compress release
+        id: compress
         run: |
-          mkdir -p dist
-          tar -czf dist/oslib-release-${GITHUB_REF##*/}.tar.gz dist/
+          TAG_NAME="${GITHUB_REF##*/}"
+          OS_NAME="${{ matrix.os[0] }}"
+          ARCH_NAME="${{ matrix.os[1] }}"
+          RELEASE_NAME="oslib-${TAG_NAME}-${OS_NAME}-${ARCH_NAME}"
+          tar -czf "dist/${RELEASE_NAME}.tar.gz" -C dist .
+          echo "file=dist/${RELEASE_NAME}.tar.gz" >> $GITHUB_OUTPUT
+
+      - name: Publish release on GitHub Releases
+        uses: softprops/action-gh-release@v1
+        with:
+          files: ${{ steps.compress.outputs.file }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  publish-docs:
+    name: publish-docs
+    runs-on: ubuntu-latest
+    needs: publish
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: 'true'
+
+      - name: Setup PSPDEV Environment
+        run: |
+          .github/scripts/setup_pspdev.sh ubuntu-latest x86_64
 
       - name: Install doxygen
         run: sudo apt-get update && sudo apt-get install -y doxygen
@@ -82,12 +84,4 @@ jobs:
           GIT_AUTHOR_EMAIL: github-actions@github.com
           GIT_COMMITTER_NAME: github-actions
           GIT_COMMITTER_EMAIL: github-actions@github.com
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Publish release on GitHub Releases
-        uses: softprops/action-gh-release@v1
-        with:
-          files: |
-            dist/oslib-release-${GITHUB_REF##*/}.tar.gz
-        env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
