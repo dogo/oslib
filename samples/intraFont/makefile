@@ -2,7 +2,7 @@ TARGET = testIntraFont
 OBJS = main.o
 
 INCDIR =
-CFLAGS = -O2 -g -G0 -Wall
+CFLAGS = -O2 -g -G0 -Wall -DOSL_IMAGE_LOADER_PNG
 CXXFLAGS = $(CFLAGS) -fno-exceptions -fno-rtti
 ASFLAGS = $(CFLAGS)
 
@@ -23,4 +23,3 @@ PSP_EBOOT_TITLE = intraFont Test
 
 PSPSDK=$(shell psp-config --pspsdk-path)
 include $(PSPSDK)/lib/build.mak
-

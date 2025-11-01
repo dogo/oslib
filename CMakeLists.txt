@@ -96,6 +96,7 @@ set(GIFLIB_SOURCES
     lib/giflib/gif_err.c
     lib/giflib/gifalloc.c
     lib/giflib/quantize.c
+    lib/giflib/openbsd-reallocarray.c
 )
 set(INTRAFONT_SOURCES
     lib/libintraFont/src/intraFont.c

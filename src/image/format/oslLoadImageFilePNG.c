@@ -4,17 +4,13 @@
 #include <zlib.h>
 #include <zconf.h>
 
-// Forward declarations
-static void oslPngReadFn(png_structp png_ptr, png_bytep data, png_size_t length);
-static void oslPngFlushFn(png_structp png_ptr);
-
 // Read / Write PNG
-static void oslPngReadFn(png_structp png_ptr, png_bytep data, png_size_t length) {
+void oslPngReadFn(png_structp png_ptr, png_bytep data, png_size_t length) {
 	VIRTUAL_FILE *f = (VIRTUAL_FILE *)png_get_io_ptr(png_ptr);
 	VirtualFileRead(data, length, 1, f);
 }
 
-static void oslPngFlushFn(png_structp png_ptr) {
+void oslPngFlushFn(png_structp png_ptr) {
 	(void)png_ptr; // Suppress unused parameter warning
 	// No operation
 }

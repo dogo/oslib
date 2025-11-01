@@ -5,7 +5,7 @@ OBJS = main.o
 BUILD_PRX = 1
 PSP_FW_VERSION=371
 
-CFLAGS = -O2 -g -G0 -Wall
+CFLAGS = -O2 -g -G0 -Wall -DOSL_IMAGE_WRITER_PNG
 CXXFLAGS = $(CFLAGS) -fno-exceptions -fno-rtti
 ASFLAGS = $(CFLAGS)
 LIBDIR =
