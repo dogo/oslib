@@ -5,7 +5,7 @@ set -euo pipefail
 OS="${1:-$(uname -s | tr '[:upper:]' '[:lower:]')}"
 ARCH="${2:-$(uname -m)}"
 
-RELEASE_TAG="v20251001"
+RELEASE_TAG="v20251101"
 URL="https://github.com/pspdev/pspdev/releases/download/${RELEASE_TAG}/pspdev-${OS}-${ARCH}.tar.gz"
 FILE=$(basename "$URL")
 

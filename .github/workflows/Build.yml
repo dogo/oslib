@@ -13,9 +13,8 @@ jobs:
     strategy:
       matrix:
         os: [
-          [macos-13, x86_64, bash], # Temporaryly keep macos-13 for compatibility
           [macos-latest, arm64, bash],
-          # [macos-15-intel, x86_64, bash], #disable temporarily due no releases available from PSPDEV
+          [macos-15-intel, x86_64, bash],
           [ubuntu-latest, x86_64, bash],
           [ubuntu-24.04-arm, arm64, bash]
         ]
