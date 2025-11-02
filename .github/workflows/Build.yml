@@ -32,11 +32,13 @@ jobs:
           .github/scripts/setup_pspdev.sh "${{ matrix.os[0] }}" "${{ matrix.os[1] }}"
       - name: Runs build in shell
         run: |
+          set -euo pipefail
           make
           make install
 
       - name: Build all samples
         run: |
+          set -euo pipefail
           for d in samples/*/ ; do
             if [ -f "$d/makefile" ] || [ -f "$d/Makefile" ]; then
               echo "Building $d"

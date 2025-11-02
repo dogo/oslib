@@ -85,7 +85,7 @@ GIFLIBOBJS := \
 	$(LIB_DIR)/giflib/gif_err.o \
 	$(LIB_DIR)/giflib/gifalloc.o \
 	$(LIB_DIR)/giflib/quantize.o \
-	$(LIB_DIR)/giflib/openbsd-reallocarray.c
+	$(LIB_DIR)/giflib/openbsd-reallocarray.o
 
 LIBOBJS := \
 	$(SFONTOBJS) \
