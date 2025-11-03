@@ -1,4 +1,9 @@
 cmake_minimum_required(VERSION 3.10)
+
+# Load the PSP platform configuration BEFORE project()
+set(CMAKE_SYSTEM_CMAKE_PLATFORM_PATH "${CMAKE_SOURCE_DIR}/cmake")
+include(${CMAKE_SYSTEM_CMAKE_PLATFORM_PATH}/PSP.cmake)
+
 project(OSLib C CXX ASM)
 
 # Set C and C++ standards
@@ -8,10 +13,6 @@ set(CMAKE_C_EXTENSIONS ON)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS ON)
-
-# Load the PSP platform configuration
-set(CMAKE_SYSTEM_CMAKE_PLATFORM_PATH "${CMAKE_SOURCE_DIR}/cmake")
-include(${CMAKE_SYSTEM_CMAKE_PLATFORM_PATH}/PSP.cmake)
 
 # Set the output library
 set(TARGET_LIB osl)
