@@ -56,7 +56,7 @@ typedef struct
 // Load a PNG image (OSLib cannot handle images bigger than 512x512)
 static PNG_DATA* _loadFromPNG(const char *filename) {
 	// Allocate memory for PNG_DATA structure
-	PNG_DATA *pngData = (PNG_DATA*)malloc(sizeof(PNG_DATA));
+	PNG_DATA * volatile pngData = (PNG_DATA*)malloc(sizeof(PNG_DATA));
 	if (!pngData)
 		return NULL;
 
@@ -279,7 +279,7 @@ OSL_SFONT *oslLoadSFontFile(char *filename, int pixelFormat) {
 			oslLockImage(lt->letter);
 
 			// Copy the image data into the letter
-			for (int dx = pos; dx < pos + lt->width; ++dx) {
+			for (unsigned int dx = pos; dx < pos + lt->width; ++dx) {
 				for (int dy = 1; dy < img->sizeY; ++dy) {
 					int pixel = _getPixel(img, dx, dy);
 					pixel = oslConvertColorEx(lt->letter->palette, lt->letter->pixelFormat, OSL_PF_8888, pixel);

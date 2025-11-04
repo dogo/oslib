@@ -15,12 +15,12 @@ void oslPngWriteFn(png_structp png_ptr, png_bytep data, png_size_t length) {
 int oslWriteImageFilePNG(OSL_IMAGE *img, const char* filename, int flags) {
 	png_structp png_ptr = NULL;
 	png_infop info_ptr = NULL;
-	VIRTUAL_FILE *f = NULL;
-	u8* line = NULL;
+	VIRTUAL_FILE * volatile f = NULL;
+	u8* volatile line = NULL;
 	int width = img->offsetX1 - img->offsetX0;
 	int height = img->offsetY1 - img->offsetY0;
 	int r, g, b, a;
-	int lbSuccess = 0;
+	int volatile lbSuccess = 0;
 	const int saveAlpha = flags & OSL_WRI_ALPHA;
 
 	// Open the file for writing

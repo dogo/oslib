@@ -15,10 +15,10 @@ void oslPngFlushFn(png_structp png_ptr) {
 	// No operation
 }
 
-OSL_IMAGE *oslLoadImageFilePNG(char *filename, int location, int pixelFormat) {
+OSL_IMAGE *oslLoadImageFilePNG(char *filename, int location, int volatile pixelFormat) {
 	const size_t nSigSize = 8;
 	u8 signature[nSigSize];
-	OSL_IMAGE *img = NULL;
+	OSL_IMAGE * volatile img = NULL;
 	VIRTUAL_FILE *f;
 	// We only keep the location bits
 	int imgLocation = location & OSL_LOCATION_MASK;
