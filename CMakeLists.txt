@@ -28,6 +28,7 @@ include_directories(
     INTERFACE PUBLIC_HEADER  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/lib/libintraFont/include>
     INTERFACE PUBLIC_HEADER  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/lib/libpspmath/include>
     INTERFACE PRIVATE_HEADER $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/lib/giflib>
+    ${PROJECT_BINARY_DIR}  # For generated osl_config.h
     src
     src/adhoc
 )
@@ -211,6 +212,7 @@ install(FILES
     ${SOURCE_DIR}/vram_mgr.h
     ${SOURCE_DIR}/ccc.h
     ${SOURCE_DIR}/sfont.h
+    ${PROJECT_BINARY_DIR}/osl_config.h
     DESTINATION ${PSPDIR}/include/oslib
 )
 

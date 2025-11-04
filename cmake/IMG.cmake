@@ -48,9 +48,11 @@ macro(osl_mark_supported FORMAT)
 	endif()
 	if(${FORMAT} IN_LIST OSL_IMAGE_FORMAT_LOADERS)
 		add_compile_definitions(-DOSL_IMAGE_LOADER_${FORMAT})
+		set(OSL_IMAGE_LOADER_${FORMAT} ON)  # For configure_file
 	endif()
 	if(${FORMAT} IN_LIST OSL_IMAGE_FORMAT_WRITERS)
 		add_compile_definitions(-DOSL_IMAGE_WRITER_${FORMAT})
+		set(OSL_IMAGE_WRITER_${FORMAT} ON)  # For configure_file
 	endif()
 endmacro()
 
@@ -112,5 +114,12 @@ endforeach()
 foreach(IMAGE_FORMAT ${OSL_IMAGE_FORMAT_LOADERS})
 	list(APPEND LIB_SOURCES "${PROJECT_SOURCE_DIR}/src/image/format/oslLoadImageFile${IMAGE_FORMAT}.c")
 endforeach()
+
+# Generate osl_config.h with the formats compiled into the library
+configure_file(
+	"${PROJECT_SOURCE_DIR}/src/osl_config.h.in"
+	"${PROJECT_BINARY_DIR}/osl_config.h"
+	@ONLY
+)
 
 message("-- Using ${OSL_IMAGE_FORMATS_SUPPORTED}")

@@ -2,7 +2,7 @@ TARGET = testIntraFont
 OBJS = main.o
 
 INCDIR =
-CFLAGS = -O2 -g -G0 -Wall -DOSL_IMAGE_LOADER_PNG
+CFLAGS = -O2 -g -G0 -Wall
 CXXFLAGS = $(CFLAGS) -fno-exceptions -fno-rtti
 ASFLAGS = $(CFLAGS)
 
