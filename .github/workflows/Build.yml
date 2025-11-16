@@ -36,12 +36,26 @@ jobs:
           make
           make install
 
-      - name: Build all samples
+      - name: Build all samples (Vanilla Makefile)
         run: |
           set -euo pipefail
           for d in samples/*/ ; do
             if [ -f "$d/makefile" ] || [ -f "$d/Makefile" ]; then
               echo "Building $d"
               make -C "$d"
+            fi
+          done
+
+      - name: Build all samples (CMake)
+        run: |
+          set -euo pipefail
+          for d in samples/*/ ; do
+            if [ -f "$d/CMakeLists.txt" ]; then
+              echo "Building (CMake) $d"
+              (
+                cd "$d"
+                cmake --preset psp
+                cmake --build --preset psp -j
+              )
             fi
           done

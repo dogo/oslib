@@ -52,3 +52,28 @@ fi
 
 echo "PSPDEV setup complete: $PSPDEV_PATH"
 echo "PSP toolchain ready to use."
+
+# Ensure CMake is available (install if missing)
+if ! command -v cmake >/dev/null 2>&1; then
+    echo "CMake not found. Installing..."
+    case "$OS" in
+        ubuntu-*)
+            sudo apt-get update
+            sudo apt-get install -y cmake
+            ;;
+        macos-*)
+            if ! command -v brew >/dev/null 2>&1; then
+                echo "Homebrew not found on macOS runner; cannot install CMake automatically."
+                exit 1
+            fi
+            brew update
+            brew install cmake
+            ;;
+        *)
+            echo "CMake auto-install not supported on OS: $OS"
+            exit 1
+            ;;
+    esac
+fi
+
+cmake --version || true

@@ -1,0 +1,21 @@
+{
+  "version": 4,
+  "cmakeMinimumRequired": { "major": 3, "minor": 16 },
+  "configurePresets": [
+    {
+      "name": "psp",
+      "displayName": "PSP (Unix Makefiles)",
+      "generator": "Unix Makefiles",
+      "binaryDir": "${sourceDir}/cbuild",
+      "cacheVariables": {
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/../../cmake/PSP.cmake"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "psp",
+      "configurePreset": "psp"
+    }
+  ]
+}
