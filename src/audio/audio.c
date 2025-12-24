@@ -63,18 +63,25 @@ int oslAudioOutBlocking(unsigned int channel, unsigned int vol1, unsigned int vo
 static int oslAudioChannelThread(int args, void *argp) {
 	int channel = *(int*)argp;
 	int bufferIndex = 0;
+	int is_mono = (osl_audioVoices[channel].mono == 0x10);
+	// Bytes per sample: mono = 2, stereo = 4
+	int bytes_per_sample = is_mono ? 2 : 4;
+	// Total buffer size: numSamples * bytes_per_sample * 2 (double buffer)
+	int buffer_size = osl_audioVoices[channel].numSamples * bytes_per_sample * 2;
 
 	// Allocate double-buffer for audio processing
-	audio_sndbuf[channel] = (u32*)calloc(osl_audioVoices[channel].numSamples, 8);
+	audio_sndbuf[channel] = (u32*)calloc(1, buffer_size);
 	if (!audio_sndbuf[channel]) {
 		return -1; // Memory allocation failure
 	}
 
-	memset(audio_sndbuf[channel], 0, osl_audioVoices[channel].numSamples << 3);
+	memset(audio_sndbuf[channel], 0, buffer_size);
 
 	while (osl_audioActive[channel] > 0) {
 		// Get a pointer to our actual buffer (we do double buffering)
-		void* bufptr = audio_sndbuf[channel] + bufferIndex * osl_audioVoices[channel].numSamples;
+		// For mono: advance by numSamples * 2 bytes
+		// For stereo: advance by numSamples * 4 bytes
+		void* bufptr = (u8*)audio_sndbuf[channel] + bufferIndex * osl_audioVoices[channel].numSamples * bytes_per_sample;
 		// Our callback function
 		void (*callback)(unsigned int channel, void *buf, unsigned int reqn) = AudioStatus[channel].callback;
 
@@ -82,7 +89,7 @@ static int oslAudioChannelThread(int args, void *argp) {
 		if (callback && osl_audioActive[channel] == 1) {
 			callback(channel, bufptr, osl_audioVoices[channel].numSamples);
 		} else {
-			memset(bufptr, 0, osl_audioVoices[channel].numSamples << 2);
+			memset(bufptr, 0, osl_audioVoices[channel].numSamples * bytes_per_sample);
 		}
 		AudioStatus[channel].inProgress = 0;
 
@@ -415,13 +422,16 @@ OSL_SOUND *oslLoadSoundFile(const char *filename, int stream) {
 		return NULL; // Invalid filename or file too short
 	}
 
+	// Determine if streaming is requested
+	int isStream = (stream & OSL_FMT_STREAM) ? 1 : 0;
+
 	// Check if the file is a BGM file
 	if (!strcmp(filename + strlen(filename) - 4, ".bgm")) {
-		return oslLoadSoundFileBGM(filename, stream);
+		return oslLoadSoundFileBGM(filename, isStream);
 	}
 	// Check if the file is a WAV file
 	else if (!strcmp(filename + strlen(filename) - 4, ".wav")) {
-		return oslLoadSoundFileWAV(filename, stream);
+		return oslLoadSoundFileWAV(filename, isStream);
 	}
 
 	// Unsupported file type

@@ -84,8 +84,12 @@ void HandleKeys()
 			oslStopSound(bgm);  // Stop BGM
 		}
 		if (osl_keys->pressed.circle) {
-			oslStopSound(bgm);     // Ensures the channel is free
-			oslPlaySound(bgm, 0);  // Play/Resume BGM
+			int channel = oslGetSoundChannel(bgm);
+			if (channel < 0) {
+				oslPlaySound(bgm, 0);
+			} else if (osl_audioActive[channel] == 2) {
+				oslPauseSound(bgm, 0);
+			}
 		}
 	}
 

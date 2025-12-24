@@ -59,31 +59,39 @@ static inline int ima9_rescale(int step, unsigned int code) {
 	return diff;
 }
 
-// Decodes a mono ADPCM audio stream
-short *oslDecodeADMono(OSL_ADGlobals *ad, short *dst, const unsigned char *src, unsigned int len, unsigned int samples, unsigned int streaming) {
+// Decodes a mono ADPCM audio stream to STEREO output (L=R)
+// Output is interleaved stereo: L0 R0 L1 R1 ...
+// len = number of ADPCM nibbles to decode
+// Each nibble produces 1 stereo sample (2 shorts)
+short *oslDecodeADMono(OSL_ADGlobals *ad, short *dst, const unsigned char *src, unsigned int len, unsigned int unused, unsigned int streaming) {
 	int last_sample = ad->last_sample;
 	int index = ad->last_index;
-	unsigned int i, byte = 0;
+	unsigned int byte = 0;
 	unsigned char *streambuffer = NULL;
+	unsigned char *streambuffer_start = NULL;
 
 	// Allocate stream buffer if streaming
 	if (streaming) {
-		streambuffer = (unsigned char *)malloc(len >> 1);
+		// len nibbles = len/2 bytes (round up)
+		unsigned int bytes_needed = (len + 1) >> 1;
+		streambuffer = (unsigned char *)malloc(bytes_needed);
 		if (!streambuffer) {
-			return NULL;
+			return dst;
 		}
-		VirtualFileRead(streambuffer, len >> 1, 1, (VIRTUAL_FILE *)src);
+		streambuffer_start = streambuffer;
+		VirtualFileRead(streambuffer, bytes_needed, 1, (VIRTUAL_FILE *)src);
 	}
 
 	while (len > 0) {
-		int step = ima_step_table[index];
-		int diff;
+		int step, diff;
 		unsigned int code;
 
 		// Bounds check for index
-		index = index < 0 ? 0 : (index > 88 ? 88 : index);
+		if (index < 0) index = 0;
+		if (index > 88) index = 88;
+		step = ima_step_table[index];
 
-		// Handle odd or even bytes
+		// Handle nibbles: even len = low nibble, odd len = high nibble
 		if (len & 1) {
 			code = byte >> 4;
 		} else {
@@ -91,17 +99,25 @@ short *oslDecodeADMono(OSL_ADGlobals *ad, short *dst, const unsigned char *src, 
 			code = byte & 0x0f;
 		}
 
-		diff = ima9_rescale(step, code);
-		index += ima9_step_indices[code & 0x07];
+		// IMA-ADPCM decoding
+		diff = step >> 3;
+		if (code & 1) diff += step >> 2;
+		if (code & 2) diff += step >> 1;
+		if (code & 4) diff += step;
+		if (code & 8) diff = -diff;
+
 		last_sample += diff;
 
 		// Clamp sample value to valid range
-		last_sample = last_sample < -32768 ? -32768 : (last_sample > 32767 ? 32767 : last_sample);
+		if (last_sample > 32767) last_sample = 32767;
+		if (last_sample < -32768) last_sample = -32768;
 
-		// Output the sample to the destination buffer
-		for (i = 0; i < samples; i++) {
-			*dst++ += last_sample;
-		}
+		// Update step index
+		index += ima9_step_indices[code & 0x07];
+
+		// Output stereo sample (L=R)
+		*dst++ = (short)last_sample;  // Left
+		*dst++ = (short)last_sample;  // Right
 
 		len--;
 	}
@@ -111,9 +127,9 @@ short *oslDecodeADMono(OSL_ADGlobals *ad, short *dst, const unsigned char *src, 
 	ad->last_sample = last_sample;
 	ad->data = src;
 
-	// Clean up allocated memory if streaming
-	if (streaming && streambuffer) {
-		free(streambuffer);
+	// Clean up
+	if (streambuffer_start) {
+		free(streambuffer_start);
 	}
 
 	return dst;
@@ -139,25 +155,31 @@ int oslAudioCallback_AudioCallback_BGM(unsigned int i, void *buf, unsigned int l
 	unsigned int l = 0;
 	OSL_ADGlobals *ad = (OSL_ADGlobals *)osl_audioVoices[i].dataplus;
 
-	// Clear the buffer
+	// Clear the buffer (stereo = 4 bytes per sample)
 	memset(buf, 0, length << 2);
 
 	// Check if size is valid
 	if (osl_audioVoices[i].size <= 0)
 		return 1;
 
-	// Calculate the length based on the divider
-	l = length >> (osl_audioVoices[i].divider + 1);
+	// For stereo output: we need 'length' stereo samples
+	// Each ADPCM nibble produces 1 mono sample = 1 stereo sample (L=R)
+	// Each ADPCM byte has 2 nibbles = 2 stereo samples
+	// So we need length/2 bytes of ADPCM data = length nibbles
+	l = length >> 1;  // bytes of ADPCM to consume
 	if (l > osl_audioVoices[i].size)
 		l = osl_audioVoices[i].size;
 
-	// Decode the audio
-	buf2 = oslDecodeADMono(ad, (short *)buf, ad->data, l << 1, 1 << (osl_audioVoices[i].divider), osl_audioVoices[i].isStreamed);
+	// Decode: l bytes = l*2 nibbles = l*2 stereo samples
+	// But we want 'length' stereo samples, so pass length nibbles
+	unsigned int nibbles = l << 1;
+	buf2 = oslDecodeADMono(ad, (short *)buf, ad->data, nibbles, 1, osl_audioVoices[i].isStreamed);
 	osl_audioVoices[i].size -= l;
 
 	// Check if playback has finished
 	if (osl_audioVoices[i].size <= 0 && l) {
-		memset(buf2, 0, (u32)buf + (length << 1) - (u32)buf2);
+		// Clear remaining buffer (stereo)
+		memset(buf2, 0, (u32)buf + (length << 2) - (u32)buf2);
 		return 0;
 	}
 	return 1;
@@ -219,13 +241,16 @@ OSL_SOUND *oslLoadSoundFileBGM(const char *filename, int stream) {
 	if (end_offset - start_offset <= 0) goto cleanup_and_error;
 
 	// Allocate memory for the sound data if not streamed
-	VirtualFileSeek(f, 0, SEEK_SET);
 	s->isStreamed = stream;
 	if (s->isStreamed) {
+		// For streaming, seek to start of audio data (after header)
+		VirtualFileSeek(f, start_offset, SEEK_SET);
 		if (strlen(filename) < sizeof(s->filename))
 			strcpy(s->filename, filename);
 		s->data = (void *)f;
 	} else {
+		// For RAM mode, only read the audio data (skip header)
+		VirtualFileSeek(f, start_offset, SEEK_SET);
 		s->data = malloc(end_offset - start_offset);
 		if (!s->data) goto cleanup_and_error;
 		VirtualFileRead(s->data, end_offset - start_offset, 1, f);
@@ -239,7 +264,7 @@ OSL_SOUND *oslLoadSoundFileBGM(const char *filename, int stream) {
 	s->divider = (bfh.sampleRate == 44100) ? OSL_FMT_44K :
 	             (bfh.sampleRate == 22050) ? OSL_FMT_22K : OSL_FMT_11K;
 	s->size = end_offset - start_offset;
-	s->mono = 0x10;  // Mono audio format
+	s->mono = 0x00;  // Stereo output (we duplicate mono to L=R)
 	s->volumeLeft = s->volumeRight = OSL_VOLUME_MAX;
 
 	// Set the callback functions
