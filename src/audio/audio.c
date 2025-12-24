@@ -243,17 +243,20 @@ void oslDecodeWav(unsigned int i, void* buf, unsigned int length) {
 
 	// Handle streamed audio
 	if (wav->stream) {
-		len = (length * wav->fmt.bits_sample) >> 3;
-		if (samples == 1) {
-			len <<= 1; // Double the length if necessary
-		} else {
-			len >>= osl_audioVoices[i].divider;
-		}
-
-		// Adjust length for stereo sound
-		if (osl_audioVoices[i].mono == 0) {
-			len <<= 1;
-		}
+		// Calculate bytes needed from file:
+		// length = number of output samples
+		// For mono: length samples * (bits/8) bytes
+		// For stereo: length samples * 2 channels * (bits/8) bytes
+		// For resampling (samples > 1): divide by samples since we duplicate
+		
+		int bytes_per_sample = wav->fmt.bits_sample >> 3;  // 2 for 16-bit
+		int channels = (osl_audioVoices[i].mono == 0) ? 2 : 1;
+		
+		// How many source samples do we need?
+		int source_samples = length / samples;  // Account for resampling
+		
+		// Total bytes = source_samples * channels * bytes_per_sample
+		len = source_samples * channels * bytes_per_sample;
 
 		// Allocate buffer dynamically instead of using alloca
 		streambuffer = (unsigned char*)malloc(len);
