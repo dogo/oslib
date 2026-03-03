@@ -18,7 +18,7 @@ if(PSPDIR)
     target_link_options(audio PRIVATE "-L${PSPDIR}/sdk/lib" "-L${PSPDIR}/lib")
 endif()
 
-set_target_properties(audio PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
+set_target_properties(audio PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
 
 find_program(MKSFOEX mksfoex)
 find_program(PACKPBP pack-pbp)
