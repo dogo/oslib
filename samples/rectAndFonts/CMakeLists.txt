@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 3.10)
 project(rectAndFonts C)
 
-# Keep target name consistent with original makefile
-add_executable(dialog main.c)
+add_executable(rectandfonts main.c)
+set_target_properties(rectandfonts PROPERTIES OUTPUT_NAME "dialog")
 
 # Link OSLib and PSP SDK libs (SDK libs last)
-target_link_libraries(dialog PRIVATE
+target_link_libraries(rectandfonts PRIVATE
     osl
     png jpeg z m
     pspdisplay pspge pspuser pspdebug
@@ -15,11 +15,11 @@ target_link_libraries(dialog PRIVATE
 # Ensure PSP SDK lib search paths
 execute_process(COMMAND psp-config --psp-prefix OUTPUT_VARIABLE PSPDIR OUTPUT_STRIP_TRAILING_WHITESPACE)
 if(PSPDIR)
-    target_link_directories(dialog PRIVATE "${PSPDIR}/sdk/lib" "${PSPDIR}/lib")
-    target_link_options(dialog PRIVATE "-L${PSPDIR}/sdk/lib" "-L${PSPDIR}/lib")
+    target_link_directories(rectandfonts PRIVATE "${PSPDIR}/sdk/lib" "${PSPDIR}/lib")
+    target_link_options(rectandfonts PRIVATE "-L${PSPDIR}/sdk/lib" "-L${PSPDIR}/lib")
 endif()
 
-set_target_properties(dialog PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
+set_target_properties(rectandfonts PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
 
 find_program(MKSFOEX mksfoex)
 find_program(PACKPBP pack-pbp)
@@ -30,9 +30,9 @@ set(EBOOT_PBP "${OUT_DIR}/EBOOT.PBP")
 set(TITLE "Rect and Fonts Test")
 
 if(MKSFOEX AND PACKPBP)
-    add_custom_command(TARGET dialog POST_BUILD
+    add_custom_command(TARGET rectandfonts POST_BUILD
         COMMAND ${MKSFOEX} "${TITLE}" "${PARAM_SFO}"
-        COMMAND ${PACKPBP} "${EBOOT_PBP}" "${PARAM_SFO}" NULL NULL NULL NULL NULL $<TARGET_FILE:dialog> NULL
+        COMMAND ${PACKPBP} "${EBOOT_PBP}" "${PARAM_SFO}" NULL NULL NULL NULL NULL $<TARGET_FILE:rectandfonts> NULL
         BYPRODUCTS "${PARAM_SFO}" "${EBOOT_PBP}"
         COMMENT "Packaging EBOOT.PBP (ELF)" VERBATIM)
 endif()
@@ -44,8 +44,8 @@ foreach(F ${SAMPLE_FILES})
         continue()
     endif()
     if(IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/${F}")
-        add_custom_command(TARGET dialog POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/${F}" "${OUT_DIR}/${F}" VERBATIM)
+        add_custom_command(TARGET rectandfonts POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/${F}" "${OUT_DIR}/${F}" VERBATIM)
     else()
-        add_custom_command(TARGET dialog POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/${F}" "${OUT_DIR}/${F}" VERBATIM)
+        add_custom_command(TARGET rectandfonts POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/${F}" "${OUT_DIR}/${F}" VERBATIM)
     endif()
 endforeach()
