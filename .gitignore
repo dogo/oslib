@@ -29,6 +29,7 @@ dist/
 OSLib.zip
 
 # CMake
+compile_commands.json
 install_manifest.txt
 cmake_install.cmake
 CMakeFiles/

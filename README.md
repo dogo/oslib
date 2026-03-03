@@ -13,6 +13,49 @@ OldSchool Library (OSLib) is a lightweight and versatile C++ library designed to
 - **Utility Functions:** A collection of utility functions for handling files, strings, and more.
 - **Cross-Platform Support:** Compatible with multiple platforms, including Windows, macOS, and Linux.
 
+## Building
+
+### Library
+
+**Makefile:**
+```bash
+make
+make install
+```
+
+**CMake:**
+```bash
+cmake --preset psp
+cmake --build --preset psp -j
+cmake --install build
+```
+
+### Samples
+
+Each sample can be built standalone from its own directory using the same commands above.
+
+To build all samples at once from the `samples/` directory:
+
+**Makefile:**
+```bash
+cd samples && make
+```
+
+**CMake:**
+```bash
+cd samples
+cmake --preset psp
+cmake --build --preset psp -j
+```
+
+### Editor / LSP support (compile_commands.json)
+
+The CMake build exports `compile_commands.json` automatically via `CMAKE_EXPORT_COMPILE_COMMANDS=ON`. This file is used by clangd (and other LSP clients) for accurate code completion, diagnostics, and navigation.
+
+After running `cmake --preset psp` at the root, a symlink `compile_commands.json → build/compile_commands.json` is already in place. clangd will pick it up automatically.
+
+> `compile_commands.json` is in `.gitignore` — run the cmake configure step once after cloning to generate it.
+
 ## Installation
 
 To install OSLib:

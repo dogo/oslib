@@ -1,0 +1,12 @@
+CompileFlags:
+  Add:
+    - "--target=mipsel-sony-psp"
+  Remove:
+    - "-G0"
+    - "-fverbose-asm"
+    - "-mno-abicalls"
+    - "-mabi=eabi"
+
+Diagnostics:
+  Suppress:
+    - drv_unknown_argument
