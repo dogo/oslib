@@ -26,7 +26,7 @@ find_program(PACKPBP pack-pbp)
 set(OUT_DIR "${CMAKE_BINARY_DIR}")
 set(PARAM_SFO "${OUT_DIR}/PARAM.SFO")
 set(EBOOT_PBP "${OUT_DIR}/EBOOT.PBP")
-set(TITLE "Audio BGM Sample")
+set(TITLE "Audio Sample")
 
 if(MKSFOEX AND PACKPBP)
     add_custom_command(TARGET audio POST_BUILD

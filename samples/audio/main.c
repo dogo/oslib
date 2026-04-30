@@ -8,6 +8,7 @@ PSP_HEAP_SIZE_KB(12 * 1024);
 // Sound formats
 #define FORMAT_WAV 0
 #define FORMAT_BGM 1
+#define FORMAT_MP3 2
 
 // Load modes
 #define MODE_RAM    0
@@ -16,6 +17,7 @@ PSP_HEAP_SIZE_KB(12 * 1024);
 // Audio files
 #define WAV_FILE "Resources/jump.wav"
 #define BGM_FILE "Resources/music.bgm"
+#define MP3_FILE "Resources/test.mp3"
 
 // Current settings
 int currentFormat = FORMAT_BGM;
@@ -34,11 +36,36 @@ void LoadSound();
 void UnloadSound();
 
 const char* GetFormatName() {
-	return currentFormat == FORMAT_WAV ? "WAV" : "BGM";
+	switch (currentFormat) {
+		case FORMAT_WAV:
+			return "WAV";
+		case FORMAT_BGM:
+			return "BGM";
+		case FORMAT_MP3:
+			return "MP3";
+		default:
+			return "Unknown";
+	}
 }
 
 const char* GetModeName() {
-	return currentMode == MODE_RAM ? "RAM" : "Stream";
+	if (currentFormat == FORMAT_MP3 || currentMode == MODE_STREAM) {
+		return "Stream";
+	}
+	return "RAM";
+}
+
+const char* GetCurrentFilename() {
+	switch (currentFormat) {
+		case FORMAT_WAV:
+			return WAV_FILE;
+		case FORMAT_BGM:
+			return BGM_FILE;
+		case FORMAT_MP3:
+			return MP3_FILE;
+		default:
+			return WAV_FILE;
+	}
 }
 
 int main(int argc, char* argv[])
@@ -106,10 +133,13 @@ void DrawMenu()
 	// Mode selection
 	oslPrintf_xy(10, 100, "Mode:    < %s >", GetModeName());
 	oslPrintf_xy(10, 120, "         (Up/Down to change)");
+	if (currentFormat == FORMAT_MP3) {
+		oslPrintf_xy(10, 136, "         (MP3 uses Stream only)");
+	}
 
 	// File that will be loaded
 	oslPrintf_xy(10, 160, "File: %s",
-	             currentFormat == FORMAT_WAV ? WAV_FILE : BGM_FILE);
+	             GetCurrentFilename());
 
 	// Instructions
 	oslPrintf_xy(10, 200, "Press X to start playing");
@@ -156,12 +186,20 @@ void HandleMenuKeys()
 	oslReadKeys();
 
 	// Change format
+	if (osl_keys->pressed.left) {
+		currentFormat = (currentFormat + 2) % 3;
+	}
+	if (osl_keys->pressed.right) {
+		currentFormat = (currentFormat + 1) % 3;
+	}
 	if (osl_keys->pressed.left || osl_keys->pressed.right) {
-		currentFormat = (currentFormat == FORMAT_WAV) ? FORMAT_BGM : FORMAT_WAV;
+		if (currentFormat == FORMAT_MP3) {
+			currentMode = MODE_STREAM;
+		}
 	}
 
 	// Change mode
-	if (osl_keys->pressed.up || osl_keys->pressed.down) {
+	if ((osl_keys->pressed.up || osl_keys->pressed.down) && currentFormat != FORMAT_MP3) {
 		currentMode = (currentMode == MODE_RAM) ? MODE_STREAM : MODE_RAM;
 	}
 
@@ -223,18 +261,16 @@ void LoadSound()
 {
 	UnloadSound();
 
-	const char* filename;
+	const char* filename = GetCurrentFilename();
 	int streamFlag;
 
-	if (currentFormat == FORMAT_WAV) {
-		filename = WAV_FILE;
+	if (currentFormat == FORMAT_MP3) {
+		oslInitAudioME(OSL_FMT_MP3);
+		sound = oslLoadSoundFileMP3(filename, OSL_FMT_STREAM);
 	} else {
-		filename = BGM_FILE;
+		streamFlag = (currentMode == MODE_STREAM) ? OSL_FMT_STREAM : OSL_FMT_NONE;
+		sound = oslLoadSoundFile(filename, streamFlag);
 	}
-
-	streamFlag = (currentMode == MODE_STREAM) ? OSL_FMT_STREAM : OSL_FMT_NONE;
-
-	sound = oslLoadSoundFile(filename, streamFlag);
 }
 
 void UnloadSound()
