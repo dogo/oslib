@@ -13,6 +13,12 @@ PspUtilitySavedataListSaveNewData newData;
 char key[] = "QTAK319JQKJ952HA";
 int saveLoadType = OSL_DIALOG_NONE;
 
+#if _PSP_FW_VERSION >= 200
+static void oslSetSavedataKey(){
+	memcpy(savedata.key, key, sizeof(savedata.key));
+}
+#endif
+
 void oslInitSaveDialog(struct oslSaveLoad *saveData){
 	if(saveData->dialogType == 0){
 		oslInitMultiSaveDialog(saveData);
@@ -43,7 +49,7 @@ void oslInitMultiSaveDialog(struct oslSaveLoad *saveData){
 	savedata.focus = PSP_UTILITY_SAVEDATA_FOCUS_LATEST; // Set initial focus to the newest file (for loading)
 
 #if _PSP_FW_VERSION >= 200
-	strncpy(savedata.key, key, 16);
+	oslSetSavedataKey();
 #endif
 	strcpy(savedata.gameName, saveData->gameID);    // First part of the save name, game identifier name
 	strcpy(savedata.saveName, saveData->saveName);  // Second part of the save name, save identifier name
@@ -114,7 +120,7 @@ void oslInitSingleSaveDialog(struct oslSaveLoad *saveData){
 	savedata.focus = PSP_UTILITY_SAVEDATA_FOCUS_LATEST; // Set initial focus to the newest file (for loading)
 
 #if _PSP_FW_VERSION >= 200
-	strncpy(savedata.key, key, 16);
+	oslSetSavedataKey();
 #endif
 	strcpy(savedata.gameName, saveData->gameID);    // First part of the save name, game identifier name
 	strcpy(savedata.saveName, saveData->saveName);  // Second part of the save name, save identifier name
@@ -185,7 +191,7 @@ void oslInitAutoSaveDialog(struct oslSaveLoad *saveData){
 	savedata.focus = PSP_UTILITY_SAVEDATA_FOCUS_LATEST; // Set initial focus to the newest file (for loading)
 
 #if _PSP_FW_VERSION >= 200
-	strncpy(savedata.key, key, 16);
+	oslSetSavedataKey();
 #endif
 	strcpy(savedata.gameName, saveData->gameID);    // First part of the save name, game identifier name
 	strcpy(savedata.saveName, saveData->saveName);  // Second part of the save name, save identifier name
@@ -265,7 +271,7 @@ void oslInitMultiLoadDialog(struct oslSaveLoad *loadData){
 	savedata.focus = PSP_UTILITY_SAVEDATA_FOCUS_LATEST; // Set initial focus to the newest file (for loading)
 
 #if _PSP_FW_VERSION >= 200
-	strncpy(savedata.key, key, 16);
+	oslSetSavedataKey();
 #endif
 	strcpy(savedata.gameName, loadData->gameID);    // First part of the save name, game identifier name
 	strcpy(savedata.saveName, loadData->saveName);  // Second part of the save name, save identifier name
@@ -300,7 +306,7 @@ void oslInitSingleLoadDialog(struct oslSaveLoad *loadData){
 	savedata.focus = PSP_UTILITY_SAVEDATA_FOCUS_LATEST; // Set initial focus to the newest file (for loading)
 
 #if _PSP_FW_VERSION >= 200
-	strncpy(savedata.key, key, 16);
+	oslSetSavedataKey();
 #endif
 	strcpy(savedata.gameName, loadData->gameID);    // First part of the save name, game identifier name
 	strcpy(savedata.saveName, loadData->saveName);  // Second part of the save name, save identifier name
@@ -335,7 +341,7 @@ void oslInitAutoLoadDialog(struct oslSaveLoad *loadData){
 	savedata.focus = PSP_UTILITY_SAVEDATA_FOCUS_LATEST; // Set initial focus to the newest file (for loading)
 
 #if _PSP_FW_VERSION >= 200
-	strncpy(savedata.key, key, 16);
+	oslSetSavedataKey();
 #endif
 	strcpy(savedata.gameName, loadData->gameID);    // First part of the save name, game identifier name
 	strcpy(savedata.saveName, loadData->saveName);  // Second part of the save name, save identifier name
@@ -371,7 +377,7 @@ void oslInitDeleteDialog(struct oslSaveLoad *deleteData){
 	savedata.focus = PSP_UTILITY_SAVEDATA_FOCUS_LATEST; // Set initial focus to the newest file (for loading)
 
 #if _PSP_FW_VERSION >= 200
-	strncpy(savedata.key, key, 16);
+	oslSetSavedataKey();
 #endif
 	strcpy(savedata.gameName, deleteData->gameID);  // First part of the save name, game identifier name
 	strcpy(savedata.saveName, deleteData->saveName);        // Second part of the save name, save identifier name
