@@ -269,7 +269,8 @@ void oslRemoveVirtualFileList(OSL_VIRTUALFILENAME *vfl, int numberOfEntries) {
 		if (!memcmp(osl_virtualFileList + i, vfl, numberOfEntries * sizeof(OSL_VIRTUALFILENAME))) {
 			// Shift the remaining entries
 			if (osl_virtualFileListNumber - i - numberOfEntries > 0)
-				memmove(osl_virtualFileList + i, osl_virtualFileList + i + numberOfEntries, osl_virtualFileListNumber - i - numberOfEntries);
+				memmove(osl_virtualFileList + i, osl_virtualFileList + i + numberOfEntries,
+				        (osl_virtualFileListNumber - i - numberOfEntries) * sizeof(*osl_virtualFileList));
 			osl_virtualFileListNumber -= numberOfEntries;
 		}
 	}
