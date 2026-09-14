@@ -8,7 +8,32 @@
 u32 *osl_gifTempPalette; // Used to store the GIF palette
 const short InterlacedOffset[] = { 0, 4, 2, 1 }; /* The way Interlaced image should be read - offsets */
 const short InterlacedJumps[] = { 8, 8, 4, 2 };  /* The way Interlaced image should be read - jumps */
-GifPixelType osl_gifLineBuf[2048]; // Temporary buffer
+GifPixelType *osl_gifLineBuf = NULL; // Temporary buffer, grown to fit the image width
+static int osl_gifLineBufSize = 0;
+
+// Grow the temporary line buffer to hold a full line of the given width
+static int oslGifEnsureLineBuf(int width)
+{
+	if (width <= 0)
+		return 0;
+
+	if (width > osl_gifLineBufSize) {
+		GifPixelType *buf = (GifPixelType*)realloc(osl_gifLineBuf, width * sizeof(GifPixelType));
+		if (!buf)
+			return 0;
+		osl_gifLineBuf = buf;
+		osl_gifLineBufSize = width;
+	}
+
+	return 1;
+}
+
+static void oslGifFreeLineBuf(void)
+{
+	free(osl_gifLineBuf);
+	osl_gifLineBuf = NULL;
+	osl_gifLineBufSize = 0;
+}
 
 static int fnGifReadFunc(GifFileType* GifFile, GifByteType* buf, int count)
 {
@@ -51,6 +76,10 @@ static void fnCopyLine(void* dst, void* src, int count, int pixelFormat)
 
 static int DGifGetLineByte(GifFileType *GifFile, GifPixelType *Line, int LineLen, int pixelFormat)
 {
+	// Never decode more pixels than the temporary buffer holds
+	if (LineLen <= 0 || LineLen > osl_gifLineBufSize)
+		return GIF_ERROR;
+
 	// Get the next line of pixels from the GIF and copy it to the destination buffer
 	int result = DGifGetLine(GifFile, osl_gifLineBuf, LineLen);
 	fnCopyLine(Line, osl_gifLineBuf, LineLen, pixelFormat);
@@ -96,6 +125,10 @@ OSL_IMAGE *oslLoadImageFileGIF(char *filename, int location, int pixelFormat)
 				Row = Col = 0;
 				Width = GifFile->Image.Width;
 				Height = GifFile->Image.Height;
+
+				// The temporary line buffer must hold a full line of this image
+				if (!oslGifEnsureLineBuf(Width))
+					break;
 
 				// Update the color map
 				ColorMap = (GifFile->Image.ColorMap ? GifFile->Image.ColorMap : GifFile->SColorMap);
@@ -166,6 +199,9 @@ OSL_IMAGE *oslLoadImageFileGIF(char *filename, int location, int pixelFormat)
 		// Free the memory allocated for the temporary palette
 		if (osl_pixelWidth[pixelFormat] > 8)
 			free(osl_gifTempPalette);
+
+		// Free the temporary line buffer
+		oslGifFreeLineBuf();
 
 		// Swizzle the image if necessary
 		if (oslImageLocationIsSwizzled(location))
