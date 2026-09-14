@@ -38,6 +38,9 @@
 #define INVALID_FRAME -1
 #define RIFF_HEADER_SIZE 8
 #define WAVEFMT_HEADER_SIZE 12
+// Smallest "fmt " chunk holding every field read below, and the larger one ATRAC3plus needs
+#define WAVEFMT_MIN_SIZE 14
+#define WAVEFMT_AT3PLUS_MIN_SIZE 44
 #define CODEC_BUFFER_SIZE 65
 
 //
@@ -325,6 +328,10 @@ static int osl_at3Load(const char *fileName, AT3_INFO *info) {
 	if (wavefmt_header[0] != 0x45564157 || wavefmt_header[1] != 0x20746D66) // "WAVEfmt "
 		return 0;
 
+	// The fields below sit at fixed offsets, so the chunk must be big enough to hold them
+	if (wavefmt_header[2] < WAVEFMT_MIN_SIZE)
+		return 0;
+
 	u8 *wavefmt_data = (u8 *)malloc(wavefmt_header[2]);
 	if (!wavefmt_data) return 0;
 
@@ -339,6 +346,11 @@ static int osl_at3Load(const char *fileName, AT3_INFO *info) {
 	info->at3_data_align = *((u16 *)(wavefmt_data + 12));
 
 	if (info->at3_type == TYPE_ATRAC3PLUS) {
+		if (wavefmt_header[2] < WAVEFMT_AT3PLUS_MIN_SIZE) {
+			free(wavefmt_data);
+			return 0;
+		}
+
 		info->at3_at3plus_flagdata[0] = wavefmt_data[42];
 		info->at3_at3plus_flagdata[1] = wavefmt_data[43];
 	}
@@ -357,6 +369,10 @@ static int osl_at3Load(const char *fileName, AT3_INFO *info) {
 
 	info->data_start_init = VirtualFileTell(info->handle);
 	info->at3_data_size = data_header[1];
+
+	// The alignment comes straight from the file and is used as a divisor
+	if (info->at3_data_align == 0)
+		return 0;
 
 	if (info->at3_data_size % info->at3_data_align != 0)
 		return 0;
