@@ -221,7 +221,7 @@ int vfsMemTell(VIRTUAL_FILE *f) {
 }
 
 int vfsMemEof(VIRTUAL_FILE *f) {
-	return (f->offset < f->maxSize);
+	return (f->offset >= f->maxSize);
 }
 
 VIRTUAL_FILE_SOURCE vfsMemory = {
