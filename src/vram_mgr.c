@@ -54,7 +54,6 @@ void oslVramMgrInit() {
 void *oslVramMgrAllocBlock(int blockSize) {
 	int i;
 
-	osl_skip = osl_vramBlocks[0].size;
 	// The block cannot be of zero or negative size
 	if (blockSize <= 0)
 		return NULL;
@@ -95,12 +94,13 @@ void *oslVramMgrAllocBlock(int blockSize) {
 		if (osl_vramBlocksNb >= osl_vramBlocksMax) {
 			OSL_VRAMBLOCK *oldBlock = osl_vramBlocks;
 			osl_vramBlocksMax += DEFAULT_TABLE_SIZE;
-			osl_vramBlocks = (OSL_VRAMBLOCK*)realloc(osl_vramBlocks, osl_vramBlocksMax);
+			osl_vramBlocks = (OSL_VRAMBLOCK*)realloc(osl_vramBlocks, osl_vramBlocksMax * sizeof(*osl_vramBlocks));
 
 			// Check that memory allocation was successful
 			if (!osl_vramBlocks) {
 				osl_vramBlocks = oldBlock;
 				osl_vramBlocksMax -= DEFAULT_TABLE_SIZE;
+				osl_vramBlocksNb--;
 				// Not enough memory
 				return NULL;
 			}
