@@ -1,4 +1,5 @@
 #include "oslib.h"
+#include <limits.h>
 
 //We're beginning at the VRAM base
 u32 osl_vramBase = 0x40000000;
@@ -54,13 +55,12 @@ void oslVramMgrInit() {
 void *oslVramMgrAllocBlock(int blockSize) {
 	int i;
 
-	// The block cannot be of zero or negative size
-	if (blockSize <= 0)
+	// Reject invalid sizes and prevent overflow when aligning
+	if (blockSize <= 0 || blockSize > INT_MAX - 15)
 		return NULL;
 
 	// The size is always a multiple of 16 - round up to the next block
-	if (blockSize & 15)
-		blockSize += 16;
+	blockSize = (blockSize + 15) & ~15;
 
 	// Without the manager, it's simpler...
 	if (!osl_useVramManager) {
@@ -133,6 +133,9 @@ int oslVramMgrFreeBlock(void *blockAddress, int blockSize) {
 
 	// Without the manager, it's simpler...
 	if (!osl_useVramManager) {
+		if (blockSize <= 0 || blockSize > INT_MAX - 15)
+			return 0;
+		blockSize = (blockSize + 15) & ~15;
 		osl_currentVramPtr -= blockSize;
 		// Not really useful, just here to ensure we never exceed the allocated space
 		if (osl_currentVramPtr < osl_vramBase)
@@ -185,8 +188,9 @@ int oslVramMgrSetParameters(void *baseAddr, int size) {
 	if (!osl_useVramManager)
 		return 0;
 	// The size is always a multiple of 16 - round up to the next block
-	if (size & 15)
-		size += 16;
+	if (size < 0 || size > INT_MAX - 15)
+		return 0;
+	size = (size + 15) & ~15;
 
 	// Size difference (negative for reduction, positive for increase)
 	sizeDiff = size - curVramSize;
