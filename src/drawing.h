@@ -440,7 +440,7 @@ extern int osl_colorKeyValue;
  * @param b Blue component (0-255)
  * @return 32-bit color value with full opacity.
  */
-	#define RGB(r, v, b) ((r) | ((v) << 8) | ((b) << 16) | (0xff << 24))
+	#define RGB(r, v, b) ((u32)(r) | ((u32)(v) << 8) | ((u32)(b) << 16) | ((u32)0xff << 24))
 
 /**
  * @brief Creates a 32-bit color with alpha (transparency).
@@ -453,7 +453,7 @@ extern int osl_colorKeyValue;
  * @param a Alpha component (0-255)
  * @return 32-bit color value with specified transparency.
  */
-	#define RGBA(r, v, b, a) ((r) | ((v) << 8) | ((b) << 16) | ((a) << 24))
+	#define RGBA(r, v, b, a) ((u32)(r) | ((u32)(v) << 8) | ((u32)(b) << 16) | ((u32)(a) << 24))
 
 /**
  * @brief Creates a 12-bit opaque color.
