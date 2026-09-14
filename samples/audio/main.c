@@ -23,6 +23,7 @@ PSP_HEAP_SIZE_KB(12 * 1024);
 int currentFormat = FORMAT_BGM;
 int currentMode = MODE_STREAM;
 int inMenu = 1;
+int bufferSamples = 512;
 
 OSL_SOUND *sound = NULL;
 OSL_IMAGE *bkg = NULL;
@@ -140,6 +141,7 @@ void DrawMenu()
 	// File that will be loaded
 	oslPrintf_xy(10, 160, "File: %s",
 	             GetCurrentFilename());
+	oslPrintf_xy(10, 180, "Buffer: %d samples (SELECT: 512/1024)", bufferSamples);
 
 	// Instructions
 	oslPrintf_xy(10, 200, "Press X to start playing");
@@ -153,6 +155,7 @@ void DrawPlayer()
 
 	oslPrintf_xy(10, 10, "=== Audio Player ===");
 	oslPrintf_xy(10, 30, "Format: %s | Mode: %s", GetFormatName(), GetModeName());
+	oslPrintf_xy(10, 45, "Buffer: %d samples", bufferSamples);
 
 	// Status
 	if (sound) {
@@ -179,11 +182,15 @@ void DrawPlayer()
 	oslPrintf_xy(10, 160, "  /\\ = Stop");
 	oslPrintf_xy(10, 180, "  X = Back to menu");
 	oslPrintf_xy(10, 220, "  START = Quit");
+
 }
 
 void HandleMenuKeys()
 {
 	oslReadKeys();
+	if (osl_keys->pressed.select) {
+		bufferSamples = (bufferSamples == 512) ? 1024 : 512;
+	}
 
 	// Change format
 	if (osl_keys->pressed.left) {
@@ -260,6 +267,7 @@ void HandlePlayerKeys()
 void LoadSound()
 {
 	UnloadSound();
+	oslAudioSetDefaultSampleNumber(bufferSamples);
 
 	const char* filename = GetCurrentFilename();
 	int streamFlag;

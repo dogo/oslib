@@ -151,7 +151,6 @@ void oslAudioCallback_PlaySound_BGM(OSL_SOUND *s) {
 
 // Main audio callback function
 int oslAudioCallback_AudioCallback_BGM(unsigned int i, void *buf, unsigned int length) {
-	void *buf2;
 	unsigned int l = 0;
 	OSL_ADGlobals *ad = (OSL_ADGlobals *)osl_audioVoices[i].dataplus;
 
@@ -162,24 +161,41 @@ int oslAudioCallback_AudioCallback_BGM(unsigned int i, void *buf, unsigned int l
 	if (osl_audioVoices[i].size <= 0)
 		return 1;
 
-	// For stereo output: we need 'length' stereo samples
-	// Each ADPCM nibble produces 1 mono sample = 1 stereo sample (L=R)
-	// Each ADPCM byte has 2 nibbles = 2 stereo samples
-	// So we need length/2 bytes of ADPCM data = length nibbles
-	l = length >> 1;  // bytes of ADPCM to consume
+	// Upsampling factor from divider: 1=44k (x1), 2=22k (x2), 4=11k (x4)
+	int upsample = 1 << osl_audioVoices[i].divider;
+
+	// Number of source ADPCM samples needed before upsampling
+	unsigned int src_samples = length / upsample;
+
+	l = src_samples >> 1;  // compressed bytes to consume
 	if (l > osl_audioVoices[i].size)
 		l = osl_audioVoices[i].size;
 
-	// Decode: l bytes = l*2 nibbles = l*2 stereo samples
-	// But we want 'length' stereo samples, so pass length nibbles
-	unsigned int nibbles = l << 1;
-	buf2 = oslDecodeADMono(ad, (short *)buf, ad->data, nibbles, 1, osl_audioVoices[i].isStreamed);
+	unsigned int nibbles = l << 1;  // actual mono samples to decode
+
+	// Decode into the output buffer, then expand backwards so unread samples
+	// are preserved. This works for every configured callback buffer size.
+	short *out = (short *)buf;
+	short *decoded_end = oslDecodeADMono(ad, out, ad->data, nibbles, 1,
+	                                    osl_audioVoices[i].isStreamed);
+	if (upsample > 1) {
+		unsigned int decoded = (unsigned int)(decoded_end - out) / 2;
+		while (decoded > 0) {
+			unsigned int sample = --decoded;
+			short left = out[sample * 2];
+			short right = out[sample * 2 + 1];
+			unsigned int dest = sample * upsample * 2;
+			for (int k = 0; k < upsample; k++) {
+				out[dest++] = left;
+				out[dest++] = right;
+			}
+		}
+	}
+
 	osl_audioVoices[i].size -= l;
 
-	// Check if playback has finished
+	// Signal end of stream (buffer already zeroed at start, no extra memset needed)
 	if (osl_audioVoices[i].size <= 0 && l) {
-		// Clear remaining buffer (stereo)
-		memset(buf2, 0, (u32)buf + (length << 2) - (u32)buf2);
 		return 0;
 	}
 	return 1;
