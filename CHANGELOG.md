@@ -1,3 +1,37 @@
+## Version 1.5.1
+
+Added: MP3 support in the audio sample<br>
+Added: CMake and Makefile presets for sample projects<br>
+Added: Build instructions and LSP support details in README<br>
+Fixed: GIF line buffer overflow and crash on load failure<br>
+Fixed: PNG palette buffer overflow<br>
+Fixed: VRAM allocation bugs and alignment<br>
+Fixed: Memory VFS EOF check and virtual file list removal<br>
+Fixed: ATRAC header validation before reading its fields<br>
+Fixed: Signed overflow in RGB and RGBA macros<br>
+Fixed: Handling of larger BGM buffers<br>
+Fixed: Savedata key copy warning<br>
+Fixed: CMake runtime output directory and target name consistency<br>
+
+## Version 1.5.0
+
+Added: Audio BGM sample and jump sound effect in the audio sample<br>
+Added: Auto-generated osl_config.h; OSL_IMAGE_* flags no longer needed in samples<br>
+Added: Mode field to VIRTUAL_FILE struct for open mode tracking<br>
+Added: CMake sample builds in CI<br>
+Fixed: WAV streaming length calculation for mono and stereo<br>
+Fixed: BGM streaming playback<br>
+Fixed: Prefer PSP SDK for image/zlib libraries, falling back to bundled loaders when missing<br>
+Fixed: PSP toolchain now loaded before the project() declaration<br>
+Fixed: memset usage and connection message formatting in adhoc<br>
+Fixed: Volatile qualifiers to prevent longjmp clobber warnings in PNG<br>
+Fixed: Sign-compare and missing prototype warnings<br>
+Fixed: Doxyfile warnings<br>
+Updated: giflib, libintraFont and libpspmath are now submodules<br>
+Updated: macOS CI image to 15 (was 13) and more systems in the build matrix<br>
+Updated: Third-party library warnings suppressed in the build system<br>
+Updated: Uncrustify configuration and code formatting<br>
+
 ## Version 1.4.0
 
 Added: Automated releases and CI/CD pipeline improvements<br>
