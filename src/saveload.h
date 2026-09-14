@@ -1,6 +1,13 @@
 #ifndef SAVELOAD_H
 #define SAVELOAD_H
 
+/** @file saveload.h
+ *  @brief Save and load functions in OSLib.
+ *
+ *  This file provides access to Sony's save and load screens, used to read and
+ *  write save data in the PSP savedata format.
+ */
+
 /** @defgroup saveload Save and Load
  *  @brief Functions to use the save and load screen.
  *  @{

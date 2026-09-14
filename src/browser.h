@@ -1,6 +1,12 @@
 #ifndef BROWSER_H
 #define BROWSER_H
 
+/** @file browser.h
+ *  @brief Internet browser functions in OSLib.
+ *
+ *  This file provides access to Sony's internet browser utility.
+ */
+
 #ifdef __cplusplus
 extern "C" {
 #endif

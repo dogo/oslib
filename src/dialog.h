@@ -1,6 +1,13 @@
 #ifndef DIALOG_H
 #define DIALOG_H
 
+/** @file dialog.h
+ *  @brief Sony dialog functions in OSLib.
+ *
+ *  This file provides access to Sony's PSP dialogs, such as message dialogs,
+ *  error dialogs and the network configuration dialog.
+ */
+
 /** @defgroup Dialogs Dialogs
  *  @{
  *  @brief Functions to display Sony's dialogs.

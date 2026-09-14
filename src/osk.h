@@ -1,6 +1,13 @@
 #ifndef OSK_H
 #define OSK_H
 
+/** @file osk.h
+ *  @brief On-Screen Keyboard functions in OSLib.
+ *
+ *  This file provides access to Sony's On-Screen Keyboard (OSK), used to let
+ *  the user enter text.
+ */
+
 /** @defgroup OSK On-Screen Keyboard
     @{
     Functions to display Sony's On Screen Keyboard.
