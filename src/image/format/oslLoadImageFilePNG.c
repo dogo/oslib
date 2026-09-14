@@ -81,8 +81,11 @@ OSL_IMAGE *oslLoadImageFilePNG(char *filename, int location, int volatile pixelF
 		if (osl_pixelWidth[pixelFormat] <= 8) {
 			img->palette = oslCreatePalette(oslMin(num_palette, 1 << osl_paletteSizes[pixelFormat]), OSL_PF_8888);
 			if (img->palette) {
+				// The palette can hold fewer entries than the PNG provides (e.g. a 256 colour
+				// PNG loaded as OSL_PF_4BIT); never write past what was allocated
+				int paletteEntries = oslMin(num_palette, img->palette->nElements);
 				// Suggestion: consider num_trans?
-				for (i = 0; i < num_palette; i++) {
+				for (i = 0; i < paletteEntries; i++) {
 					unsigned char r = palette[i].red;
 					unsigned char g = palette[i].green;
 					unsigned char b = palette[i].blue;
