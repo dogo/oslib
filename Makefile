@@ -22,6 +22,13 @@ PSP_FW_VERSION  = 371
 LIB_DIR         := lib
 SOURCE_DIR      := src
 
+# Single source of truth for the version: OSL_VERSION in src/oslib.h.
+# Exported so that Doxygen can pick it up through PROJECT_NUMBER.
+# NOTE: the pattern deliberately avoids a literal '#', because make 3.81
+# (shipped on macOS) strips everything after it, even inside $(shell ...).
+OSL_VERSION     := $(shell sed -n 's/.*OSL_VERSION[[:space:]]\{1,\}"\([^"]*\)".*/\1/p' $(SOURCE_DIR)/oslib.h | head -1)
+export OSL_VERSION
+
 #----------------------------------------------------------------------------
 #   Source to make
 #   --------------
@@ -270,7 +277,8 @@ release: lib
 ghpages: gendoc
 	rm -rf /tmp/ghpages
 	mkdir -p /tmp/ghpages
-	cp -Rv doc/html/* /tmp/ghpages
+	cp -R doc/html/. /tmp/ghpages
+	touch /tmp/ghpages/.nojekyll
 	cd /tmp/ghpages && \
 		git init && \
 		git config user.name "$${GIT_AUTHOR_NAME:-github-actions}" && \
