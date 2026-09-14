@@ -1,6 +1,14 @@
 #ifndef _OSL_DRAWING_H_
 #define _OSL_DRAWING_H_
 
+/** @file drawing.h
+ *  @brief Drawing and image handling functions in OSLib.
+ *
+ *  This file provides the 2D drawing API: screen and drawbuffer management,
+ *  colors, shapes, low level GU vertex types, and the complete image system
+ *  (loading, placement, manipulation, palettes, pixel access and sprites).
+ */
+
 /* Include auto-generated config only when built with CMake */
 #if __has_include("osl_config.h")
 #include "osl_config.h"
@@ -791,7 +799,7 @@ extern void oslUnswizzleTexture(u8 *out, const u8 *in, unsigned int width, unsig
  * The tile is defined by its top-left corner (`u`, `v`) and its size (`tX`, `tY`). The destination position on the screen is specified
  * by (`x`, `y`).
  *
- * @note This function is deprecated and should not be used in new code. It may be removed in future versions.
+ * @deprecated This function is deprecated and should not be used in new code. It may be removed in future versions.
  *
  * @param u The x-coordinate of the top-left corner of the tile in the texture.
  * @param v The y-coordinate of the top-left corner of the tile in the texture.
@@ -1420,7 +1428,10 @@ extern void oslDrawImage(OSL_IMAGE *img);
  *    Pointer to the `OSL_IMAGE` structure representing the image to be drawn.
  *
  * \note
- *    This function is maintained for compatibility with older code. For new code, use `oslDrawImage` instead. Ensure the image is properly initialized and its position is correctly set before calling this function.
+ *    Ensure the image is properly initialized and its position is correctly set before calling this function.
+ *
+ * \deprecated
+ *    This function is maintained only for compatibility with older code. Use `oslDrawImage` instead.
  */
 extern void oslDrawImageSimple(OSL_IMAGE *img);
 

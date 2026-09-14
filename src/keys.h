@@ -1,6 +1,14 @@
 #ifndef _OSL_KEYS_H_
 #define _OSL_KEYS_H_
 
+/** @file keys.h
+ *  @brief Controller handling functions in OSLib.
+ *
+ *  This file provides the controller API: reading the digital keys and the
+ *  analog stick, the key auto-repeat feature, and the analog to D-pad
+ *  conversion.
+ */
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -18,6 +26,7 @@ extern "C" {
  * This union represents the state of the buttons on a controller.
  */
 typedef union {
+	/** @brief Individual button bits, ordered as in the `value` field. */
 	struct {
 		int select : 1; //!< Select button.
 		int reserved1 : 2; //!< Reserved for padding, do not use.
@@ -68,9 +77,19 @@ typedef struct {
 
 /**
  * @enum OSL_KEY_BITS
- * @brief Bit number for each key in the 'value' field.
+ * @brief One-based key identifiers, as used by #oslMake3Buttons.
  *
- * This enumeration defines the bit positions for each key in the `value` field of `OSL_KEYLIST`.
+ * These values are **not** bit numbers: each one is the bit position of the key in
+ * the `value` field of #OSL_KEYLIST **plus one**, so that the value 0 can be used to
+ * mean "no key". To build a mask from one of them, shift by `value - 1`:
+ *
+ * @code
+ * if (osl_keys->pressed.value & (1 << (OSL_KEY_CROSS - 1))) { ... }
+ * @endcode
+ *
+ * To test a key directly, prefer the ready-made masks in #OSL_KEY_MASKS
+ * (`OSL_KEYMASK_CROSS`) or the named bitfields of #OSL_KEYLIST
+ * (`osl_keys->pressed.cross`).
  */
 enum OSL_KEY_BITS {
 	OSL_KEY_SELECT = 1,        //!< Select key.
@@ -215,6 +234,7 @@ extern void oslFlushKey();
  * This union represents the state of the buttons on a remote controller.
  */
 typedef union {
+	/** @brief Individual remote button bits, ordered as in the `value` field. */
 	struct {
 		int rmplaypause : 1; //!< Play/Pause button.
 		int reserved1 : 1; //!< Reserved for padding, do not use.

@@ -3,15 +3,15 @@
 
     \section intro Introduction
 
-    Welcome to the OldSchool Library (OSLib) documentation! This comprehensive guide is intended to help you navigate and utilize the various functions and features provided by OSLib. To get started, you can access the function reference by clicking on the "Modules" tab in the navigation menu.
+    Welcome to the OldSchool Library (OSLib) documentation! This comprehensive guide is intended to help you navigate and utilize the various functions and features provided by OSLib. To get started, you can access the function reference by clicking on the "Topics" tab in the navigation menu, or search for a specific symbol using the search box.
 
-    This documentation also includes a selection of tutorials designed to help you understand and make the most of OSLib's capabilities. If you are new to PSP development, it is highly recommended that you first explore the resources available on the official PSPDev site: [PSPDev Official Site](https://pspdev.github.io). There, you will find a variety of beginner-friendly tutorials to get you up and running.
+    Alongside the function reference, this documentation includes background articles on specific topics, such as \ref swizzling "image swizzling". If you are new to PSP development, it is highly recommended that you first explore the resources available on the official PSPDev site: [PSPDev Official Site](https://pspdev.github.io). There, you will find a variety of beginner-friendly tutorials to get you up and running.
 
     Please note that the documentation you are currently reading is intended for more advanced users who already have a foundational understanding of PSP development.
 
     \section concepts Key Concepts
 
-    As mentioned earlier, this documentation is tailored for users with prior experience in PSP development. If you are a beginner, we strongly encourage you to visit the official OSLib site, where you will find excellent tutorials created by Yodajr. These tutorials provide a great starting point for anyone new to the library.
+    As mentioned earlier, this documentation is tailored for users with prior experience in PSP development. If you are a beginner, the [OSLib repository on GitHub](https://github.com/dogo/oslib) is the best starting point: it holds the README, the changelog and a set of ready-to-build samples under `samples/` covering audio, drawing, text and font rendering, maps, networking, dialogs and save/load.
 
     For more advanced topics, such as optimizing image rendering using swizzling, please refer to the detailed explanations provided in the \ref swizzling "What is image swizzling?" section.
 */

@@ -4,6 +4,13 @@
 #include <sys/select.h>
 #include <pspnet_apctl.h>
 
+/** @file net.h
+ *  @brief Network functions in OSLib.
+ *
+ *  This file provides the networking API: WLAN handling, access point
+ *  connection and socket operations on the PSP.
+ */
+
 /**
  * @defgroup Network Network
  * @{

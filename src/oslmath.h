@@ -1,6 +1,14 @@
 #ifndef __OSL_MATH_H__
 #define __OSL_MATH_H__
 
+/** @file oslmath.h
+ *  @brief VFPU accelerated math functions in OSLib.
+ *
+ *  This file provides mathematical functions that leverage the PSP's Vector
+ *  Floating Point Unit (VFPU). They are based on the `libpspmath` library
+ *  (version 4) by MrMr[iCE].
+ */
+
 #ifdef __cplusplus
 extern "C" {
 #endif
