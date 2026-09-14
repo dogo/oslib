@@ -1,0 +1,23 @@
+var searchData=
+[
+  ['fclose_0',['fClose',['../struct_v_i_r_t_u_a_l___f_i_l_e___s_o_u_r_c_e.html#a9532ac02174635bbdf1b96f0b5d832bd',1,'VIRTUAL_FILE_SOURCE']]],
+  ['feof_1',['fEof',['../struct_v_i_r_t_u_a_l___f_i_l_e___s_o_u_r_c_e.html#a10ac87abf6fbd02767e94eaf06fdedf0',1,'VIRTUAL_FILE_SOURCE']]],
+  ['fgetc_2',['fGetc',['../struct_v_i_r_t_u_a_l___f_i_l_e___s_o_u_r_c_e.html#a0635850def10700d409e2cc57e1a673a',1,'VIRTUAL_FILE_SOURCE']]],
+  ['fgets_3',['fGets',['../struct_v_i_r_t_u_a_l___f_i_l_e___s_o_u_r_c_e.html#a7acc1c408338e27c6b65714fa9e3aa00',1,'VIRTUAL_FILE_SOURCE']]],
+  ['file_20sources_4',['Virtual file sources',['../group__virtualfile__sources.html',1,'']]],
+  ['filename_5',['filename',['../struct_o_s_l___s_o_u_n_d.html#a364a627d40d50848825a9f1ab5f9b797',1,'OSL_SOUND']]],
+  ['files_6',['files',['../group__virtualfile__ram.html',1,'RAM virtual files'],['../group__virtualfile.html',1,'Virtual Files']]],
+  ['flags_7',['flags',['../struct_o_s_l___i_m_a_g_e.html#a74e53e9df6218b8e0a854ff8e83805c0',1,'OSL_IMAGE::flags'],['../struct_o_s_l___m_a_p.html#ae71af278d21db8f76c31457f183b2b76',1,'OSL_MAP::flags']]],
+  ['fontdata_8',['fontdata',['../struct_o_s_l___f_o_n_t_i_n_f_o.html#a94680b03c03f375856711380d21703ba',1,'OSL_FONTINFO']]],
+  ['fonttype_9',['fontType',['../struct_o_s_l___f_o_n_t.html#a607c5089b8954b2cd05b84ce5bd9056b',1,'OSL_FONT']]],
+  ['fopen_10',['fOpen',['../struct_v_i_r_t_u_a_l___f_i_l_e___s_o_u_r_c_e.html#a974d15e910e3fd96d1294bc5a394871b',1,'VIRTUAL_FILE_SOURCE']]],
+  ['format_11',['format',['../struct_o_s_l___m_a_p.html#a83a4914182df57263d4f99f5ccb97f9a',1,'OSL_MAP::format'],['../struct_o_s_l___a_u_d_i_o___v_o_i_c_e.html#a8f13db7e45c81fa5f3fa05079fed6334',1,'OSL_AUDIO_VOICE::format'],['../struct_o_s_l___s_o_u_n_d.html#ae2057a0bbce53d4a92b355aa7b408d05',1,'OSL_SOUND::format']]],
+  ['fputc_12',['fPutc',['../struct_v_i_r_t_u_a_l___f_i_l_e___s_o_u_r_c_e.html#ad6d93fb0848ae206ab3120d03b7af722',1,'VIRTUAL_FILE_SOURCE']]],
+  ['fputs_13',['fPuts',['../struct_v_i_r_t_u_a_l___f_i_l_e___s_o_u_r_c_e.html#a2a73b27fb0d3c6adedb09f3aaaa82b20',1,'VIRTUAL_FILE_SOURCE']]],
+  ['framesizey_14',['frameSizeY',['../struct_o_s_l___i_m_a_g_e.html#a7fb228c81c8146b9b908c0b8e8c658c8',1,'OSL_IMAGE']]],
+  ['fread_15',['fRead',['../struct_v_i_r_t_u_a_l___f_i_l_e___s_o_u_r_c_e.html#ae6d5ad9ab0ab3f3e1ed7211d70046200',1,'VIRTUAL_FILE_SOURCE']]],
+  ['fseek_16',['fSeek',['../struct_v_i_r_t_u_a_l___f_i_l_e___s_o_u_r_c_e.html#aa6bfaa37fffedeea7e7a341d91ac266e',1,'VIRTUAL_FILE_SOURCE']]],
+  ['ftell_17',['fTell',['../struct_v_i_r_t_u_a_l___f_i_l_e___s_o_u_r_c_e.html#a80c44b53fb876d5138eb9e40cbf555ff',1,'VIRTUAL_FILE_SOURCE']]],
+  ['functions_18',['Text functions',['../group__text.html',1,'']]],
+  ['fwrite_19',['fWrite',['../struct_v_i_r_t_u_a_l___f_i_l_e___s_o_u_r_c_e.html#aacfba0ae8a7b4bbdd267baf9b325fc44',1,'VIRTUAL_FILE_SOURCE']]]
+];
