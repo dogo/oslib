@@ -115,12 +115,15 @@ OSL_IMAGE *oslLoadImageFileGIF(char *filename, int location, int pixelFormat)
 		GifFile = DGifOpen(f, fnGifReadFunc, &ErrorCode);
 
 		// Scan the content of the GIF file and load the image(s)
-		do {
-			DGifGetRecordType(GifFile, &RecordType);
+		while (GifFile) {
+			if (DGifGetRecordType(GifFile, &RecordType) == GIF_ERROR)
+				break;
 
 			switch (RecordType) {
 			case IMAGE_DESC_RECORD_TYPE:
-				DGifGetImageDesc(GifFile);
+				if (DGifGetImageDesc(GifFile) == GIF_ERROR)
+					break;
+
 				// Ignore image position, but consider this for animated GIFs
 				Row = Col = 0;
 				Width = GifFile->Image.Width;
@@ -130,14 +133,24 @@ OSL_IMAGE *oslLoadImageFileGIF(char *filename, int location, int pixelFormat)
 				if (!oslGifEnsureLineBuf(Width))
 					break;
 
-				// Update the color map
+				// Update the color map - the file may carry neither a local nor a global one
 				ColorMap = (GifFile->Image.ColorMap ? GifFile->Image.ColorMap : GifFile->SColorMap);
+				if (!ColorMap)
+					break;
 
 				// Create the image to store the data
 				img = oslCreateImage(Width, Height, imgLocation, pixelFormat);
+				if (!img)
+					break;
+
 				if (osl_pixelWidth[pixelFormat] <= 8) {
 					ColorMap->ColorCount = oslMin(ColorMap->ColorCount, 1 << osl_paletteSizes[pixelFormat]);
 					img->palette = oslCreatePalette(ColorMap->ColorCount, OSL_PF_8888);
+					if (!img->palette) {
+						oslDeleteImage(img);
+						img = NULL;
+						break;
+					}
 					Palette = (u32*)img->palette->data;
 				}
 
@@ -190,10 +203,14 @@ OSL_IMAGE *oslLoadImageFileGIF(char *filename, int location, int pixelFormat)
 			default:
 				break;
 			}
-		} while (RecordType != TERMINATE_RECORD_TYPE);
+
+			if (RecordType == TERMINATE_RECORD_TYPE)
+				break;
+		}
 
 		// Close the file when done
-		DGifCloseFile(GifFile, &ErrorCode);
+		if (GifFile)
+			DGifCloseFile(GifFile, &ErrorCode);
 		VirtualFileClose(f);
 
 		// Free the memory allocated for the temporary palette
@@ -203,12 +220,14 @@ OSL_IMAGE *oslLoadImageFileGIF(char *filename, int location, int pixelFormat)
 		// Free the temporary line buffer
 		oslGifFreeLineBuf();
 
-		// Swizzle the image if necessary
-		if (oslImageLocationIsSwizzled(location))
-			oslSwizzleImage(img);
+		if (img) {
+			// Swizzle the image if necessary
+			if (oslImageLocationIsSwizzled(location))
+				oslSwizzleImage(img);
 
-		// Uncache the image so that it's ready to use
-		oslUncacheImage(img);
+			// Uncache the image so that it's ready to use
+			oslUncacheImage(img);
+		}
 	}
 
 	if (!img)
