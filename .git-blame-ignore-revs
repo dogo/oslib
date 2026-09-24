@@ -1,0 +1,11 @@
+# Revisions that only reformat code. Ignore them in `git blame`:
+#
+#   git config blame.ignoreRevsFile .git-blame-ignore-revs
+#
+# (GitHub honours this file automatically.)
+
+# chore: normalize line endings to LF
+20816b6f1649e6eb336cec14122693f346178401
+
+# style: apply uncrustify formatting
+5bf440020decbc378aa531681764f5c688306039
