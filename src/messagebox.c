@@ -56,7 +56,9 @@ unsigned int oslMessageBox(const char *text, const char *title, unsigned int fla
 	int btX, nbButtons, i;
 	OSL_BUTTON_INFO buttons[3];
 	unsigned char c;
-	const unsigned char keys[] = { ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'L', 'R', ' ', ' ', '^', 'o', 'x', '#', ' ', ' ', ' ', ' ', ' ', ' ', ' ' };
+	// One entry per OSL_KEY_BITS value, indexed by key - 1. OSL_KEY_NOTE (24) is
+	// the highest key identifier, so the table must hold that many entries.
+	const unsigned char keys[OSL_KEY_NOTE] = { ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'L', 'R', ' ', ' ', '^', 'o', 'x', '#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ' };
 	OSL_IMAGE *curBuf = oslGetDrawBuffer();
 	OSL_FONT *ft = osl_curFont;
 	int dither = osl_ditheringEnabled;
@@ -96,7 +98,7 @@ unsigned int oslMessageBox(const char *text, const char *title, unsigned int fla
 			break;
 
 		buttons[i].key = (flags & 31);
-		if (buttons[i].key >= 1 && buttons[i].key <= 24) {
+		if (buttons[i].key >= 1 && buttons[i].key <= (int)sizeof(keys)) {
 			c = keys[buttons[i].key - 1];
 		} else {
 			c = ' ';

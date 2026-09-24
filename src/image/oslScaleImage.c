@@ -175,8 +175,20 @@ void oslScaleImage(OSL_IMAGE *dstImg, OSL_IMAGE *srcImg, int newX, int newY, int
 	rs = malloc(srcImg->sizeX * sizeof(rs[0]) );
 	gs = malloc(srcImg->sizeX * sizeof(gs[0]) );
 	bs = malloc(srcImg->sizeX * sizeof(bs[0]) );
-	as = malloc(srcImg->sizeX * sizeof(bs[0]) );
+	as = malloc(srcImg->sizeX * sizeof(as[0]) );
 	newxelrow = malloc(newWidth * sizeof(newxelrow[0]) );
+
+	// Every buffer is needed for the scan below, so give up as a whole if any
+	// allocation failed. The image is left untouched in that case.
+	if (!orgxelrow || !rs || !gs || !bs || !as || !newxelrow) {
+		free(newxelrow);
+		free(as);
+		free(bs);
+		free(gs);
+		free(rs);
+		free(orgxelrow);
+		return;
+	}
 
 	for ( row = 0; row < newHeight; ++row ) {
 		/* First scane Y from orgxelrow[] into vertScanedRow[]. */
