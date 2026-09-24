@@ -139,7 +139,9 @@ static void horizontalScale(const float rs[], const float gs[], const float bs[]
 	}
 }
 
-void oslScaleImage(OSL_IMAGE *dstImg, OSL_IMAGE *srcImg, int newX, int newY, int newWidth, int newHeight) {
+// Scales srcImg into dstImg. Returns 1 on success, or 0 when the scratch
+// buffers could not be allocated, in which case dstImg is left untouched.
+static int scaleImage(OSL_IMAGE *dstImg, OSL_IMAGE *srcImg, int newX, int newY, int newWidth, int newHeight) {
 	float rowsleft;
 
 	/* The number of rows of output that need to be formed from the
@@ -187,7 +189,7 @@ void oslScaleImage(OSL_IMAGE *dstImg, OSL_IMAGE *srcImg, int newX, int newY, int
 		free(gs);
 		free(rs);
 		free(orgxelrow);
-		return;
+		return 0;
 	}
 
 	for ( row = 0; row < newHeight; ++row ) {
@@ -241,7 +243,13 @@ void oslScaleImage(OSL_IMAGE *dstImg, OSL_IMAGE *srcImg, int newX, int newY, int
 	free(rs);
 	free(orgxelrow);
 
-	return;
+	return 1;
+}
+
+void oslScaleImage(OSL_IMAGE *dstImg, OSL_IMAGE *srcImg, int newX, int newY, int newWidth, int newHeight) {
+	// This entry point has no way to report a failure; callers that need to
+	// know whether scaling succeeded should use oslScaleImageCreate().
+	scaleImage(dstImg, srcImg, newX, newY, newWidth, newHeight);
 }
 
 OSL_IMAGE *oslScaleImageCreate(OSL_IMAGE *img, short newLocation, int newWidth, int newHeight, short newPixelFormat) {
@@ -254,7 +262,13 @@ OSL_IMAGE *oslScaleImageCreate(OSL_IMAGE *img, short newLocation, int newWidth, 
 		return NULL;
 	}
 
-	oslScaleImage(newImg, img, 0, 0, newWidth, newHeight);
+	// The scratch buffers may fail to allocate on a memory-constrained PSP.
+	// newImg's pixel data is uninitialised until scaleImage() fills it, so the
+	// image must not be handed back as if it were valid.
+	if (!scaleImage(newImg, img, 0, 0, newWidth, newHeight)) {
+		oslDeleteImage(newImg);
+		return NULL;
+	}
 
 	if (oslImageLocationIsSwizzled(newLocation)) {
 		oslSwizzleImage(newImg);
