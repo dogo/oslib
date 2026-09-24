@@ -629,9 +629,8 @@ void oslDeleteFont(OSL_FONT *f) {
 		f->charWidths = NULL;
 	}
 
-	// Free the OSL_FONT structure itself and set the pointer to NULL
+	// Free the OSL_FONT structure itself
 	free(f);
-	f = NULL;
 }
 
 void oslDrawTextTileBack(int x, int y, int tX, int tY) {
