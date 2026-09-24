@@ -219,15 +219,17 @@ install(FILES
 # Add Cppcheck execution
 find_program(CPPCHECK cppcheck)
 if(CPPCHECK)
-    set(CPPCHECK_COMMAND
-        ${CPPCHECK} --enable=all --inconclusive --quiet
-        --suppressions-list=${CMAKE_SOURCE_DIR}/.cppcheck-suppress
-        --checkers-report=${CMAKE_SOURCE_DIR}/cppcheck-report.txt
-    )
     add_custom_target(
         cppcheck
-        COMMAND ${CPPCHECK_COMMAND} ${CMAKE_SOURCE_DIR}/src || true
-        COMMENT "Running Cppcheck and generating checkers report..."
+        COMMAND ${CMAKE_SOURCE_DIR}/run-cppcheck.sh
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+        COMMENT "Running Cppcheck over the project (fails the build on any finding)..."
+    )
+    add_custom_target(
+        cppcheck-report
+        COMMAND ${CMAKE_SOURCE_DIR}/run-cppcheck.sh --report ${CMAKE_SOURCE_DIR}/cppcheck-report.txt
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+        COMMENT "Running Cppcheck and writing the findings to cppcheck-report.txt..."
     )
 else()
     message(WARNING "Cppcheck not found, skipping static analysis.")

@@ -9,6 +9,7 @@ on:
 
 env:
   UNCRUSTIFY_VERSION: 0.83.0
+  CPPCHECK_VERSION: 2.22.0
 
 jobs:
   build:
@@ -93,3 +94,51 @@ jobs:
           export PATH="$HOME/.local/bin:$PATH"
           uncrustify --version
           ./run-uncrustify.sh --check
+
+  static-analysis:
+    name: Static analysis (Cppcheck)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          submodules: 'true'
+
+      # The anchored step in `build` is matrix-driven, so the arguments are
+      # spelled out here; passing none would fall back to `linux`/`x86_64` and
+      # request a release asset that does not exist.
+      - name: Setup PSPDEV Environment
+        run: |
+          .github/scripts/setup_pspdev.sh ubuntu-latest x86_64
+
+      - name: Cache Cppcheck
+        id: cache-cppcheck
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/cppcheck
+          key: cppcheck-${{ env.CPPCHECK_VERSION }}-ubuntu-latest
+
+      - name: Build Cppcheck ${{ env.CPPCHECK_VERSION }}
+        if: steps.cache-cppcheck.outputs.cache-hit != 'true'
+        run: |
+          set -euo pipefail
+          git clone --depth 1 --branch "${CPPCHECK_VERSION}" \
+            https://github.com/danmar/cppcheck.git /tmp/cppcheck
+          cmake -S /tmp/cppcheck -B /tmp/cppcheck/build \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_INSTALL_PREFIX="$HOME/.local/cppcheck" \
+            -DUSE_MATCHCOMPILER=ON
+          cmake --build /tmp/cppcheck/build -j"$(nproc)"
+          cmake --install /tmp/cppcheck/build
+
+      - name: Generate the compilation database
+        run: |
+          set -euo pipefail
+          export PATH="$HOME/.local/cppcheck/bin:$PATH"
+          cmake --preset psp
+
+      - name: Run Cppcheck
+        run: |
+          set -euo pipefail
+          export PATH="$HOME/.local/cppcheck/bin:$PATH"
+          cppcheck --version
+          ./run-cppcheck.sh
