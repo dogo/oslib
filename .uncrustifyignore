@@ -1,3 +1,5 @@
+# Paths excluded from formatting, matched as a prefix of the repo-relative path.
+# Third-party submodules — never reformat vendored code.
 lib/giflib/
 lib/libintraFont/
 lib/libpspmath/

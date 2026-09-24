@@ -1,0 +1,36 @@
+# Normalize all text files to LF in the repository.
+# Uncrustify is configured with `newlines = lf`; this keeps the working tree
+# and the index in agreement so formatting runs produce no spurious diffs.
+* text=auto eol=lf
+
+# Sources and build files
+*.c      text eol=lf
+*.h      text eol=lf
+*.cpp    text eol=lf
+*.S      text eol=lf
+*.md     text eol=lf
+*.txt    text eol=lf
+*.cmake  text eol=lf
+*.json   text eol=lf
+*.yml    text eol=lf
+*.sh     text eol=lf
+Makefile text eol=lf
+makefile text eol=lf
+
+# Windows scripts must keep CRLF
+*.bat    text eol=crlf
+
+# Binary assets — never touched
+*.png    binary
+*.gif    binary
+*.bmp    binary
+*.jpg    binary
+*.rgb    binary
+*.bin    binary
+*.a      binary
+*.o      binary
+*.obj    binary
+*.pgf    binary
+*.prx    binary
+*.pbp    binary
+*.elf    binary
