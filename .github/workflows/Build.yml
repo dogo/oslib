@@ -139,6 +139,8 @@ jobs:
       - name: Run Cppcheck
         run: |
           set -euo pipefail
-          export PATH="$HOME/.local/cppcheck/bin:$PATH"
-          cppcheck --version
-          ./run-cppcheck.sh
+          # Named explicitly rather than left to PATH precedence, so the pinned
+          # build is the one that runs even if a system cppcheck is installed.
+          CPPCHECK="$HOME/.local/cppcheck/bin/cppcheck"
+          "$CPPCHECK" --version
+          ./run-cppcheck.sh --cppcheck "$CPPCHECK"
