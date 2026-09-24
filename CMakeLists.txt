@@ -6,6 +6,9 @@ include(${CMAKE_SYSTEM_CMAKE_PLATFORM_PATH}/PSP.cmake)
 
 project(OSLib C CXX ASM)
 
+# Always export a compilation database; run-cppcheck.sh analyses through it.
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 # Set C and C++ standards
 set(CMAKE_C_STANDARD 23)
 set(CMAKE_C_STANDARD_REQUIRED ON)
@@ -221,13 +224,13 @@ find_program(CPPCHECK cppcheck)
 if(CPPCHECK)
     add_custom_target(
         cppcheck
-        COMMAND ${CMAKE_SOURCE_DIR}/run-cppcheck.sh
+        COMMAND ${CMAKE_SOURCE_DIR}/run-cppcheck.sh --build-dir ${CMAKE_BINARY_DIR}
         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
         COMMENT "Running Cppcheck over the project (fails the build on any finding)..."
     )
     add_custom_target(
         cppcheck-report
-        COMMAND ${CMAKE_SOURCE_DIR}/run-cppcheck.sh --report ${CMAKE_SOURCE_DIR}/cppcheck-report.txt
+        COMMAND ${CMAKE_SOURCE_DIR}/run-cppcheck.sh --build-dir ${CMAKE_BINARY_DIR} --report ${CMAKE_SOURCE_DIR}/cppcheck-report.txt
         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
         COMMENT "Running Cppcheck and writing the findings to cppcheck-report.txt..."
     )
