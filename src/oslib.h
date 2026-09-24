@@ -13,12 +13,12 @@
 #define _OSLIB_H_
 
 #ifdef PSP
-    #include <pspkernel.h>
-    #include <pspdisplay.h>
-    #include <pspdebug.h>
+#include <pspkernel.h>
+#include <pspdisplay.h>
+#include <pspdebug.h>
 #else
-    #define _CRT_SECURE_NO_DEPRECATE
-    #include "emu.h"
+#define _CRT_SECURE_NO_DEPRECATE
+#include "emu.h"
 #endif
 #include <stdlib.h>
 #include <stdio.h>
@@ -28,13 +28,13 @@
 #include <ctype.h>
 #include <time.h>
 #ifdef PSP
-    #include <pspctrl.h>
-    #include <psputility.h>
-    #include <pspgu.h>
-    #include <pspgum.h>
-    #include <psppower.h>
-    #include <pspiofilemgr.h>
-    #include <psphprm.h>
+#include <pspctrl.h>
+#include <psputility.h>
+#include <pspgu.h>
+#include <pspgum.h>
+#include <psppower.h>
+#include <pspiofilemgr.h>
+#include <psphprm.h>
 #endif
 
 #ifdef __cplusplus
@@ -237,7 +237,7 @@ extern int osl_standByUnpermitted;
  *
  * @return Typically returns 0, but the return value may be used to influence power event handling.
  */
-extern int (*osl_powerCallback)(int arg1, int arg2, void* common);
+extern int (*osl_powerCallback)(int arg1, int arg2, void *common);
 
 /**
  * @brief Pointer to the exit callback function.
@@ -251,7 +251,7 @@ extern int (*osl_powerCallback)(int arg1, int arg2, void* common);
  *
  * @return Typically returns 0, but the return value may be used to influence exit event handling.
  */
-extern int (*osl_exitCallback)(int arg1, int arg2, void* common);
+extern int (*osl_exitCallback)(int arg1, int arg2, void *common);
 
 /**
  * @brief The interrupt number for the VBLANK interrupt.
@@ -421,7 +421,7 @@ extern void oslFasterMemset(u64 *dst, u64 *src, u32 length);
  *
  * @return Uncached pointer.
  */
-#define oslGetUncachedPtr(adr) ((void*)((int)(adr) | 0x40000000))
+#define oslGetUncachedPtr(adr) ((void *)((int)(adr) | 0x40000000))
 
 /** @brief Returns a pointer to cached data.
  *
@@ -431,9 +431,10 @@ extern void oslFasterMemset(u64 *dst, u64 *src, u32 length);
  *
  * @return Cached pointer.
  */
-#define oslGetCachedPtr(adr) ((void*)((int)(adr) & (~0x40000000)))
+#define oslGetCachedPtr(adr) ((void *)((int)(adr) & (~0x40000000)))
 
 #ifdef PSP
+
 /** @brief Flushes the whole cache.
  *
  * This function is slow and should be avoided if possible.
@@ -441,6 +442,7 @@ extern void oslFasterMemset(u64 *dst, u64 *src, u32 length);
  */
 extern void oslFlushDataCache();
 #else
+
 /** @brief Flushes the whole cache.
  *
  * This function is slow and should be avoided if possible.
@@ -643,12 +645,13 @@ extern void oslSetupFTrigo();
  * @{
  */
 #ifdef PSP
+
 /** @brief Prints formatted text to the current position of the cursor.
  *
  * This macro uses a printf-style format string. The formatted output will be
  * written to an internal buffer and printed to the debug console.
  */
-	 #define oslPrintf(format ...) ({ char __str[1000]; sprintf(__str, ## format); oslConsolePrint(__str); })
+#define oslPrintf(format ...) ({ char __str[1000]; sprintf(__str, ## format); oslConsolePrint(__str); })
 
 /** @brief Prints formatted text at a specific position on the screen.
  *
@@ -662,10 +665,10 @@ extern void oslSetupFTrigo();
  * @param y Y-coordinate (in characters).
  * @param str The format string (printf-style) or literal string.
  */
-	 #define oslPrintf_xy(x, y, str, format ...) ({ osl_consolePosX = x; osl_consolePosY = y; oslPrintf(str, ## format); })
+#define oslPrintf_xy(x, y, str, format ...) ({ osl_consolePosX = x; osl_consolePosY = y; oslPrintf(str, ## format); })
 #else
-    #define oslPrintf(...) { char __str[1000]; sprintf(__str, __VA_ARGS__); oslConsolePrint(__str); }
-    #define oslPrintf_xy(x, y, ...) { osl_consolePosX = x; osl_consolePosY = y; oslPrintf(__VA_ARGS__); }
+#define oslPrintf(...) { char __str[1000]; sprintf(__str, __VA_ARGS__); oslConsolePrint(__str); }
+#define oslPrintf_xy(x, y, ...) { osl_consolePosX = x; osl_consolePosY = y; oslPrintf(__VA_ARGS__); }
 #endif
 
 /** @brief Clears the screen (to black) and resets the cursor to the top-left corner of the screen.
@@ -770,6 +773,7 @@ enum {
 #define OSL_BENCH_SAMPLES 20
 
 #ifndef PSP
+
 /**
  * @brief Debugging function for non-PSP platforms.
  *
@@ -844,6 +848,7 @@ static inline int oslShowNeoflashLogo() {
 }
 
 #ifdef PSP
+
 /**
  * @brief Base address of the UVRAM (Uncached Video RAM) on the PSP.
  *
@@ -852,8 +857,9 @@ static inline int oslShowNeoflashLogo() {
  * memory without the benefits of CPU caching. It is typically used for graphics
  * operations where cache coherence with the GPU is critical.
  */
-#define OSL_UVRAM_BASE ((u8*)0x04000000)
+#define OSL_UVRAM_BASE ((u8 *)0x04000000)
 #else
+
 /**
  * @brief Pointer to the base address of the UVRAM (Uncached Video RAM) on non-PSP platforms.
  *
@@ -890,7 +896,7 @@ extern u8 *OSL_UVRAM_BASE;
  * of the UVRAM to its base address. It is useful for determining the bounds of the video
  * memory area when performing operations that involve the entire UVRAM.
  */
-#define OSL_UVRAM_END ((u8*)((u32)OSL_UVRAM_BASE + OSL_UVRAM_SIZE))
+#define OSL_UVRAM_END ((u8 *)((u32)OSL_UVRAM_BASE + OSL_UVRAM_SIZE))
 
 /** @} */ // end of main_misc
 

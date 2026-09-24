@@ -7,7 +7,7 @@
 #define TEXSIZEY_LIMITF 512.0f
 
 void oslSetTexturePart(OSL_IMAGE *img, int x, int y) {
-	u8 *data = (u8*)img->data;
+	u8 *data = (u8 *)img->data;
 
 	// Adjust the texture offset when swizzling is enabled
 #ifdef PSP
@@ -25,7 +25,7 @@ void oslSetTexturePart(OSL_IMAGE *img, int x, int y) {
 		sceGuClutLoad((img->palette->nElements >> 3), img->palette->data);
 	}
 
-	data = (u8*)oslGetImagePixelAdr(img, x * swizzleScaleFactor, y);
+	data = (u8 *)oslGetImagePixelAdr(img, x * swizzleScaleFactor, y);
 
 	if (osl_curTexture != data) {
 		osl_curTexture = data;
@@ -124,7 +124,7 @@ void oslDrawImageBig(OSL_IMAGE *img) {
 
 			while (uVal < uLimit) {
 				if (bDrawn) {
-					vertices = (OSL_PRECISE_VERTEX*)sceGuGetMemory(4 * sizeof(OSL_PRECISE_VERTEX));
+					vertices = (OSL_PRECISE_VERTEX *)sceGuGetMemory(4 * sizeof(OSL_PRECISE_VERTEX));
 
 					vertices[0].u = uVal - uStart;
 					vertices[0].v = vVal - vStart;
@@ -195,7 +195,6 @@ void oslDrawImageBig(OSL_IMAGE *img) {
 		vVal += (tmpY - cY) * TEXSIZEY_LIMITF / yCoeff;
 		cY += (tmpY - cY);
 		tmpY += (vLimit - oldVl) * yCoeff / TEXSIZEY_LIMITF;
-
 	} while (1);
 
 	// Restore the texture wrapping

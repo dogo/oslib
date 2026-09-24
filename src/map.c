@@ -11,7 +11,7 @@ OSL_MAP *oslCreateMap(OSL_IMAGE *img, void *map_data, int tileX, int tileY, int 
 		return NULL;
 	}
 
-	OSL_MAP *m = (OSL_MAP*)calloc(1, sizeof(OSL_MAP));
+	OSL_MAP *m = (OSL_MAP *)calloc(1, sizeof(OSL_MAP));
 	if (!m) {
 		return NULL;
 	}
@@ -52,7 +52,7 @@ void oslDrawMap(OSL_MAP *m) {
 	int x, y, v, sX, sY, mX, mY, dX, bY, dsX, dsY, xTile, yTile;
 	u32 tilesPerLine = m->img->sizeX / m->tileX;
 	u32 firstTileOpaque = !(m->flags & OSL_MF_TILE1_TRANSPARENT);
-	u16 *map = (u16*)m->map;
+	u16 *map = (u16 *)m->map;
 	OSL_FAST_VERTEX *vertices;
 	int nbVertices;
 	int tilesPerLineOpt = 0;
@@ -96,7 +96,7 @@ void oslDrawMap(OSL_MAP *m) {
 			bY = m->mapSizeX * mY;
 			mX = dX;
 			xTile = -sX;
-			vertices = (OSL_FAST_VERTEX*)sceGuGetMemory(dsX * 2 * sizeof(OSL_FAST_VERTEX));
+			vertices = (OSL_FAST_VERTEX *)sceGuGetMemory(dsX * 2 * sizeof(OSL_FAST_VERTEX));
 			nbVertices = 0;
 
 			for (x = 0; x < dsX; x++) {
@@ -146,7 +146,7 @@ void oslDrawMap(OSL_MAP *m) {
 			bY = m->mapSizeX * mY;
 			mX = dX;
 			xTile = -sX;
-			vertices = (OSL_FAST_VERTEX*)sceGuGetMemory(dsX * 2 * sizeof(OSL_FAST_VERTEX));
+			vertices = (OSL_FAST_VERTEX *)sceGuGetMemory(dsX * 2 * sizeof(OSL_FAST_VERTEX));
 			nbVertices = 0;
 
 			for (x = 0; x < dsX; x++) {

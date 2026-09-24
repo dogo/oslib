@@ -18,7 +18,7 @@ OSL_COLOR oslBlendColors(OSL_COLOR color1, OSL_COLOR color2) {
 }
 
 void oslDrawLine(int x0, int y0, int x1, int y1, OSL_COLOR color) {
-	OSL_LINE_VERTEX* vertices = (OSL_LINE_VERTEX*)sceGuGetMemory(2 * sizeof(OSL_LINE_VERTEX));
+	OSL_LINE_VERTEX *vertices = (OSL_LINE_VERTEX *)sceGuGetMemory(2 * sizeof(OSL_LINE_VERTEX));
 	color = oslBlendColor(color);
 
 	vertices[0].color = color;
@@ -42,7 +42,7 @@ void oslDrawLine(int x0, int y0, int x1, int y1, OSL_COLOR color) {
 }
 
 void oslDrawRect(int x0, int y0, int x1, int y1, OSL_COLOR color) {
-	OSL_LINE_VERTEX* vertices = (OSL_LINE_VERTEX*)sceGuGetMemory(8 * sizeof(OSL_LINE_VERTEX));
+	OSL_LINE_VERTEX *vertices = (OSL_LINE_VERTEX *)sceGuGetMemory(8 * sizeof(OSL_LINE_VERTEX));
 	color = oslBlendColor(color);
 
 	// Ensure correct rectangle coordinates
@@ -59,7 +59,7 @@ void oslDrawRect(int x0, int y0, int x1, int y1, OSL_COLOR color) {
 
 	vertices[0].color = color;
 	vertices[0].x = x0;
-	vertices[0].y = y0+1;
+	vertices[0].y = y0 + 1;
 	vertices[0].z = 0;
 
 	vertices[1].color = color;
@@ -68,23 +68,23 @@ void oslDrawRect(int x0, int y0, int x1, int y1, OSL_COLOR color) {
 	vertices[1].z = 0;
 
 	vertices[2].color = color;
-	vertices[2].x = x0+1;
-	vertices[2].y = y1-1;
+	vertices[2].x = x0 + 1;
+	vertices[2].y = y1 - 1;
 	vertices[2].z = 0;
 
 	vertices[3].color = color;
 	vertices[3].x = x1;
-	vertices[3].y = y1-1;
+	vertices[3].y = y1 - 1;
 	vertices[3].z = 0;
 
 	vertices[4].color = color;
-	vertices[4].x = x1-1;
+	vertices[4].x = x1 - 1;
 	vertices[4].y = y0;
 	vertices[4].z = 0;
 
 	vertices[5].color = color;
-	vertices[5].x = x1-1;
-	vertices[5].y = y1-1;
+	vertices[5].x = x1 - 1;
+	vertices[5].y = y1 - 1;
 	vertices[5].z = 0;
 
 	vertices[6].color = color;
@@ -93,7 +93,7 @@ void oslDrawRect(int x0, int y0, int x1, int y1, OSL_COLOR color) {
 	vertices[6].z = 0;
 
 	vertices[7].color = color;
-	vertices[7].x = x1-1;
+	vertices[7].x = x1 - 1;
 	vertices[7].y = y0;
 	vertices[7].z = 0;
 
@@ -108,7 +108,7 @@ void oslDrawRect(int x0, int y0, int x1, int y1, OSL_COLOR color) {
 }
 
 void oslDrawFillRect(int x0, int y0, int x1, int y1, OSL_COLOR color) {
-	OSL_LINE_VERTEX* vertices = (OSL_LINE_VERTEX*)sceGuGetMemory(2 * sizeof(OSL_LINE_VERTEX));
+	OSL_LINE_VERTEX *vertices = (OSL_LINE_VERTEX *)sceGuGetMemory(2 * sizeof(OSL_LINE_VERTEX));
 	color = oslBlendColor(color);
 
 	vertices[0].color = color;
@@ -132,7 +132,7 @@ void oslDrawFillRect(int x0, int y0, int x1, int y1, OSL_COLOR color) {
 }
 
 void oslDrawGradientRect(int x0, int y0, int x1, int y1, OSL_COLOR colorTopLeft, OSL_COLOR colorTopRight, OSL_COLOR colorBottomLeft, OSL_COLOR colorBottomRight) {
-	OSL_LINE_VERTEX* vertices = (OSL_LINE_VERTEX*)sceGuGetMemory(4 * sizeof(OSL_LINE_VERTEX));
+	OSL_LINE_VERTEX *vertices = (OSL_LINE_VERTEX *)sceGuGetMemory(4 * sizeof(OSL_LINE_VERTEX));
 
 	// Pre-blend colors
 	colorTopLeft = oslBlendColor(colorTopLeft);

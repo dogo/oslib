@@ -12,8 +12,8 @@ const int OSL_TRIGO_FACTOR = 16384;
 int osl_intraInit = 0;
 int osl_quit = 0;
 int osl_vblInterruptNumber = 0;
-int (*osl_powerCallback)(int, int, void*) = NULL;
-int (*osl_exitCallback)(int, int, void*) = NULL;
+int (*osl_powerCallback)(int, int, void *) = NULL;
+int (*osl_exitCallback)(int, int, void *) = NULL;
 OSL_CONTROLLER *osl_keys;
 OSL_REMOTECONTROLLER *osl_remotekeys;
 
@@ -72,8 +72,8 @@ void oslFasterMemset(u64 *dst, u64 *src, u32 length) {
 	}
 
 	// Handle any remaining bytes (less than 8)
-	u8 *dst2 = (u8*)dst;
-	const u8 *src2 = (const u8*)src;
+	u8 *dst2 = (u8 *)dst;
+	const u8 *src2 = (const u8 *)src;
 	remaining = length & 7;
 	while (remaining--) {
 		*dst2++ = *src2++;
@@ -89,10 +89,10 @@ inline void oslFlushDataCache() {
 }
 
 int oslMeanBenchmarkTestEx(int startend, int slot) {
-	static int val[OSL_BENCH_SLOTS] = {0};
-	static int curr_ms[OSL_BENCH_SLOTS] = {0};
+	static int val[OSL_BENCH_SLOTS] = { 0 };
+	static int curr_ms[OSL_BENCH_SLOTS] = { 0 };
 	static struct timeval start[OSL_BENCH_SLOTS], end;
-	static int time[OSL_BENCH_SLOTS] = {0};
+	static int time[OSL_BENCH_SLOTS] = { 0 };
 
 	if (startend == OSL_BENCH_INIT) {
 		val[slot] = 0;
@@ -120,7 +120,7 @@ int oslMeanBenchmarkTestEx(int startend, int slot) {
 
 int oslBenchmarkTestEx(int startend, int slot) {
 	static struct timeval start[OSL_BENCH_SLOTS];
-	static int time[OSL_BENCH_SLOTS] = {0};
+	static int time[OSL_BENCH_SLOTS] = { 0 };
 
 	if (startend == OSL_BENCH_START) {
 		gettimeofday(&start[slot], NULL);
@@ -197,6 +197,7 @@ int oslSetupCallbacks() {
 	}
 	return thid;
 }
+
 #endif
 
 /*
@@ -314,10 +315,10 @@ int oslSyncFrameEx(int frameskip, int max_frameskip, int vsync) {
 	}
 
 	if (frameskip == 0) {  // No frameskip case
-		#ifdef OSL_SYSTEM_BENCHMARK_ENABLED
+#ifdef OSL_SYSTEM_BENCHMARK_ENABLED
 		oslMeanBenchmarkTestEx(OSL_BENCH_END, 4);
 		oslMeanBenchmarkTestEx(OSL_BENCH_END, 6);
-		#endif
+#endif
 
 		osl_vblankCounterActive = 0;  // Disable vblank counting for accuracy
 		if ((vsync & 5) || (osl_vblCallCount + 1 > osl_vblCount)) {
@@ -330,10 +331,10 @@ int oslSyncFrameEx(int frameskip, int max_frameskip, int vsync) {
 		osl_vblankCounterActive = 1;  // Re-enable vblank counting
 
 		osl_skip = 0;
-		#ifdef OSL_SYSTEM_BENCHMARK_ENABLED
+#ifdef OSL_SYSTEM_BENCHMARK_ENABLED
 		oslMeanBenchmarkTestEx(OSL_BENCH_START, 4);
 		oslMeanBenchmarkTestEx(OSL_BENCH_START, 6);
-		#endif
+#endif
 
 		if (!(vsync & 16)) {
 			oslSwapBuffers();  // Swap buffers if vsync does not disable it
@@ -341,13 +342,13 @@ int oslSyncFrameEx(int frameskip, int max_frameskip, int vsync) {
 	} else {  // Frameskip is active
 		osl_vblCallCount++;
 
-		#ifdef OSL_SYSTEM_BENCHMARK_ENABLED
+#ifdef OSL_SYSTEM_BENCHMARK_ENABLED
 		if (osl_skip) {
 			oslMeanBenchmarkTestEx(OSL_BENCH_END, 5);
 		} else {
 			oslMeanBenchmarkTestEx(OSL_BENCH_END, 4);
 		}
-		#endif
+#endif
 
 		// Calculate reference for when vsync == 0
 		i = ((vsync & 1) && !osl_skip && !(vsync & 8)) ? 1 : 0;
@@ -355,12 +356,11 @@ int oslSyncFrameEx(int frameskip, int max_frameskip, int vsync) {
 		// Check if we are lagging behind
 		if ((osl_vblCount + i > osl_vblCallCount + frameskip - 1 || (vsync & 4 && osl_vblCallCount % frameskip)) &&
 		    osl_nbSkippedFrames < max_frameskip - 1) {
-
 			// If we haven't skipped a frame yet, display it
 			if (!osl_skip) {
-				#ifdef OSL_SYSTEM_BENCHMARK_ENABLED
+#ifdef OSL_SYSTEM_BENCHMARK_ENABLED
 				oslMeanBenchmarkTestEx(OSL_BENCH_END, 6);
-				#endif
+#endif
 
 				if (vsync & 1) {  // Wait for VSync if enabled
 					oslWaitVSync();
@@ -370,9 +370,9 @@ int oslSyncFrameEx(int frameskip, int max_frameskip, int vsync) {
 					oslSwapBuffers();
 				}
 
-				#ifdef OSL_SYSTEM_BENCHMARK_ENABLED
+#ifdef OSL_SYSTEM_BENCHMARK_ENABLED
 				oslMeanBenchmarkTestEx(OSL_BENCH_START, 6);
-				#endif
+#endif
 			}
 			osl_nbSkippedFrames++;
 
@@ -383,11 +383,11 @@ int oslSyncFrameEx(int frameskip, int max_frameskip, int vsync) {
 				osl_skip = 1;
 			}
 		} else {
-			#ifdef OSL_SYSTEM_BENCHMARK_ENABLED
+#ifdef OSL_SYSTEM_BENCHMARK_ENABLED
 			if (!osl_skip) {
 				oslMeanBenchmarkTestEx(OSL_BENCH_END, 6);
 			}
-			#endif
+#endif
 
 			if (vsync & 1 && !osl_skip) {  // Wait for VSync if enabled
 				oslWaitVSync();
@@ -411,11 +411,11 @@ int oslSyncFrameEx(int frameskip, int max_frameskip, int vsync) {
 				}
 			}
 
-			#ifdef OSL_SYSTEM_BENCHMARK_ENABLED
+#ifdef OSL_SYSTEM_BENCHMARK_ENABLED
 			if (!osl_skip) {
 				oslMeanBenchmarkTestEx(OSL_BENCH_START, 6);
 			}
-			#endif
+#endif
 
 			osl_vblCallCount = osl_vblCount;  // Sync the call count with vblank count
 			osl_skip = 0;
@@ -426,13 +426,13 @@ int oslSyncFrameEx(int frameskip, int max_frameskip, int vsync) {
 			}
 		}
 
-		#ifdef OSL_SYSTEM_BENCHMARK_ENABLED
+#ifdef OSL_SYSTEM_BENCHMARK_ENABLED
 		if (osl_skip) {
 			oslMeanBenchmarkTestEx(OSL_BENCH_START, 5);
 		} else {
 			oslMeanBenchmarkTestEx(OSL_BENCH_START, 4);
 		}
-		#endif
+#endif
 	}
 
 	if (!osl_skip) {

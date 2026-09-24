@@ -19,13 +19,12 @@ OSL_IMAGE *LoadTileset(const char *filename);
 void CleanupResources();
 void CheckFilesLoaded();
 
-int main(int argc, char* argv[])
-{
+int main(int argc, char *argv[]) {
 	// Initialization
-	oslInit(0);						// OSLib core
-	oslInitGfx(OSL_PF_8888, 1);		// Graphics
-	oslInitConsole();				// Text
-	oslInitAudio();					// Sound
+	oslInit(0);                                             // OSLib core
+	oslInitGfx(OSL_PF_8888, 1);             // Graphics
+	oslInitConsole();                               // Text
+	oslInitAudio();                                 // Sound
 
 	// Load tilesets
 	tilesets[0] = LoadTileset("nuages.png");
@@ -55,8 +54,7 @@ int main(int argc, char* argv[])
 	// Initialize maps
 	InitMaps();
 
-	while (!osl_quit)
-	{
+	while (!osl_quit) {
 		oslStartDrawing();
 
 		// Draw gradient background
@@ -86,8 +84,7 @@ int main(int argc, char* argv[])
 	return 0;
 }
 
-void HandleKeys()
-{
+void HandleKeys() {
 	oslReadKeys();
 
 	// Adjust layer visibility
@@ -116,8 +113,7 @@ void HandleKeys()
 		oslWriteImageFile(OSL_SECONDARY_BUFFER, "screenshot.png", 0);
 }
 
-void RenderText()
-{
+void RenderText() {
 	// Set text color
 	oslSetTextColor(RGBA(0, 0, 0, 255));
 	oslSetBkColor(RGBA(0, 0, 0, 0));
@@ -135,8 +131,7 @@ void RenderText()
 	oslPrintf_xy(1, 105, "Start: quit");
 }
 
-void InitMaps()
-{
+void InitMaps() {
 	const int tileSize = 8;
 	const int mapWidth = 64;
 	const int mapHeight = 34;
@@ -151,15 +146,13 @@ void InitMaps()
 	maps[7] = oslCreateMap(tilesets[7], (void *)sol_map, tileSize, tileSize, mapWidth, mapHeight, OSL_MF_U16);
 }
 
-OSL_IMAGE *LoadTileset(const char *filename)
-{
+OSL_IMAGE *LoadTileset(const char *filename) {
 	char fullPath[256];
 	snprintf(fullPath, sizeof(fullPath), "Resources/%s", filename);
 	return oslLoadImageFile(fullPath, OSL_IN_RAM, OSL_PF_5551);
 }
 
-void CheckFilesLoaded()
-{
+void CheckFilesLoaded() {
 	for (int i = 0; i < 8; ++i) {
 		if (!tilesets[i]) {
 			oslFatalError("Tileset %d failed to load. Ensure all resources are in the correct directory.", i);
@@ -170,8 +163,7 @@ void CheckFilesLoaded()
 	}
 }
 
-void CleanupResources()
-{
+void CleanupResources() {
 	for (int i = 0; i < 8; ++i) {
 		if (tilesets[i]) oslDeleteImage(tilesets[i]);
 		if (maps[i]) oslDeleteMap(maps[i]);

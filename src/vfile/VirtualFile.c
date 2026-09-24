@@ -36,7 +36,7 @@ VIRTUAL_FILE *VirtualFileOpen(void *param1, int param2, int type, int mode) {
 	VIRTUAL_FILE *f = NULL;
 	if (type == VF_AUTO) {
 		if (param2 == 0) {
-			OSL_VIRTUALFILENAME *file = oslFindFileInVirtualFilenameList((const char*)param1, type);
+			OSL_VIRTUALFILENAME *file = oslFindFileInVirtualFilenameList((const char *)param1, type);
 			if (file) {
 				param1 = file->data;
 				param2 = file->size;
@@ -48,7 +48,7 @@ VIRTUAL_FILE *VirtualFileOpen(void *param1, int param2, int type, int mode) {
 	}
 
 	if (type >= 0) {
-		f = (VIRTUAL_FILE*)malloc(sizeof(*f));
+		f = (VIRTUAL_FILE *)malloc(sizeof(*f));
 		if (f) {
 			memset(f, 0, sizeof(*f));
 			f->type = type;
@@ -71,10 +71,10 @@ int VirtualFileClose(VIRTUAL_FILE *f) {
 /*
     Default source: Memory
  */
-int vfsMemOpen(void *param1, int param2, int type, int mode, VIRTUAL_FILE* f) {
+int vfsMemOpen(void *param1, int param2, int type, int mode, VIRTUAL_FILE *f) {
 	// Is it a filename?
 	if (param2 == 0) {
-		OSL_VIRTUALFILENAME *file = oslFindFileInVirtualFilenameList((const char*)param1, type);
+		OSL_VIRTUALFILENAME *file = oslFindFileInVirtualFilenameList((const char *)param1, type);
 		if (file) {
 			param1 = file->data;
 			param2 = file->size;
@@ -97,7 +97,7 @@ int vfsMemClose(VIRTUAL_FILE *f) {
 	return 1;
 }
 
-int vfsMemWrite(const void *ptr, size_t size, size_t n, VIRTUAL_FILE* f) {
+int vfsMemWrite(const void *ptr, size_t size, size_t n, VIRTUAL_FILE *f) {
 	int realSize = size * n, writeSize = 0;
 
 	// Check if write is allowed
@@ -109,14 +109,14 @@ int vfsMemWrite(const void *ptr, size_t size, size_t n, VIRTUAL_FILE* f) {
 		// Overflow?
 		writeSize = oslMin(realSize, f->maxSize - f->offset);
 		if (writeSize > 0) {
-			memcpy((char*)f->ioPtr + f->offset, ptr, writeSize);
+			memcpy((char *)f->ioPtr + f->offset, ptr, writeSize);
 			f->offset += writeSize;
 		}
 	}
 	return writeSize;
 }
 
-int vfsMemRead(void *ptr, size_t size, size_t n, VIRTUAL_FILE* f) {
+int vfsMemRead(void *ptr, size_t size, size_t n, VIRTUAL_FILE *f) {
 	int readSize = 0, realSize = size * n;
 
 	// Check if read is allowed
@@ -128,7 +128,7 @@ int vfsMemRead(void *ptr, size_t size, size_t n, VIRTUAL_FILE* f) {
 		// min => avoid overflow
 		readSize = oslMin(realSize, f->maxSize - f->offset);
 		if (readSize > 0) {
-			memcpy(ptr, (char*)f->ioPtr + f->offset, readSize);
+			memcpy(ptr, (char *)f->ioPtr + f->offset, readSize);
 			f->offset += readSize;
 		}
 	}
@@ -247,7 +247,7 @@ int oslAddVirtualFileList(OSL_VIRTUALFILENAME *vfl, int numberOfEntries) {
 		// Align (reallocate in blocks of DEFAULT_TABLE_SIZE)
 		if (finalSize % DEFAULT_TABLE_SIZE > 0)
 			finalSize = finalSize - finalSize % DEFAULT_TABLE_SIZE + DEFAULT_TABLE_SIZE;
-		v = (OSL_VIRTUALFILENAME*)realloc(osl_virtualFileList, finalSize * sizeof(OSL_VIRTUALFILENAME));
+		v = (OSL_VIRTUALFILENAME *)realloc(osl_virtualFileList, finalSize * sizeof(OSL_VIRTUALFILENAME));
 		if (v) {
 			osl_virtualFileList = v;
 			osl_virtualFileListSize = finalSize;
@@ -314,7 +314,7 @@ void VirtualFileInit() {
 	osl_virtualFileListSize = DEFAULT_TABLE_SIZE;
 	osl_virtualFileListNumber = 0;
 	// I suppose it never fails
-	osl_virtualFileList = (OSL_VIRTUALFILENAME*)malloc(DEFAULT_TABLE_SIZE * sizeof(OSL_VIRTUALFILENAME));
+	osl_virtualFileList = (OSL_VIRTUALFILENAME *)malloc(DEFAULT_TABLE_SIZE * sizeof(OSL_VIRTUALFILENAME));
 
 	osl_tempFile.name = osl_tempFileName;
 	osl_tempFile.type = NULL;
@@ -346,7 +346,7 @@ void *oslReadEntireFileToMemory(VIRTUAL_FILE *f, int *fileSize) {
 			return NULL;
 		}
 
-		readSize = VirtualFileRead((char*)block + add, 1, BLOCK_SIZE, f);
+		readSize = VirtualFileRead((char *)block + add, 1, BLOCK_SIZE, f);
 		add += BLOCK_SIZE;
 		finalSize += readSize;
 	} while (readSize >= BLOCK_SIZE);

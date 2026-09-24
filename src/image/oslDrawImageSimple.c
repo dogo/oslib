@@ -25,7 +25,7 @@ void oslDrawImageSimple(OSL_IMAGE *img) {
 	}
 
 	// Allocate memory for two vertices
-	vertices = (OSL_UVFLOAT_VERTEX*)sceGuGetMemory(2 * sizeof(OSL_UVFLOAT_VERTEX));
+	vertices = (OSL_UVFLOAT_VERTEX *)sceGuGetMemory(2 * sizeof(OSL_UVFLOAT_VERTEX));
 
 	// Define the top-left vertex of the image
 	vertices[0].u = img->offsetX0;

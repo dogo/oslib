@@ -52,7 +52,7 @@ MIKMODAPI MDRIVER drv_psp = {
 	NULL,
 	NULL,
 	PSP_IsThere,
-	(void*)VC_SampleLoad,
+	(void *)VC_SampleLoad,
 	VC_SampleUnload,
 	VC_SampleSpace,
 	VC_SampleLength,
@@ -86,7 +86,7 @@ void oslAudioCallback_PlaySound_MOD(OSL_SOUND *s) {
 	s->mono = 0;
 
 	Player_Stop();
-	Player_Start((MODULE*)s->data);
+	Player_Start((MODULE *)s->data);
 	Player_SetPosition(0);
 }
 
@@ -94,7 +94,7 @@ void oslAudioCallback_StopSound_MOD(OSL_SOUND *s) {
 	Player_Stop();
 }
 
-int oslAudioCallback_AudioCallback_MOD(unsigned int i, void* buf, unsigned int length) {
+int oslAudioCallback_AudioCallback_MOD(unsigned int i, void *buf, unsigned int length) {
 	// Set up playback
 	md_mixfreq = osl_modFrequency;
 
@@ -112,18 +112,18 @@ int oslAudioCallback_AudioCallback_MOD(unsigned int i, void* buf, unsigned int l
 	return 1; // Continue playing
 }
 
-VIRTUAL_FILE** oslAudioCallback_ReactiveSound_MOD(OSL_SOUND *s, VIRTUAL_FILE *f) {
+VIRTUAL_FILE **oslAudioCallback_ReactiveSound_MOD(OSL_SOUND *s, VIRTUAL_FILE *f) {
 	// Reactivate a MOD sound (not implemented)
 	return NULL;
 }
 
-VIRTUAL_FILE* oslAudioCallback_StandBy_MOD(OSL_SOUND *s) {
+VIRTUAL_FILE *oslAudioCallback_StandBy_MOD(OSL_SOUND *s) {
 	// Put a MOD sound on standby (not implemented)
 	return NULL;
 }
 
 void oslAudioCallback_DeleteSound_MOD(OSL_SOUND *s) {
-	MikMod_free((MODULE*)s->data);
+	MikMod_free((MODULE *)s->data);
 }
 
 /*
@@ -146,9 +146,9 @@ void oslSetModSampleRate(int freq, int stereo, int shift) {
 	osl_modShift = shift;
 }
 
-OSL_SOUND* oslLoadSoundFileMOD(const char* filename, int stream) {
-	OSL_SOUND* s;
-	MODULE* mf;
+OSL_SOUND *oslLoadSoundFileMOD(const char *filename, int stream) {
+	OSL_SOUND *s;
+	MODULE *mf;
 
 	if (!osl_modInitialized) {
 		MikMod_RegisterAllLoaders();
@@ -160,13 +160,13 @@ OSL_SOUND* oslLoadSoundFileMOD(const char* filename, int stream) {
 		osl_modInitialized = 1;
 	}
 
-	s = (OSL_SOUND*)malloc(sizeof(OSL_SOUND));
+	s = (OSL_SOUND *)malloc(sizeof(OSL_SOUND));
 	if (s) {
 		memset(s, 0, sizeof(OSL_SOUND));
-		mf = Player_Load((char*)filename, 128, 0);
+		mf = Player_Load((char *)filename, 128, 0);
 		if (mf) {
 			// Populate the OSL_SOUND structure with the loaded MOD file
-			s->data = (void*)mf;
+			s->data = (void *)mf;
 			s->endCallback = NULL;  // No end callback for MOD files
 			s->volumeLeft = s->volumeRight = OSL_VOLUME_MAX;
 			s->format = 0;          // No special format

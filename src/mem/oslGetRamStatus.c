@@ -11,7 +11,7 @@ static u32 __ramAvailableMaxLinear(void) {
 		size += sizeBlock;
 
 		// Allocate ram
-		ram = (u8*)malloc(size);
+		ram = (u8 *)malloc(size);
 
 		if (!ram) {
 			size -= sizeBlock; // Restore old size
@@ -32,11 +32,11 @@ static u32 __ramAvailable(void) {
 	while (1) {
 		// Allocate more entries if needed
 		if (count % 10 == 0) {
-			u8 **temp = (u8**)realloc(ram, sizeof(u8*) * (count + 10));
+			u8 **temp = (u8 **)realloc(ram, sizeof(u8 *) * (count + 10));
 			if (!temp) break;
 
 			ram = temp;
-			size += sizeof(u8*) * 10;
+			size += sizeof(u8 *) * 10;
 		}
 
 		// Find max linear size available
@@ -44,7 +44,7 @@ static u32 __ramAvailable(void) {
 		if (!maxLinearSize) break;
 
 		// Allocate ram
-		ram[count] = (u8*)malloc(maxLinearSize);
+		ram[count] = (u8 *)malloc(maxLinearSize);
 		if (!ram[count]) break;
 
 		size += maxLinearSize;

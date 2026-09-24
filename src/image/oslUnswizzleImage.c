@@ -1,6 +1,6 @@
 #include "oslib.h"
 
-void oslUnswizzleTexture(u8* out, const u8* in, unsigned int width, unsigned int height) {
+void oslUnswizzleTexture(u8 *out, const u8 *in, unsigned int width, unsigned int height) {
 	unsigned int blockX, blockY;
 	unsigned int rowOffset;
 
@@ -10,8 +10,8 @@ void oslUnswizzleTexture(u8* out, const u8* in, unsigned int width, unsigned int
 	unsigned int dstPitch = (width - 16) / 4;
 	unsigned int dstRowSize = width * 8;
 
-	const u32* src = (const u32*)in;
-	u8* destRow = out;
+	const u32 *src = (const u32 *)in;
+	u8 *destRow = out;
 
 #ifndef PSP
 	// For non-PSP platforms, simply copy the data as is.
@@ -20,9 +20,9 @@ void oslUnswizzleTexture(u8* out, const u8* in, unsigned int width, unsigned int
 #endif
 
 	for (blockY = 0; blockY < heightBlocks; ++blockY) {
-		u8* destBlock = destRow;
+		u8 *destBlock = destRow;
 		for (blockX = 0; blockX < widthBlocks; ++blockX) {
-			u32* dest = (u32*)destBlock;
+			u32 *dest = (u32 *)destBlock;
 			for (rowOffset = 0; rowOffset < 8; ++rowOffset) {
 				*(dest++) = *(src++);
 				*(dest++) = *(src++);
@@ -52,7 +52,7 @@ void oslUnswizzleImage(OSL_IMAGE *img) {
 	memcpy(tempBuffer, img->data, img->totalSize);
 
 	// Unswizzle the texture
-	oslUnswizzleTexture((u8*)img->data, (u8*)tempBuffer,
+	oslUnswizzleTexture((u8 *)img->data, (u8 *)tempBuffer,
 	                    (img->realSizeX * osl_pixelWidth[img->pixelFormat]) >> 3,
 	                    img->realSizeY);
 

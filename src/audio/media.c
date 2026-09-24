@@ -84,14 +84,14 @@ typedef struct {
 //
 
 static int samplerates[4][3] = {
-	{11025, 12000, 8000}, // mpeg 2.5
-	{0, 0, 0},          // reserved
-	{22050, 24000, 16000}, // mpeg 2
-	{44100, 48000, 32000} // mpeg 1
+	{ 11025, 12000, 8000 }, // mpeg 2.5
+	{ 0, 0, 0 },          // reserved
+	{ 22050, 24000, 16000 }, // mpeg 2
+	{ 44100, 48000, 32000 } // mpeg 1
 };
 
-static int bitrates[] = {0, 32, 40, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224, 256, 320};
-static int bitrates_v2[] = {0, 8, 16, 24, 32, 40, 48, 56, 64, 80, 96, 112, 128, 144, 160};
+static int bitrates[] = { 0, 32, 40, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224, 256, 320 };
+static int bitrates_v2[] = { 0, 8, 16, 24, 32, 40, 48, 56, 64, 80, 96, 112, 128, 144, 160 };
 
 static int osl_at3Inited = 0, osl_mp3Inited = 0;
 
@@ -293,7 +293,7 @@ static int osl_mp3Load(const char *fileName, MP3_INFO *info) {
 	info->samplerate = 44100;
 	info->sample_per_frame = SAMPLE_PER_FRAME_MP3;
 
-	info->data_start_init = GetID3TagSize((char*)fileName);
+	info->data_start_init = GetID3TagSize((char *)fileName);
 	VirtualFileSeek(info->handle, info->data_start_init, PSP_SEEK_SET);
 	info->data_start_init = VirtualFileTell(info->handle);
 
@@ -311,7 +311,7 @@ static int osl_at3Load(const char *fileName, AT3_INFO *info) {
 	info->handle = VirtualFileOpen((void *)fileName, 0, VF_AUTO, VF_O_READ);
 	if (!info->handle) return 0;
 
-	info->data_start_init = GetID3TagSize((char*)fileName);
+	info->data_start_init = GetID3TagSize((char *)fileName);
 	VirtualFileSeek(info->handle, info->data_start_init, PSP_SEEK_SET);
 
 	u32 riff_header[2];
@@ -445,9 +445,9 @@ void oslAudioCallback_PlaySound_ME(OSL_SOUND *s) {
 	oslAudioCallback_StopSound_ME(s);
 }
 
-int oslAudioCallback_AudioCallback_MP3(unsigned int i, void* buf, unsigned int length) {
+int oslAudioCallback_AudioCallback_MP3(unsigned int i, void *buf, unsigned int length) {
 	int eof = 0;
-	MP3_INFO *info = (MP3_INFO*)osl_audioVoices[i].data;
+	MP3_INFO *info = (MP3_INFO *)osl_audioVoices[i].data;
 
 	// Ensure valid info and handle
 	if (!info || !info->handle) {
@@ -473,7 +473,7 @@ start:
 
 	// Parse MP3 header
 	int mp3_header = (mp3_header_buf[0] << 24) | (mp3_header_buf[1] << 16) |
-	                 (mp3_header_buf[2] << 8)  | mp3_header_buf[3];
+	                 (mp3_header_buf[2] << 8) | mp3_header_buf[3];
 
 	int bitrate = (mp3_header & 0xf000) >> 12;
 	int padding = (mp3_header & 0x200) >> 9;
@@ -566,8 +566,8 @@ void oslAudioCallback_DeleteSound_ME(OSL_SOUND *s) {
 	}
 }
 
-int oslAudioCallback_AudioCallback_AT3(unsigned int i, void* buf, unsigned int length) {
-	AT3_INFO *info = (AT3_INFO*)osl_audioVoices[i].data;
+int oslAudioCallback_AudioCallback_AT3(unsigned int i, void *buf, unsigned int length) {
+	AT3_INFO *info = (AT3_INFO *)osl_audioVoices[i].data;
 	int eof = 0;
 
 	// Ensure valid info and handle

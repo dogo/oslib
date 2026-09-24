@@ -7,8 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 // Get offset for a character in the font
-static int _getOffset(OSL_SFONT *sfont, unsigned char ch)
-{
+static int _getOffset(OSL_SFONT *sfont, unsigned char ch) {
 	int offset;
 
 	// Check for invalid character ranges
@@ -26,13 +25,11 @@ static int _getOffset(OSL_SFONT *sfont, unsigned char ch)
 }
 
 // Get the next power of 2 for a given width
-static u16 _getNextPower2(u16 width)
-{
+static u16 _getNextPower2(u16 width) {
 	u16 power = 1;
 
 	// Find the next power of 2 greater than or equal to the width
-	while (power < width)
-	{
+	while (power < width) {
 		power *= 2;
 	}
 
@@ -44,8 +41,7 @@ static void user_warning_fn(png_structp png_ptr, png_const_charp warning_msg) {
 }
 
 // Struct to hold PNG image data
-typedef struct
-{
+typedef struct {
 	u32 *rawdata;     // Pointer to the raw pixel data
 	u16 sizeX;        // Actual width of the image
 	u16 sizeY;        // Actual height of the image
@@ -54,9 +50,9 @@ typedef struct
 } PNG_DATA;
 
 // Load a PNG image (OSLib cannot handle images bigger than 512x512)
-static PNG_DATA* _loadFromPNG(const char *filename) {
+static PNG_DATA *_loadFromPNG(const char *filename) {
 	// Allocate memory for PNG_DATA structure
-	PNG_DATA * volatile pngData = (PNG_DATA*)malloc(sizeof(PNG_DATA));
+	PNG_DATA * volatile pngData = (PNG_DATA *)malloc(sizeof(PNG_DATA));
 	if (!pngData)
 		return NULL;
 
@@ -72,7 +68,7 @@ static PNG_DATA* _loadFromPNG(const char *filename) {
 	int passes;
 
 	// Open virtual file
-	f = VirtualFileOpen((void*)filename, 0, VF_AUTO, VF_O_READ);
+	f = VirtualFileOpen((void *)filename, 0, VF_AUTO, VF_O_READ);
 	if (!f) {
 		free(pngData);
 		return NULL;
@@ -80,14 +76,14 @@ static PNG_DATA* _loadFromPNG(const char *filename) {
 
 	// Read file into memory
 	int input_size = 0;
-	const unsigned char *input = (const unsigned char*)oslReadEntireFileToMemory(f, &input_size);
+	const unsigned char *input = (const unsigned char *)oslReadEntireFileToMemory(f, &input_size);
 	const unsigned char *input_free = input;
 	VirtualFileClose(f);
 
 	// Open file in memory
 	fp = fmemopen((void *)input, input_size, "rb");
 	if (!fp) {
-		free((void*)input_free);
+		free((void *)input_free);
 		free(pngData);
 		return NULL;
 	}
@@ -96,7 +92,7 @@ static PNG_DATA* _loadFromPNG(const char *filename) {
 	png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, user_warning_fn);
 	if (!png_ptr) {
 		fclose(fp);
-		free((void*)input_free);
+		free((void *)input_free);
 		free(pngData);
 		return NULL;
 	}
@@ -106,7 +102,7 @@ static PNG_DATA* _loadFromPNG(const char *filename) {
 	if (!info_ptr) {
 		png_destroy_read_struct(&png_ptr, NULL, NULL);
 		fclose(fp);
-		free((void*)input_free);
+		free((void *)input_free);
 		free(pngData);
 		return NULL;
 	}
@@ -115,7 +111,7 @@ static PNG_DATA* _loadFromPNG(const char *filename) {
 	if (setjmp(png_jmpbuf(png_ptr))) {
 		png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
 		fclose(fp);
-		free((void*)input_free);
+		free((void *)input_free);
 		free(pngData);
 		return NULL;
 	}
@@ -153,21 +149,21 @@ static PNG_DATA* _loadFromPNG(const char *filename) {
 	}
 
 	// Allocate memory for raw image data
-	pngData->rawdata = (u32*)memalign(16, pngData->textureSizeX * pngData->textureSizeY * sizeof(u32));
+	pngData->rawdata = (u32 *)memalign(16, pngData->textureSizeX * pngData->textureSizeY * sizeof(u32));
 	if (!pngData->rawdata) {
 		png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
 		fclose(fp);
-		free((void*)input_free);
+		free((void *)input_free);
 		free(pngData);
 		return NULL;
 	}
 
 	// Allocate memory for row pointers
-	rows = (u8**)malloc(pngData->sizeY * sizeof(u8*));
+	rows = (u8 **)malloc(pngData->sizeY * sizeof(u8 *));
 	if (!rows) {
 		png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
 		fclose(fp);
-		free((void*)input_free);
+		free((void *)input_free);
 		free(pngData->rawdata);
 		free(pngData);
 		return NULL;
@@ -175,7 +171,7 @@ static PNG_DATA* _loadFromPNG(const char *filename) {
 
 	// Set row pointers for reading PNG data
 	for (int y = 0; y < pngData->sizeY; ++y) {
-		rows[y] = (u8*)(pngData->rawdata + y * pngData->textureSizeX);
+		rows[y] = (u8 *)(pngData->rawdata + y * pngData->textureSizeX);
 	}
 
 	// Read the PNG image data row by row
@@ -188,14 +184,13 @@ static PNG_DATA* _loadFromPNG(const char *filename) {
 	png_read_end(png_ptr, info_ptr);
 	png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
 	fclose(fp);
-	free((void*)input_free);
+	free((void *)input_free);
 
 	return pngData;
 }
 
 // Get a pixel from a PNG image at (x, y)
-static u32 _getPixel(PNG_DATA *pngData, u16 x, u16 y)
-{
+static u32 _getPixel(PNG_DATA *pngData, u16 x, u16 y) {
 	// Check if coordinates are within bounds
 	if (!pngData || x >= pngData->textureSizeX || y >= pngData->textureSizeY)
 		return 0; // Return a default value (black) if out of bounds or null data
@@ -204,8 +199,7 @@ static u32 _getPixel(PNG_DATA *pngData, u16 x, u16 y)
 }
 
 // Delete (free memory) of a PNG image
-static void _deletePngImage(PNG_DATA *pngData)
-{
+static void _deletePngImage(PNG_DATA *pngData) {
 	if (!pngData)
 		return;
 
@@ -224,7 +218,7 @@ static void _deletePngImage(PNG_DATA *pngData)
 ///////////////////////////////////////////////////////////////////////////////
 OSL_SFONT *oslLoadSFontFile(char *filename, int pixelFormat) {
 	// Allocate memory for the OSL_SFONT structure
-	OSL_SFONT *sfont = (OSL_SFONT*)malloc(sizeof(OSL_SFONT));
+	OSL_SFONT *sfont = (OSL_SFONT *)malloc(sizeof(OSL_SFONT));
 	if (!sfont) {
 		oslHandleLoadNoFailError(filename);
 		return NULL;
@@ -257,7 +251,7 @@ OSL_SFONT *oslLoadSFontFile(char *filename, int pixelFormat) {
 			}
 
 			// Allocate memory for a new letter
-			OSL_SFLETTER *lt = (OSL_SFLETTER*)malloc(sizeof(OSL_SFLETTER));
+			OSL_SFLETTER *lt = (OSL_SFLETTER *)malloc(sizeof(OSL_SFLETTER));
 			if (!lt) {
 				_deletePngImage(img);
 				oslDeleteSFont(sfont); // Frees all previously allocated letters and sfont

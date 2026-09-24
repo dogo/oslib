@@ -38,7 +38,7 @@ OSL_IMAGE *oslConvertImageTo(OSL_IMAGE *originalImage, int newLocation, int newF
 
 			// Paletted mode: need to handle palette indexing
 			if (osl_pixelWidth[newFormat] <= 8) {
-				u32 *paletteData = (u32*)newImage->palette->data;
+				u32 *paletteData = (u32 *)newImage->palette->data;
 
 				// Convert the pixel color to 32-bit format
 				pixel = oslConvertColorEx(originalImage->palette, OSL_PF_8888, originalImage->pixelFormat, oslGetImagePixel(originalImage, x, y));

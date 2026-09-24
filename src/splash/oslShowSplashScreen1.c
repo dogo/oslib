@@ -191,8 +191,8 @@ static void createRotatingPalette(OSL_IMAGE *img, int angle) {
 }
 
 const OSL_VIRTUALFILENAME __osl_logo_ram_files[] = {
-	{"ram:/logo/texte.png", (void *)__osl_logo_texte_data, sizeof(__osl_logo_texte_data), &VF_MEMORY},
-	{"ram:/logo/etoile.png", (void *)__osl_logo_etoile_data, sizeof(__osl_logo_etoile_data), &VF_MEMORY},
+	{ "ram:/logo/texte.png", (void *)__osl_logo_texte_data, sizeof(__osl_logo_texte_data), &VF_MEMORY },
+	{ "ram:/logo/etoile.png", (void *)__osl_logo_etoile_data, sizeof(__osl_logo_etoile_data), &VF_MEMORY },
 };
 
 /*
@@ -206,11 +206,11 @@ int oslShowSplashScreen1() {
 	int x, y, angle = 270, frame = 0, fade = 0, starCount = 0;
 	int imgAngle = 78, val;
 	float distance = 160.0f;
-	float starSpeeds[8] = {0.2, 0.3, 0.15, 0.2, 0.35, 0.2, 0.15, 0.3};
+	float starSpeeds[8] = { 0.2, 0.3, 0.15, 0.2, 0.35, 0.2, 0.15, 0.3 };
 	float starX[100], starY[100];
 
 	// Add virtual files for the logo
-	oslAddVirtualFileList((OSL_VIRTUALFILENAME*)__osl_logo_ram_files, oslNumberof(__osl_logo_ram_files));
+	oslAddVirtualFileList((OSL_VIRTUALFILENAME *)__osl_logo_ram_files, oslNumberof(__osl_logo_ram_files));
 
 	textImage = oslLoadImageFile("ram:/logo/texte.png", OSL_IN_VRAM | OSL_UNSWIZZLED, OSL_PF_8888);
 	if (!textImage) return 0;
@@ -381,6 +381,6 @@ int oslShowSplashScreen1() {
 	oslDeleteImage(background);
 	oslDeleteImage(starImage);
 
-	oslRemoveVirtualFileList((OSL_VIRTUALFILENAME*)__osl_logo_ram_files, oslNumberof(__osl_logo_ram_files));
+	oslRemoveVirtualFileList((OSL_VIRTUALFILENAME *)__osl_logo_ram_files, oslNumberof(__osl_logo_ram_files));
 	return 1;
 }

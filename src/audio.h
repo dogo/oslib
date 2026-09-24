@@ -23,51 +23,51 @@ extern "C" {
  * Please release your source when creating custom implementations.
  */
 typedef struct OSL_SOUND {
-	char filename[64]; //!< Filename for reopening after standby, used if streamed.
-	void *data;     //!< Pointer to sound data, format-specific.
-	void *dataplus; //!< Pointer to extended sound data.
-	int baseoffset; //!< Offset in the file to begin playback, excludes header.
-	int format;     //!< Sound format identifier.
-	int divider;    //!< Divider for playback rate adjustment.
-	int size;       //!< Size of the sound data in bytes.
-	int mono;       //!< Mono (0x10) or Stereo (0) output.
-	int isStreamed; //!< Indicates if the sound is streamed.
-	u16 volumeLeft; //!< Volume for the left channel.
-	u16 volumeRight; //!< Volume for the right channel.
-	int suspendNumber; //!< Suspend management counter.
-	int (*endCallback)(struct OSL_SOUND*, int); //!< Callback when playback finishes.
-	u8 userdata[32]; //!< Custom user data.
-	int numSamples; //!< Number of samples per read.
-	void (*playSound)(struct OSL_SOUND*);   //!< Function to start playing the sound.
-	void (*stopSound)(struct OSL_SOUND*);   //!< Function to stop playing the sound.
-	int (*audioCallback)(unsigned int, void*, unsigned int); //!< Buffer fill callback.
-	VIRTUAL_FILE* (*standBySound)(struct OSL_SOUND*);    //!< Handle entering standby.
-	VIRTUAL_FILE** (*reactiveSound)(struct OSL_SOUND*, VIRTUAL_FILE*); //!< Handle exiting standby.
-	void (*deleteSound)(struct OSL_SOUND*); //!< Function to delete the sound object.
+	char filename[64]; // !< Filename for reopening after standby, used if streamed.
+	void *data;     // !< Pointer to sound data, format-specific.
+	void *dataplus; // !< Pointer to extended sound data.
+	int baseoffset; // !< Offset in the file to begin playback, excludes header.
+	int format;     // !< Sound format identifier.
+	int divider;    // !< Divider for playback rate adjustment.
+	int size;       // !< Size of the sound data in bytes.
+	int mono;       // !< Mono (0x10) or Stereo (0) output.
+	int isStreamed; // !< Indicates if the sound is streamed.
+	u16 volumeLeft; // !< Volume for the left channel.
+	u16 volumeRight; // !< Volume for the right channel.
+	int suspendNumber; // !< Suspend management counter.
+	int (*endCallback)(struct OSL_SOUND *, int); // !< Callback when playback finishes.
+	u8 userdata[32]; // !< Custom user data.
+	int numSamples; // !< Number of samples per read.
+	void (*playSound)(struct OSL_SOUND *);   // !< Function to start playing the sound.
+	void (*stopSound)(struct OSL_SOUND *);   // !< Function to stop playing the sound.
+	int (*audioCallback)(unsigned int, void *, unsigned int); // !< Buffer fill callback.
+	VIRTUAL_FILE * (*standBySound)(struct OSL_SOUND *);    // !< Handle entering standby.
+	VIRTUAL_FILE ** (*reactiveSound)(struct OSL_SOUND *, VIRTUAL_FILE *); // !< Handle exiting standby.
+	void (*deleteSound)(struct OSL_SOUND *); // !< Function to delete the sound object.
 } OSL_SOUND;
 
 /** @brief Channel information for internal system use only.
  */
 typedef struct {
-	int active;     //!< Active state of the channel.
-	int threadhandle; //!< Handle for the associated thread.
-	int handle;     //!< Generic handle, context-specific.
-	void (*callback)(unsigned int channel, void *buf, unsigned int reqn); //!< Callback for this channel.
-	int inProgress; //!< Flag to indicate if processing is ongoing.
+	int active;     // !< Active state of the channel.
+	int threadhandle; // !< Handle for the associated thread.
+	int handle;     // !< Generic handle, context-specific.
+	void (*callback)(unsigned int channel, void *buf, unsigned int reqn); // !< Callback for this channel.
+	int inProgress; // !< Flag to indicate if processing is ongoing.
 } osl_audio_channelinfo;
 
 /** @brief User-facing channel representation, primarily for sound drivers.
  */
 typedef struct {
-	void *data;     //!< Sound data pointer.
-	void *dataplus; //!< Extended sound data pointer.
-	int format;     //!< Format of the sound.
-	int divider;    //!< Divider for rate adjustment.
-	int size;       //!< Size of sound data.
-	int mono;       //!< Mono or stereo output.
-	int isStreamed; //!< Streaming state.
-	int numSamples; //!< Samples per buffer fill.
-	OSL_SOUND *sound; //!< Pointer to associated OSL_SOUND object.
+	void *data;     // !< Sound data pointer.
+	void *dataplus; // !< Extended sound data pointer.
+	int format;     // !< Format of the sound.
+	int divider;    // !< Divider for rate adjustment.
+	int size;       // !< Size of sound data.
+	int mono;       // !< Mono or stereo output.
+	int isStreamed; // !< Streaming state.
+	int numSamples; // !< Samples per buffer fill.
+	OSL_SOUND *sound; // !< Pointer to associated OSL_SOUND object.
 } OSL_AUDIO_VOICE;
 
 
@@ -111,7 +111,7 @@ extern void oslInitAudioME(int formats);
  */
 #define oslAudioSetDefaultSampleNumber(num) (osl_audioDefaultNumSamples = num)
 
-extern int osl_audioDefaultNumSamples; //!< Default number of samples per buffer, initialized to 512.
+extern int osl_audioDefaultNumSamples; // !< Default number of samples per buffer, initialized to 512.
 
 /** @} */ // end of audio_general
 
@@ -473,14 +473,14 @@ extern void oslAudioVSync();
  * General audio format flags for basic settings and operations within OSLib.
  */
 enum {
-	OSL_FMT_NONE = 0 //!< Indicates no special format settings are applied. Used as a default or placeholder value.
+	OSL_FMT_NONE = 0 // !< Indicates no special format settings are applied. Used as a default or placeholder value.
 };
 
 /**
  * Mask flags used to isolate or filter out specific bits from format flags, typically used in bitwise operations.
  */
 enum {
-	OSL_FMT_MASK = 0xff //!< Mask used to isolate or filter out specific bits from format flags, typically used in bitwise operations.
+	OSL_FMT_MASK = 0xff // !< Mask used to isolate or filter out specific bits from format flags, typically used in bitwise operations.
 };
 
 /**
@@ -488,18 +488,18 @@ enum {
  * These flags are used to set the properties of audio channels and to control how audio data is processed and delivered.
  */
 enum {
-	OSL_FMT_MONO = 0, //!< Mono audio output. Indicates that audio is output through a single audio channel.
-	OSL_FMT_STEREO = 0x200, //!< Stereo audio output. Indicates that audio is output through two separate audio channels, typically left and right channels.
-	OSL_FMT_STREAM = 0x400 //!< Stream audio output. Indicates that audio data is streamed from a source rather than being fully preloaded, suitable for large audio files or network streams.
+	OSL_FMT_MONO = 0, // !< Mono audio output. Indicates that audio is output through a single audio channel.
+	OSL_FMT_STEREO = 0x200, // !< Stereo audio output. Indicates that audio is output through two separate audio channels, typically left and right channels.
+	OSL_FMT_STREAM = 0x400 // !< Stream audio output. Indicates that audio data is streamed from a source rather than being fully preloaded, suitable for large audio files or network streams.
 };
 
 /**
  * Sample rate options for audio playback.
  */
 enum {
-	OSL_FMT_44K = 0,      //!< 44,100 Hz sample rate.
-	OSL_FMT_22K = 1,      //!< 22,050 Hz sample rate.
-	OSL_FMT_11K = 2       //!< 11,025 Hz sample rate.
+	OSL_FMT_44K = 0,      // !< 44,100 Hz sample rate.
+	OSL_FMT_22K = 1,      // !< 22,050 Hz sample rate.
+	OSL_FMT_11K = 2       // !< 11,025 Hz sample rate.
 };
 
 /**
@@ -508,9 +508,9 @@ enum {
  * These are used with oslInitAudioME to prepare specific audio codecs.
  */
 enum oslInitAudioME_formats {
-	OSL_FMT_AT3 = 1,      //!< Atrac3 and Atrac3+ formats.
-	OSL_FMT_MP3 = 2,      //!< MPEG Audio-Layer 3 format.
-	OSL_FMT_ALL = 3       //!< All supported formats.
+	OSL_FMT_AT3 = 1,      // !< Atrac3 and Atrac3+ formats.
+	OSL_FMT_MP3 = 2,      // !< MPEG Audio-Layer 3 format.
+	OSL_FMT_ALL = 3       // !< All supported formats.
 };
 
 /** @} */ // end of audio_play

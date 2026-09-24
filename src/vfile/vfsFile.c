@@ -9,7 +9,7 @@ int VF_FILE = -1;
 
 #define _file_ ((SceUID)f->ioPtr)
 
-int vfsFileOpen(void *param1, int param2, int type, int mode, VIRTUAL_FILE* f) {
+int vfsFileOpen(void *param1, int param2, int type, int mode, VIRTUAL_FILE *f) {
 	int stdMode = PSP_O_RDONLY;
 
 	switch (mode) {
@@ -21,7 +21,7 @@ int vfsFileOpen(void *param1, int param2, int type, int mode, VIRTUAL_FILE* f) {
 		break;
 	}
 
-	f->ioPtr = (void*)sceIoOpen((char*)param1, stdMode, 0777);
+	f->ioPtr = (void *)sceIoOpen((char *)param1, stdMode, 0777);
 	f->mode = mode; // Store the open mode
 	return (s32)f->ioPtr >= 0; // Return true if file descriptor is valid
 }
@@ -30,11 +30,11 @@ int vfsFileClose(VIRTUAL_FILE *f) {
 	return sceIoClose(_file_) >= 0; // Return true if closing was successful
 }
 
-int vfsFileWrite(const void *ptr, size_t size, size_t n, VIRTUAL_FILE* f) {
+int vfsFileWrite(const void *ptr, size_t size, size_t n, VIRTUAL_FILE *f) {
 	return sceIoWrite(_file_, ptr, size * n);
 }
 
-int vfsFileRead(void *ptr, size_t size, size_t n, VIRTUAL_FILE* f) {
+int vfsFileRead(void *ptr, size_t size, size_t n, VIRTUAL_FILE *f) {
 	int readSize = sceIoRead(_file_, ptr, size * n);
 
 	if (readSize < size * n) {

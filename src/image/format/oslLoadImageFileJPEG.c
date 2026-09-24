@@ -19,7 +19,7 @@ OSL_IMAGE *oslLoadImageFileJPG(char *filename, int location, int pixelFormat) {
 	// We only keep the location bits
 	int imgLocation = location & OSL_LOCATION_MASK;
 
-	VIRTUAL_FILE *f = VirtualFileOpen((void*)filename, 0, VF_AUTO, VF_O_READ);
+	VIRTUAL_FILE *f = VirtualFileOpen((void *)filename, 0, VF_AUTO, VF_O_READ);
 	if (!f) {
 		return NULL;
 	}
@@ -34,7 +34,7 @@ OSL_IMAGE *oslLoadImageFileJPG(char *filename, int location, int pixelFormat) {
 
 	FILE *infile = fmemopen((void *)input, input_size, "rb");
 	if (!infile) {
-		free((void*)input_free);
+		free((void *)input_free);
 		return NULL;
 	}
 
@@ -79,7 +79,7 @@ OSL_IMAGE *oslLoadImageFileJPG(char *filename, int location, int pixelFormat) {
 
 	jpeg_destroy_decompress(&cinfo);
 	fclose(infile);
-	free((void*)input_free);
+	free((void *)input_free);
 
 	// Post-processing steps
 	if (img != NULL && oslImageLocationIsSwizzled(location)) {

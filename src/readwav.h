@@ -1,4 +1,4 @@
-//NOT A HEADER FILE!
+// NOT A HEADER FILE!
 #ifndef READWAV_H
 #define READWAV_H
 
@@ -7,8 +7,7 @@
 
 /* WAVE READING CODE ***********************************************/
 
-typedef struct WAVE_FMT
-{
+typedef struct WAVE_FMT {
 	unsigned short int format;
 	unsigned short int channels;
 	unsigned int sample_rate;
@@ -18,8 +17,7 @@ typedef struct WAVE_FMT
 } WAVE_FMT;
 
 
-typedef struct WAVE_SRC
-{
+typedef struct WAVE_SRC {
 	WAVE_FMT fmt;
 	VIRTUAL_FILE *fp;
 	size_t chunk_left, chunk_base;
@@ -34,22 +32,20 @@ int open_wave_src(WAVE_SRC *wav, const char *filename);
 int get_next_wav_sample(WAVE_SRC *wav);
 void close_wave_src(WAVE_SRC *wav);
 
-int osl_fgetc(VIRTUAL_FILE *f)          {
+int osl_fgetc(VIRTUAL_FILE *f) {
 	char c;
 	VirtualFileRead(&c, 1, 1, f);
 	return c;
 }
 
-unsigned int fgetu16(VIRTUAL_FILE *fp)
-{
+unsigned int fgetu16(VIRTUAL_FILE *fp) {
 	unsigned char a = osl_fgetc(fp);
 	unsigned char b = osl_fgetc(fp);
 
 	return a | (b << 8);
 }
 
-unsigned long fgetu32(VIRTUAL_FILE *fp)
-{
+unsigned long fgetu32(VIRTUAL_FILE *fp) {
 	unsigned char a = osl_fgetc(fp);
 	unsigned char b = osl_fgetc(fp);
 	unsigned char c = osl_fgetc(fp);
@@ -58,16 +54,14 @@ unsigned long fgetu32(VIRTUAL_FILE *fp)
 	return a | (b << 8) | (c << 16) | (d << 24);
 }
 
-
 /* get_fmt() ***************************
    Reads a format chunk from a wav file.
    Returns 0 for success or negative for failure.
  */
-int get_fmt(WAVE_FMT *format, VIRTUAL_FILE *fp)
-{
+int get_fmt(WAVE_FMT *format, VIRTUAL_FILE *fp) {
 	unsigned int fmt_len = fgetu32(fp);
 
-	if(fmt_len < 16)
+	if (fmt_len < 16)
 		return -3;
 
 	format->format = fgetu16(fp);
@@ -81,9 +75,7 @@ int get_fmt(WAVE_FMT *format, VIRTUAL_FILE *fp)
 	return 0;
 }
 
-
-void close_wave_src(WAVE_SRC *wav)
-{
+void close_wave_src(WAVE_SRC *wav) {
 	VirtualFileClose(wav->fp);
 	wav->fp = 0;
 }
@@ -96,54 +88,44 @@ void close_wave_src(WAVE_SRC *wav)
      -3  bad format metadata or no format metadata before sample data
      -4  no sample data
  */
-int open_wave_src(WAVE_SRC *wav, const char *filename)
-{
+int open_wave_src(WAVE_SRC *wav, const char *filename) {
 	char buf[256];
 	int got_fmt = 0;
 
 	/* open the file */
-	wav->fp = VirtualFileOpen((void*)filename, 0, VF_AUTO, VF_O_READ);
-	if(wav->fp < 0)
+	wav->fp = VirtualFileOpen((void *)filename, 0, VF_AUTO, VF_O_READ);
+	if (wav->fp < 0)
 		return -1;
 
 	/* read the header */
-	if(VirtualFileRead(buf, 12, 1, wav->fp) < 12)
-	{
+	if (VirtualFileRead(buf, 12, 1, wav->fp) < 12) {
 		close_wave_src(wav);
 		return -2;
 	}
 
 	/* check for RIFF/WAVE signature */
-	if(memcmp("RIFF", buf, 4) || memcmp("WAVE", buf + 8, 4))
-	{
+	if (memcmp("RIFF", buf, 4) || memcmp("WAVE", buf + 8, 4)) {
 		close_wave_src(wav);
 		return -2;
 	}
 
 	/* parse chunks */
-	while(VirtualFileRead(buf, 4, 1, wav->fp))
-	{
-		if(!memcmp("fmt ", buf, 4))
-		{
+	while (VirtualFileRead(buf, 4, 1, wav->fp)) {
+		if (!memcmp("fmt ", buf, 4)) {
 			int errc = get_fmt(&(wav->fmt), wav->fp);
-			if(errc < 0)
-			{
+			if (errc < 0) {
 				close_wave_src(wav);
 				return -3;
 			}
 			got_fmt = 1;
-		}
-		else if(!memcmp("data", buf, 4))
-		{
-			if(!got_fmt)
-			{
+		} else if (!memcmp("data", buf, 4)) {
+			if (!got_fmt) {
 				close_wave_src(wav);
 				return -3;
 			}
 
 			wav->chunk_left = fgetu32(wav->fp);
-			if(wav->chunk_left == 0)
-			{
+			if (wav->chunk_left == 0) {
 				close_wave_src(wav);
 				return -4;
 			}
@@ -151,9 +133,7 @@ int open_wave_src(WAVE_SRC *wav, const char *filename)
 			/* at this point, we have success */
 			wav->cur_chn = 0;
 			return 0;
-		}
-		else /* skip unrecognized chunk type */
-		{
+		} else { /* skip unrecognized chunk type */
 			unsigned long chunk_size = fgetu32(wav->fp);
 
 			VirtualFileSeek(wav->fp, chunk_size, SEEK_CUR);
@@ -164,36 +144,33 @@ int open_wave_src(WAVE_SRC *wav, const char *filename)
 	return -4;
 }
 
-
 /* get_next_wav_sample() ***************
    Get the next sample from a wav file.
  */
-int get_next_wav_sample(WAVE_SRC *wav)
-{
+int get_next_wav_sample(WAVE_SRC *wav) {
 	int cur_sample = 0;
 	int i;
 
-	if(wav->chunk_left == 0)
+	if (wav->chunk_left == 0)
 		return 0;
 
-	for(i = 0; i < wav->fmt.bits_sample && wav->chunk_left > 0; i += 8)
-	{
+	for (i = 0; i < wav->fmt.bits_sample && wav->chunk_left > 0; i += 8) {
 		int c;
 		if (wav->stream)
-			c=*wav->streambuffer++;
+			c = *wav->streambuffer++;
 		else
-			c=*wav->data++;
+			c = *wav->data++;
 
 		cur_sample >>= 8;
 		cur_sample |= (c & 0xff) << 8;
 		wav->chunk_left--;
 	}
 
-	if(wav->fmt.bits_sample <= 8) /* handle unsigned samples */
+	if (wav->fmt.bits_sample <= 8) /* handle unsigned samples */
 		cur_sample -= 32768;
 	cur_sample = (signed short)cur_sample; /* sign-extend */
 
-	if(++wav->cur_chn >= wav->fmt.channels)
+	if (++wav->cur_chn >= wav->fmt.channels)
 		wav->cur_chn = 0;
 
 	return cur_sample;

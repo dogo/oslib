@@ -24,7 +24,7 @@ int oslInitUsbStorage() {
 	u32 retVal = 0;
 
 	// Load and start necessary kernel modules
-	const char* modulePaths[] = {
+	const char *modulePaths[] = {
 		"flash0:/kd/chkreg.prx",
 		"flash0:/kd/npdrm.prx",
 		"flash0:/kd/semawm.prx",
