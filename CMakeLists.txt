@@ -224,13 +224,13 @@ find_program(CPPCHECK cppcheck)
 if(CPPCHECK)
     add_custom_target(
         cppcheck
-        COMMAND ${CMAKE_SOURCE_DIR}/run-cppcheck.sh --build-dir ${CMAKE_BINARY_DIR}
+        COMMAND ${CMAKE_SOURCE_DIR}/run-cppcheck.sh --cppcheck ${CPPCHECK} --build-dir ${CMAKE_BINARY_DIR}
         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
         COMMENT "Running Cppcheck over the project (fails the build on any finding)..."
     )
     add_custom_target(
         cppcheck-report
-        COMMAND ${CMAKE_SOURCE_DIR}/run-cppcheck.sh --build-dir ${CMAKE_BINARY_DIR} --report ${CMAKE_SOURCE_DIR}/cppcheck-report.txt
+        COMMAND ${CMAKE_SOURCE_DIR}/run-cppcheck.sh --cppcheck ${CPPCHECK} --build-dir ${CMAKE_BINARY_DIR} --report ${CMAKE_SOURCE_DIR}/cppcheck-report.txt
         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
         COMMENT "Running Cppcheck and writing the findings to cppcheck-report.txt..."
     )

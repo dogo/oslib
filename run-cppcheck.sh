@@ -6,6 +6,7 @@
 #   ./run-cppcheck.sh                     analyse the whole project
 #   ./run-cppcheck.sh --report FILE       also write the findings to FILE
 #   ./run-cppcheck.sh --build-dir DIR     use DIR's compilation database
+#   ./run-cppcheck.sh --cppcheck PATH     use that cppcheck binary
 #   ./run-cppcheck.sh FILE...             limit the analysis to the given files
 #
 # Exits non-zero when anything is reported, so it works as a CI gate.
@@ -22,11 +23,12 @@ SUPPRESSIONS="${SCRIPT_DIR}/.cppcheck-suppress"
 # Default build directory; the CMake targets pass their own so that the
 # analysis always matches the configuration it was invoked from.
 BUILD_DIR="${SCRIPT_DIR}/build"
+# The binary to run. The CMake targets pass the one find_program() resolved, so
+# that the analysis uses the cppcheck the project was configured with rather
+# than whichever one happens to be on PATH at build time.
+CPPCHECK="${CPPCHECK:-cppcheck}"
 
-command -v cppcheck >/dev/null 2>&1 || {
-	echo "error: cppcheck not found in PATH" >&2
-	exit 127
-}
+
 
 report=""
 filters=()
@@ -38,13 +40,21 @@ while [ $# -gt 0 ]; do
 		--build-dir)
 			[ $# -ge 2 ] || { echo "error: --build-dir needs a directory" >&2; exit 2; }
 			BUILD_DIR="$2"; shift 2 ;;
-		-h|--help) sed -n '3,10p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'; exit 0 ;;
+		--cppcheck)
+			[ $# -ge 2 ] || { echo "error: --cppcheck needs a path" >&2; exit 2; }
+			CPPCHECK="$2"; shift 2 ;;
+		-h|--help) sed -n '3,11p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'; exit 0 ;;
 		-*) echo "error: unknown option '$1'" >&2; exit 2 ;;
 		*) filters+=("--file-filter=*$1"); shift ;;
 	esac
 done
 
 cd "$SCRIPT_DIR"
+
+command -v "$CPPCHECK" >/dev/null 2>&1 || {
+	echo "error: cppcheck not found: $CPPCHECK" >&2
+	exit 127
+}
 
 COMPILE_DB="${BUILD_DIR}/compile_commands.json"
 
@@ -85,7 +95,7 @@ tmp="$(mktemp)"
 trap 'rm -f "$tmp"' EXIT
 
 set +e
-cppcheck "${args[@]}" ${filters[@]+"${filters[@]}"} 2> "$tmp"
+"$CPPCHECK" "${args[@]}" ${filters[@]+"${filters[@]}"} 2> "$tmp"
 status=$?
 set -e
 
