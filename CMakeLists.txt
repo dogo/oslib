@@ -242,6 +242,12 @@ if(UNCRUSTIFY)
         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
         COMMENT "Running Uncrustify to format the code (respecting .uncrustifyignore)..."
     )
+    add_custom_target(
+        uncrustify-check
+        COMMAND ${CMAKE_SOURCE_DIR}/run-uncrustify.sh --check
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+        COMMENT "Checking code formatting with Uncrustify (no files are modified)..."
+    )
 else()
     message(WARNING "Uncrustify not found, skipping code formatting.")
 endif()

@@ -7,6 +7,9 @@ on:
     tags-ignore:
       - '**'
 
+env:
+  UNCRUSTIFY_VERSION: 0.83.0
+
 jobs:
   build:
     runs-on: ${{ matrix.os[0] }}
@@ -59,3 +62,34 @@ jobs:
               )
             fi
           done
+
+  format:
+    name: Code format (Uncrustify)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Cache Uncrustify
+        id: cache-uncrustify
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/bin/uncrustify
+          key: uncrustify-${{ env.UNCRUSTIFY_VERSION }}-ubuntu-latest
+
+      - name: Build Uncrustify ${{ env.UNCRUSTIFY_VERSION }}
+        if: steps.cache-uncrustify.outputs.cache-hit != 'true'
+        run: |
+          set -euo pipefail
+          git clone --depth 1 --branch "uncrustify-${UNCRUSTIFY_VERSION}" \
+            https://github.com/uncrustify/uncrustify.git /tmp/uncrustify
+          cmake -S /tmp/uncrustify -B /tmp/uncrustify/build -DCMAKE_BUILD_TYPE=Release
+          cmake --build /tmp/uncrustify/build -j"$(nproc)"
+          mkdir -p ~/.local/bin
+          install /tmp/uncrustify/build/uncrustify ~/.local/bin/uncrustify
+
+      - name: Check formatting
+        run: |
+          set -euo pipefail
+          export PATH="$HOME/.local/bin:$PATH"
+          uncrustify --version
+          ./run-uncrustify.sh --check
