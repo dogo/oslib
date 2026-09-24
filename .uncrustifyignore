@@ -3,3 +3,6 @@
 lib/giflib/
 lib/libintraFont/
 lib/libpspmath/
+
+# Third-party sources vendored into the tools
+tools/src/wav2bgm/
