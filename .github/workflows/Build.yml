@@ -27,7 +27,7 @@ jobs:
       run:
         shell: ${{ matrix.os[2] }} {0}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
         with:
           submodules: 'true'
       - &setup_pspdev
@@ -68,11 +68,11 @@ jobs:
     name: Code format (Uncrustify)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - name: Cache Uncrustify
         id: cache-uncrustify
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.local/bin/uncrustify
           key: uncrustify-${{ env.UNCRUSTIFY_VERSION }}-ubuntu-latest
@@ -99,7 +99,7 @@ jobs:
     name: Static analysis (Cppcheck)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
         with:
           submodules: 'true'
 
@@ -112,7 +112,7 @@ jobs:
 
       - name: Cache Cppcheck
         id: cache-cppcheck
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.local/cppcheck
           key: cppcheck-${{ env.CPPCHECK_VERSION }}-ubuntu-latest
