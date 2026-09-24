@@ -1,11 +1,11 @@
 #include "oslib.h"
 #include <limits.h>
 
-//We're beginning at the VRAM base
+// We're beginning at the VRAM base
 u32 osl_vramBase = 0x40000000;
-//2 MBytes
+// 2 MBytes
 int osl_vramSize = 2 << 20;
-//Use it or not?
+// Use it or not?
 int osl_useVramManager = 1;
 u32 osl_currentVramPtr;
 
@@ -21,7 +21,7 @@ typedef struct          {
 #define getBlockSize(i)                         (osl_vramBlocks[i].size & 0x7fffffff)
 #define getBlockOffset(i)                       (osl_vramBlocks[i].offset)
 
-#define setBlockFree(i, free)           (osl_vramBlocks[i].size = (osl_vramBlocks[i].size & ((free)? 0xffffffff : 0x7fffffff)) | ((free)? 0x80000000 : 0))
+#define setBlockFree(i, free)           (osl_vramBlocks[i].size = (osl_vramBlocks[i].size & ((free) ? 0xffffffff : 0x7fffffff)) | ((free) ? 0x80000000 : 0))
 #define setBlockSize(i, nsize)          (osl_vramBlocks[i].size = (osl_vramBlocks[i].size & ~0x7fffffff) | (nsize))
 #define setBlockOffset(i, noffset)      (osl_vramBlocks[i].offset = noffset)
 
@@ -34,7 +34,7 @@ void oslVramMgrInit() {
 
 	osl_vramBlocksMax = DEFAULT_TABLE_SIZE;
 	osl_vramBlocksNb = 1;
-	osl_vramBlocks = (OSL_VRAMBLOCK*)malloc(osl_vramBlocksMax * sizeof(OSL_VRAMBLOCK));
+	osl_vramBlocks = (OSL_VRAMBLOCK *)malloc(osl_vramBlocksMax * sizeof(OSL_VRAMBLOCK));
 	if (!osl_vramBlocks) {
 		osl_useVramManager = 0;
 		osl_vramBlocksMax = 0;
@@ -69,7 +69,7 @@ void *oslVramMgrAllocBlock(int blockSize) {
 		if (osl_currentVramPtr + blockSize >= osl_vramBase + osl_vramSize)
 			return NULL;
 		osl_currentVramPtr += blockSize;
-		return (void*)ptr;
+		return (void *)ptr;
 	}
 
 	for (i = 0; i < osl_vramBlocksNb; i++) {
@@ -94,7 +94,7 @@ void *oslVramMgrAllocBlock(int blockSize) {
 		if (osl_vramBlocksNb >= osl_vramBlocksMax) {
 			OSL_VRAMBLOCK *oldBlock = osl_vramBlocks;
 			osl_vramBlocksMax += DEFAULT_TABLE_SIZE;
-			osl_vramBlocks = (OSL_VRAMBLOCK*)realloc(osl_vramBlocks, osl_vramBlocksMax * sizeof(*osl_vramBlocks));
+			osl_vramBlocks = (OSL_VRAMBLOCK *)realloc(osl_vramBlocks, osl_vramBlocksMax * sizeof(*osl_vramBlocks));
 
 			// Check that memory allocation was successful
 			if (!osl_vramBlocks) {
@@ -123,7 +123,7 @@ void *oslVramMgrAllocBlock(int blockSize) {
 	}
 
 	// Note: the offset must be translated into a real address
-	return (void*)(getBlockOffset(i) + osl_vramBase);
+	return (void *)(getBlockOffset(i) + osl_vramBase);
 }
 
 // Note: we need to translate a real address into an offset
@@ -174,7 +174,6 @@ int oslVramMgrFreeBlock(void *blockAddress, int blockSize) {
 				updateNeeded = 1;
 			}
 		}
-
 	} while (updateNeeded);
 
 	return 1;
@@ -202,8 +201,7 @@ int oslVramMgrSetParameters(void *baseAddr, int size) {
 		osl_vramSize = size;
 		// For those who do not want to use the manager...
 		osl_currentVramPtr = osl_vramBase;
-	}
-	else
+	} else
 		return 0;
 	return 1;
 }

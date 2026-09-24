@@ -6,8 +6,8 @@ unsigned int *osl_list = NULL;
 // Memory pointers for various resources
 void *osl_curTexture = NULL;
 void *osl_curPalette = NULL;
-void *osl_curDrawBuf = (void*)0;
-void *osl_curDispBuf = (void*)0;
+void *osl_curDrawBuf = (void *)0;
+void *osl_curDispBuf = (void *)0;
 
 // Configuration flags
 int osl_bilinearFilterEnabled = 0;
@@ -33,7 +33,7 @@ OSL_IMAGE osl_secondaryBufferImage;
 OSL_IMAGE *osl_curBuf = NULL;
 
 // Pixel format configuration
-const int osl_pixelWidth[] = {16, 16, 16, 32, 4, 8};
+const int osl_pixelWidth[] = { 16, 16, 16, 32, 4, 8 };
 
 // Palette sizes (2^n)
 const u8 osl_paletteSizes[] = {
@@ -239,7 +239,7 @@ int oslConvertColorEx(OSL_PALETTE *p, int pfDst, int pfSrc, int color) {
 
 void oslDrawTile(int u, int v, int x, int y, int tX, int tY) {
 	// Allocate memory for two vertices (bottom-left and top-right of the tile)
-	OSL_FAST_VERTEX *vertices = (OSL_FAST_VERTEX*)sceGuGetMemory(2 * sizeof(OSL_FAST_VERTEX));
+	OSL_FAST_VERTEX *vertices = (OSL_FAST_VERTEX *)sceGuGetMemory(2 * sizeof(OSL_FAST_VERTEX));
 
 	// Set the properties for the first vertex (top-left corner of the tile)
 	vertices[0].u = u;
@@ -300,7 +300,7 @@ void oslSetSysDisplayListSize(int newSize) {
 	}
 
 	// Allocate memory for the new display list size (aligned to 16 bytes)
-	osl_list = (unsigned int*)memalign(16, newSize);
+	osl_list = (unsigned int *)memalign(16, newSize);
 }
 
 void oslInitGfx(int pixelFormat, int bDoubleBuffer) {
@@ -317,23 +317,23 @@ void oslInitGfx(int pixelFormat, int bDoubleBuffer) {
 
 	sceGuStart(GU_DIRECT, osl_list);
 	sceGuDisplay(0);
-	sceGuDrawBuffer(pixelFormat, (void*)0, 512);
+	sceGuDrawBuffer(pixelFormat, (void *)0, 512);
 
 	if (bDoubleBuffer) {
-		sceGuDispBuffer(480, 272, (void*)((0x22000 * osl_pixelWidth[pixelFormat]) >> 3), 512);
-		baseAdr = (u8*)(OSL_UVRAM_BASE + ((0x22000 * 2 * osl_pixelWidth[pixelFormat]) >> 3));
-		osl_curDrawBuf = (void*)OSL_UVRAM_BASE;
-		osl_curDispBuf = (void*)(OSL_UVRAM_BASE + ((0x22000 * osl_pixelWidth[pixelFormat]) >> 3));
+		sceGuDispBuffer(480, 272, (void *)((0x22000 * osl_pixelWidth[pixelFormat]) >> 3), 512);
+		baseAdr = (u8 *)(OSL_UVRAM_BASE + ((0x22000 * 2 * osl_pixelWidth[pixelFormat]) >> 3));
+		osl_curDrawBuf = (void *)OSL_UVRAM_BASE;
+		osl_curDispBuf = (void *)(OSL_UVRAM_BASE + ((0x22000 * osl_pixelWidth[pixelFormat]) >> 3));
 	} else {
-		sceGuDispBuffer(480, 272, (void*)0, 512);
-		baseAdr = (u8*)(OSL_UVRAM_BASE + ((0x22000 * osl_pixelWidth[pixelFormat]) >> 3));
-		osl_curDrawBuf = (void*)OSL_UVRAM_BASE;
+		sceGuDispBuffer(480, 272, (void *)0, 512);
+		baseAdr = (u8 *)(OSL_UVRAM_BASE + ((0x22000 * osl_pixelWidth[pixelFormat]) >> 3));
+		osl_curDrawBuf = (void *)OSL_UVRAM_BASE;
 		osl_curDispBuf = osl_curDrawBuf;
 	}
 
 	// Set up depth buffer and other graphical settings
-	sceGuDepthBuffer((void*)((u32)baseAdr - (u32)OSL_UVRAM_BASE), 512);
-	baseAdr = (u8*)((u32)baseAdr + 0x22000 * 2);
+	sceGuDepthBuffer((void *)((u32)baseAdr - (u32)OSL_UVRAM_BASE), 512);
+	baseAdr = (u8 *)((u32)baseAdr + 0x22000 * 2);
 	sceGuOffset(2048 - 480 / 2, 2048 - 272 / 2);
 	sceGuViewport(2048, 2048, 480, 272);
 	sceGuDepthRange(65535, 0);
@@ -360,7 +360,7 @@ void oslInitGfx(int pixelFormat, int bDoubleBuffer) {
 
 	// Initialize VRAM manager
 	oslVramMgrInit();
-	oslVramMgrSetParameters((void*)baseAdr, (u32)OSL_UVRAM_END - (u32)baseAdr);
+	oslVramMgrSetParameters((void *)baseAdr, (u32)OSL_UVRAM_END - (u32)baseAdr);
 
 	osl_isDrawingStarted = 0;
 
@@ -396,8 +396,7 @@ void oslInitGfx(int pixelFormat, int bDoubleBuffer) {
 		oslInitConsole();
 }
 
-void oslSwapBuffers()
-{
+void oslSwapBuffers() {
 	// Reset the user's draw buffer to OSL_DEFAULT_BUFFER if it's not already set
 	if (osl_curBuf != OSL_DEFAULT_BUFFER) {
 		oslSetDrawBuffer(OSL_DEFAULT_BUFFER);
@@ -420,15 +419,13 @@ void oslSwapBuffers()
 	osl_secondaryBufferImage.data = osl_curDispBuf;
 }
 
-void oslSetBilinearFilter(int enabled)
-{
+void oslSetBilinearFilter(int enabled) {
 	osl_bilinearFilterEnabled = enabled;
 	int filterMode = enabled ? GU_LINEAR : GU_NEAREST;
 	sceGuTexFilter(filterMode, filterMode);
 }
 
-void oslSetDithering(int enabled)
-{
+void oslSetDithering(int enabled) {
 	osl_ditheringEnabled = enabled;
 	if (enabled) {
 		sceGuEnable(GU_DITHER);
@@ -437,8 +434,7 @@ void oslSetDithering(int enabled)
 	}
 }
 
-void oslSetAlphaTest(int condition, int value)
-{
+void oslSetAlphaTest(int condition, int value) {
 	if (!osl_alphaTestEnabled) {
 		sceGuAlphaFunc(condition, value, 0xFF);
 		sceGuEnable(GU_ALPHA_TEST);
@@ -446,28 +442,24 @@ void oslSetAlphaTest(int condition, int value)
 	}
 }
 
-void oslDisableAlphaTest()
-{
+void oslDisableAlphaTest() {
 	if (osl_alphaTestEnabled) {
 		sceGuDisable(GU_ALPHA_TEST);
 		osl_alphaTestEnabled = 0;
 	}
 }
 
-void oslClearScreen(int backColor)
-{
+void oslClearScreen(int backColor) {
 	sceGuClearColor(backColor);
 	sceGuClear(GU_COLOR_BUFFER_BIT);
 }
 
-void oslSetScreenClipping(int x0, int y0, int x1, int y1)
-{
+void oslSetScreenClipping(int x0, int y0, int x1, int y1) {
 	sceGuScissor(x0, y0, x1, y1);
 	sceGuEnable(GU_SCISSOR_TEST);
 }
 
-void oslEndGfx()
-{
+void oslEndGfx() {
 	sceGuTerm();
 
 	if (osl_list) {
@@ -476,8 +468,7 @@ void oslEndGfx()
 	}
 }
 
-void oslSetDepthTest(int enabled)
-{
+void oslSetDepthTest(int enabled) {
 	if (enabled) {
 		sceGuEnable(GU_DEPTH_TEST);
 	} else {

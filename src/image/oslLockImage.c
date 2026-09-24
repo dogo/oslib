@@ -4,14 +4,13 @@
     Special PC Functions
     Allows access to an image selected as a draw buffer or texture
  */
-void oslLockImage(OSL_IMAGE *img)
-{
+void oslLockImage(OSL_IMAGE *img) {
 	// Check if the image is the current draw buffer
 	if (img == osl_curBuf) {
 		// Synchronize drawing before accessing the draw buffer
 		oslSyncDrawing();
 
-	#ifndef PSP
+#ifndef PSP
 		// On non-PSP platforms, copy the contents of the draw buffer to the image
 		int textureEnabled = glIsEnabled(GL_TEXTURE_2D);
 		int blendingEnabled = glIsEnabled(GL_BLEND);
@@ -38,13 +37,12 @@ void oslLockImage(OSL_IMAGE *img)
 		if (blendingEnabled) {
 			glEnable(GL_BLEND);
 		}
-	#endif
+#endif
 	}
 }
 
 // Call this function once the image operations are complete
-void oslUnlockImage(OSL_IMAGE *img)
-{
+void oslUnlockImage(OSL_IMAGE *img) {
 	// Uncache the image if it is stored in RAM
 	oslUncacheImage(img);
 
@@ -53,7 +51,7 @@ void oslUnlockImage(OSL_IMAGE *img)
 		osl_curTexture = NULL;
 	}
 
-    #ifndef PSP
+#ifndef PSP
 	// On non-PSP platforms, copy the modified image data back to the framebuffer
 	if (img == osl_curBuf) {
 		int textureEnabled = glIsEnabled(GL_TEXTURE_2D);
@@ -82,5 +80,5 @@ void oslUnlockImage(OSL_IMAGE *img)
 			glEnable(GL_BLEND);
 		}
 	}
-    #endif
+#endif
 }

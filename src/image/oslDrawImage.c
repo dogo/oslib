@@ -29,7 +29,7 @@ void oslDrawImage(OSL_IMAGE *img) {
 	float xVal = cX;
 
 	while (uVal != img->offsetX1) {
-		OSL_PRECISE_VERTEX *vertices = (OSL_PRECISE_VERTEX*)sceGuGetMemory(4 * sizeof(OSL_PRECISE_VERTEX));
+		OSL_PRECISE_VERTEX *vertices = (OSL_PRECISE_VERTEX *)sceGuGetMemory(4 * sizeof(OSL_PRECISE_VERTEX));
 
 		// Calculate vertex 0
 		vertices[0].u = uVal;

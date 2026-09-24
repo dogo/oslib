@@ -30,14 +30,14 @@ extern float vfpu_cosi(int f1, int f2);
 extern int vfpu_isubf(float f1, float f2);
 
 // VFPU Assembly Macros
-#define vi2f_s(vfpu_rd,vfpu_rs,scale) (0xd2800000 | ((scale) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
-#define vf2in_s(vfpu_rd,vfpu_rs,scale) (0xd2000000 | ((scale) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
+#define vi2f_s(vfpu_rd, vfpu_rs, scale) (0xd2800000 | ((scale) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
+#define vf2in_s(vfpu_rd, vfpu_rs, scale) (0xd2000000 | ((scale) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
 
 // Wrapper function for sine using VFPU
 float oslVfpu_sinf(float f1, float f2) {
-	register void *ptr __asm ("a0") = vfpu_vars;
-	*(float*)ptr = f1;
-	*((float*)ptr + 1) = f2;
+	register void *ptr __asm("a0") = vfpu_vars;
+	*(float *)ptr = f1;
+	*((float *)ptr + 1) = f2;
 	__asm__ volatile (
 		cgen_asm(lv_s(0, 0, R_a0, 0))    // Load f1
 		cgen_asm(lv_s(1, 1, R_a0, 0))    // Load f2
@@ -56,9 +56,9 @@ float oslVfpu_sinf(float f1, float f2) {
 
 // Wrapper function for cosine using VFPU
 float oslVfpu_cosf(float f1, float f2) {
-	register void *ptr __asm ("a0") = vfpu_vars;
-	*(float*)ptr = f1;
-	*((float*)ptr + 1) = f2;
+	register void *ptr __asm("a0") = vfpu_vars;
+	*(float *)ptr = f1;
+	*((float *)ptr + 1) = f2;
 	__asm__ volatile (
 		cgen_asm(lv_s(0, 0, R_a0, 0))    // Load f1
 		cgen_asm(lv_s(1, 1, R_a0, 0))    // Load f2
@@ -77,10 +77,10 @@ float oslVfpu_cosf(float f1, float f2) {
 
 // Cosine function wrapper with degree-to-radian conversion
 float oslCos(float angle, float dist) {
-	register void *ptr __asm ("a0") = vfpu_vars;
-	*(float*)ptr = angle;
-	*((float*)ptr + 1) = dist;
-	*((float*)ptr + 2) = 90.0f;
+	register void *ptr __asm("a0") = vfpu_vars;
+	*(float *)ptr = angle;
+	*((float *)ptr + 1) = dist;
+	*((float *)ptr + 2) = 90.0f;
 
 	__asm__ volatile (
 		cgen_asm(lv_s(0, 0, R_a0, 0))    // Load angle
@@ -100,10 +100,10 @@ float oslCos(float angle, float dist) {
 
 // Sine function wrapper with degree-to-radian conversion
 float oslSin(float angle, float dist) {
-	register void *ptr __asm ("a0") = vfpu_vars;
-	*(float*)ptr = angle;
-	*((float*)ptr + 1) = dist;
-	*((float*)ptr + 2) = 90.0f;
+	register void *ptr __asm("a0") = vfpu_vars;
+	*(float *)ptr = angle;
+	*((float *)ptr + 1) = dist;
+	*((float *)ptr + 2) = 90.0f;
 
 	__asm__ volatile (
 		cgen_asm(lv_s(0, 0, R_a0, 0))    // Load angle

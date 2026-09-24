@@ -295,7 +295,7 @@
 
     %rt <- word_at_address (offset + %base)
  */
-#define lw(rt,offset,base) \
+#define lw(rt, offset, base) \
 	(0x8c000000 | ((base) << 21) | ((rt) << 16) | ((offset) & 0xffff))
 
 
@@ -316,7 +316,7 @@
 
     word_at_address (offset + %base) <- %rt
  */
-#define sw(rt,offset,base) \
+#define sw(rt, offset, base) \
 	(0xac000000 | ((base) << 21) | ((rt) << 16) | ((offset) & 0xffff))
 
 
@@ -337,7 +337,7 @@
 
     %rt <- %rs + sign_extended(immediate)
  */
-#define addiu(rt,rs,immediate) \
+#define addiu(rt, rs, immediate) \
 	(0x24000000 | ((rs) << 21) | ((rt) << 16) | ((immediate) & 0xffff))
 
 
@@ -359,14 +359,14 @@
 
     fpu_vtr <- vector_at_address (offset + %gpr)
  */
-#define lv_q(vfpu_rd,offset,base,cache_policy)              \
+#define lv_q(vfpu_rd, offset, base, cache_policy)              \
 	(0xd8000000 |                            \
 	 ((base) << 21) |               \
 	 (((vfpu_rd) & 0x1f) << 16) | ((vfpu_rd) >> 4) |   \
 	 ((offset) << 2) |               \
 	 ((cache_policy) << 1))
 
-#define lv_s(vfpu_rd,offset,base,cache_policy)              \
+#define lv_s(vfpu_rd, offset, base, cache_policy)              \
 	(0xc8000000 |                            \
 	 ((base) << 21) |               \
 	 (((vfpu_rd) & 0x1f) << 16) | ((vfpu_rd) >> 4) |   \
@@ -393,7 +393,7 @@
 
     vector_at_address (offset + %gpr) <- fpu_vtr
  */
-#define sv_q(vfpu_rt,offset,base,cache_policy)         \
+#define sv_q(vfpu_rt, offset, base, cache_policy)         \
 	(0xf8000000 |                  \
 	 ((base) << 21) |               \
 	 (((vfpu_rt) & 0x1f) << 16) | ((vfpu_rt) >> 4) |   \
@@ -420,10 +420,10 @@
 
     vfpu_regs[%vfpu_rd] <- vfpu_regs[%vfpu_rs]
  */
-#define vmov_s(vfpu_rd,vfpu_rs)  (0xd0000000 | ((vfpu_rs) << 8) | (vfpu_rd))
-#define vmov_p(vfpu_rd,vfpu_rs)  (0xd0000080 | ((vfpu_rs) << 8) | (vfpu_rd))
-#define vmov_t(vfpu_rd,vfpu_rs)  (0xd0008000 | ((vfpu_rs) << 8) | (vfpu_rd))
-#define vmov_q(vfpu_rd,vfpu_rs)  (0xd0008080 | ((vfpu_rs) << 8) | (vfpu_rd))
+#define vmov_s(vfpu_rd, vfpu_rs)  (0xd0000000 | ((vfpu_rs) << 8) | (vfpu_rd))
+#define vmov_p(vfpu_rd, vfpu_rs)  (0xd0000080 | ((vfpu_rs) << 8) | (vfpu_rd))
+#define vmov_t(vfpu_rd, vfpu_rs)  (0xd0008000 | ((vfpu_rs) << 8) | (vfpu_rd))
+#define vmov_q(vfpu_rd, vfpu_rs)  (0xd0008080 | ((vfpu_rs) << 8) | (vfpu_rd))
 
 
 /*
@@ -442,7 +442,7 @@
 
     vfpu_regs[%vfpu_rd] <- (float) immediate
  */
-#define viim_s(vfpu_rd,immediate)  (0xdf000000 | ((vfpu_rd) << 16) | ((immediate) & 0xffff))
+#define viim_s(vfpu_rd, immediate)  (0xdf000000 | ((vfpu_rd) << 16) | ((immediate) & 0xffff))
 
 
 /*
@@ -470,8 +470,8 @@
     vfpu_regs[%vfpu_rd_q[2]] <- (int) low_16(vfpu_regs[%vfpu_rs_p[1]]) / 2
     vfpu_regs[%vfpu_rd_q[3]] <- (int) high_16(vfpu_regs[%vfpu_rs_p[1]]) / 2
  */
-#define vus2i_s(vfpu_rd,vfpu_rs)  (0xd03a0000 | ((vfpu_rd) << 16) | (vfpu_rd))
-#define vus2i_p(vfpu_rd,vfpu_rs)  (0xd03a0080 | ((vfpu_rd) << 16) | (vfpu_rd))
+#define vus2i_s(vfpu_rd, vfpu_rs)  (0xd03a0000 | ((vfpu_rd) << 16) | (vfpu_rd))
+#define vus2i_p(vfpu_rd, vfpu_rs)  (0xd03a0080 | ((vfpu_rd) << 16) | (vfpu_rd))
 
 
 /*
@@ -499,8 +499,8 @@
     vfpu_regs[%vfpu_rd_q[2]] <- (int) low_16(vfpu_regs[%vfpu_rs_p[1]])
     vfpu_regs[%vfpu_rd_q[3]] <- (int) high_16(vfpu_regs[%vfpu_rs_p[1]])
  */
-#define vs2i_s(vfpu_rd,vfpu_rs)  (0xd03b0000 | ((vfpu_rd) << 16) | (vfpu_rd))
-#define vs2i_p(vfpu_rd,vfpu_rs)  (0xd03b0080 | ((vfpu_rd) << 16) | (vfpu_rd))
+#define vs2i_s(vfpu_rd, vfpu_rs)  (0xd03b0000 | ((vfpu_rd) << 16) | (vfpu_rd))
+#define vs2i_p(vfpu_rd, vfpu_rs)  (0xd03b0080 | ((vfpu_rd) << 16) | (vfpu_rd))
 
 
 /*
@@ -523,10 +523,10 @@
 
     vfpu_regs[%vfpu_rd] <- (int) (2^scale * vfpu_regs[%vfpu_rs])
  */
-#define vf2iz_s(vfpu_rd,vfpu_rs,scale)  (0xd2200000 | ((scale) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
-#define vf2iz_p(vfpu_rd,vfpu_rs,scale)  (0xd2200080 | ((scale) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
-#define vf2iz_t(vfpu_rd,vfpu_rs,scale)  (0xd2208000 | ((scale) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
-#define vf2iz_q(vfpu_rd,vfpu_rs,scale)  (0xd2208080 | ((scale) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
+#define vf2iz_s(vfpu_rd, vfpu_rs, scale)  (0xd2200000 | ((scale) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
+#define vf2iz_p(vfpu_rd, vfpu_rs, scale)  (0xd2200080 | ((scale) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
+#define vf2iz_t(vfpu_rd, vfpu_rs, scale)  (0xd2208000 | ((scale) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
+#define vf2iz_q(vfpu_rd, vfpu_rs, scale)  (0xd2208080 | ((scale) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
 
 
 /*
@@ -671,10 +671,10 @@
     vfpu_regs[%vfpu_rd] <- vfpu_regs[%vfpu_rs] + vfpu_regs[%vfpu_rt]
  */
 
-#define vadd_s(vfpu_rd,vfpu_rs,vfpu_rt)  (0x60000000 | ((vfpu_rt) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
-#define vadd_p(vfpu_rd,vfpu_rs,vfpu_rt)  (0x60000080 | ((vfpu_rt) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
-#define vadd_t(vfpu_rd,vfpu_rs,vfpu_rt)  (0x60008000 | ((vfpu_rt) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
-#define vadd_q(vfpu_rd,vfpu_rs,vfpu_rt)  (0x60008080 | ((vfpu_rt) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
+#define vadd_s(vfpu_rd, vfpu_rs, vfpu_rt)  (0x60000000 | ((vfpu_rt) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
+#define vadd_p(vfpu_rd, vfpu_rs, vfpu_rt)  (0x60000080 | ((vfpu_rt) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
+#define vadd_t(vfpu_rd, vfpu_rs, vfpu_rt)  (0x60008000 | ((vfpu_rt) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
+#define vadd_q(vfpu_rd, vfpu_rs, vfpu_rt)  (0x60008080 | ((vfpu_rt) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
 
 /*
  +----------------------+--------------+----+--------------+---+--------------+
@@ -700,10 +700,10 @@
     vfpu_regs[%vfpu_rd] <- vfpu_regs[%vfpu_rs] - vfpu_regs[%vfpu_rt]
  */
 
-#define vsub_s(vfpu_rd,vfpu_rs,vfpu_rt)  (0x60800000 | ((vfpu_rt) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
-#define vsub_p(vfpu_rd,vfpu_rs,vfpu_rt)  (0x60800080 | ((vfpu_rt) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
-#define vsub_t(vfpu_rd,vfpu_rs,vfpu_rt)  (0x60808000 | ((vfpu_rt) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
-#define vsub_q(vfpu_rd,vfpu_rs,vfpu_rt)  (0x60808080 | ((vfpu_rt) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
+#define vsub_s(vfpu_rd, vfpu_rs, vfpu_rt)  (0x60800000 | ((vfpu_rt) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
+#define vsub_p(vfpu_rd, vfpu_rs, vfpu_rt)  (0x60800080 | ((vfpu_rt) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
+#define vsub_t(vfpu_rd, vfpu_rs, vfpu_rt)  (0x60808000 | ((vfpu_rt) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
+#define vsub_q(vfpu_rd, vfpu_rs, vfpu_rt)  (0x60808080 | ((vfpu_rt) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
 
 /*
  +----------------------+--------------+----+--------------+---+--------------+
@@ -729,10 +729,10 @@
     vfpu_regs[%vfpu_rd] <- vfpu_regs[%vfpu_rs] / vfpu_regs[%vfpu_rt]
  */
 
-#define vdiv_s(vfpu_rd,vfpu_rs,vfpu_rt)  (0x63800000 | ((vfpu_rt) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
-#define vdiv_p(vfpu_rd,vfpu_rs,vfpu_rt)  (0x63800080 | ((vfpu_rt) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
-#define vdiv_t(vfpu_rd,vfpu_rs,vfpu_rt)  (0x63808000 | ((vfpu_rt) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
-#define vdiv_q(vfpu_rd,vfpu_rs,vfpu_rt)  (0x63808080 | ((vfpu_rt) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
+#define vdiv_s(vfpu_rd, vfpu_rs, vfpu_rt)  (0x63800000 | ((vfpu_rt) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
+#define vdiv_p(vfpu_rd, vfpu_rs, vfpu_rt)  (0x63800080 | ((vfpu_rt) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
+#define vdiv_t(vfpu_rd, vfpu_rs, vfpu_rt)  (0x63808000 | ((vfpu_rt) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
+#define vdiv_q(vfpu_rd, vfpu_rs, vfpu_rt)  (0x63808080 | ((vfpu_rt) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
 
 /*
  +----------------------+--------------+----+--------------+---+--------------+
@@ -758,10 +758,10 @@
     vfpu_regs[%vfpu_rd] <- vfpu_regs[%vfpu_rs] * vfpu_regs[%vfpu_rt]
  */
 
-#define vmul_s(vfpu_rd,vfpu_rs,vfpu_rt)  (0x64000000 | ((vfpu_rt) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
-#define vmul_p(vfpu_rd,vfpu_rs,vfpu_rt)  (0x64000080 | ((vfpu_rt) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
-#define vmul_t(vfpu_rd,vfpu_rs,vfpu_rt)  (0x64008000 | ((vfpu_rt) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
-#define vmul_q(vfpu_rd,vfpu_rs,vfpu_rt)  (0x64008080 | ((vfpu_rt) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
+#define vmul_s(vfpu_rd, vfpu_rs, vfpu_rt)  (0x64000000 | ((vfpu_rt) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
+#define vmul_p(vfpu_rd, vfpu_rs, vfpu_rt)  (0x64000080 | ((vfpu_rt) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
+#define vmul_t(vfpu_rd, vfpu_rs, vfpu_rt)  (0x64008000 | ((vfpu_rt) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
+#define vmul_q(vfpu_rd, vfpu_rs, vfpu_rt)  (0x64008080 | ((vfpu_rt) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
 
 /*
  +----------------------+--------------+----+--------------+---+--------------+
@@ -785,9 +785,9 @@
     vfpu_regs[%vfpu_rd] <- dotproduct(vfpu_regs[%vfpu_rs], vfpu_regs[%vfpu_rt])
  */
 
-#define vdot_p(vfpu_rd,vfpu_rs,vfpu_rt)  (0x64800080 | ((vfpu_rt) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
-#define vdot_t(vfpu_rd,vfpu_rs,vfpu_rt)  (0x64808000 | ((vfpu_rt) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
-#define vdot_q(vfpu_rd,vfpu_rs,vfpu_rt)  (0x64808080 | ((vfpu_rt) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
+#define vdot_p(vfpu_rd, vfpu_rs, vfpu_rt)  (0x64800080 | ((vfpu_rt) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
+#define vdot_t(vfpu_rd, vfpu_rs, vfpu_rt)  (0x64808000 | ((vfpu_rt) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
+#define vdot_q(vfpu_rd, vfpu_rs, vfpu_rt)  (0x64808080 | ((vfpu_rt) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
 
 
 /*
@@ -812,9 +812,9 @@
     vfpu_regs[%vfpu_rd] <- homogenousdotproduct(vfpu_regs[%vfpu_rs], vfpu_regs[%vfpu_rt])
  */
 
-#define vhdp_p(vfpu_rd,vfpu_rs,vfpu_rt)  (0x66000080 | ((vfpu_rt) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
-#define vhdp_t(vfpu_rd,vfpu_rs,vfpu_rt)  (0x66008000 | ((vfpu_rt) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
-#define vhdp_q(vfpu_rd,vfpu_rs,vfpu_rt)  (0x66008080 | ((vfpu_rt) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
+#define vhdp_p(vfpu_rd, vfpu_rs, vfpu_rt)  (0x66000080 | ((vfpu_rt) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
+#define vhdp_t(vfpu_rd, vfpu_rs, vfpu_rt)  (0x66008000 | ((vfpu_rt) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
+#define vhdp_q(vfpu_rd, vfpu_rs, vfpu_rt)  (0x66008080 | ((vfpu_rt) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
 
 /*
  +-------------------------------------------------------------+--------------+
@@ -910,9 +910,9 @@
 
     vfpu_regs[%vfpu_rd] <- vfpu_regs[%vfpu_rs] * vfpu_reg[%vfpu_rt]
  */
-#define vscl_p(vfpu_rd,vfpu_rs,vfpu_rt)  (0x65000080 | ((vfpu_rt) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
-#define vscl_t(vfpu_rd,vfpu_rs,vfpu_rt)  (0x65008000 | ((vfpu_rt) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
-#define vscl_q(vfpu_rd,vfpu_rs,vfpu_rt)  (0x65008080 | ((vfpu_rt) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
+#define vscl_p(vfpu_rd, vfpu_rs, vfpu_rt)  (0x65000080 | ((vfpu_rt) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
+#define vscl_t(vfpu_rd, vfpu_rs, vfpu_rt)  (0x65008000 | ((vfpu_rt) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
+#define vscl_q(vfpu_rd, vfpu_rs, vfpu_rt)  (0x65008080 | ((vfpu_rt) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
 
 
 /*
@@ -934,9 +934,9 @@
     vfpu_mtx[%vfpu_rd] <- vfpu_mtx[%vfpu_rs]
  */
 
-#define vmmov_p(vfpu_rd,vfpu_rs)  (0xf3800080 | ((vfpu_rs) << 8) | (vfpu_rd))
-#define vmmov_t(vfpu_rd,vfpu_rs)  (0xf3808000 | ((vfpu_rs) << 8) | (vfpu_rd))
-#define vmmov_q(vfpu_rd,vfpu_rs)  (0xf3808080 | ((vfpu_rs) << 8) | (vfpu_rd))
+#define vmmov_p(vfpu_rd, vfpu_rs)  (0xf3800080 | ((vfpu_rs) << 8) | (vfpu_rd))
+#define vmmov_t(vfpu_rd, vfpu_rs)  (0xf3808000 | ((vfpu_rs) << 8) | (vfpu_rd))
+#define vmmov_q(vfpu_rd, vfpu_rs)  (0xf3808080 | ((vfpu_rs) << 8) | (vfpu_rd))
 
 /*
  +-------------------------------------+----+--------------+---+--------------+
@@ -961,10 +961,10 @@
     vfpu_regs[%vfpu_rd] <- abs(vfpu_regs[%vfpu_rs])
  */
 
-#define vabs_s(vfpu_rd,vfpu_rs)  (0xd0010000 | ((vfpu_rs) << 8) | (vfpu_rd))
-#define vabs_p(vfpu_rd,vfpu_rs)  (0xd0010080 | ((vfpu_rs) << 8) | (vfpu_rd))
-#define vabs_t(vfpu_rd,vfpu_rs)  (0xd0018000 | ((vfpu_rs) << 8) | (vfpu_rd))
-#define vabs_q(vfpu_rd,vfpu_rs)  (0xd0018080 | ((vfpu_rs) << 8) | (vfpu_rd))
+#define vabs_s(vfpu_rd, vfpu_rs)  (0xd0010000 | ((vfpu_rs) << 8) | (vfpu_rd))
+#define vabs_p(vfpu_rd, vfpu_rs)  (0xd0010080 | ((vfpu_rs) << 8) | (vfpu_rd))
+#define vabs_t(vfpu_rd, vfpu_rs)  (0xd0018000 | ((vfpu_rs) << 8) | (vfpu_rd))
+#define vabs_q(vfpu_rd, vfpu_rs)  (0xd0018080 | ((vfpu_rs) << 8) | (vfpu_rd))
 
 /*
  +-------------------------------------+----+--------------+---+--------------+
@@ -989,10 +989,10 @@
     vfpu_regs[%vfpu_rd] <- -vfpu_regs[%vfpu_rs]
  */
 
-#define vneg_s(vfpu_rd,vfpu_rs)  (0xd0020000 | ((vfpu_rs) << 8) | (vfpu_rd))
-#define vneg_p(vfpu_rd,vfpu_rs)  (0xd0020080 | ((vfpu_rs) << 8) | (vfpu_rd))
-#define vneg_t(vfpu_rd,vfpu_rs)  (0xd0028000 | ((vfpu_rs) << 8) | (vfpu_rd))
-#define vneg_q(vfpu_rd,vfpu_rs)  (0xd0028080 | ((vfpu_rs) << 8) | (vfpu_rd))
+#define vneg_s(vfpu_rd, vfpu_rs)  (0xd0020000 | ((vfpu_rs) << 8) | (vfpu_rd))
+#define vneg_p(vfpu_rd, vfpu_rs)  (0xd0020080 | ((vfpu_rs) << 8) | (vfpu_rd))
+#define vneg_t(vfpu_rd, vfpu_rs)  (0xd0028000 | ((vfpu_rs) << 8) | (vfpu_rd))
+#define vneg_q(vfpu_rd, vfpu_rs)  (0xd0028080 | ((vfpu_rs) << 8) | (vfpu_rd))
 
 
 /*
@@ -1018,10 +1018,10 @@
     vfpu_regs[%vfpu_rd] <- sign(vfpu_regs[%vfpu_rs])
  */
 
-#define vsgn_s(vfpu_rd,vfpu_rs)  (0xd04a0000 | ((vfpu_rs) << 8) | (vfpu_rd))
-#define vsgn_p(vfpu_rd,vfpu_rs)  (0xd04a0080 | ((vfpu_rs) << 8) | (vfpu_rd))
-#define vsgn_t(vfpu_rd,vfpu_rs)  (0xd04a8000 | ((vfpu_rs) << 8) | (vfpu_rd))
-#define vsgn_q(vfpu_rd,vfpu_rs)  (0xd04a8080 | ((vfpu_rs) << 8) | (vfpu_rd))
+#define vsgn_s(vfpu_rd, vfpu_rs)  (0xd04a0000 | ((vfpu_rs) << 8) | (vfpu_rd))
+#define vsgn_p(vfpu_rd, vfpu_rs)  (0xd04a0080 | ((vfpu_rs) << 8) | (vfpu_rd))
+#define vsgn_t(vfpu_rd, vfpu_rs)  (0xd04a8000 | ((vfpu_rs) << 8) | (vfpu_rd))
+#define vsgn_q(vfpu_rd, vfpu_rs)  (0xd04a8080 | ((vfpu_rs) << 8) | (vfpu_rd))
 
 /*
  +----------------------+--------------+----+--------------+---+--------------+
@@ -1047,10 +1047,10 @@
     vfpu_regs[%vfpu_rd] <- min(vfpu_regs[%vfpu_rs], vfpu_reg[%vfpu_rt])
  */
 
-#define vmin_s(vfpu_rd,vfpu_rs,vfpu_rt)  (0x6D000000 | ((vfpu_rt) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
-#define vmin_p(vfpu_rd,vfpu_rs,vfpu_rt)  (0x6D000080 | ((vfpu_rt) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
-#define vmin_t(vfpu_rd,vfpu_rs,vfpu_rt)  (0x6D008000 | ((vfpu_rt) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
-#define vmin_q(vfpu_rd,vfpu_rs,vfpu_rt)  (0x6D008080 | ((vfpu_rt) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
+#define vmin_s(vfpu_rd, vfpu_rs, vfpu_rt)  (0x6D000000 | ((vfpu_rt) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
+#define vmin_p(vfpu_rd, vfpu_rs, vfpu_rt)  (0x6D000080 | ((vfpu_rt) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
+#define vmin_t(vfpu_rd, vfpu_rs, vfpu_rt)  (0x6D008000 | ((vfpu_rt) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
+#define vmin_q(vfpu_rd, vfpu_rs, vfpu_rt)  (0x6D008080 | ((vfpu_rt) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
 
 
 /*
@@ -1077,10 +1077,10 @@
     vfpu_regs[%vfpu_rd] <- max(vfpu_regs[%vfpu_rs], vfpu_reg[%vfpu_rt])
  */
 
-#define vmax_s(vfpu_rd,vfpu_rs,vfpu_rt)  (0x6D800000 | ((vfpu_rt) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
-#define vmax_p(vfpu_rd,vfpu_rs,vfpu_rt)  (0x6D800080 | ((vfpu_rt) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
-#define vmax_t(vfpu_rd,vfpu_rs,vfpu_rt)  (0x6D808000 | ((vfpu_rt) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
-#define vmax_q(vfpu_rd,vfpu_rs,vfpu_rt)  (0x6D808080 | ((vfpu_rt) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
+#define vmax_s(vfpu_rd, vfpu_rs, vfpu_rt)  (0x6D800000 | ((vfpu_rt) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
+#define vmax_p(vfpu_rd, vfpu_rs, vfpu_rt)  (0x6D800080 | ((vfpu_rt) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
+#define vmax_t(vfpu_rd, vfpu_rs, vfpu_rt)  (0x6D808000 | ((vfpu_rt) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
+#define vmax_q(vfpu_rd, vfpu_rs, vfpu_rt)  (0x6D808080 | ((vfpu_rt) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
 
 /*
  +-------------------------------------------------------------+--------------+
@@ -1116,7 +1116,7 @@
 
     ???????????????????
  */
-#define vt4444_q(vfpu_rd,vfpu_rs)  (0xd0598080 | ((vfpu_rs) << 8) | (vfpu_rd))
+#define vt4444_q(vfpu_rd, vfpu_rs)  (0xd0598080 | ((vfpu_rs) << 8) | (vfpu_rd))
 
 
 /*
@@ -1133,7 +1133,7 @@
 
     ???????????????????
  */
-#define vt5551_q(vfpu_rd,vfpu_rs)  (0xd05a8080 | ((vfpu_rs) << 8) | (vfpu_rd))
+#define vt5551_q(vfpu_rd, vfpu_rs)  (0xd05a8080 | ((vfpu_rs) << 8) | (vfpu_rd))
 
 
 /*
@@ -1150,7 +1150,7 @@
 
     ???????????????????
  */
-#define vt5650_q(vfpu_rd,vfpu_rs)  (0xd05b8080 | ((vfpu_rs) << 8) | (vfpu_rd))
+#define vt5650_q(vfpu_rd, vfpu_rs)  (0xd05b8080 | ((vfpu_rs) << 8) | (vfpu_rd))
 
 
 /*
@@ -1497,9 +1497,9 @@
     vfpu_regs[%vfpu_rd] <- transform(vfpu_matrix[%vfpu_rs], vfpu_vector[%vfpu_rt])
  */
 
-#define vtfm2_p(vfpu_rd,vfpu_rs,vfpu_rt)  (0xF0800080 | ((vfpu_rt) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
-#define vtfm3_t(vfpu_rd,vfpu_rs,vfpu_rt)  (0xF1008000 | ((vfpu_rt) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
-#define vtfm4_q(vfpu_rd,vfpu_rs,vfpu_rt)  (0xF1808080 | ((vfpu_rt) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
+#define vtfm2_p(vfpu_rd, vfpu_rs, vfpu_rt)  (0xF0800080 | ((vfpu_rt) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
+#define vtfm3_t(vfpu_rd, vfpu_rs, vfpu_rt)  (0xF1008000 | ((vfpu_rt) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
+#define vtfm4_q(vfpu_rd, vfpu_rs, vfpu_rt)  (0xF1808080 | ((vfpu_rt) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
 
 /*
  +----------------------+--------------+----+--------------+---+--------------+
@@ -1523,9 +1523,9 @@
     vfpu_regs[%vfpu_rd] <- homeogenoustransform(vfpu_matrix[%vfpu_rs], vfpu_vector[%vfpu_rt])
  */
 
-#define vhtfm2_p(vfpu_rd,vfpu_rs,vfpu_rt)  (0xF0800000 | ((vfpu_rt) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
-#define vhtfm3_t(vfpu_rd,vfpu_rs,vfpu_rt)  (0xF1000080 | ((vfpu_rt) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
-#define vhtfm4_q(vfpu_rd,vfpu_rs,vfpu_rt)  (0xF1808000 | ((vfpu_rt) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
+#define vhtfm2_p(vfpu_rd, vfpu_rs, vfpu_rt)  (0xF0800000 | ((vfpu_rt) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
+#define vhtfm3_t(vfpu_rd, vfpu_rs, vfpu_rt)  (0xF1000080 | ((vfpu_rt) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
+#define vhtfm4_q(vfpu_rd, vfpu_rs, vfpu_rt)  (0xF1808000 | ((vfpu_rt) << 16) | ((vfpu_rs) << 8) | (vfpu_rd))
 
 
 /* helpers for direct __asm__ use: */

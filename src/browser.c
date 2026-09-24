@@ -12,7 +12,7 @@
 #include "oslib.h"
 #include "browser.h"
 
-#define BROWSER_MEMORY (10*1024*1024)
+#define BROWSER_MEMORY (10 * 1024 * 1024)
 
 static SceUID vpl;
 static pspUtilityHtmlViewerParam params;
@@ -66,14 +66,13 @@ int oslBrowserInit(char *url, char *downloadDir, int browserMemory, unsigned int
 	return 0;
 }
 
-void oslDrawBrowser()
-{
-	switch (sceUtilityHtmlViewerGetStatus()){
+void oslDrawBrowser() {
+	switch (sceUtilityHtmlViewerGetStatus()) {
 	case PSP_UTILITY_DIALOG_INIT:
-		break;                                                          //<-- STAS: We shouldn't show the browser in its INIT status!
+		break;                                                          // <-- STAS: We shouldn't show the browser in its INIT status!
 	case PSP_UTILITY_DIALOG_VISIBLE:
 		sceGuFinish();
-		sceGuSync(0,0);
+		sceGuSync(0, 0);
 		sceUtilityHtmlViewerUpdate(1);
 		sceGuStart(GU_DIRECT, osl_list);
 		oslSetAlpha(OSL_FX_RGBA, 0xff);
@@ -87,16 +86,15 @@ void oslDrawBrowser()
 	}
 }
 
-
-int oslGetBrowserStatus(){
+int oslGetBrowserStatus() {
 	return sceUtilityHtmlViewerGetStatus();
 }
 
-int oslBrowserIsActive(){
+int oslBrowserIsActive() {
 	return browserIsActive;
 }
 
-void oslEndBrowser(){
+void oslEndBrowser() {
 	sceKernelFreeVpl(vpl, params.memaddr);
 	sceKernelDeleteVpl(vpl);
 	browserIsActive = 0;

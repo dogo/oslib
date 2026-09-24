@@ -12,9 +12,8 @@ unsigned short *intext = NULL;
 unsigned short *desc = NULL;
 OSL_KEYBOARD *osl_osk = NULL;  // Pointer to the currently active OSL_KEYBOARD
 
-OSL_KEYBOARD* oslInitOskEx(int nData, int language)
-{
-	OSL_KEYBOARD* kbd = (OSL_KEYBOARD*) malloc(sizeof(OSL_KEYBOARD));
+OSL_KEYBOARD *oslInitOskEx(int nData, int language) {
+	OSL_KEYBOARD *kbd = (OSL_KEYBOARD *)malloc(sizeof(OSL_KEYBOARD));
 	if (!kbd) return NULL;
 
 	memset(kbd, 0, sizeof(OSL_KEYBOARD));
@@ -33,7 +32,7 @@ OSL_KEYBOARD* oslInitOskEx(int nData, int language)
 	kbd->oskParams.base.fontThread = 18;
 	kbd->oskParams.base.soundThread = 16;
 	kbd->oskParams.datacount = oslMax(1, nData);
-	kbd->oskParams.data = (SceUtilityOskData*) malloc(kbd->oskParams.datacount * sizeof(SceUtilityOskData));
+	kbd->oskParams.data = (SceUtilityOskData *)malloc(kbd->oskParams.datacount * sizeof(SceUtilityOskData));
 
 	if (!kbd->oskParams.data) {
 		free(kbd);
@@ -44,11 +43,10 @@ OSL_KEYBOARD* oslInitOskEx(int nData, int language)
 	return kbd;
 }
 
-int oslInitOskDataEx(OSL_KEYBOARD *kbd, int idx, unsigned short *desc, unsigned short *intext, int textLimit, int linesNumber)
-{
+int oslInitOskDataEx(OSL_KEYBOARD *kbd, int idx, unsigned short *desc, unsigned short *intext, int textLimit, int linesNumber) {
 	if (!kbd || idx < 0 || idx >= kbd->oskParams.datacount) return 0;
 
-	unsigned short *outtext = (unsigned short*) malloc((textLimit + 1) * sizeof(unsigned short));
+	unsigned short *outtext = (unsigned short *)malloc((textLimit + 1) * sizeof(unsigned short));
 	if (!outtext) return 0;
 
 	SceUtilityOskData *oskData = &kbd->oskParams.data[idx];
@@ -66,8 +64,7 @@ int oslInitOskDataEx(OSL_KEYBOARD *kbd, int idx, unsigned short *desc, unsigned 
 	return 1;
 }
 
-int oslActivateOskEx(OSL_KEYBOARD *kbd, int waitcycle)
-{
+int oslActivateOskEx(OSL_KEYBOARD *kbd, int waitcycle) {
 	if (!kbd) return -1;
 
 	if (!osl_osk) { // No active OSK, activate the given one
@@ -85,20 +82,17 @@ int oslActivateOskEx(OSL_KEYBOARD *kbd, int waitcycle)
 	return oslActivateOskEx(kbd, waitcycle);
 }
 
-int oslOskIsActiveEx(OSL_KEYBOARD *kbd)
-{
+int oslOskIsActiveEx(OSL_KEYBOARD *kbd) {
 	return (kbd && (kbd == osl_osk));
 }
 
-void oslDeActivateOskEx(OSL_KEYBOARD *kbd)
-{
+void oslDeActivateOskEx(OSL_KEYBOARD *kbd) {
 	if (oslOskIsActiveEx(kbd)) {
 		osl_osk = NULL;
 	}
 }
 
-int oslOskGetResultEx(OSL_KEYBOARD *kbd, int idx)
-{
+int oslOskGetResultEx(OSL_KEYBOARD *kbd, int idx) {
 	if (!kbd) return 0;
 	if (idx < 0 || idx >= kbd->oskParams.datacount) {
 		return kbd->oskParams.base.result;
@@ -106,16 +100,14 @@ int oslOskGetResultEx(OSL_KEYBOARD *kbd, int idx)
 	return kbd->oskParams.data[idx].result;
 }
 
-unsigned short* oslOskOutTextEx(OSL_KEYBOARD *kbd, int idx)
-{
+unsigned short *oslOskOutTextEx(OSL_KEYBOARD *kbd, int idx) {
 	if (!kbd || idx < 0 || idx >= kbd->oskParams.datacount) {
 		return NULL;
 	}
 	return kbd->oskParams.data[idx].outtext;
 }
 
-void oslEndOskEx(OSL_KEYBOARD *kbd)
-{
+void oslEndOskEx(OSL_KEYBOARD *kbd) {
 	if (!kbd || !oslOskIsActiveEx(kbd)) return;
 
 	oslDeActivateOskEx(kbd);
@@ -126,12 +118,11 @@ void oslEndOskEx(OSL_KEYBOARD *kbd)
 	free(kbd);
 }
 
-void oslInitOsk(char *descStr, char *initialStr, int textLimit, int linesNumber, int language)
-{
+void oslInitOsk(char *descStr, char *initialStr, int textLimit, int linesNumber, int language) {
 	if (intext || desc) return; // OSK already initialized
 
-	intext = (unsigned short*) malloc((strlen(initialStr) + 1) * sizeof(unsigned short));
-	desc = (unsigned short*) malloc((strlen(descStr) + 1) * sizeof(unsigned short));
+	intext = (unsigned short *)malloc((strlen(initialStr) + 1) * sizeof(unsigned short));
+	desc = (unsigned short *)malloc((strlen(descStr) + 1) * sizeof(unsigned short));
 
 	if (!intext || !desc) {
 		oslEndOsk();
@@ -152,8 +143,7 @@ void oslInitOsk(char *descStr, char *initialStr, int textLimit, int linesNumber,
 	}
 }
 
-void oslDrawOsk()
-{
+void oslDrawOsk() {
 	switch (sceUtilityOskGetStatus()) {
 	case PSP_UTILITY_DIALOG_VISIBLE:
 		sceDisplayWaitVblankStart();
@@ -172,23 +162,19 @@ void oslDrawOsk()
 	}
 }
 
-int oslOskIsActive()
-{
+int oslOskIsActive() {
 	return oslOskIsActiveEx(osl_osk);
 }
 
-int oslGetOskStatus()
-{
+int oslGetOskStatus() {
 	return sceUtilityOskGetStatus();
 }
 
-int oslOskGetResult()
-{
+int oslOskGetResult() {
 	return oslOskGetResultEx(osl_osk, -1);
 }
 
-void oslOskGetText(char *text)
-{
+void oslOskGetText(char *text) {
 	int i, j = 0;
 	if (osl_osk) {
 		for (i = 0; osl_osk->oskParams.data[0].outtext[i]; i++) {
@@ -201,8 +187,7 @@ void oslOskGetText(char *text)
 	text[j] = '\0';
 }
 
-void oslOskGetTextUCS2(unsigned short *text)
-{
+void oslOskGetTextUCS2(unsigned short *text) {
 	int i, j = 0;
 	if (osl_osk) {
 		for (i = 0; osl_osk->oskParams.data[0].outtext[i]; i++) {
@@ -215,8 +200,7 @@ void oslOskGetTextUCS2(unsigned short *text)
 	text[j] = 0;
 }
 
-void oslEndOsk()
-{
+void oslEndOsk() {
 	free(intext);
 	free(desc);
 	intext = NULL;

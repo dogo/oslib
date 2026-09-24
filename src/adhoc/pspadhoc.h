@@ -60,8 +60,7 @@ enum remotePspState {
 /**
  * @brief Structure for holding information about a remote PSP.
  */
-struct remotePsp
-{
+struct remotePsp {
 	u8 macAddress[8];        ///< MAC address of the PSP.
 	char name[257];          ///< Nickname of the PSP.
 	int connectionState;     ///< Connection state (see remotePspState).
@@ -87,7 +86,7 @@ int oslAdhocGetState();
  *
  * @return Pointer to the MAC address (array of 6 bytes).
  */
-u8* oslAdhocGetMacAddress();
+u8 *oslAdhocGetMacAddress();
 
 /**
  * @brief Retrieves the number of connected remote PSPs.

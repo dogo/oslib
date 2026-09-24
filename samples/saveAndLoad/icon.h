@@ -1,7 +1,7 @@
 #ifndef __icon0__
 #define __icon0__
 
-//Data in icon.h are generated with this command:
+// Data in icon.h are generated with this command:
 //  bin2c "icon0.png" "icon.h" "icon0"
 static unsigned int size_icon0 = 9526;
 static unsigned char icon0[] __attribute__((aligned(16))) = {

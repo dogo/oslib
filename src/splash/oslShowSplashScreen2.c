@@ -21,19 +21,16 @@ void handlePhase(float *y, float *vy, int *phase, int logoSizeY);
 void updateTileSpeeds(float speeds[TILE_HEIGHT][TILE_WIDTH], float positions[TILE_HEIGHT][TILE_WIDTH]);
 void drawLogo(OSL_IMAGE *logo, float y);
 
-static void LogoDrawTiles(OSL_IMAGE *img, float positions[TILE_HEIGHT][TILE_WIDTH])
-{
+static void LogoDrawTiles(OSL_IMAGE *img, float positions[TILE_HEIGHT][TILE_WIDTH]) {
 	OSL_FAST_VERTEX *vertices;
 	int nbVertices, x, y;
 
 	oslSetTexture(img);
 
-	for (y = 0; y < TILE_HEIGHT; y++)
-	{
-		vertices = (OSL_FAST_VERTEX*)sceGuGetMemory(TILE_WIDTH * 2 * sizeof(OSL_FAST_VERTEX));
+	for (y = 0; y < TILE_HEIGHT; y++) {
+		vertices = (OSL_FAST_VERTEX *)sceGuGetMemory(TILE_WIDTH * 2 * sizeof(OSL_FAST_VERTEX));
 		nbVertices = 0;
-		for (x = 0; x < TILE_WIDTH; x++)
-		{
+		for (x = 0; x < TILE_WIDTH; x++) {
 			vertices[nbVertices].u = x * TILE_SIZE;
 			vertices[nbVertices].v = y * TILE_SIZE;
 			vertices[nbVertices].x = x * TILE_SIZE;
@@ -55,8 +52,7 @@ static void LogoDrawTiles(OSL_IMAGE *img, float positions[TILE_HEIGHT][TILE_WIDT
 	}
 }
 
-int oslShowSplashScreen2()
-{
+int oslShowSplashScreen2() {
 	OSL_IMAGE *logo, *temp;
 	float y = -1.0f, vy = 1.0f;
 	int skip = 0, frameNb = 0, phase = 1, fade = 0;
@@ -79,31 +75,25 @@ int oslShowSplashScreen2()
 		vyList[i] = (rand() % 7500) / 10000.f + 0.25f;
 
 	for (int j = 0; j < TILE_HEIGHT; j++)
-		for (int i = 0; i < TILE_WIDTH; i++)
-		{
+		for (int i = 0; i < TILE_WIDTH; i++) {
 			speeds[j][i] = vyList[i] - (TILE_HEIGHT - j) * ((rand() % 1000) / 10000.0f + 0.04f);
 			positions[j][i] = j * TILE_SIZE;
 		}
 
 	// Splash screen loop
-	while (!osl_quit && fade < MAX_FADE && frameNb < MAX_FRAME_COUNT)
-	{
+	while (!osl_quit && fade < MAX_FADE && frameNb < MAX_FRAME_COUNT) {
 		oslReadKeys();
 
 		// Handle the phases of the animation
-		if (phase < 9)
-		{
+		if (phase < 9) {
 			handlePhase(&y, &vy, &phase, logo->sizeY);
-		}
-		else
-		{
+		} else {
 			y = 0;
 			frameNb++;
 		}
 
 		// Adjust tile positions after initial frames
-		if (frameNb > MAX_INITIAL_FRAME)
-		{
+		if (frameNb > MAX_INITIAL_FRAME) {
 			updateTileSpeeds(speeds, positions);
 		}
 
@@ -115,22 +105,17 @@ int oslShowSplashScreen2()
 			fade = 1;
 
 		// Drawing the splash screen
-		if (!skip)
-		{
+		if (!skip) {
 			oslStartDrawing();
 			oslClearScreen(0);
 
-			if (frameNb <= MAX_INITIAL_FRAME)
-			{
+			if (frameNb <= MAX_INITIAL_FRAME) {
 				drawLogo(logo, y);
-			}
-			else
-			{
+			} else {
 				LogoDrawTiles(logo, positions);
 			}
 
-			if (fade > 0)
-			{
+			if (fade > 0) {
 				oslSetAlpha(OSL_FX_RGBA, 0);
 				oslDrawFillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, RGBA(0, 0, 0, fade << 3));
 			}
@@ -147,11 +132,9 @@ int oslShowSplashScreen2()
 }
 
 // Function to handle phase transitions
-void handlePhase(float *y, float *vy, int *phase, int logoSizeY)
-{
+void handlePhase(float *y, float *vy, int *phase, int logoSizeY) {
 	*y += *vy;
-	if (*y + logoSizeY >= SCREEN_HEIGHT)
-	{
+	if (*y + logoSizeY >= SCREEN_HEIGHT) {
 		if (*vy > 0)
 			*vy -= 0.8f;
 		else
@@ -159,13 +142,9 @@ void handlePhase(float *y, float *vy, int *phase, int logoSizeY)
 
 		if (*phase % 2 == 1)
 			(*phase)++;
-	}
-	else if (*phase == 1)
-	{
+	} else if (*phase == 1) {
 		*vy += 0.4f;
-	}
-	else
-	{
+	} else {
 		if (*vy > 0)
 			*vy += 0.4f;
 		else
@@ -177,11 +156,9 @@ void handlePhase(float *y, float *vy, int *phase, int logoSizeY)
 }
 
 // Function to update tile speeds and positions
-void updateTileSpeeds(float speeds[TILE_HEIGHT][TILE_WIDTH], float positions[TILE_HEIGHT][TILE_WIDTH])
-{
+void updateTileSpeeds(float speeds[TILE_HEIGHT][TILE_WIDTH], float positions[TILE_HEIGHT][TILE_WIDTH]) {
 	for (int j = 0; j < TILE_HEIGHT; j++)
-		for (int i = 0; i < TILE_WIDTH; i++)
-		{
+		for (int i = 0; i < TILE_WIDTH; i++) {
 			speeds[j][i] += 0.15f;
 			if (speeds[j][i] > 0.0f)
 				positions[j][i] += speeds[j][i];
@@ -189,17 +166,13 @@ void updateTileSpeeds(float speeds[TILE_HEIGHT][TILE_WIDTH], float positions[TIL
 }
 
 // Function to draw the logo with stretch effect
-void drawLogo(OSL_IMAGE *logo, float y)
-{
+void drawLogo(OSL_IMAGE *logo, float y) {
 	logo->y = y;
-	if (y < 0)
-	{
+	if (y < 0) {
 		logo->stretchY = logo->sizeY;
 		logo->stretchX = logo->sizeX;
 		logo->x = 0;
-	}
-	else
-	{
+	} else {
 		logo->stretchY = logo->sizeY - y;
 		logo->stretchX = logo->sizeX + y;
 		logo->x = -y / 2;

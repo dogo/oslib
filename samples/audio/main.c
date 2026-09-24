@@ -36,41 +36,40 @@ void HandlePlayerKeys();
 void LoadSound();
 void UnloadSound();
 
-const char* GetFormatName() {
+const char *GetFormatName() {
 	switch (currentFormat) {
-		case FORMAT_WAV:
-			return "WAV";
-		case FORMAT_BGM:
-			return "BGM";
-		case FORMAT_MP3:
-			return "MP3";
-		default:
-			return "Unknown";
+	case FORMAT_WAV:
+		return "WAV";
+	case FORMAT_BGM:
+		return "BGM";
+	case FORMAT_MP3:
+		return "MP3";
+	default:
+		return "Unknown";
 	}
 }
 
-const char* GetModeName() {
+const char *GetModeName() {
 	if (currentFormat == FORMAT_MP3 || currentMode == MODE_STREAM) {
 		return "Stream";
 	}
 	return "RAM";
 }
 
-const char* GetCurrentFilename() {
+const char *GetCurrentFilename() {
 	switch (currentFormat) {
-		case FORMAT_WAV:
-			return WAV_FILE;
-		case FORMAT_BGM:
-			return BGM_FILE;
-		case FORMAT_MP3:
-			return MP3_FILE;
-		default:
-			return WAV_FILE;
+	case FORMAT_WAV:
+		return WAV_FILE;
+	case FORMAT_BGM:
+		return BGM_FILE;
+	case FORMAT_MP3:
+		return MP3_FILE;
+	default:
+		return WAV_FILE;
 	}
 }
 
-int main(int argc, char* argv[])
-{
+int main(int argc, char *argv[]) {
 	// Initialization
 	oslInit(0);
 	oslInitGfx(OSL_PF_8888, 1);
@@ -85,8 +84,7 @@ int main(int argc, char* argv[])
 	// Load background
 	bkg = oslLoadImageFile("bkg.png", OSL_IN_RAM, OSL_PF_8888);
 
-	while (!osl_quit)
-	{
+	while (!osl_quit) {
 		oslStartDrawing();
 
 		// Draw background or gradient
@@ -120,8 +118,7 @@ int main(int argc, char* argv[])
 	return 0;
 }
 
-void DrawMenu()
-{
+void DrawMenu() {
 	oslSetTextColor(RGBA(255, 255, 255, 255));
 	oslSetBkColor(RGBA(0, 0, 0, 128));
 
@@ -148,8 +145,7 @@ void DrawMenu()
 	oslPrintf_xy(10, 220, "Press START to quit");
 }
 
-void DrawPlayer()
-{
+void DrawPlayer() {
 	oslSetTextColor(RGBA(255, 255, 255, 255));
 	oslSetBkColor(RGBA(0, 0, 0, 128));
 
@@ -182,11 +178,9 @@ void DrawPlayer()
 	oslPrintf_xy(10, 160, "  /\\ = Stop");
 	oslPrintf_xy(10, 180, "  X = Back to menu");
 	oslPrintf_xy(10, 220, "  START = Quit");
-
 }
 
-void HandleMenuKeys()
-{
+void HandleMenuKeys() {
 	oslReadKeys();
 	if (osl_keys->pressed.select) {
 		bufferSamples = (bufferSamples == 512) ? 1024 : 512;
@@ -226,8 +220,7 @@ void HandleMenuKeys()
 	}
 }
 
-void HandlePlayerKeys()
-{
+void HandlePlayerKeys() {
 	oslReadKeys();
 
 	if (sound) {
@@ -264,12 +257,11 @@ void HandlePlayerKeys()
 	}
 }
 
-void LoadSound()
-{
+void LoadSound() {
 	UnloadSound();
 	oslAudioSetDefaultSampleNumber(bufferSamples);
 
-	const char* filename = GetCurrentFilename();
+	const char *filename = GetCurrentFilename();
 	int streamFlag;
 
 	if (currentFormat == FORMAT_MP3) {
@@ -281,8 +273,7 @@ void LoadSound()
 	}
 }
 
-void UnloadSound()
-{
+void UnloadSound() {
 	if (sound) {
 		oslStopSound(sound);
 		oslDeleteSound(sound);

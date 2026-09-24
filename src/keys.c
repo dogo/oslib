@@ -6,8 +6,8 @@ OSL_CONTROLLER osl_pad;
 OSL_REMOTECONTROLLER osl_remote;
 
 OSL_CONTROLLER *oslReadKeys() {
-	SceCtrlData ctl = {0};
-	SceCtrlData ctlHome = {0};
+	SceCtrlData ctl = { 0 };
+	SceCtrlData ctlHome = { 0 };
 
 	sceCtrlSetSamplingCycle(0);
 	sceCtrlSetSamplingMode(1);

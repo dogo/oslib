@@ -182,7 +182,7 @@ extern void oslSetDepthTest(int enabled);
  *
  * This macro resets the clipping region, ensuring that drawing operations affect the whole screen.
  */
-	#define oslResetScreenClipping() oslSetScreenClipping(0, 0, osl_curBuf->sizeX, osl_curBuf->sizeY)
+#define oslResetScreenClipping() oslSetScreenClipping(0, 0, osl_curBuf->sizeX, osl_curBuf->sizeY)
 
 /**
  * @brief Configures the current alpha effect parameters for subsequent drawing operations.
@@ -230,8 +230,7 @@ extern void oslSetAlpha2(u32 effect, u32 coeff1, u32 coeff2);
  * @param effect Blending mode to use (as described in oslSetAlpha2).
  * @param coeff1 A coefficient used in the blending operation, either as an alpha value or a 32-bit color.
  */
-static inline void oslSetAlpha(u32 effect, u32 coeff1)
-{
+static inline void oslSetAlpha(u32 effect, u32 coeff1) {
 	oslSetAlpha2(effect, coeff1, 0xFFFFFFFF);
 }
 
@@ -242,8 +241,7 @@ static inline void oslSetAlpha(u32 effect, u32 coeff1)
  * including the type of effect and two coefficients that may be used for blending
  * or other related calculations.
  */
-typedef struct
-{
+typedef struct {
 	int effect;          ///< Current alpha special effect identifier.
 	int coeff1;          ///< First coefficient for the alpha effect.
 	int coeff2;          ///< Second coefficient for the alpha effect.
@@ -278,8 +276,7 @@ extern OSL_COLOR osl_currentAlphaCoeff2;
  *
  * @param alpha Pointer to an `OSL_ALPHA_PARAMS` structure where the current alpha parameters will be stored.
  */
-static inline void oslGetAlphaEx(OSL_ALPHA_PARAMS *alpha)
-{
+static inline void oslGetAlphaEx(OSL_ALPHA_PARAMS *alpha) {
 	alpha->effect = osl_currentAlphaEffect;
 	alpha->coeff1 = osl_currentAlphaCoeff;
 	alpha->coeff2 = osl_currentAlphaCoeff2;
@@ -294,8 +291,7 @@ static inline void oslGetAlphaEx(OSL_ALPHA_PARAMS *alpha)
  *
  * @param alpha Pointer to an `OSL_ALPHA_PARAMS` structure containing the alpha parameters to be set.
  */
-static inline void oslSetAlphaEx(OSL_ALPHA_PARAMS *alpha)
-{
+static inline void oslSetAlphaEx(OSL_ALPHA_PARAMS *alpha) {
 	oslSetAlpha2(alpha->effect, alpha->coeff1, alpha->coeff2);
 }
 
@@ -384,8 +380,7 @@ extern int osl_ditheringEnabled;
  */
 extern int osl_colorKeyEnabled;
 
-enum
-{
+enum {
 	OSL_FX_NONE = 0,              ///< No special effect.
 	OSL_FX_FLAT,                  ///< Flat shading effect.
 	OSL_FX_ALPHA,                 ///< Alpha blending effect.
@@ -398,29 +393,29 @@ enum
  *
  * This macro is used as the default alpha effect, combining red, green, blue, and alpha channels.
  */
-	#define OSL_FX_DEFAULT OSL_FX_RGBA
+#define OSL_FX_DEFAULT OSL_FX_RGBA
 
 /**
  * @brief Opaque effect with no special processing.
  *
  * This macro sets the alpha effect to none, resulting in full opacity with no special processing.
  */
-	#define OSL_FX_OPAQUE OSL_FX_NONE
+#define OSL_FX_OPAQUE OSL_FX_NONE
 
 /**
  * @brief Tint effect that combines alpha blending and color.
  *
  * This macro applies an alpha blending effect combined with a color effect, useful for tinting.
  */
-	#define OSL_FX_TINT (OSL_FX_ALPHA | OSL_FX_COLOR)
+#define OSL_FX_TINT (OSL_FX_ALPHA | OSL_FX_COLOR)
 
 // Cumulable avec les autres pour définir l'utilisation du canal alpha.
 // Can be combined with other effects to define the use of the alpha channel.
-	#define OSL_FX_RGBA 0x100
+#define OSL_FX_RGBA 0x100
 
 // Coefficients alpha à trois canaux
 // Alpha coefficients for three channels (Red, Green, Blue).
-	#define OSL_FX_COLOR 0x1000
+#define OSL_FX_COLOR 0x1000
 
 // Internal use only - Do not access these variables directly!
 // extern int osl_currentResolutionBPP;
@@ -448,7 +443,7 @@ extern int osl_colorKeyValue;
  * @param b Blue component (0-255)
  * @return 32-bit color value with full opacity.
  */
-	#define RGB(r, v, b) ((u32)(r) | ((u32)(v) << 8) | ((u32)(b) << 16) | ((u32)0xff << 24))
+#define RGB(r, v, b) ((u32)(r) | ((u32)(v) << 8) | ((u32)(b) << 16) | ((u32)0xff << 24))
 
 /**
  * @brief Creates a 32-bit color with alpha (transparency).
@@ -461,7 +456,7 @@ extern int osl_colorKeyValue;
  * @param a Alpha component (0-255)
  * @return 32-bit color value with specified transparency.
  */
-	#define RGBA(r, v, b, a) ((u32)(r) | ((u32)(v) << 8) | ((u32)(b) << 16) | ((u32)(a) << 24))
+#define RGBA(r, v, b, a) ((u32)(r) | ((u32)(v) << 8) | ((u32)(b) << 16) | ((u32)(a) << 24))
 
 /**
  * @brief Creates a 12-bit opaque color.
@@ -474,7 +469,7 @@ extern int osl_colorKeyValue;
  * @param b Blue component (0-255)
  * @return 12-bit color value with full opacity.
  */
-	#define RGB12(r, v, b) ((((b) >> 4) << 8) | (((v) >> 4) << 4) | ((r) >> 4) | (0xf << 12))
+#define RGB12(r, v, b) ((((b) >> 4) << 8) | (((v) >> 4) << 4) | ((r) >> 4) | (0xf << 12))
 
 /**
  * @brief Creates a 12-bit color with alpha.
@@ -487,7 +482,7 @@ extern int osl_colorKeyValue;
  * @param a Alpha component (0-255)
  * @return 12-bit color value with specified transparency.
  */
-	#define RGBA12(r, v, b, a) ((((a) >> 4) << 12) | (((b) >> 4) << 8) | (((v) >> 4) << 4) | ((r) >> 4))
+#define RGBA12(r, v, b, a) ((((a) >> 4) << 12) | (((b) >> 4) << 8) | (((v) >> 4) << 4) | ((r) >> 4))
 
 /**
  * @brief Creates a 15-bit opaque color.
@@ -500,7 +495,7 @@ extern int osl_colorKeyValue;
  * @param b Blue component (0-255)
  * @return 15-bit color value with full opacity.
  */
-	#define RGB15(r, v, b) ((((b) >> 3) << 10) | (((v) >> 3) << 5) | ((r) >> 3) | (1 << 15))
+#define RGB15(r, v, b) ((((b) >> 3) << 10) | (((v) >> 3) << 5) | ((r) >> 3) | (1 << 15))
 
 /**
  * @brief Creates a 15-bit color with alpha.
@@ -513,7 +508,7 @@ extern int osl_colorKeyValue;
  * @param a Alpha component (0-255)
  * @return 15-bit color value with specified transparency.
  */
-	#define RGBA15(r, v, b, a) ((((a) >> 7) << 15) | (((b) >> 3) << 10) | (((v) >> 3) << 5) | ((r) >> 3))
+#define RGBA15(r, v, b, a) ((((a) >> 7) << 15) | (((b) >> 3) << 10) | (((v) >> 3) << 5) | ((r) >> 3))
 
 /**
  * @brief Creates a 16-bit color.
@@ -526,7 +521,7 @@ extern int osl_colorKeyValue;
  * @param b Blue component (0-255)
  * @return 16-bit color value.
  */
-	#define RGB16(r, v, b) ((((b) >> 3) << 11) | (((v) >> 2) << 5) | ((r) >> 3))
+#define RGB16(r, v, b) ((((b) >> 3) << 11) | (((v) >> 2) << 5) | ((r) >> 3))
 
 /** @} */         // end of drawing_color
 
@@ -553,7 +548,7 @@ extern int osl_colorKeyValue;
  *
  * This example will print: `1 2 3 4`.
  */
-	#define oslRgbaGet8888(data, r, g, b, a) ((r) = ((data) & 0xff), (g) = (((data) >> 8) & 0xff), (b) = (((data) >> 16) & 0xff), (a) = (((data) >> 24) & 0xff))
+#define oslRgbaGet8888(data, r, g, b, a) ((r) = ((data) & 0xff), (g) = (((data) >> 8) & 0xff), (b) = (((data) >> 16) & 0xff), (a) = (((data) >> 24) & 0xff))
 
 /**
  * @brief Extracts R, G, B, A values from a 4444 color.
@@ -579,7 +574,7 @@ extern int osl_colorKeyValue;
  * The red color value was 255 but lost precision due to 12-bit conversion, resulting in 240 instead of 255.
  * For more precise results, consider using the 'f' alternate routines like `oslRgbaGet4444f`.
  */
-	#define oslRgbaGet4444(data, r, g, b, a) ((r) = ((data) & 0xf) << 4, (g) = (((data) >> 4) & 0xf) << 4, (b) = (((data) >> 8) & 0xf) << 4, (a) = (((data) >> 12) & 0xf) << 4)
+#define oslRgbaGet4444(data, r, g, b, a) ((r) = ((data) & 0xf) << 4, (g) = (((data) >> 4) & 0xf) << 4, (b) = (((data) >> 8) & 0xf) << 4, (a) = (((data) >> 12) & 0xf) << 4)
 
 /**
  * @brief Extracts R, G, B, A values from a 5551 color.
@@ -603,7 +598,7 @@ extern int osl_colorKeyValue;
  *
  * This example will print the expanded values of the 5551 format color.
  */
-	#define oslRgbaGet5551(data, r, g, b, a) ((r) = ((data) & 0x1f) << 3, (g) = (((data) >> 5) & 0x1f) << 3, (b) = (((data) >> 10) & 0x1f) << 3, (a) = (((data) >> 15) & 0x1) << 7)
+#define oslRgbaGet5551(data, r, g, b, a) ((r) = ((data) & 0x1f) << 3, (g) = (((data) >> 5) & 0x1f) << 3, (b) = (((data) >> 10) & 0x1f) << 3, (a) = (((data) >> 15) & 0x1) << 7)
 
 /**
  * @brief Extracts R, G, B values from a 5650 color.
@@ -626,7 +621,7 @@ extern int osl_colorKeyValue;
  *
  * This example will print the expanded values of the 5650 format color.
  */
-	#define oslRgbGet5650(data, r, g, b) ((r) = ((data) & 0x1f) << 3, (g) = (((data) >> 5) & 0x3f) << 2, (b) = (((data) >> 11) & 0x1f) << 3)
+#define oslRgbGet5650(data, r, g, b) ((r) = ((data) & 0x1f) << 3, (g) = (((data) >> 5) & 0x3f) << 2, (b) = (((data) >> 11) & 0x1f) << 3)
 
 /**
  * @brief Extracts R, G, B, A values from a 4444 color with finer precision.
@@ -650,7 +645,7 @@ extern int osl_colorKeyValue;
  *
  * This example will provide more accurate color values compared to `oslRgbaGet4444`.
  */
-	#define oslRgbaGet4444f(data, r, g, b, a) ((r) = ((data) & 0xf) << 4 | ((data) & 0xf), (g) = (((data) >> 4) & 0xf) << 4 | (((data) >> 4) & 0xf), (b) = (((data) >> 8) & 0xf) << 4 | (((data) >> 8) & 0xf), (a) = (((data) >> 12) & 0xf) << 4 | (((data) >> 12) & 0xf))
+#define oslRgbaGet4444f(data, r, g, b, a) ((r) = ((data) & 0xf) << 4 | ((data) & 0xf), (g) = (((data) >> 4) & 0xf) << 4 | (((data) >> 4) & 0xf), (b) = (((data) >> 8) & 0xf) << 4 | (((data) >> 8) & 0xf), (a) = (((data) >> 12) & 0xf) << 4 | (((data) >> 12) & 0xf))
 
 /**
  * @brief Extracts R, G, B, A values from a 5551 color with finer precision.
@@ -674,7 +669,7 @@ extern int osl_colorKeyValue;
  *
  * This example will provide more accurate color values compared to `oslRgbaGet5551`.
  */
-	#define oslRgbaGet5551f(data, r, g, b, a) ((r) = ((data) & 0x1f) << 3 | ((data) & 0x1f) >> 2, (g) = (((data) >> 5) & 0x1f) << 3 | (((data) >> 5) & 0x1f) >> 2, (b) = (((data) >> 10) & 0x1f) << 3 | (((data) >> 10) & 0x1f) >> 2, (a) = (((data) >> 15) & 0x1) * 255)
+#define oslRgbaGet5551f(data, r, g, b, a) ((r) = ((data) & 0x1f) << 3 | ((data) & 0x1f) >> 2, (g) = (((data) >> 5) & 0x1f) << 3 | (((data) >> 5) & 0x1f) >> 2, (b) = (((data) >> 10) & 0x1f) << 3 | (((data) >> 10) & 0x1f) >> 2, (a) = (((data) >> 15) & 0x1) * 255)
 
 /**
  * @brief Extracts R, G, B values from a 5650 color with finer precision.
@@ -697,7 +692,7 @@ extern int osl_colorKeyValue;
  *
  * This example will provide more accurate color values compared to `oslRgbGet5650`.
  */
-	#define oslRgbGet5650f(data, r, g, b) ((r) = ((data) & 0x1f) << 3 | ((data) & 0x1f) >> 2, (g) = (((data) >> 5) & 0x3f) << 2 | (((data) >> 5) & 0x3f) >> 4, (b) = (((data) >> 11) & 0x1f) << 3 | (((data) >> 10) & 0x1f) >> 2)
+#define oslRgbGet5650f(data, r, g, b) ((r) = ((data) & 0x1f) << 3 | ((data) & 0x1f) >> 2, (g) = (((data) >> 5) & 0x3f) << 2 | (((data) >> 5) & 0x3f) >> 4, (b) = (((data) >> 11) & 0x1f) << 3 | (((data) >> 10) & 0x1f) >> 2)
 
 /** @} */         // end of drawing_color
 
@@ -825,7 +820,7 @@ extern void oslDrawTile(int u, int v, int x, int y, int tX, int tY);
         @note The alignment ensures that the data structure is properly aligned in memory, which can be important for certain hardware optimizations.
 
  */
-	#define OSL_PALETTEDATA16 unsigned short __attribute__((aligned(16)))
+#define OSL_PALETTEDATA16 unsigned short __attribute__((aligned(16)))
 
 /** @brief Type definition for 32-bit palette data.
 
@@ -836,7 +831,7 @@ extern void oslDrawTile(int u, int v, int x, int y, int tX, int tY);
         @note The alignment ensures that the data structure is properly aligned in memory, which can be important for certain hardware optimizations.
 
  */
-	#define OSL_PALETTEDATA32 unsigned long __attribute__((aligned(16)))
+#define OSL_PALETTEDATA32 unsigned long __attribute__((aligned(16)))
 
 /** @brief Structure representing a palette.
 
@@ -853,8 +848,7 @@ extern void oslDrawTile(int u, int v, int x, int y, int tX, int tY);
                 Pointer to the actual raw data representing the color entries in their pixel format.
 
  */
-typedef struct
-{
+typedef struct {
 	short pixelFormat;         ///< Pixel format of palette entries
 	short nElements;           ///< Number of entries
 	short location;            ///< Location of the palette (always use OSL_IN_RAM)
@@ -873,8 +867,7 @@ typedef struct
         @param OSL_IMAGE_AUTOSTRIP
                 Indicates that the image can be automatically stripped. This flag is used to manage automatic stripping operations on images.
  */
-enum OSL_IMAGE_FLAGS
-{
+enum OSL_IMAGE_FLAGS {
 	OSL_IMAGE_SWIZZLED = 1,         ///< Image is swizzled
 	OSL_IMAGE_COPY = 2,                     ///< Image is a copy
 	OSL_IMAGE_AUTOSTRIP = 4         ///< Image can be automatically stripped (let it one)
@@ -936,8 +929,7 @@ enum OSL_IMAGE_FLAGS
         @param angle
                 Rotation angle in degrees, used for rotating the image.
  */
-typedef struct
-{
+typedef struct {
 	// Protected
 	u16 sizeX, sizeY;                  ///< Displayable size
 	u16 sysSizeX, sysSizeY;            ///< Size aligned to the next power of two
@@ -960,7 +952,6 @@ typedef struct
 	// Rotation
 	int centerX, centerY;              ///< Rotation center
 	int angle;                         ///< Angle (rotation) in degrees
-
 } OSL_IMAGE;
 
 /** @brief Flags indicating the memory location of an image and optional swizzling.
@@ -982,8 +973,7 @@ typedef struct
                 Forces the image to be loaded without swizzling, overriding default behavior in the `oslLoadImage[...]` functions.
 
  */
-typedef enum OSL_LOCATION_FLAGS
-{
+typedef enum OSL_LOCATION_FLAGS {
 	OSL_IN_NONE = 0,                ///< Doesn't exist
 	OSL_IN_VRAM = 1,                ///< In VRAM
 	OSL_IN_RAM = 2,                 ///< In RAM
@@ -1017,8 +1007,7 @@ typedef enum OSL_LOCATION_FLAGS
                 It corresponds to `GU_PSM_T8` in the PSP's graphics engine.
 
  */
-enum OSL_PIXELFORMATS
-{
+enum OSL_PIXELFORMATS {
 	OSL_PF_5650 = GU_PSM_5650,         ///< 16 bits, 5 bits per component, except green which has 6, no alpha
 	OSL_PF_5551 = GU_PSM_5551,         ///< 15 bits, 5 bits per component, 1 alpha bit
 	OSL_PF_4444 = GU_PSM_4444,         ///< 12 bits, 4 bits per component, 4 alpha bits
@@ -1213,8 +1202,7 @@ extern int osl_autoSwizzleImages;
  * oslLoadImageFilePNG("test.png", OSL_IN_RAM, OSL_PF_5551);
  * @endcode
  */
-static inline void oslSetImageAutoSwizzle(int enabled)
-{
+static inline void oslSetImageAutoSwizzle(int enabled) {
 	osl_autoSwizzleImages = enabled;
 }
 
@@ -1285,7 +1273,7 @@ extern void oslFreeImageData(OSL_IMAGE *img);
  *    \endcode
  *    This will result in `vramAddress` being `0x12345678 | 0x04000000`.
  */
-	#define oslAddVramPrefixPtr(adr) ((void *)((int)(adr) | 0x04000000))
+#define oslAddVramPrefixPtr(adr) ((void *)((int)(adr) | 0x04000000))
 
 /**
  * @brief Removes the VRAM prefix from an address.
@@ -1304,7 +1292,7 @@ extern void oslFreeImageData(OSL_IMAGE *img);
  *    \endcode
  *    This will result in `originalAddress` being `0x12345678`.
  */
-	#define oslRemoveVramPrefixPtr(adr) ((void *)((int)(adr) & (~0x04000000)))
+#define oslRemoveVramPrefixPtr(adr) ((void *)((int)(adr) & (~0x04000000)))
 
 /**
  * @brief Checks if an image location is swizzled.
@@ -1328,7 +1316,8 @@ extern int oslImageLocationIsSwizzled(int location);
  * @{
  */
 
-	#ifdef PSP
+#ifdef PSP
+
 /**
  * @brief Draws an image at the specified position.
  *
@@ -1344,7 +1333,7 @@ extern int oslImageLocationIsSwizzled(int location);
  * \note
  *    This macro is specifically for PSP and uses `oslDrawImage` to render the image.
  */
-	#define oslDrawImageXY(img, px, py) ({ (img)->x=(px), (img)->y=(py); oslDrawImage(img); })
+#define oslDrawImageXY(img, px, py) ({ (img)->x = (px), (img)->y = (py); oslDrawImage(img); })
 
 /**
  * @brief Draws an image at the specified position (backward compatibility).
@@ -1361,8 +1350,9 @@ extern int oslImageLocationIsSwizzled(int location);
  * \note
  *    This macro is specifically for PSP and uses `oslDrawImageSimple`, which is kept for compatibility but should be avoided in new code.
  */
-	#define oslDrawImageSimpleXY(img, px, py) ({ (img)->x=(px), (img)->y=(py); oslDrawImageSimple(img); })
-	#else
+#define oslDrawImageSimpleXY(img, px, py) ({ (img)->x = (px), (img)->y = (py); oslDrawImageSimple(img); })
+#else
+
 /**
  * @brief Draws an image at the specified position.
  *
@@ -1378,11 +1368,11 @@ extern int oslImageLocationIsSwizzled(int location);
  * \note
  *    This macro is used in environments other than PSP. It sets the image's position and then calls `oslDrawImage`.
  */
-	#define oslDrawImageXY(img, px, py)       \
-		{                                     \
-			(img)->x = (px), (img)->y = (py); \
-			oslDrawImage(img);                \
-		}
+#define oslDrawImageXY(img, px, py)       \
+	{                                     \
+		(img)->x = (px), (img)->y = (py); \
+		oslDrawImage(img);                \
+	}
 
 /**
  * @brief Draws an image at the specified position (backward compatibility).
@@ -1399,12 +1389,12 @@ extern int oslImageLocationIsSwizzled(int location);
  * \note
  *    This macro is used in environments other than PSP and uses `oslDrawImageSimple`, which is kept for compatibility but should be avoided in new code.
  */
-	#define oslDrawImageSimpleXY(img, px, py) \
-		{                                     \
-			(img)->x = (px), (img)->y = (py); \
-			oslDrawImageSimple(img);          \
-		}
-	#endif
+#define oslDrawImageSimpleXY(img, px, py) \
+	{                                     \
+		(img)->x = (px), (img)->y = (py); \
+		oslDrawImageSimple(img);          \
+	}
+#endif
 
 /**
  * @brief Draws an image at its current position.
@@ -1465,6 +1455,7 @@ extern void oslDrawImageBig(OSL_IMAGE *img);
  */
 
 #ifdef PSP
+
 /**
  * @brief Sets the source rectangle of the image to be displayed.
  *
@@ -1500,7 +1491,7 @@ extern void oslDrawImageBig(OSL_IMAGE *img);
  * @see
  *    Refer to `oslDrawImage` for rendering the image with the selected tile.
  */
-	#define oslSetImageTile(img, x0, y0, x1, y1) ({ (img)->offsetX0=(float)x0, (img)->offsetY0=(float)y0, (img)->offsetX1=(float)x1, (img)->offsetY1=(float)y1; (img)->stretchX = oslAbs((int)((float)((img)->offsetX1) - (float)((img)->offsetX0))), (img)->stretchY = oslAbs((int)((float)((img)->offsetY1) - (float)((img)->offsetY0))); })
+#define oslSetImageTile(img, x0, y0, x1, y1) ({ (img)->offsetX0 = (float)x0, (img)->offsetY0 = (float)y0, (img)->offsetX1 = (float)x1, (img)->offsetY1 = (float)y1; (img)->stretchX = oslAbs((int)((float)((img)->offsetX1) - (float)((img)->offsetX0))), (img)->stretchY = oslAbs((int)((float)((img)->offsetY1) - (float)((img)->offsetY0))); })
 
 /**
  * @brief Sets the source rectangle of the image to be displayed using tile size.
@@ -1537,7 +1528,7 @@ extern void oslDrawImageBig(OSL_IMAGE *img);
  * @see
  *    Refer to `oslDrawImage` for rendering the image with the selected tile.
  */
-	#define oslSetImageTileSize(img, x0, y0, x1, y1) ({ (img)->offsetX0 = (float)(x0), (img)->offsetY0 = (float)(y0), (img)->offsetX1 = (float)(x0) + (float)(x1), (img)->offsetY1 = (float)(y0) + (float)(y1), (img)->stretchX = (int)(x1), (img)->stretchY = (int)(y1); })
+#define oslSetImageTileSize(img, x0, y0, x1, y1) ({ (img)->offsetX0 = (float)(x0), (img)->offsetY0 = (float)(y0), (img)->offsetX1 = (float)(x0) + (float)(x1), (img)->offsetY1 = (float)(y0) + (float)(y1), (img)->stretchX = (int)(x1), (img)->stretchY = (int)(y1); })
 
 /**
  * @brief Resets the image rectangle to its full (original) size.
@@ -1563,7 +1554,7 @@ extern void oslDrawImageBig(OSL_IMAGE *img);
  * @see
  *    Refer to `oslSetImageTile` and `oslSetImageTileSize` for setting specific sub-regions of an image.
  */
-	#define oslResetImageTile(img) ({ (img)->offsetX0=0, (img)->offsetY0=0, (img)->offsetX1=(img)->sizeX, (img)->offsetY1=(img)->sizeY; (img)->stretchX = (img)->sizeX, (img)->stretchY = (img)->sizeY; })
+#define oslResetImageTile(img) ({ (img)->offsetX0 = 0, (img)->offsetY0 = 0, (img)->offsetX1 = (img)->sizeX, (img)->offsetY1 = (img)->sizeY; (img)->stretchX = (img)->sizeX, (img)->stretchY = (img)->sizeY; })
 
 /**
  * @brief Mirrors an image (or an image tile) horizontally.
@@ -1588,7 +1579,7 @@ extern void oslDrawImageBig(OSL_IMAGE *img);
  * @see
  *    Use `oslMirrorImageV` to mirror an image vertically.
  */
-	#define oslMirrorImageH(img) ({ float ___tmp;  ___tmp = (img)->offsetX0; (img)->offsetX0 = (img)->offsetX1; (img)->offsetX1 = ___tmp; })
+#define oslMirrorImageH(img) ({ float ___tmp;  ___tmp = (img)->offsetX0; (img)->offsetX0 = (img)->offsetX1; (img)->offsetX1 = ___tmp; })
 
 /**
  * @brief Mirrors an image (or an image tile) vertically.
@@ -1613,8 +1604,9 @@ extern void oslDrawImageBig(OSL_IMAGE *img);
  * @see
  *    Use `oslMirrorImageH` to mirror an image horizontally.
  */
-	#define oslMirrorImageV(img) ({ float ___tmp;  ___tmp = (img)->offsetY0; (img)->offsetY0 = (img)->offsetY1; (img)->offsetY1 = ___tmp; })
+#define oslMirrorImageV(img) ({ float ___tmp;  ___tmp = (img)->offsetY0; (img)->offsetY0 = (img)->offsetY1; (img)->offsetY1 = ___tmp; })
 #else
+
 /**
  * @brief Sets the source rectangle of the image to be displayed.
  *
@@ -1650,11 +1642,11 @@ extern void oslDrawImageBig(OSL_IMAGE *img);
  * @see
  *    Refer to `oslDrawImage` for rendering the image with the selected tile.
  */
-	#define oslSetImageTile(img, x0, y0, x1, y1)                                                                                                                                        \
-		{                                                                                                                                                                               \
-			(img)->offsetX0 = (float)x0, (img)->offsetY0 = (float)y0, (img)->offsetX1 = (float)x1, (img)->offsetY1 = (float)y1;                                                         \
-			(img)->stretchX = oslAbs((int)((float)((img)->offsetX1) - (float)((img)->offsetX0))), (img)->stretchY = oslAbs((int)((float)((img)->offsetY1) - (float)((img)->offsetY0))); \
-		}
+#define oslSetImageTile(img, x0, y0, x1, y1)                                                                                                                                        \
+	{                                                                                                                                                                               \
+		(img)->offsetX0 = (float)x0, (img)->offsetY0 = (float)y0, (img)->offsetX1 = (float)x1, (img)->offsetY1 = (float)y1;                                                         \
+		(img)->stretchX = oslAbs((int)((float)((img)->offsetX1) - (float)((img)->offsetX0))), (img)->stretchY = oslAbs((int)((float)((img)->offsetY1) - (float)((img)->offsetY0))); \
+	}
 
 /**
  * @brief Sets the source rectangle of the image to be displayed using tile size.
@@ -1691,10 +1683,10 @@ extern void oslDrawImageBig(OSL_IMAGE *img);
  * @see
  *    Refer to `oslDrawImage` for rendering the image with the selected tile.
  */
-	#define oslSetImageTileSize(img, x0, y0, x1, y1)                                                                                                                                                                          \
-		{                                                                                                                                                                                                                     \
-			(img)->offsetX0 = (float)(x0), (img)->offsetY0 = (float)(y0), (img)->offsetX1 = (float)(x0) + (float)(x1), (img)->offsetY1 = (float)(y0) + (float)(y1), (img)->stretchX = (int)(x1), (img)->stretchY = (int)(y1); \
-		}
+#define oslSetImageTileSize(img, x0, y0, x1, y1)                                                                                                                                                                          \
+	{                                                                                                                                                                                                                     \
+		(img)->offsetX0 = (float)(x0), (img)->offsetY0 = (float)(y0), (img)->offsetX1 = (float)(x0) + (float)(x1), (img)->offsetY1 = (float)(y0) + (float)(y1), (img)->stretchX = (int)(x1), (img)->stretchY = (int)(y1); \
+	}
 
 /**
  * @brief Resets the image rectangle to its full (original) size.
@@ -1720,11 +1712,11 @@ extern void oslDrawImageBig(OSL_IMAGE *img);
  * @see
  *    Refer to `oslSetImageTile` and `oslSetImageTileSize` for setting specific sub-regions of an image.
  */
-	#define oslResetImageTile(img)                                                                                    \
-		{                                                                                                             \
-			(img)->offsetX0 = 0, (img)->offsetY0 = 0, (img)->offsetX1 = (img)->sizeX, (img)->offsetY1 = (img)->sizeY; \
-			(img)->stretchX = (img)->sizeX, (img)->stretchY = (img)->sizeY;                                           \
-		}
+#define oslResetImageTile(img)                                                                                    \
+	{                                                                                                             \
+		(img)->offsetX0 = 0, (img)->offsetY0 = 0, (img)->offsetX1 = (img)->sizeX, (img)->offsetY1 = (img)->sizeY; \
+		(img)->stretchX = (img)->sizeX, (img)->stretchY = (img)->sizeY;                                           \
+	}
 
 /**
  * @brief Mirrors an image (or an image tile) horizontally.
@@ -1749,13 +1741,13 @@ extern void oslDrawImageBig(OSL_IMAGE *img);
  * @see
  *    Use `oslMirrorImageV` to mirror an image vertically.
  */
-	#define oslMirrorImageH(img)               \
-		{                                      \
-			float ___tmp;                      \
-			___tmp = (img)->offsetX0;          \
-			(img)->offsetX0 = (img)->offsetX1; \
-			(img)->offsetX1 = ___tmp;          \
-		}
+#define oslMirrorImageH(img)               \
+	{                                      \
+		float ___tmp;                      \
+		___tmp = (img)->offsetX0;          \
+		(img)->offsetX0 = (img)->offsetX1; \
+		(img)->offsetX1 = ___tmp;          \
+	}
 
 /**
  * @brief Mirrors an image (or an image tile) vertically.
@@ -1780,13 +1772,13 @@ extern void oslDrawImageBig(OSL_IMAGE *img);
  * @see
  *    Use `oslMirrorImageH` to mirror an image horizontally.
  */
-	#define oslMirrorImageV(img)               \
-		{                                      \
-			float ___tmp;                      \
-			___tmp = (img)->offsetY0;          \
-			(img)->offsetY0 = (img)->offsetY1; \
-			(img)->offsetY1 = ___tmp;          \
-		}
+#define oslMirrorImageV(img)               \
+	{                                      \
+		float ___tmp;                      \
+		___tmp = (img)->offsetY0;          \
+		(img)->offsetY0 = (img)->offsetY1; \
+		(img)->offsetY1 = ___tmp;          \
+	}
 
 #endif
 
@@ -1805,7 +1797,7 @@ extern void oslDrawImageBig(OSL_IMAGE *img);
  * @see
  *    Use `oslMirrorImageH` to mirror the image horizontally.
  */
-	#define oslImageIsMirroredH(img) ((img)->offsetX1 > (img)->offsetX0)
+#define oslImageIsMirroredH(img) ((img)->offsetX1 > (img)->offsetX0)
 
 /**
  * @brief Returns whether the image is mirrored vertically.
@@ -1822,7 +1814,7 @@ extern void oslDrawImageBig(OSL_IMAGE *img);
  * @see
  *    Use `oslMirrorImageV` to mirror the image vertically.
  */
-	#define oslImageIsMirroredV(img) ((img)->offsetY1 > (img)->offsetY0)
+#define oslImageIsMirroredV(img) ((img)->offsetY1 > (img)->offsetY0)
 
 /**
  * @brief Calculates the x-coordinate for moving an image so that its top-left corner is at the specified position when no rotation is applied.
@@ -1840,7 +1832,7 @@ extern void oslDrawImageBig(OSL_IMAGE *img);
  * @see
  *    Use `oslImageRotMoveY` for the y-coordinate.
  */
-	#define oslImageRotMoveX(img, x) ((((x) + (img)->centerX * (img)->stretchX) / (img)->sizeX))
+#define oslImageRotMoveX(img, x) ((((x) + (img)->centerX * (img)->stretchX) / (img)->sizeX))
 
 /**
  * @brief Calculates the y-coordinate for moving an image so that its top-left corner is at the specified position when no rotation is applied.
@@ -1858,7 +1850,7 @@ extern void oslDrawImageBig(OSL_IMAGE *img);
  * @see
  *    Use `oslImageRotMoveX` for the x-coordinate.
  */
-	#define oslImageRotMoveY(img, y) ((((y) + (img)->centerY * (img)->stretchY) / (img)->sizeY))
+#define oslImageRotMoveY(img, y) ((((y) + (img)->centerY * (img)->stretchY) / (img)->sizeY))
 
 /**
  * @brief Sets the rotation center of an image to its center.
@@ -1871,7 +1863,7 @@ extern void oslDrawImageBig(OSL_IMAGE *img);
  * @see
  *    Use `oslImageSetRotCenter` as an alias for this macro.
  */
-	#define oslSetImageRotCenter(img) ((img)->centerX = (int)oslAbs((img)->offsetX1 - (img)->offsetX0) >> 1, (img)->centerY = (int)oslAbs((img)->offsetY1 - (img)->offsetY0) >> 1)
+#define oslSetImageRotCenter(img) ((img)->centerX = (int)oslAbs((img)->offsetX1 - (img)->offsetX0) >> 1, (img)->centerY = (int)oslAbs((img)->offsetY1 - (img)->offsetY0) >> 1)
 
 /**
  * @brief Alias for `oslSetImageRotCenter`.
@@ -1884,7 +1876,7 @@ extern void oslDrawImageBig(OSL_IMAGE *img);
  * @see
  *    Use `oslSetImageRotCenter` for detailed documentation.
  */
-	#define oslImageSetRotCenter oslSetImageRotCenter
+#define oslImageSetRotCenter oslSetImageRotCenter
 
 /**
  * @brief Crops 0.5 pixel from each corner of the image.
@@ -1897,7 +1889,7 @@ extern void oslDrawImageBig(OSL_IMAGE *img);
  * @note
  *    This is a hacky routine and should be used carefully. It's intended for use with bilinear filtering and stretched images.
  */
-	#define oslCorrectImageHalfBorder(img) ((img)->offsetX0 = (img)->offsetX0 + 0.5f, (img)->offsetY0 = (img)->offsetY0 + 0.5f, (img)->offsetX1 = (img)->offsetX1 - 0.5f, (img)->offsetY1 = (img)->offsetY1 - 0.5f, img->stretchX--, img->stretchY--)
+#define oslCorrectImageHalfBorder(img) ((img)->offsetX0 = (img)->offsetX0 + 0.5f, (img)->offsetY0 = (img)->offsetY0 + 0.5f, (img)->offsetX1 = (img)->offsetX1 - 0.5f, (img)->offsetY1 = (img)->offsetY1 - 0.5f, img->stretchX--, img->stretchY--)
 
 /**
  * @brief Undoes the effect of `oslCorrectImageHalfBorder`.
@@ -1910,7 +1902,7 @@ extern void oslDrawImageBig(OSL_IMAGE *img);
  * @note
  *    Prefer using `oslResetImageTile` for more consistent behavior.
  */
-	#define oslResetImageHalfBorder(img) ((img)->offsetX0 = (img)->offsetX0 - 0.5f, (img)->offsetY0 = (img)->offsetY0 - 0.5f, (img)->offsetX1 = (img)->offsetX1 + 0.5f, (img)->offsetY1 = (img)->offsetY1 + 0.5f, img->stretchX++, img->stretchY++)
+#define oslResetImageHalfBorder(img) ((img)->offsetX0 = (img)->offsetX0 - 0.5f, (img)->offsetY0 = (img)->offsetY0 - 0.5f, (img)->offsetX1 = (img)->offsetX1 + 0.5f, (img)->offsetY1 = (img)->offsetY1 + 0.5f, img->stretchX++, img->stretchY++)
 
 /**
  * @brief Returns the width of the image, considering the current frame or tile.
@@ -1923,7 +1915,7 @@ extern void oslDrawImageBig(OSL_IMAGE *img);
  * @return
  *    The width of the image frame or tile.
  */
-	#define oslGetImageWidth(img) ((int)oslAbs((img)->offsetX1 - (img)->offsetX0))
+#define oslGetImageWidth(img) ((int)oslAbs((img)->offsetX1 - (img)->offsetX0))
 
 /**
  * @brief Returns the height of the image, considering the current frame or tile.
@@ -1936,7 +1928,7 @@ extern void oslDrawImageBig(OSL_IMAGE *img);
  * @return
  *    The height of the image frame or tile.
  */
-	#define oslGetImageHeight(img) ((int)oslAbs((img)->offsetY1 - (img)->offsetY0))
+#define oslGetImageHeight(img) ((int)oslAbs((img)->offsetY1 - (img)->offsetY0))
 
 /**
  * @brief Returns the width of the image, considering the current frame or tile.
@@ -1949,7 +1941,7 @@ extern void oslDrawImageBig(OSL_IMAGE *img);
  * @return
  *    The width of the image frame or tile.
  */
-	#define oslGetImageSizeX oslGetImageWidth
+#define oslGetImageSizeX oslGetImageWidth
 
 /**
  * @brief Returns the height of the image, considering the current frame or tile.
@@ -1962,7 +1954,7 @@ extern void oslDrawImageBig(OSL_IMAGE *img);
  * @return
  *    The height of the image frame or tile.
  */
-	#define oslGetImageSizeY oslGetImageHeight
+#define oslGetImageSizeY oslGetImageHeight
 
 /** @} */         // end of image_placement
 
@@ -2362,8 +2354,7 @@ extern OSL_IMAGE *oslScaleImageCreate(OSL_IMAGE *img, short newLocation, int new
         oslWriteImageFile(myImage, "output.png", flags);
         \endcode
  */
-enum OSL_WRITE_FLAGS
-{
+enum OSL_WRITE_FLAGS {
 	OSL_WRI_ALPHA = 1         ///< Writes the alpha channel of the image. If set, the alpha channel data will be included in the output file.
 };
 
@@ -2403,8 +2394,7 @@ enum OSL_WRITE_FLAGS
 
         \see oslCreateImage for considerations when creating images.
  */
-static inline void oslSetImageFrameSize(OSL_IMAGE *img, u16 width, u16 height)
-{
+static inline void oslSetImageFrameSize(OSL_IMAGE *img, u16 width, u16 height) {
 	img->frameSizeX = width;
 	img->frameSizeY = height;
 }
@@ -2527,8 +2517,7 @@ extern OSL_PALETTE *oslCreatePaletteEx(int size, int location, short pixelFormat
         OSL_PALETTE *palette = oslCreatePalette(16, OSL_PF_8888);
         \endcode
  */
-static inline OSL_PALETTE *oslCreatePalette(int size, short pixelFormat)
-{
+static inline OSL_PALETTE *oslCreatePalette(int size, short pixelFormat) {
 	return oslCreatePaletteEx(size, OSL_IN_RAM, pixelFormat);
 }
 
@@ -2629,8 +2618,7 @@ extern void oslUncachePalette(OSL_PALETTE *pal);
         oslUncacheImageData(img); // Ensure changes are flushed
         \endcode
  */
-static inline void oslUncacheImageData(OSL_IMAGE *img)
-{
+static inline void oslUncacheImageData(OSL_IMAGE *img) {
 	if (img != NULL)
 		sceKernelDcacheWritebackInvalidateRange(img->data, img->totalSize);
 }
@@ -2746,7 +2734,7 @@ extern void oslSetImagePixel(OSL_IMAGE *img, unsigned int x, unsigned int y, int
         \b Note:
         - Ensure you use the correct pixel format and data type when accessing raw image data.
  */
-	#define oslGetImageLine(img, y) ((char *)((img)->data) + (y) * (((img)->realSizeX * osl_pixelWidth[(img)->pixelFormat]) >> 3))
+#define oslGetImageLine(img, y) ((char *)((img)->data) + (y) * (((img)->realSizeX * osl_pixelWidth[(img)->pixelFormat]) >> 3))
 
 /** Gets the address of a single pixel in an image.
 
@@ -2792,10 +2780,10 @@ extern void oslSetImagePixel(OSL_IMAGE *img, unsigned int x, unsigned int y, int
         \b Note:
         - Ensure that you handle the pixel data according to its format and bit depth. For 4-bit images, additional bit manipulation is required.
  */
-	#define oslGetImagePixelAddr(img, x, y) ((char *)((img)->data) + ((((y) * (img)->realSizeX + (x)) * osl_pixelWidth[(img)->pixelFormat]) >> 3))
+#define oslGetImagePixelAddr(img, x, y) ((char *)((img)->data) + ((((y) * (img)->realSizeX + (x)) * osl_pixelWidth[(img)->pixelFormat]) >> 3))
 
 /** For backward compatibility. */
-	#define oslGetImagePixelAdr oslGetImagePixelAddr
+#define oslGetImagePixelAdr oslGetImagePixelAddr
 
 /**
  * Returns the address of a pixel, even if the image is swizzled.
@@ -2946,35 +2934,35 @@ extern const u8 osl_paletteSizes[];
  * @return
  *     A pointer to the current drawbuffer image.
  */
-	#define oslGetDrawBuffer() osl_curBuf
+#define oslGetDrawBuffer() osl_curBuf
 
 /** An image representing the primary buffer image, which is the buffer to which you are currently writing.
  *
  * \note
  *     This buffer is managed by `oslSwapBuffers`. In single buffering mode, `OSL_DEFAULT_BUFFER` is identical to `OSL_SECONDARY_BUFFER`.
  */
-	#define OSL_DEFAULT_BUFFER (&osl_defaultBufferImage)
+#define OSL_DEFAULT_BUFFER (&osl_defaultBufferImage)
 
 /** An image representing the secondary buffer image, which is the buffer currently displayed to the user.
  *
  * \note
  *     In single buffering mode, `OSL_DEFAULT_BUFFER` is identical to `OSL_SECONDARY_BUFFER`. This buffer is updated and managed by `oslSwapBuffers`.
  */
-	#define OSL_SECONDARY_BUFFER (&osl_secondaryBufferImage)
+#define OSL_SECONDARY_BUFFER (&osl_secondaryBufferImage)
 
 /** Returns the width of the current drawbuffer.
  *
  * @return
  *     The width of the current drawbuffer in pixels. For the default drawbuffer (i.e., the screen), it will be 480 pixels, which is the resolution of the PSP LCD.
  */
-	#define OSL_SCREEN_WIDTH (osl_curBuf->sizeX)
+#define OSL_SCREEN_WIDTH (osl_curBuf->sizeX)
 
 /** Returns the height of the current drawbuffer.
  *
  * @return
  *     The height of the current drawbuffer in pixels. For the default drawbuffer (i.e., the screen), it will be 272 pixels, which is the resolution of the PSP LCD.
  */
-	#define OSL_SCREEN_HEIGHT (osl_curBuf->sizeY)
+#define OSL_SCREEN_HEIGHT (osl_curBuf->sizeY)
 
 /** Define an image as the current drawbuffer. Use this function to specify the image to which drawing operations will be directed. Remember to restore the original drawbuffer after you have finished drawing.
 
@@ -3069,8 +3057,7 @@ extern void oslDisableAlphaTest();
 extern int osl_alphaTestEnabled;
 
 /** Available effects for #oslSetAlphaWrite. */
-enum OSL_FX_ALPHAWRITE
-{
+enum OSL_FX_ALPHAWRITE {
 	/** Does not write alpha. */
 	OSL_FXAW_NONE,
 
@@ -3079,8 +3066,7 @@ enum OSL_FX_ALPHAWRITE
 };
 
 /** Alpha test comparison operators. Used with #oslSetAlphaTest to define the conditions for alpha testing. */
-enum OSL_FX_ALPHATEST
-{
+enum OSL_FX_ALPHATEST {
 	/** Never passes the alpha test. */
 	OSL_FXAT_NEVER = GU_NEVER,
 
@@ -3117,17 +3103,17 @@ enum OSL_FX_ALPHATEST
 /** Returns a nonzero value if the image is a copy of another image, or 0 if it is an original.
         A copy is an image that was created as a clone of another image, rather than being directly created.
  */
-	#define oslImageIsCopy(img) (img->flags & OSL_IMAGE_COPY)
+#define oslImageIsCopy(img) (img->flags & OSL_IMAGE_COPY)
 
 /** Returns a nonzero value if the image is swizzled, or 0 if it is not.
         Swizzling refers to a method of reorganizing image data to improve memory access patterns or GPU performance.
  */
-	#define oslImageIsSwizzled(img) (img->flags & OSL_IMAGE_SWIZZLED)
+#define oslImageIsSwizzled(img) (img->flags & OSL_IMAGE_SWIZZLED)
 
 /** Returns a nonzero value if automatic striping is enabled for the image, or 0 if it is not.
         Automatic striping can be used to optimize the handling of large images by breaking them into smaller, more manageable strips.
  */
-	#define oslImageGetAutoStrip(img) (img->flags & OSL_IMAGE_AUTOSTRIP)
+#define oslImageGetAutoStrip(img) (img->flags & OSL_IMAGE_AUTOSTRIP)
 
 /** Sets or clears the copy flag for an image. This function is for internal use only and controls whether the image is marked as a copy of another image.
         @param img
@@ -3135,8 +3121,7 @@ enum OSL_FX_ALPHATEST
         @param enabled
                 `true` to set the image as a copy, `false` to clear the copy flag.
  */
-static inline void oslImageIsCopySet(OSL_IMAGE *img, bool enabled)
-{
+static inline void oslImageIsCopySet(OSL_IMAGE *img, bool enabled) {
 	if (enabled)
 		img->flags |= OSL_IMAGE_COPY;
 	else
@@ -3149,8 +3134,7 @@ static inline void oslImageIsCopySet(OSL_IMAGE *img, bool enabled)
         @param enabled
                 `true` to set the image as swizzled, `false` to clear the swizzled flag.
  */
-static inline void oslImageIsSwizzledSet(OSL_IMAGE *img, bool enabled)
-{
+static inline void oslImageIsSwizzledSet(OSL_IMAGE *img, bool enabled) {
 	if (enabled)
 		img->flags |= OSL_IMAGE_SWIZZLED;
 	else
@@ -3163,8 +3147,7 @@ static inline void oslImageIsSwizzledSet(OSL_IMAGE *img, bool enabled)
         @param enabled
                 `true` to enable automatic striping, `false` to disable it.
  */
-static inline void oslImageSetAutoStrip(OSL_IMAGE *img, bool enabled)
-{
+static inline void oslImageSetAutoStrip(OSL_IMAGE *img, bool enabled) {
 	if (enabled)
 		img->flags |= OSL_IMAGE_AUTOSTRIP;
 	else
@@ -3229,28 +3212,28 @@ static inline void oslImageSetAutoStrip(OSL_IMAGE *img, bool enabled)
         As you can see, drawing with GU is straightforward if you are familiar with it. For those new to GU, it is recommended to review tutorials and examples available on ps2dev.org for a deeper understanding.
  */
 
-	#ifdef PSP
+#ifdef PSP
 /** Disables texturing, making the image opaque and drawn using vertex colors. */
-	#define oslEnableTexturing() ({ if (!osl_textureEnabled)  sceGuEnable(GU_TEXTURE_2D), osl_textureEnabled = 1; })
+#define oslEnableTexturing() ({ if (!osl_textureEnabled)  sceGuEnable(GU_TEXTURE_2D), osl_textureEnabled = 1; })
 
 /** Enables texturing. This function should not be called directly; it is managed by oslSetTexture. */
-	#define oslDisableTexturing() ({ if (osl_textureEnabled)  sceGuDisable(GU_TEXTURE_2D), osl_textureEnabled = 0; })
+#define oslDisableTexturing() ({ if (osl_textureEnabled)  sceGuDisable(GU_TEXTURE_2D), osl_textureEnabled = 0; })
 
-	#else
+#else
 /** Disables texturing, making the image opaque and drawn using vertex colors. */
-	#define oslEnableTexturing()                                    \
-		{                                                           \
-			if (!osl_textureEnabled)                                \
-			sceGuEnable(GU_TEXTURE_2D), osl_textureEnabled = 1; \
-		}
+#define oslEnableTexturing()                                    \
+	{                                                           \
+		if (!osl_textureEnabled)                                \
+		sceGuEnable(GU_TEXTURE_2D), osl_textureEnabled = 1; \
+	}
 
 /** Enables texturing. This function should not be called directly; it is managed by oslSetTexture. */
-	#define oslDisableTexturing()                                    \
-		{                                                            \
-			if (osl_textureEnabled)                                  \
-			sceGuDisable(GU_TEXTURE_2D), osl_textureEnabled = 0; \
-		}
-	#endif
+#define oslDisableTexturing()                                    \
+	{                                                            \
+		if (osl_textureEnabled)                                  \
+		sceGuDisable(GU_TEXTURE_2D), osl_textureEnabled = 0; \
+	}
+#endif
 
 /**
  * Defines the maximum width of an image stripe for efficient drawing.
@@ -3259,7 +3242,7 @@ static inline void oslImageSetAutoStrip(OSL_IMAGE *img, bool enabled)
  * in 4 stripes, each 64 pixels wide. This prevents performance issues
  * related to handling large images.
  */
-	#define OSL_SLICE_SIZE 64
+#define OSL_SLICE_SIZE 64
 
 /**
  * This function is intended for internal use only by `oslDrawImageSimple`.
@@ -3299,16 +3282,14 @@ extern int osl_currentTexWrapV;
  *   - `OSL_TW_CLAMP`: Clamps the texture in the V coordinate direction.
  *   - `OSL_TW_REPEAT`: Tiles the texture in the V coordinate direction.
  */
-static inline void oslSetTextureWrap(int u, int v)
-{
+static inline void oslSetTextureWrap(int u, int v) {
 	sceGuTexWrap(u, v);                   // Set texture wrapping modes
 	osl_currentTexWrapU = u;              // Update current U wrap mode
 	osl_currentTexWrapV = v;              // Update current V wrap mode
 }
 
 /** Available values for #oslSetTextureWrap. */
-enum OSL_TEXWRAP_MODES
-{
+enum OSL_TEXWRAP_MODES {
 	OSL_TW_REPEAT = GU_REPEAT,         ///< Repeats the texture. The texture tiles indefinitely.
 	OSL_TW_CLAMP = GU_CLAMP,           ///< Clamps the texture. The last pixel of the texture is repeated indefinitely beyond its bounds.
 };
@@ -3361,8 +3342,7 @@ OSL_COLOR oslBlendColors(OSL_COLOR c1, OSL_COLOR c2);
  *
  * @return The tinted color with alpha applied.
  */
-static inline OSL_COLOR oslBlendColor(OSL_COLOR c)
-{
+static inline OSL_COLOR oslBlendColor(OSL_COLOR c) {
 	return oslBlendColors(c, osl_currentAlphaCoeff);
 }
 
@@ -3435,8 +3415,7 @@ extern int osl_isDrawingStarted;
  *
  * This vertex type uses floating-point coordinates for both texture mapping and spatial positioning, offering high precision.
  */
-typedef struct
-{
+typedef struct {
 	float u, v;          ///< Texture coordinates (floating point)
 	float x, y, z;          ///< Spatial coordinates (floating point)
 } OSL_PRECISE_VERTEX;
@@ -3446,8 +3425,7 @@ typedef struct
  *
  * This vertex type uses 16-bit coordinates for both texture mapping and spatial positioning, providing faster rendering at the cost of reduced precision.
  */
-typedef struct
-{
+typedef struct {
 	unsigned short u, v;          ///< Texture coordinates (16-bit)
 	short x, y, z;          ///< Spatial coordinates (16-bit)
 } OSL_FAST_VERTEX;
@@ -3457,8 +3435,7 @@ typedef struct
  *
  * This vertex type includes 16-bit coordinates for both texture mapping and spatial positioning, along with 32-bit color information. It is optimized for faster rendering with moderate precision.
  */
-typedef struct
-{
+typedef struct {
 	unsigned short u, v;          ///< Texture coordinates (16-bit)
 	unsigned long color;          ///< Color value (32-bit)
 	short x, y, z;          ///< Spatial coordinates (16-bit)
@@ -3469,8 +3446,7 @@ typedef struct
  *
  * This vertex type is used for untextured drawing, with 16-bit spatial coordinates and 32-bit color information.
  */
-typedef struct
-{
+typedef struct {
 	unsigned long color;          ///< Color value (32-bit)
 	short x, y, z;          ///< Spatial coordinates (16-bit)
 } OSL_LINE_VERTEX;
@@ -3480,8 +3456,7 @@ typedef struct
  *
  * This vertex type is used for untextured drawing, with 16-bit spatial coordinates and 16-bit color information.
  */
-typedef struct
-{
+typedef struct {
 	unsigned long color;          ///< Color value (32-bit)
 	short x, y, z;          ///< Spatial coordinates (16-bit)
 } OSL_LINE_VERTEX_COLOR32;
@@ -3491,8 +3466,7 @@ typedef struct
  *
  * This vertex type combines 16-bit spatial coordinates with floating-point texture coordinates, providing a balance between precision and performance.
  */
-typedef struct
-{
+typedef struct {
 	float u, v;          ///< Texture coordinates (floating point)
 	short x, y, z;          ///< Spatial coordinates (16-bit)
 } OSL_UVFLOAT_VERTEX;

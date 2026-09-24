@@ -21,7 +21,7 @@ typedef struct {
 } OSL_KEYBOARD;
 
 /** @brief Global instance of the on-screen keyboard. */
-extern OSL_KEYBOARD* osl_osk;
+extern OSL_KEYBOARD *osl_osk;
 
 /**
  * @brief Initializes the on-screen keyboard with specified parameters.
@@ -31,7 +31,7 @@ extern OSL_KEYBOARD* osl_osk;
  *
  * @return Pointer to the initialized OSL_KEYBOARD structure.
  */
-extern OSL_KEYBOARD* oslInitOskEx(int nData, int language);
+extern OSL_KEYBOARD *oslInitOskEx(int nData, int language);
 
 /**
  * @brief Initializes specific OSK data.
@@ -92,7 +92,7 @@ extern int oslOskGetResultEx(OSL_KEYBOARD *kbd, int idx);
  *
  * @return Pointer to the text output (UTF-16).
  */
-extern unsigned short* oslOskOutTextEx(OSL_KEYBOARD *kbd, int idx);
+extern unsigned short *oslOskOutTextEx(OSL_KEYBOARD *kbd, int idx);
 
 /**
  * @brief Ends the on-screen keyboard session and releases resources.

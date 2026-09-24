@@ -12,13 +12,12 @@ GifPixelType *osl_gifLineBuf = NULL; // Temporary buffer, grown to fit the image
 static int osl_gifLineBufSize = 0;
 
 // Grow the temporary line buffer to hold a full line of the given width
-static int oslGifEnsureLineBuf(int width)
-{
+static int oslGifEnsureLineBuf(int width) {
 	if (width <= 0)
 		return 0;
 
 	if (width > osl_gifLineBufSize) {
-		GifPixelType *buf = (GifPixelType*)realloc(osl_gifLineBuf, width * sizeof(GifPixelType));
+		GifPixelType *buf = (GifPixelType *)realloc(osl_gifLineBuf, width * sizeof(GifPixelType));
 		if (!buf)
 			return 0;
 		osl_gifLineBuf = buf;
@@ -28,28 +27,25 @@ static int oslGifEnsureLineBuf(int width)
 	return 1;
 }
 
-static void oslGifFreeLineBuf(void)
-{
+static void oslGifFreeLineBuf(void) {
 	free(osl_gifLineBuf);
 	osl_gifLineBuf = NULL;
 	osl_gifLineBufSize = 0;
 }
 
-static int fnGifReadFunc(GifFileType* GifFile, GifByteType* buf, int count)
-{
+static int fnGifReadFunc(GifFileType *GifFile, GifByteType *buf, int count) {
 	// Read data from the virtual file associated with the GIF
-	VirtualFileRead(buf, 1, count, (VIRTUAL_FILE*)GifFile->UserData);
+	VirtualFileRead(buf, 1, count, (VIRTUAL_FILE *)GifFile->UserData);
 
 	return count;
 }
 
-static void fnCopyLine(void* dst, void* src, int count, int pixelFormat)
-{
+static void fnCopyLine(void *dst, void *src, int count, int pixelFormat) {
 	int x;
-	u8 *p_dest1 = (u8*)dst;
-	u16 *p_dest2 = (u16*)dst;
-	u32 *p_dest4 = (u32*)dst;
-	u8 *p_src = (u8*)src;
+	u8 *p_dest1 = (u8 *)dst;
+	u16 *p_dest2 = (u16 *)dst;
+	u32 *p_dest4 = (u32 *)dst;
+	u8 *p_src = (u8 *)src;
 	u32 pixel_value;
 
 	for (x = 0; x < count; x++) {
@@ -62,8 +58,7 @@ static void fnCopyLine(void* dst, void* src, int count, int pixelFormat)
 		// Copy pixel based on destination format
 		if (osl_pixelWidth[pixelFormat] == 32) {
 			p_dest4[x] = pixel_value;
-		}
-		else if (osl_pixelWidth[pixelFormat] == 16)
+		} else if (osl_pixelWidth[pixelFormat] == 16)
 			p_dest2[x] = pixel_value;
 		else if (osl_pixelWidth[pixelFormat] == 8)
 			p_dest1[x] = pixel_value;
@@ -74,8 +69,7 @@ static void fnCopyLine(void* dst, void* src, int count, int pixelFormat)
 	}
 }
 
-static int DGifGetLineByte(GifFileType *GifFile, GifPixelType *Line, int LineLen, int pixelFormat)
-{
+static int DGifGetLineByte(GifFileType *GifFile, GifPixelType *Line, int LineLen, int pixelFormat) {
 	// Never decode more pixels than the temporary buffer holds
 	if (LineLen <= 0 || LineLen > osl_gifLineBufSize)
 		return GIF_ERROR;
@@ -86,8 +80,7 @@ static int DGifGetLineByte(GifFileType *GifFile, GifPixelType *Line, int LineLen
 	return result;
 }
 
-OSL_IMAGE *oslLoadImageFileGIF(char *filename, int location, int pixelFormat)
-{
+OSL_IMAGE *oslLoadImageFileGIF(char *filename, int location, int pixelFormat) {
 	OSL_IMAGE *img = NULL;
 	int i, j, alpha, Row = 0, Col = 0, Width, Height, ExtCode, ErrorCode;
 	u32 *Palette = NULL;
@@ -101,7 +94,7 @@ OSL_IMAGE *oslLoadImageFileGIF(char *filename, int location, int pixelFormat)
 
 	// Allocate temporary palette memory for true color mode
 	if (osl_pixelWidth[pixelFormat] > 8) {
-		osl_gifTempPalette = (u32*)malloc(256 * sizeof(u32));
+		osl_gifTempPalette = (u32 *)malloc(256 * sizeof(u32));
 		if (!osl_gifTempPalette)
 			return NULL;
 		Palette = osl_gifTempPalette;
@@ -110,7 +103,7 @@ OSL_IMAGE *oslLoadImageFileGIF(char *filename, int location, int pixelFormat)
 	}
 
 	// Open the GIF file using the virtual file system
-	f = VirtualFileOpen((void*)filename, 0, VF_AUTO, VF_O_READ);
+	f = VirtualFileOpen((void *)filename, 0, VF_AUTO, VF_O_READ);
 	if (f) {
 		GifFile = DGifOpen(f, fnGifReadFunc, &ErrorCode);
 
@@ -151,13 +144,13 @@ OSL_IMAGE *oslLoadImageFileGIF(char *filename, int location, int pixelFormat)
 						img = NULL;
 						break;
 					}
-					Palette = (u32*)img->palette->data;
+					Palette = (u32 *)img->palette->data;
 				}
 
 				// Handle the transparent color
 				i = ColorMap->ColorCount;
 				while (--i >= 0) {
-					GifColorType* pColor = &ColorMap->Colors[i];
+					GifColorType *pColor = &ColorMap->Colors[i];
 					if (i == transparentColor || (osl_colorKeyEnabled && RGBA(pColor->Red, pColor->Green, pColor->Blue, 0) == (osl_colorKeyValue & 0x00ffffff)))
 						alpha = 0;
 					else
@@ -170,13 +163,13 @@ OSL_IMAGE *oslLoadImageFileGIF(char *filename, int location, int pixelFormat)
 					// Perform 4 passes for interlaced images
 					for (i = 0; i < 4; i++) {
 						for (j = Row + InterlacedOffset[i]; j < Row + Height; j += InterlacedJumps[i]) {
-							DGifGetLineByte(GifFile, (GifPixelType*)oslGetImagePixelAdr(img, Col, j), Width, pixelFormat);
+							DGifGetLineByte(GifFile, (GifPixelType *)oslGetImagePixelAdr(img, Col, j), Width, pixelFormat);
 						}
 					}
 				} else {
 					// For non-interlaced images, read the lines sequentially
 					for (i = 0; i < Height; i++) {
-						DGifGetLineByte(GifFile, (GifPixelType*)oslGetImagePixelAdr(img, Col, Row), Width, pixelFormat);
+						DGifGetLineByte(GifFile, (GifPixelType *)oslGetImagePixelAdr(img, Col, Row), Width, pixelFormat);
 						Row++;
 					}
 				}

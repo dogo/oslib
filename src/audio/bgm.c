@@ -177,7 +177,7 @@ int oslAudioCallback_AudioCallback_BGM(unsigned int i, void *buf, unsigned int l
 	// are preserved. This works for every configured callback buffer size.
 	short *out = (short *)buf;
 	short *decoded_end = oslDecodeADMono(ad, out, ad->data, nibbles, 1,
-	                                    osl_audioVoices[i].isStreamed);
+	                                     osl_audioVoices[i].isStreamed);
 	if (upsample > 1) {
 		unsigned int decoded = (unsigned int)(decoded_end - out) / 2;
 		while (decoded > 0) {

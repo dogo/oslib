@@ -9,8 +9,8 @@
  */
 
 #ifdef PSP
-    #include <pspthreadman.h>
-    #include <pspaudio.h>
+#include <pspthreadman.h>
+#include <pspaudio.h>
 #endif
 
 #include "oslib.h"
@@ -32,7 +32,7 @@ static u32 *audio_sndbuf[OSL_NUM_AUDIO_CHANNELS];           // Sound buffers for
 long osl_filesave[OSL_NUM_AUDIO_CHANNELS];                  // Stores file positions for streamed audio
 
 // PSP power management
-int (*osl_audioOldPowerCallback)(int, int, void*) = NULL;   // Internal power callback for PSP audio
+int (*osl_audioOldPowerCallback)(int, int, void *) = NULL;   // Internal power callback for PSP audio
 
 void oslAudioChannelThreadCallback(int channel, void *buf, unsigned int reqn) {
 	// Ensure the channel index is valid and the callback is set
@@ -41,15 +41,15 @@ void oslAudioChannelThreadCallback(int channel, void *buf, unsigned int reqn) {
 	}
 
 	// Call the callback function
-	void (*callback)(unsigned int, void*, unsigned int) = AudioStatus[channel].callback;
+	void (*callback)(unsigned int, void *, unsigned int) = AudioStatus[channel].callback;
 	callback(channel, buf, reqn);
 }
 
-void oslAudioSetChannelCallback(int channel, void* callback) {
+void oslAudioSetChannelCallback(int channel, void *callback) {
 	if (channel < 0 || channel >= OSL_NUM_AUDIO_CHANNELS) {
 		return; // Ensure valid channel
 	}
-	AudioStatus[channel].callback = (void (*)(unsigned int, void*, unsigned int)) callback;
+	AudioStatus[channel].callback = (void (*)(unsigned int, void *, unsigned int)) callback;
 }
 
 int oslAudioOutBlocking(unsigned int channel, unsigned int vol1, unsigned int vol2, void *buf) {
@@ -61,7 +61,7 @@ int oslAudioOutBlocking(unsigned int channel, unsigned int vol1, unsigned int vo
 }
 
 static int oslAudioChannelThread(int args, void *argp) {
-	int channel = *(int*)argp;
+	int channel = *(int *)argp;
 	int bufferIndex = 0;
 	int is_mono = (osl_audioVoices[channel].mono == 0x10);
 	// Bytes per sample: mono = 2, stereo = 4
@@ -70,7 +70,7 @@ static int oslAudioChannelThread(int args, void *argp) {
 	int buffer_size = osl_audioVoices[channel].numSamples * bytes_per_sample * 2;
 
 	// Allocate double-buffer for audio processing
-	audio_sndbuf[channel] = (u32*)calloc(1, buffer_size);
+	audio_sndbuf[channel] = (u32 *)calloc(1, buffer_size);
 	if (!audio_sndbuf[channel]) {
 		return -1; // Memory allocation failure
 	}
@@ -81,7 +81,7 @@ static int oslAudioChannelThread(int args, void *argp) {
 		// Get a pointer to our actual buffer (we do double buffering)
 		// For mono: advance by numSamples * 2 bytes
 		// For stereo: advance by numSamples * 4 bytes
-		void* bufptr = (u8*)audio_sndbuf[channel] + bufferIndex * osl_audioVoices[channel].numSamples * bytes_per_sample;
+		void *bufptr = (u8 *)audio_sndbuf[channel] + bufferIndex * osl_audioVoices[channel].numSamples * bytes_per_sample;
 		// Our callback function
 		void (*callback)(unsigned int channel, void *buf, unsigned int reqn) = AudioStatus[channel].callback;
 
@@ -117,7 +117,7 @@ static int oslAudioChannelThread(int args, void *argp) {
 }
 
 void oslAudioDeleteChannel(int i) {
-	osl_audioActive[i]=-1;
+	osl_audioActive[i] = -1;
 }
 
 static void setChannelSound(int voice, OSL_SOUND *s) {
@@ -167,7 +167,7 @@ int oslAudioCreateChannel(int i, int format, int numSamples, OSL_SOUND *s) {
 	snprintf(threadName, sizeof(threadName), "audiot%d", i);
 
 	// Create a kernel thread for the audio channel.
-	AudioStatus[i].threadhandle = sceKernelCreateThread(threadName, (SceKernelThreadEntry)&oslAudioChannelThread, 0x10, 0x10000, 0, NULL);
+	AudioStatus[i].threadhandle = sceKernelCreateThread(threadName, (SceKernelThreadEntry) & oslAudioChannelThread, 0x10, 0x10000, 0, NULL);
 	if (AudioStatus[i].threadhandle < 0) {
 		// Thread creation failed, clean up the audio channel.
 		sceAudioChRelease(AudioStatus[i].handle);
@@ -234,11 +234,11 @@ int oslGetSoundChannel(OSL_SOUND *s) {
 
 #include "readwav.h"
 
-void oslDecodeWav(unsigned int i, void* buf, unsigned int length) {
+void oslDecodeWav(unsigned int i, void *buf, unsigned int length) {
 	unsigned int j, k, samples = 1 << osl_audioVoices[i].divider;
-	unsigned short* data = (unsigned short*)buf, cur1, cur2;
-	WAVE_SRC* wav = (WAVE_SRC*)osl_audioVoices[i].dataplus;
-	unsigned char* streambuffer = NULL;
+	unsigned short *data = (unsigned short *)buf, cur1, cur2;
+	WAVE_SRC *wav = (WAVE_SRC *)osl_audioVoices[i].dataplus;
+	unsigned char *streambuffer = NULL;
 	int len;
 
 	// Handle streamed audio
@@ -248,18 +248,18 @@ void oslDecodeWav(unsigned int i, void* buf, unsigned int length) {
 		// For mono: length samples * (bits/8) bytes
 		// For stereo: length samples * 2 channels * (bits/8) bytes
 		// For resampling (samples > 1): divide by samples since we duplicate
-		
+
 		int bytes_per_sample = wav->fmt.bits_sample >> 3;  // 2 for 16-bit
 		int channels = (osl_audioVoices[i].mono == 0) ? 2 : 1;
-		
+
 		// How many source samples do we need?
 		int source_samples = length / samples;  // Account for resampling
-		
+
 		// Total bytes = source_samples * channels * bytes_per_sample
 		len = source_samples * channels * bytes_per_sample;
 
 		// Allocate buffer dynamically instead of using alloca
-		streambuffer = (unsigned char*)malloc(len);
+		streambuffer = (unsigned char *)malloc(len);
 		if (streambuffer == NULL) {
 			return; // Handle allocation failure
 		}
@@ -320,7 +320,7 @@ void oslDecodeWav(unsigned int i, void* buf, unsigned int length) {
  * Function used to fill the audio buffer (44,100 Hz, 16 bits, Mono).
  * This function acts as a callback for audio processing.
  */
-void oslAudioCallback(unsigned int i, void* buf, unsigned int length) {
+void oslAudioCallback(unsigned int i, void *buf, unsigned int length) {
 	// Check if the sound object or audio callback is NULL to avoid null pointer dereference
 	if (!osl_audioVoices[i].sound || !osl_audioVoices[i].sound->audioCallback) {
 		oslAudioDeleteChannel(i); // Delete the channel if there's no valid sound or callback
@@ -376,6 +376,7 @@ int oslAudioPowerCallback(int unknown, int pwrflags, void *common) {
 
 	return 0;
 }
+
 #endif
 
 int oslInitAudio() {
@@ -602,7 +603,7 @@ void oslAudioCallback_PlaySound_WAV(OSL_SOUND *s) {
 		return; // Invalid sound or data, exit early
 	}
 
-	WAVE_SRC *wav = (WAVE_SRC*)s->dataplus;
+	WAVE_SRC *wav = (WAVE_SRC *)s->dataplus;
 
 	// If the sound is streamed, seek to the base position in the virtual file
 	if (s->isStreamed) {
@@ -621,31 +622,31 @@ void oslAudioCallback_StopSound_WAV(OSL_SOUND *s) {
 	// Do nothing
 }
 
-int oslAudioCallback_AudioCallback_WAV(unsigned int i, void* buf, unsigned int length) {
+int oslAudioCallback_AudioCallback_WAV(unsigned int i, void *buf, unsigned int length) {
 	// Decode WAV audio data into the provided buffer
 	oslDecodeWav(i, buf, length);
 	return 1;
 }
 
-VIRTUAL_FILE** oslAudioCallback_ReactiveSound_WAV(OSL_SOUND *s, VIRTUAL_FILE *f) {
+VIRTUAL_FILE **oslAudioCallback_ReactiveSound_WAV(OSL_SOUND *s, VIRTUAL_FILE *f) {
 	// Ensure the sound and its associated data (dataplus) are valid
 	if (s == NULL || s->dataplus == NULL) {
 		return NULL; // Invalid sound or data, return NULL
 	}
 
 	// Return a pointer to the file pointer for the reactive sound
-	VIRTUAL_FILE **w = (VIRTUAL_FILE**)&((WAVE_SRC*)s->dataplus)->fp;
+	VIRTUAL_FILE **w = (VIRTUAL_FILE **)&((WAVE_SRC *)s->dataplus)->fp;
 	return w;
 }
 
-VIRTUAL_FILE* oslAudioCallback_StandBy_WAV(OSL_SOUND *s) {
+VIRTUAL_FILE *oslAudioCallback_StandBy_WAV(OSL_SOUND *s) {
 	// Ensure the sound and its associated data (dataplus) are valid
 	if (s == NULL || s->dataplus == NULL) {
 		return NULL; // Invalid sound or data, return NULL
 	}
 
 	// Return the file pointer for the sound's virtual file
-	VIRTUAL_FILE *f = (VIRTUAL_FILE*)((WAVE_SRC*)s->dataplus)->fp;
+	VIRTUAL_FILE *f = (VIRTUAL_FILE *)((WAVE_SRC *)s->dataplus)->fp;
 	return f;
 }
 
@@ -655,7 +656,7 @@ void oslAudioCallback_DeleteSound_WAV(OSL_SOUND *s) {
 		return; // Invalid sound or data, exit early
 	}
 
-	WAVE_SRC *wav = (WAVE_SRC*)s->dataplus;
+	WAVE_SRC *wav = (WAVE_SRC *)s->dataplus;
 
 	// If the sound is streamed, close the associated file
 	if (s->isStreamed) {
@@ -679,7 +680,7 @@ OSL_SOUND *oslLoadSoundFileWAV(const char *filename, int stream) {
 	WAVE_SRC *wav = NULL;
 
 	// Allocate memory for the OSL_SOUND structure
-	s = (OSL_SOUND*)malloc(sizeof(OSL_SOUND));
+	s = (OSL_SOUND *)malloc(sizeof(OSL_SOUND));
 	if (!s) {
 		goto error; // Memory allocation failure
 	}
@@ -688,7 +689,7 @@ OSL_SOUND *oslLoadSoundFileWAV(const char *filename, int stream) {
 	memset(s, 0, sizeof(OSL_SOUND));
 
 	// Allocate memory for the WAVE_SRC structure
-	wav = (WAVE_SRC*)malloc(sizeof(WAVE_SRC));
+	wav = (WAVE_SRC *)malloc(sizeof(WAVE_SRC));
 	if (!wav) {
 		free(s);
 		goto error; // Memory allocation failure
@@ -738,7 +739,7 @@ OSL_SOUND *oslLoadSoundFileWAV(const char *filename, int stream) {
 		strcpy(s->filename, filename);
 	} else {
 		// Allocate memory for the in-memory WAV data
-		wav->database = (unsigned char*)malloc(s->size);
+		wav->database = (unsigned char *)malloc(s->size);
 		if (!wav->database) {
 			free(s);
 			close_wave_src(wav);

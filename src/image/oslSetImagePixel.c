@@ -13,22 +13,22 @@ void oslSetImagePixel(OSL_IMAGE *img, unsigned int x, unsigned int y, int pixelV
 	// Set the pixel value based on the image's pixel format
 	switch (img->pixelFormat) {
 	case OSL_PF_8888:
-		*(u32*)pPixel = (u32)pixelValue;
+		*(u32 *)pPixel = (u32)pixelValue;
 		break;
 
 	case OSL_PF_5650:
 	case OSL_PF_5551:
 	case OSL_PF_4444:
-		*(u16*)pPixel = (u16)pixelValue;
+		*(u16 *)pPixel = (u16)pixelValue;
 		break;
 
 	case OSL_PF_8BIT:
-		*(u8*)pPixel = (u8)pixelValue;
+		*(u8 *)pPixel = (u8)pixelValue;
 		break;
 
 	case OSL_PF_4BIT: {
-		*(u8*)pPixel &= ~(15 << ((x & 1) << 2));
-		*(u8*)pPixel |= (pixelValue & 15) << ((x & 1) << 2);
+		*(u8 *)pPixel &= ~(15 << ((x & 1) << 2));
+		*(u8 *)pPixel |= (pixelValue & 15) << ((x & 1) << 2);
 		break;
 	}
 	}

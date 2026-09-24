@@ -21,8 +21,7 @@ extern "C" {
 /**
  * @brief Struct describing a single SFont letter.
  */
-typedef struct
-{
+typedef struct {
 	OSL_IMAGE *letter; /**< The image representing the letter. */
 	unsigned int width; /**< The letter's width in pixels. */
 } OSL_SFLETTER;
@@ -30,8 +29,7 @@ typedef struct
 /**
  * @brief Struct describing a SFont.
  */
-typedef struct
-{
+typedef struct {
 	OSL_SFLETTER *letters[256]; /**< Array of pointers to single letters. */
 	int height; /**< The height of the font in pixels. */
 	int lettersCount; /**< The total number of letters in the font. */

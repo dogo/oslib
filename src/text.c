@@ -3,12 +3,12 @@
 
 unsigned int intra_options = 0;
 
-OSL_FONT *osl_curFont=NULL;
-OSL_FONT *osl_sceFont=NULL;
-int osl_consolePosX=0, osl_consolePosY=0; //, osl_consoleOk=0;
+OSL_FONT *osl_curFont = NULL;
+OSL_FONT *osl_sceFont = NULL;
+int osl_consolePosX = 0, osl_consolePosY = 0; // , osl_consoleOk=0;
 OSL_COLOR osl_textBkColor = 0xff000000, osl_textColor = 0xffffffff;
 
-const unsigned char osl_sceFont_data[]=         {
+const unsigned char osl_sceFont_data[] = {
 	0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
 	0x3c, 0x42, 0xa5, 0x81, 0xa5, 0x99, 0x42, 0x3c,
 	0x3c, 0x7e, 0xdb, 0xff, 0xff, 0xdb, 0x66, 0x3c,
@@ -268,7 +268,7 @@ const unsigned char osl_sceFont_data[]=         {
 };
 
 OSL_FONTINFO osl_sceFontInfo = {
-	(void*)osl_sceFont_data, // Sony Computer Entertainment Font
+	(void *)osl_sceFont_data, // Sony Computer Entertainment Font
 	1,                    // 1 bit per pixel
 	NULL,                 // Proportional
 	7, 8, 1,              // 7x8 (1 byte per line)
@@ -276,23 +276,18 @@ OSL_FONTINFO osl_sceFontInfo = {
 };
 
 // bitplanes: format (bits per pixel) of the font, imagePlanes: format of the texture to fill (power of two)
-void oslDrawChar1BitToImage(OSL_IMAGE *img, int x0, int y0, int w, int h, int width, int bitPlanes, int imagePlanes, const unsigned char *font)
-{
+void oslDrawChar1BitToImage(OSL_IMAGE *img, int x0, int y0, int w, int h, int width, int bitPlanes, int imagePlanes, const unsigned char *font) {
 	unsigned char v, t, *data;
 	int x, xx, y;
 	// Number of pixels per byte depending on the format (only 1, 2, 4, and 8 supported)
-	const u8 pixelsPerByte[] = {0, 8, 4, 0, 2, 0, 0, 0, 1};
+	const u8 pixelsPerByte[] = { 0, 8, 4, 0, 2, 0, 0, 0, 1 };
 
-	for (y = 0; y < h; y++)
-	{
-		data = (u8*)oslGetImagePixelAdr(img, x0, y + y0);
-		for (xx = 0; xx < width;)
-		{
+	for (y = 0; y < h; y++) {
+		data = (u8 *)oslGetImagePixelAdr(img, x0, y + y0);
+		for (xx = 0; xx < width;) {
 			v = *font++;
-			for (x = 0; x < 8; x += bitPlanes)
-			{
-				if (xx < w)
-				{
+			for (x = 0; x < 8; x += bitPlanes) {
+				if (xx < w) {
 					int offset = (xx + x0) & (pixelsPerByte[imagePlanes] - 1);
 					t = v & ((1 << bitPlanes) - 1);
 					if (t)
@@ -312,10 +307,10 @@ OSL_FONT *oslLoadFont(OSL_FONTINFO *fi) {
 	OSL_FONT *font;
 	int i, x, y;
 	int imageFormat;
-	const int pixelPlaneWidth[4] = {3, 2, 2, 1}; // For different pixel formats
+	const int pixelPlaneWidth[4] = { 3, 2, 2, 1 }; // For different pixel formats
 
 	// Allocate memory for the font structure
-	font = (OSL_FONT*)malloc(sizeof(OSL_FONT));
+	font = (OSL_FONT *)malloc(sizeof(OSL_FONT));
 	if (!font) {
 		return NULL;
 	}
@@ -324,7 +319,7 @@ OSL_FONT *oslLoadFont(OSL_FONTINFO *fi) {
 	font->fontType = OSL_FONT_OFT;
 
 	// Allocate memory for character widths
-	font->charWidths = (u8*)malloc(256 * sizeof(char));
+	font->charWidths = (u8 *)malloc(256 * sizeof(char));
 	if (!font->charWidths) {
 		free(font);
 		return NULL;
@@ -347,7 +342,7 @@ OSL_FONT *oslLoadFont(OSL_FONTINFO *fi) {
 	}
 
 	// Allocate memory for character positions
-	font->charPositions = (u16*)malloc(256 * sizeof(short));
+	font->charPositions = (u16 *)malloc(256 * sizeof(short));
 	if (!font->charPositions) {
 		free(font->charWidths);
 		free(font);
@@ -392,11 +387,11 @@ OSL_FONT *oslLoadFont(OSL_FONTINFO *fi) {
 	// Initialize palette data
 	if (fi->paletteCount) {
 		for (i = 0; i < oslMin(fi->paletteCount, font->img->palette->nElements); i++) {
-			((unsigned long*)font->img->palette->data)[i] = fi->paletteData[i];
+			((unsigned long *)font->img->palette->data)[i] = fi->paletteData[i];
 		}
 	} else {
-		((unsigned long*)font->img->palette->data)[0] = RGBA(255, 255, 255, 0);
-		((unsigned long*)font->img->palette->data)[1] = RGBA(255, 255, 255, 255);
+		((unsigned long *)font->img->palette->data)[0] = RGBA(255, 255, 255, 0);
+		((unsigned long *)font->img->palette->data)[1] = RGBA(255, 255, 255, 255);
 	}
 
 	// Invalidate the palette cache
@@ -412,7 +407,7 @@ OSL_FONT *oslLoadFont(OSL_FONTINFO *fi) {
 	for (i = 0; i < 256; i++) {
 		oslDrawChar1BitToImage(font->img, OSL_TEXT_CHARPOSXY(font, i),
 		                       font->charWidths[i] + font->addedSpace, font->charHeight, fi->lineWidth << pixelPlaneWidth[fi->pixelFormat - 1],
-		                       fi->pixelFormat, imageFormat, (u8*)fi->fontdata + i * fi->lineWidth * fi->charHeight);
+		                       fi->pixelFormat, imageFormat, (u8 *)fi->fontdata + i * fi->lineWidth * fi->charHeight);
 	}
 
 	// Invalidate the image cache
@@ -435,7 +430,7 @@ int updateIntraFontCharWidth(OSL_FONT *font, intraFont *intra) {
 		}
 	}
 
-	char character[2] = {0, 0}; // Initialize character array with null terminator
+	char character[2] = { 0, 0 }; // Initialize character array with null terminator
 	for (int i = 0; i < 256; i++) {
 		character[0] = (char)i;
 		font->charWidths[i] = (u8)intraFontMeasureText(intra, character);
@@ -529,7 +524,7 @@ OSL_FONT *oslLoadFontFile(const char *filename) {
 	    !strncmp(bwfon, ".bwfon", 6) || !strncmp(bwfon, ".BWFON", 6)) {
 		font = oslLoadIntraFontFile(filename, intra_options);
 	} else {
-		f = VirtualFileOpen((void*)filename, 0, VF_AUTO, VF_O_READ);
+		f = VirtualFileOpen((void *)filename, 0, VF_AUTO, VF_O_READ);
 		if (f) {
 			// Read font header
 			if (VirtualFileRead(&fh, sizeof(fh), 1, f) == 0) {
@@ -564,7 +559,7 @@ OSL_FONT *oslLoadFontFile(const char *filename) {
 				fi.addedSpace = fh.addedSpace;
 
 				// Allocate memory for character data
-				tcCaracteres = (unsigned char*)malloc(fh.lineWidth * fi.charHeight * 256);
+				tcCaracteres = (unsigned char *)malloc(fh.lineWidth * fi.charHeight * 256);
 				if (!tcCaracteres) {
 					VirtualFileClose(f);
 					oslHandleLoadNoFailError(filename);
@@ -579,7 +574,7 @@ OSL_FONT *oslLoadFontFile(const char *filename) {
 
 					// Check for palette data
 					if (fi.paletteCount > 0) {
-						fi.paletteData = (unsigned long*)malloc(fi.paletteCount * sizeof(unsigned long));
+						fi.paletteData = (unsigned long *)malloc(fi.paletteCount * sizeof(unsigned long));
 						if (fi.paletteData) {
 							// Read palette entries
 							if (VirtualFileRead(fi.paletteData, fi.paletteCount * sizeof(unsigned long), 1, f) == 0) {
@@ -690,7 +685,7 @@ void oslDrawTextTile(int u, int v, int x, int y, int tX, int tY) {
 
 	// Allocate memory for vertex data
 	OSL_FAST_VERTEX_COLOR32 *vertices;
-	vertices = (OSL_FAST_VERTEX_COLOR32*)sceGuGetMemory(2 * sizeof(OSL_FAST_VERTEX_COLOR32));
+	vertices = (OSL_FAST_VERTEX_COLOR32 *)sceGuGetMemory(2 * sizeof(OSL_FAST_VERTEX_COLOR32));
 
 	// Define the vertices for the tile
 	vertices[0].u = u;
@@ -717,7 +712,7 @@ void oslDrawTextTile(int u, int v, int x, int y, int tX, int tY) {
 	sceGuDrawArray(GU_SPRITES, GU_TEXTURE_16BIT | GU_COLOR_8888 | GU_VERTEX_16BIT | GU_TRANSFORM_2D, 2, 0, vertices);
 
 	// Write back the cache to ensure the data is correctly updated
-	sceKernelDcacheWritebackRange(vertices, 2 * sizeof(OSL_FAST_VERTEX_COLOR32)); //SAKYA
+	sceKernelDcacheWritebackRange(vertices, 2 * sizeof(OSL_FAST_VERTEX_COLOR32)); // SAKYA
 
 	// Restore the previous state of texturing
 	if (!wasEnabled) {
@@ -758,7 +753,7 @@ void oslDrawString(int x, int y, const char *str) {
 		oslSetTexture(osl_curFont->img);
 
 		while (*str) {
-			c = *(unsigned char*)str++;
+			c = *(unsigned char *)str++;
 			oslDrawTextTile(OSL_TEXT_CHARPOSXY(osl_curFont, c), x, y, osl_curFont->charWidths[c], osl_curFont->charHeight);
 			x += osl_curFont->charWidths[c];
 		}
@@ -784,7 +779,7 @@ void oslDrawStringLimited(int x, int y, int width, const char *str) {
 		oslSetTexture(osl_curFont->img);
 
 		while (*str) {
-			c = *(unsigned char*)str++;
+			c = *(unsigned char *)str++;
 
 			// Break if the next character exceeds the limit width
 			if (x + osl_curFont->charWidths[c] > limitX) {
@@ -934,8 +929,8 @@ void oslConsolePrint(const char *str) {
 	unsigned char c;
 	OSL_FONT *oldFont = NULL;
 
-//	if (osl_consoleOk == NULL)
-//		return;
+	//	if (osl_consoleOk == NULL)
+	//		return;
 
 	// Save and switch to the default console font if needed
 	if (osl_curFont != osl_sceFont) {

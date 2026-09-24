@@ -7,16 +7,16 @@
 void oslPngFlushFn(png_structp png_ptr);
 
 void oslPngWriteFn(png_structp png_ptr, png_bytep data, png_size_t length) {
-	VIRTUAL_FILE *f = (VIRTUAL_FILE*)png_get_io_ptr(png_ptr);
+	VIRTUAL_FILE *f = (VIRTUAL_FILE *)png_get_io_ptr(png_ptr);
 	VirtualFileWrite(data, length, 1, f);
 }
 
 // Take a screenshot and save it as PNG
-int oslWriteImageFilePNG(OSL_IMAGE *img, const char* filename, int flags) {
+int oslWriteImageFilePNG(OSL_IMAGE *img, const char *filename, int flags) {
 	png_structp png_ptr = NULL;
 	png_infop info_ptr = NULL;
 	VIRTUAL_FILE * volatile f = NULL;
-	u8* volatile line = NULL;
+	u8 * volatile line = NULL;
 	int width = img->offsetX1 - img->offsetX0;
 	int height = img->offsetY1 - img->offsetY0;
 	int r, g, b, a;
@@ -24,7 +24,7 @@ int oslWriteImageFilePNG(OSL_IMAGE *img, const char* filename, int flags) {
 	const int saveAlpha = flags & OSL_WRI_ALPHA;
 
 	// Open the file for writing
-	f = VirtualFileOpen((void*)filename, 0, VF_AUTO, VF_O_WRITE);
+	f = VirtualFileOpen((void *)filename, 0, VF_AUTO, VF_O_WRITE);
 	if (!f) {
 		printf("Error: Could not open file %s for writing.\n", filename);
 		return 0;
@@ -61,7 +61,7 @@ int oslWriteImageFilePNG(OSL_IMAGE *img, const char* filename, int flags) {
 	png_write_info(png_ptr, info_ptr);
 
 	// Allocate memory for one row of image data
-	line = (u8*) malloc(width * (saveAlpha ? 4 : 3));
+	line = (u8 *)malloc(width * (saveAlpha ? 4 : 3));
 	if (!line) {
 		printf("Error: Could not allocate memory for PNG row.\n");
 		goto cleanup;
@@ -71,18 +71,18 @@ int oslWriteImageFilePNG(OSL_IMAGE *img, const char* filename, int flags) {
 	for (int y = 0; y < height; y++) {
 		int i = 0;
 		for (int x = 0; x < width; x++) {
-			void* ptr = oslGetImagePixelAdr(img, (int)(x + img->offsetX0), (int)(y + img->offsetY0));
+			void *ptr = oslGetImagePixelAdr(img, (int)(x + img->offsetX0), (int)(y + img->offsetY0));
 			int color = 0;
 
 			switch (osl_pixelWidth[img->pixelFormat]) {
 			case 32:
-				color = *(unsigned long*)ptr;
+				color = *(unsigned long *)ptr;
 				break;
 			case 16:
-				color = *(unsigned short*)ptr;
+				color = *(unsigned short *)ptr;
 				break;
 			case 8:
-				color = *(unsigned char*)ptr;
+				color = *(unsigned char *)ptr;
 				break;
 			default:
 				printf("Error: Unsupported pixel format.\n");

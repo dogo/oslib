@@ -24,11 +24,11 @@ extern "C" {
  * \brief Virtual File type.
  */
 typedef struct {
-	void *ioPtr;            //!< User data for IO processing (usually a pointer to data, FILE*, etc.)
-	unsigned short type;    //!< Virtual file type (source number).
-	unsigned short mode;    //!< File open mode (VF_O_READ, VF_O_WRITE, VF_O_READWRITE).
-	unsigned long userData; //!< Additional data
-	int offset, maxSize;    //!< Internal variables for memory-based (RAM / ROM) sources
+	void *ioPtr;            // !< User data for IO processing (usually a pointer to data, FILE*, etc.)
+	unsigned short type;    // !< Virtual file type (source number).
+	unsigned short mode;    // !< File open mode (VF_O_READ, VF_O_WRITE, VF_O_READWRITE).
+	unsigned long userData; // !< Additional data
+	int offset, maxSize;    // !< Internal variables for memory-based (RAM / ROM) sources
 } VIRTUAL_FILE;
 
 /**
@@ -38,9 +38,9 @@ typedef struct {
  * In such cases, opening a file in one of these modes will fail, and VirtualFileOpen will return NULL.
  */
 enum VF_OPEN_MODES {
-	VF_O_READ,              //!< Read only
-	VF_O_READWRITE,         //!< Read & Write
-	VF_O_WRITE              //!< Write only
+	VF_O_READ,              // !< Read only
+	VF_O_READWRITE,         // !< Read & Write
+	VF_O_WRITE              // !< Write only
 };
 
 /**
@@ -49,17 +49,17 @@ enum VF_OPEN_MODES {
  * The structure holds function pointers for various file operations.
  */
 typedef struct {
-	int (*fOpen)(void *param1, int param2, int type, int mode, VIRTUAL_FILE* f); //!< Open a file
-	int (*fClose)(VIRTUAL_FILE *f); //!< Close a file
-	int (*fRead)(void *ptr, size_t size, size_t n, VIRTUAL_FILE* f); //!< Read from a file
-	int (*fWrite)(const void *ptr, size_t size, size_t n, VIRTUAL_FILE* f); //!< Write to a file
-	int (*fGetc)(VIRTUAL_FILE *f); //!< Read a single character from a file
-	int (*fPutc)(int caractere, VIRTUAL_FILE *f); //!< Write a single character to a file
-	char* (*fGets)(char *str, int maxLen, VIRTUAL_FILE *f); //!< Read a string from a file
-	void (*fPuts)(const char *s, VIRTUAL_FILE *f); //!< Write a string to a file
-	void (*fSeek)(VIRTUAL_FILE *f, int offset, int whence); //!< Set file position
-	int (*fTell)(VIRTUAL_FILE *f); //!< Get current file position
-	int (*fEof)(VIRTUAL_FILE *f); //!< Check for end of file
+	int (*fOpen)(void *param1, int param2, int type, int mode, VIRTUAL_FILE *f); // !< Open a file
+	int (*fClose)(VIRTUAL_FILE *f); // !< Close a file
+	int (*fRead)(void *ptr, size_t size, size_t n, VIRTUAL_FILE *f); // !< Read from a file
+	int (*fWrite)(const void *ptr, size_t size, size_t n, VIRTUAL_FILE *f); // !< Write to a file
+	int (*fGetc)(VIRTUAL_FILE *f); // !< Read a single character from a file
+	int (*fPutc)(int caractere, VIRTUAL_FILE *f); // !< Write a single character to a file
+	char * (*fGets)(char *str, int maxLen, VIRTUAL_FILE *f); // !< Read a string from a file
+	void (*fPuts)(const char *s, VIRTUAL_FILE *f); // !< Write a string to a file
+	void (*fSeek)(VIRTUAL_FILE *f, int offset, int whence); // !< Set file position
+	int (*fTell)(VIRTUAL_FILE *f); // !< Get current file position
+	int (*fEof)(VIRTUAL_FILE *f); // !< Check for end of file
 } VIRTUAL_FILE_SOURCE;
 
 /**
@@ -68,10 +68,10 @@ typedef struct {
  * Used for RAM-based devices.
  */
 typedef struct {
-	const char *name;       //!< Virtual file name
-	void *data;             //!< RAM data block
-	int size;               //!< Block data size
-	int *type;              //!< Associated source (e.g., &VF_MEMORY)
+	const char *name;       // !< Virtual file name
+	void *data;             // !< RAM data block
+	int size;               // !< Block data size
+	int *type;              // !< Associated source (e.g., &VF_MEMORY)
 } OSL_VIRTUALFILENAME;
 
 /**
@@ -263,7 +263,7 @@ extern const char *osl_tempFileName;
 extern void *oslReadEntireFileToMemory(VIRTUAL_FILE *f, int *size);
 
 /* Memory-based source handlers */
-extern int vfsMemOpen(void *param1, int param2, int type, int mode, VIRTUAL_FILE* f);
+extern int vfsMemOpen(void *param1, int param2, int type, int mode, VIRTUAL_FILE *f);
 extern int vfsMemClose(VIRTUAL_FILE *f);
 extern int vfsMemWrite(const void *ptr, size_t size, size_t n, VIRTUAL_FILE *f);
 extern int vfsMemRead(void *ptr, size_t size, size_t n, VIRTUAL_FILE *f);
@@ -332,7 +332,7 @@ extern int VF_FILE;
  * \return The name of the temporary file.
  */
 static inline char *oslGetTempFileName() {
-	return (char*)osl_tempFileName;
+	return (char *)osl_tempFileName;
 }
 
 /**

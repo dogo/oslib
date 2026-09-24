@@ -1,15 +1,15 @@
 #include "oslib.h"
 
 // Swizzle a texture to optimize memory access patterns on the PSP
-void oslSwizzleTexture(u8* out, const u8* in, unsigned int width, unsigned int height) {
+void oslSwizzleTexture(u8 *out, const u8 *in, unsigned int width, unsigned int height) {
 	unsigned int blockx, blocky, j;
 	unsigned int width_blocks = width / 16;
 	unsigned int height_blocks = height / 8;
 	unsigned int src_pitch = (width - 16) / 4;
 	unsigned int src_row = width * 8;
 
-	const u8* ysrc = in;
-	u32* dst = (u32*)out;
+	const u8 *ysrc = in;
+	u32 *dst = (u32 *)out;
 
 #ifndef PSP
 	// On non-PSP platforms, simply copy the input to output
@@ -19,9 +19,9 @@ void oslSwizzleTexture(u8* out, const u8* in, unsigned int width, unsigned int h
 
 	// Swizzle the texture
 	for (blocky = 0; blocky < height_blocks; ++blocky) {
-		const u8* xsrc = ysrc;
+		const u8 *xsrc = ysrc;
 		for (blockx = 0; blockx < width_blocks; ++blockx) {
-			const u32* src = (const u32*)xsrc;
+			const u32 *src = (const u32 *)xsrc;
 			for (j = 0; j < 8; ++j) {
 				*(dst++) = *(src++);
 				*(dst++) = *(src++);
@@ -36,7 +36,7 @@ void oslSwizzleTexture(u8* out, const u8* in, unsigned int width, unsigned int h
 }
 
 // Get the address of a swizzled pixel
-void* oslGetSwizzledPixelAddr(OSL_IMAGE* img, unsigned int x, unsigned int y) {
+void *oslGetSwizzledPixelAddr(OSL_IMAGE *img, unsigned int x, unsigned int y) {
 	if (!oslImageIsSwizzled(img)) {
 		return oslGetImagePixelAdr(img, x, y);
 	}
@@ -56,21 +56,21 @@ void* oslGetSwizzledPixelAddr(OSL_IMAGE* img, unsigned int x, unsigned int y) {
 	x = x - (blockx * 16);
 	y = y - (blocky * 8);
 
-	return (void*)((u8*)img->data + block_address + x + (y * 16));
+	return (void *)((u8 *)img->data + block_address + x + (y * 16));
 }
 
 // Swizzle an entire image
-void oslSwizzleImage(OSL_IMAGE* img) {
+void oslSwizzleImage(OSL_IMAGE *img) {
 	// Check if the image is already swizzled
 	if (oslImageIsSwizzled(img)) {
 		return;
 	}
 
 	// Allocate a temporary block of memory for swizzling
-	void* block = malloc(img->totalSize);
+	void *block = malloc(img->totalSize);
 	if (block) {
 		memcpy(block, img->data, img->totalSize);
-		oslSwizzleTexture((u8*)img->data, (u8*)block, (img->realSizeX * osl_pixelWidth[img->pixelFormat]) >> 3, img->realSizeY);
+		oslSwizzleTexture((u8 *)img->data, (u8 *)block, (img->realSizeX * osl_pixelWidth[img->pixelFormat]) >> 3, img->realSizeY);
 		free(block);
 
 		oslUncacheImageData(img);
@@ -81,7 +81,7 @@ void oslSwizzleImage(OSL_IMAGE* img) {
 }
 
 // Swizzle an image to another image buffer
-void oslSwizzleImageTo(OSL_IMAGE* imgDst, OSL_IMAGE* imgSrc) {
+void oslSwizzleImageTo(OSL_IMAGE *imgDst, OSL_IMAGE *imgSrc) {
 	if (imgDst == imgSrc) {
 		oslSwizzleImage(imgDst);
 		return;
@@ -93,7 +93,7 @@ void oslSwizzleImageTo(OSL_IMAGE* imgDst, OSL_IMAGE* imgSrc) {
 		return;
 	}
 
-	oslSwizzleTexture((u8*)imgDst->data, (u8*)imgSrc->data, (imgSrc->realSizeX * osl_pixelWidth[imgSrc->pixelFormat]) >> 3, imgSrc->realSizeY);
+	oslSwizzleTexture((u8 *)imgDst->data, (u8 *)imgSrc->data, (imgSrc->realSizeX * osl_pixelWidth[imgSrc->pixelFormat]) >> 3, imgSrc->realSizeY);
 	oslUncacheImageData(imgDst);
 	oslImageIsSwizzledSet(imgDst, 1);
 }

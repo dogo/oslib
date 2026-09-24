@@ -14,24 +14,25 @@ char key[] = "QTAK319JQKJ952HA";
 int saveLoadType = OSL_DIALOG_NONE;
 
 #if _PSP_FW_VERSION >= 200
-static void oslSetSavedataKey(){
+static void oslSetSavedataKey() {
 	memcpy(savedata.key, key, sizeof(savedata.key));
 }
+
 #endif
 
-void oslInitSaveDialog(struct oslSaveLoad *saveData){
-	if(saveData->dialogType == 0){
+void oslInitSaveDialog(struct oslSaveLoad *saveData) {
+	if (saveData->dialogType == 0) {
 		oslInitMultiSaveDialog(saveData);
-	}else if(saveData->dialogType == 1){
+	} else if (saveData->dialogType == 1) {
 		oslInitSingleSaveDialog(saveData);
-	}else if(saveData->dialogType == 2){
+	} else if (saveData->dialogType == 2) {
 		oslInitAutoSaveDialog(saveData);
 	} else {
 		oslInitMultiSaveDialog(saveData);
 	}
 }
 
-void oslInitMultiSaveDialog(struct oslSaveLoad *saveData){
+void oslInitMultiSaveDialog(struct oslSaveLoad *saveData) {
 	memset(&savedata, 0, sizeof(SceUtilitySavedataParam));
 	memset(&newData, 0, sizeof(PspUtilitySavedataListSaveNewData));
 
@@ -101,7 +102,7 @@ void oslInitMultiSaveDialog(struct oslSaveLoad *saveData){
 	saveLoadType = OSL_DIALOG_SAVE;
 }
 
-void oslInitSingleSaveDialog(struct oslSaveLoad *saveData){
+void oslInitSingleSaveDialog(struct oslSaveLoad *saveData) {
 	memset(&savedata, 0, sizeof(SceUtilitySavedataParam));
 	memset(&newData, 0, sizeof(PspUtilitySavedataListSaveNewData));
 
@@ -114,7 +115,7 @@ void oslInitSingleSaveDialog(struct oslSaveLoad *saveData){
 	savedata.base.fontThread = 0x12;
 	savedata.base.soundThread = 0x10;
 
-	//savedata.mode = PSP_UTILITY_SAVEDATA_LISTSAVE;
+	// savedata.mode = PSP_UTILITY_SAVEDATA_LISTSAVE;
 	savedata.mode = PSP_UTILITY_SAVEDATA_SAVE;
 	savedata.overwrite = 1;
 	savedata.focus = PSP_UTILITY_SAVEDATA_FOCUS_LATEST; // Set initial focus to the newest file (for loading)
@@ -126,7 +127,7 @@ void oslInitSingleSaveDialog(struct oslSaveLoad *saveData){
 	strcpy(savedata.saveName, saveData->saveName);  // Second part of the save name, save identifier name
 
 	// List of multiple names
-	//savedata.saveNameList = saveData->nameList;
+	// savedata.saveNameList = saveData->nameList;
 
 	strcpy(savedata.fileName, "DATA.BIN");  // name of the data file
 
@@ -167,12 +168,12 @@ void oslInitSingleSaveDialog(struct oslSaveLoad *saveData){
 	// Set new data
 	savedata.newData = &newData;
 
-	//savedata.focus = PSP_UTILITY_SAVEDATA_FOCUS_FIRSTEMPTY;
+	// savedata.focus = PSP_UTILITY_SAVEDATA_FOCUS_FIRSTEMPTY;
 	sceUtilitySavedataInitStart(&savedata);
 	saveLoadType = OSL_DIALOG_SAVE;
 }
 
-void oslInitAutoSaveDialog(struct oslSaveLoad *saveData){
+void oslInitAutoSaveDialog(struct oslSaveLoad *saveData) {
 	memset(&savedata, 0, sizeof(SceUtilitySavedataParam));
 	memset(&newData, 0, sizeof(PspUtilitySavedataListSaveNewData));
 
@@ -185,7 +186,7 @@ void oslInitAutoSaveDialog(struct oslSaveLoad *saveData){
 	savedata.base.fontThread = 0x12;
 	savedata.base.soundThread = 0x10;
 
-	//savedata.mode = PSP_UTILITY_SAVEDATA_LISTSAVE;
+	// savedata.mode = PSP_UTILITY_SAVEDATA_LISTSAVE;
 	savedata.mode = PSP_UTILITY_SAVEDATA_AUTOSAVE;
 	savedata.overwrite = 1;
 	savedata.focus = PSP_UTILITY_SAVEDATA_FOCUS_LATEST; // Set initial focus to the newest file (for loading)
@@ -197,7 +198,7 @@ void oslInitAutoSaveDialog(struct oslSaveLoad *saveData){
 	strcpy(savedata.saveName, saveData->saveName);  // Second part of the save name, save identifier name
 
 	// List of multiple names
-	//savedata.saveNameList = saveData->nameList;
+	// savedata.saveNameList = saveData->nameList;
 
 	strcpy(savedata.fileName, "DATA.BIN");  // name of the data file
 
@@ -238,24 +239,24 @@ void oslInitAutoSaveDialog(struct oslSaveLoad *saveData){
 	// Set new data
 	savedata.newData = &newData;
 
-	//savedata.focus = PSP_UTILITY_SAVEDATA_FOCUS_FIRSTEMPTY;
+	// savedata.focus = PSP_UTILITY_SAVEDATA_FOCUS_FIRSTEMPTY;
 	sceUtilitySavedataInitStart(&savedata);
 	saveLoadType = OSL_DIALOG_SAVE;
 }
 
-void oslInitLoadDialog(struct oslSaveLoad *loadData){
-	if(loadData->dialogType == 0){
+void oslInitLoadDialog(struct oslSaveLoad *loadData) {
+	if (loadData->dialogType == 0) {
 		oslInitMultiLoadDialog(loadData);
-	}else if(loadData->dialogType == 1){
+	} else if (loadData->dialogType == 1) {
 		oslInitSingleLoadDialog(loadData);
-	}else if(loadData->dialogType == 2){
+	} else if (loadData->dialogType == 2) {
 		oslInitAutoLoadDialog(loadData);
 	} else {
 		oslInitMultiLoadDialog(loadData);
 	}
 }
 
-void oslInitMultiLoadDialog(struct oslSaveLoad *loadData){
+void oslInitMultiLoadDialog(struct oslSaveLoad *loadData) {
 	memset(&savedata, 0, sizeof(SceUtilitySavedataParam));
 	savedata.base.size = sizeof(SceUtilitySavedataParam);
 
@@ -289,7 +290,7 @@ void oslInitMultiLoadDialog(struct oslSaveLoad *loadData){
 	saveLoadType = OSL_DIALOG_LOAD;
 }
 
-void oslInitSingleLoadDialog(struct oslSaveLoad *loadData){
+void oslInitSingleLoadDialog(struct oslSaveLoad *loadData) {
 	memset(&savedata, 0, sizeof(SceUtilitySavedataParam));
 	savedata.base.size = sizeof(SceUtilitySavedataParam);
 
@@ -300,7 +301,7 @@ void oslInitSingleLoadDialog(struct oslSaveLoad *loadData){
 	savedata.base.fontThread = 0x12;
 	savedata.base.soundThread = 0x10;
 
-	//savedata.mode = PSP_UTILITY_SAVEDATA_LISTLOAD;
+	// savedata.mode = PSP_UTILITY_SAVEDATA_LISTLOAD;
 	savedata.mode = PSP_UTILITY_SAVEDATA_LOAD;
 	savedata.overwrite = 1;
 	savedata.focus = PSP_UTILITY_SAVEDATA_FOCUS_LATEST; // Set initial focus to the newest file (for loading)
@@ -312,7 +313,7 @@ void oslInitSingleLoadDialog(struct oslSaveLoad *loadData){
 	strcpy(savedata.saveName, loadData->saveName);  // Second part of the save name, save identifier name
 
 	// List of multiple names
-	//savedata.saveNameList = loadData->nameList;
+	// savedata.saveNameList = loadData->nameList;
 
 	strcpy(savedata.fileName, "DATA.BIN");  // name of the data file
 
@@ -324,7 +325,7 @@ void oslInitSingleLoadDialog(struct oslSaveLoad *loadData){
 	saveLoadType = OSL_DIALOG_LOAD;
 }
 
-void oslInitAutoLoadDialog(struct oslSaveLoad *loadData){
+void oslInitAutoLoadDialog(struct oslSaveLoad *loadData) {
 	memset(&savedata, 0, sizeof(SceUtilitySavedataParam));
 	savedata.base.size = sizeof(SceUtilitySavedataParam);
 
@@ -335,7 +336,7 @@ void oslInitAutoLoadDialog(struct oslSaveLoad *loadData){
 	savedata.base.fontThread = 0x12;
 	savedata.base.soundThread = 0x10;
 
-	//savedata.mode = PSP_UTILITY_SAVEDATA_LISTLOAD;
+	// savedata.mode = PSP_UTILITY_SAVEDATA_LISTLOAD;
 	savedata.mode = PSP_UTILITY_SAVEDATA_AUTOLOAD;
 	savedata.overwrite = 1;
 	savedata.focus = PSP_UTILITY_SAVEDATA_FOCUS_LATEST; // Set initial focus to the newest file (for loading)
@@ -347,7 +348,7 @@ void oslInitAutoLoadDialog(struct oslSaveLoad *loadData){
 	strcpy(savedata.saveName, loadData->saveName);  // Second part of the save name, save identifier name
 
 	// List of multiple names
-	//savedata.saveNameList = loadData->nameList;
+	// savedata.saveNameList = loadData->nameList;
 
 	strcpy(savedata.fileName, "DATA.BIN");  // name of the data file
 
@@ -359,8 +360,7 @@ void oslInitAutoLoadDialog(struct oslSaveLoad *loadData){
 	saveLoadType = OSL_DIALOG_LOAD;
 }
 
-void oslInitDeleteDialog(struct oslSaveLoad *deleteData){
-
+void oslInitDeleteDialog(struct oslSaveLoad *deleteData) {
 	memset(&savedata, 0, sizeof(SceUtilitySavedataParam));
 	savedata.base.size = sizeof(SceUtilitySavedataParam);
 
@@ -371,7 +371,7 @@ void oslInitDeleteDialog(struct oslSaveLoad *deleteData){
 	savedata.base.fontThread = 0x12;
 	savedata.base.soundThread = 0x10;
 
-	//savedata.mode = PSP_UTILITY_SAVEDATA_LISTLOAD;
+	// savedata.mode = PSP_UTILITY_SAVEDATA_LISTLOAD;
 	savedata.mode = PSP_UTILITY_SAVEDATA_LISTDELETE;
 	savedata.overwrite = 1;
 	savedata.focus = PSP_UTILITY_SAVEDATA_FOCUS_LATEST; // Set initial focus to the newest file (for loading)
@@ -383,8 +383,8 @@ void oslInitDeleteDialog(struct oslSaveLoad *deleteData){
 	strcpy(savedata.saveName, deleteData->saveName);        // Second part of the save name, save identifier name
 
 	// List of multiple names
-	//char nameList[][20] = {"",""};
-	//strcpy(nameList[0][0],deleteData->saveName);
+	// char nameList[][20] = {"",""};
+	// strcpy(nameList[0][0],deleteData->saveName);
 	savedata.saveNameList = deleteData->nameList;
 
 	strcpy(savedata.fileName, "DATA.BIN");  // name of the data file
@@ -397,12 +397,12 @@ void oslInitDeleteDialog(struct oslSaveLoad *deleteData){
 	saveLoadType = OSL_DIALOG_DELETE;
 }
 
-void oslDrawSaveLoad(){
-	switch(sceUtilitySavedataGetStatus()) {
+void oslDrawSaveLoad() {
+	switch (sceUtilitySavedataGetStatus()) {
 	case PSP_UTILITY_DIALOG_INIT:
 	case PSP_UTILITY_DIALOG_VISIBLE:
 		sceGuFinish();
-		sceGuSync(0,0);
+		sceGuSync(0, 0);
 		sceUtilitySavedataUpdate(1);
 		sceGuStart(GU_DIRECT, osl_list);
 		oslSetAlpha(OSL_FX_RGBA, 0xff);
@@ -416,22 +416,18 @@ void oslDrawSaveLoad(){
 	}
 }
 
-
-int oslGetLoadSaveStatus(){
+int oslGetLoadSaveStatus() {
 	return sceUtilitySavedataGetStatus();
 }
 
-
-int oslGetSaveLoadType(){
+int oslGetSaveLoadType() {
 	return saveLoadType;
 }
 
-
-int oslSaveLoadGetResult(){
+int oslSaveLoadGetResult() {
 	return savedata.base.result;
 }
 
-
-void oslEndSaveLoadDialog(){
+void oslEndSaveLoadDialog() {
 	saveLoadType = OSL_DIALOG_NONE;
 }

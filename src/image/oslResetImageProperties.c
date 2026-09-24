@@ -1,7 +1,6 @@
 #include "oslib.h"
 
-void oslResetImageProperties(OSL_IMAGE *img)
-{
+void oslResetImageProperties(OSL_IMAGE *img) {
 	if (!img) return;
 
 	// Reset position
