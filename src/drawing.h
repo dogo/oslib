@@ -2618,9 +2618,15 @@ extern void oslUncachePalette(OSL_PALETTE *pal);
         oslUncacheImageData(img); // Ensure changes are flushed
         \endcode
  */
+extern void *osl_curTexture;
 static inline void oslUncacheImageData(OSL_IMAGE *img) {
-	if (img != NULL)
+	if (img != NULL) {
 		sceKernelDcacheWritebackInvalidateRange(img->data, img->totalSize);
+		// Contents changed: force the next oslSetTexture to re-emit sceGuTexImage (TEXFLUSH),
+		// otherwise the GE keeps sampling stale lines from its texture cache.
+		if (img->data == osl_curTexture)
+			osl_curTexture = NULL;
+	}
 }
 
 /** Uncaches an entire image, including its associated palette.

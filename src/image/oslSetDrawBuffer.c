@@ -10,6 +10,8 @@ void oslSetDrawBuffer(OSL_IMAGE *img) {
 #ifdef PSP
 	// Set the current draw buffer on the PSP
 	osl_curBuf = img;
+	// GE rendering never invalidates the texture cache; rebind (=> TEXFLUSH) so render-to-texture results are seen
+	osl_curTexture = NULL;
 	sceGuDrawBuffer(img->pixelFormat, oslRemoveVramPrefixPtr(img->data), img->sysSizeX);
 #else
 	// Check if the new buffer is the same as the current one; if so, no need to proceed.
