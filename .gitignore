@@ -1,5 +1,6 @@
-# Ignore compiled object files
+# Ignore compiled object files and their dependency files
 *.o
+*.d
 *.so
 *.lib
 

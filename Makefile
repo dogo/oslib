@@ -197,7 +197,9 @@ DEFINES := \
 #   Compiler settings
 #   -----------------
 
-CFLAGS   := $(DEFINES) -O2 -G0 -ggdb -Wall -DHAVE_AV_CONFIG_H -fno-strict-aliasing -fverbose-asm
+# -MMD -MP: emit .d files so editing a header (e.g. a static inline in drawing.h)
+# rebuilds every object that includes it.
+CFLAGS   := $(DEFINES) -MMD -MP -O2 -G0 -ggdb -Wall -DHAVE_AV_CONFIG_H -fno-strict-aliasing -fverbose-asm
 CXXFLAGS := $(CFLAGS) -fno-exceptions -fno-rtti
 ASFLAGS  := $(CFLAGS)
 
@@ -226,7 +228,11 @@ LDFLAGS  :=
 PSPSDK := $(shell psp-config --pspsdk-path)
 PSPDIR := $(shell psp-config --psp-prefix)
 
+EXTRA_CLEAN := $(LIBOBJS:.o=.d)
+
 include $(PSPSDK)/lib/build.mak
+
+-include $(LIBOBJS:.o=.d)
 
 #----------------------------------------------------------------------------
 #   Copy to PSP
