@@ -35,4 +35,4 @@ CI only checks that they build.
 
 | Test | Covers |
 |---|---|
-| `texcache` | Re-drawing an image after render-to-texture or a CPU write samples the new contents, not stale texture-cache lines |
+| `texcache` | Re-drawing an image after render-to-texture or a CPU write (including a >512px image drawn by slice) samples the new contents, not stale texture-cache lines |
