@@ -3,7 +3,7 @@
 # Format the project's C sources with Uncrustify.
 #
 # Usage:
-#   ./run-uncrustify.sh              format every tracked source in src/ and samples/
+#   ./run-uncrustify.sh              format every tracked source in src/, samples/ and tests/
 #   ./run-uncrustify.sh --check      report files that need formatting, change nothing
 #   ./run-uncrustify.sh FILE...      format only the given files
 #
@@ -15,7 +15,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 UNCRUSTIFY_CFG="${SCRIPT_DIR}/uncrustify.cfg"
 IGNORE_FILE="${SCRIPT_DIR}/.uncrustifyignore"
-ROOTS=(src samples)
+ROOTS=(src samples tests)
 
 command -v uncrustify >/dev/null 2>&1 || {
 	echo "error: uncrustify not found in PATH" >&2

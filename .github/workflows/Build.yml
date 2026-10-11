@@ -50,6 +50,14 @@ jobs:
             fi
           done
 
+      - name: Build device tests
+        run: |
+          set -euo pipefail
+          for d in tests/device/*/ ; do
+            echo "Building $d"
+            make -C "$d"
+          done
+
       - name: Build all samples (CMake)
         run: |
           set -euo pipefail
@@ -63,6 +71,19 @@ jobs:
               )
             fi
           done
+
+  host-tests:
+    name: Host unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Build and run
+        run: |
+          set -euo pipefail
+          cmake -S tests/host -B build-host-tests
+          cmake --build build-host-tests -j"$(nproc)"
+          ctest --test-dir build-host-tests --output-on-failure
 
   format:
     name: Code format (Uncrustify)
