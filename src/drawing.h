@@ -2622,10 +2622,10 @@ extern void *osl_curTexture;
 static inline void oslUncacheImageData(OSL_IMAGE *img) {
 	if (img != NULL) {
 		sceKernelDcacheWritebackInvalidateRange(img->data, img->totalSize);
-		// Contents changed: force the next oslSetTexture to re-emit sceGuTexImage (TEXFLUSH),
-		// otherwise the GE keeps sampling stale lines from its texture cache.
-		if (img->data == osl_curTexture)
-			osl_curTexture = NULL;
+		// Contents changed: force the next bind to re-emit sceGuTexImage (TEXFLUSH), otherwise
+		// the GE keeps sampling stale lines from its texture cache. Unconditional because the
+		// bound pointer may be interior to this image (oslSetTexturePart slices).
+		osl_curTexture = NULL;
 	}
 }
 
