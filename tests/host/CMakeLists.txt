@@ -2,7 +2,7 @@
 # Standalone project: the root CMakeLists.txt forces the PSP toolchain.
 #
 #   cmake -S tests/host -B build-host-tests && cmake --build build-host-tests && ctest --test-dir build-host-tests
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.13)
 project(OSLibHostTests C)
 
 set(CMAKE_C_STANDARD 11)
