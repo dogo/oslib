@@ -1,7 +1,8 @@
 // Device test: re-drawing an image after its contents changed must not sample stale
 // texels from the GE's 8 KB texture cache. Only TEXFLUSH (emitted by sceGuTexImage)
 // invalidates it, so OSLib has to re-bind the texture after render-to-texture
-// (oslSetDrawBuffer) and CPU writes (oslUncacheImageData). Each case is paired with
+// (oslSetDrawBuffer) and CPU writes (oslUncacheImageData), including images wider than
+// 512 that bind an interior slice (oslDrawImageBig). Each case is paired with
 // a control that flushes manually, proving the readback itself is sound.
 #include <pspkernel.h>
 #include <pspgu.h>
@@ -45,6 +46,22 @@ static u32 run(int x, int cpuWrite, int manualFlush) {
 	return screenPixel(x + 10, 10);
 }
 
+// Image wider than 512: oslDrawImageBig binds an interior pointer (second 512px slice).
+static u32 runBig(OSL_IMAGE *big, int x, int manualFlush) {
+	oslClearImage(big, RED);
+	big->x = 0;
+	big->y = 200;
+	oslDrawImageBig(big);
+	oslSyncDrawing();
+	oslClearImage(big, BLUE);
+	if (manualFlush)
+		sceGuTexFlush();
+	big->x = x;
+	big->y = 0;
+	oslDrawImageBig(big);
+	return screenPixel(x + 10, 10);
+}
+
 int main() {
 	oslInit(0);
 	oslInitGfx(OSL_PF_8888, 1);
@@ -55,13 +72,17 @@ int main() {
 	oslClearScreen(0);
 	u32 gpu = run(0, 0, 0), gpuCtl = run(50, 0, 1);
 	u32 cpu = run(100, 1, 0), cpuCtl = run(150, 1, 1);
+	OSL_IMAGE *big = oslCreateImage(600, 32, OSL_IN_VRAM, OSL_PF_8888);
+	oslSetImageTile(big, 512, 0, 544, 32);
+	u32 bigCpu = runBig(big, 200, 0), bigCtl = runBig(big, 250, 1);
 	oslEndDrawing();
 
 	u32 g = GREEN & 0xffffff, b = BLUE & 0xffffff;
 	FILE *f = fopen("ms0:/PSP/GAME/texcache/result.txt", "w");
 	fprintf(f, "render-to-texture: %06lx (control %06lx) %s\n", gpu, gpuCtl, gpu == g ? "PASS" : "FAIL");
 	fprintf(f, "cpu write:         %06lx (control %06lx) %s\n", cpu, cpuCtl, cpu == b ? "PASS" : "FAIL");
-	fprintf(f, "controls valid:    %s\n", gpuCtl == g && cpuCtl == b ? "yes" : "NO");
+	fprintf(f, "big image slice:   %06lx (control %06lx) %s\n", bigCpu, bigCtl, bigCpu == b ? "PASS" : "FAIL");
+	fprintf(f, "controls valid:    %s\n", gpuCtl == g && cpuCtl == b && bigCtl == b ? "yes" : "NO");
 	fclose(f);
 	oslEndGfx();
 	sceKernelExitGame();
