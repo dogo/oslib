@@ -16,6 +16,11 @@ samples/**/*.prx
 samples/**/*.SFO
 samples/**/build
 samples/**/cbuild
+tests/device/**/*.elf
+tests/device/**/*.PBP
+tests/device/**/*.prx
+tests/device/**/*.SFO
+build-host-tests
 
 # Ignore documentation directory
 doc/html
