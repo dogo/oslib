@@ -228,11 +228,17 @@ LDFLAGS  :=
 PSPSDK := $(shell psp-config --pspsdk-path)
 PSPDIR := $(shell psp-config --psp-prefix)
 
-EXTRA_CLEAN := $(LIBOBJS:.o=.d)
+# OSLib's own objects; third-party ones are built without -MMD (see below)
+OSLOBJS := $(filter-out $(PSPMATHOBJS),$(LIBOBJS))
+EXTRA_CLEAN := $(OSLOBJS:.o=.d)
 
 include $(PSPSDK)/lib/build.mak
 
--include $(LIBOBJS:.o=.d)
+# An object without its .d (e.g. built before -MMD was added) is rebuilt once,
+# otherwise header edits would keep being ignored for it.
+$(OSLOBJS): %.o: %.d
+$(OSLOBJS:.o=.d): ;
+-include $(OSLOBJS:.o=.d)
 
 #----------------------------------------------------------------------------
 #   Copy to PSP
