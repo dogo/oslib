@@ -48,7 +48,8 @@ void oslDrawImage(OSL_IMAGE *img) {
 		uVal += uCoeff;
 		xVal += xCoeff;
 
-		if (uVal > img->offsetX1) {
+		// Clamp the last stripe; mirrored images step backwards
+		if (uCoeff > 0 ? uVal > img->offsetX1 : uVal < img->offsetX1) {
 			xVal = cX + img->stretchX;
 			uVal = img->offsetX1;
 		}
