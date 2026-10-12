@@ -15,15 +15,16 @@ void oslDrawImage(OSL_IMAGE *img) {
 	oslSetTexture(img);
 
 	float angleRadians = img->angle * (3.141592653f / 180.f);
-	float cX = (-img->centerX * img->stretchX) / (float)(img->offsetX1 - img->offsetX0);
-	float cY = (-img->centerY * img->stretchY) / (float)(img->offsetY1 - img->offsetY0);
+	// Mirroring only flips u; screen-space geometry is the same as unmirrored
+	float cX = (-img->centerX * img->stretchX) / (float)oslAbs(img->offsetX1 - img->offsetX0);
+	float cY = (-img->centerY * img->stretchY) / (float)oslAbs(img->offsetY1 - img->offsetY0);
 	float tmpY = cY + img->stretchY;
 
 	// Determine the U coefficient based on whether the image is mirrored
 	float uCoeff = (img->offsetX1 >= img->offsetX0) ? 64.0f : -64.0f;
 
 	// Calculate the X scaling coefficient (pixels per stripe)
-	float xCoeff = uCoeff / ((float)oslAbs(img->offsetX1 - img->offsetX0) / img->stretchX);
+	float xCoeff = 64.0f / ((float)oslAbs(img->offsetX1 - img->offsetX0) / img->stretchX);
 
 	float uVal = img->offsetX0;
 	float xVal = cX;
