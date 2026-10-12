@@ -21,11 +21,16 @@ int osl_noFail = 0;
 int osl_isinus[OSL_MAX_ANGLE + 1];
 int osl_icosinus[OSL_MAX_ANGLE + 1];
 
+// Round to nearest: truncating made e.g. sin(30) * 16384 = 8191.99 -> 8191, so oslSini(30, 100) == 49
+static int oslRoundToInt(float v) {
+	return (int)(v < 0 ? v - 0.5f : v + 0.5f);
+}
+
 void oslSetupFTrigo() {
 	// Precompute integer sine and cosine tables
 	for (int i = 0; i <= OSL_MAX_ANGLE; i++) {
-		osl_isinus[i] = (int)(oslSin(i, OSL_TRIGO_FACTOR));
-		osl_icosinus[i] = (int)(oslCos(i, OSL_TRIGO_FACTOR));
+		osl_isinus[i] = oslRoundToInt(oslSin(i, OSL_TRIGO_FACTOR));
+		osl_icosinus[i] = oslRoundToInt(oslCos(i, OSL_TRIGO_FACTOR));
 	}
 }
 
