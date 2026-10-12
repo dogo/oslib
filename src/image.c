@@ -238,7 +238,7 @@ OSL_IMAGE *oslCreateSwizzledImage(OSL_IMAGE *src, int newLocation) {
 // Attention: ne supporte pas la rotation ou les déformations avancées!
 // ATTENTION: UTILISER LA VFPU!
 int oslVerifyStripBlit(OSL_IMAGE *img) {
-	int i, ud, uf, size;
+	int i, uf, size;
 	float xd, xf, zoomX;
 	// Ne tient pas dans une page
 	size = (int)img->offsetX1 - (int)img->offsetX0;
@@ -248,40 +248,31 @@ int oslVerifyStripBlit(OSL_IMAGE *img) {
 
 		zoomX = (float)img->stretchX / size;
 		for (i = 0; i < size; i += OSL_SLICE_SIZE) {
-			vertices = (OSL_PRECISE_VERTEX *)sceGuGetMemory(4 * sizeof(OSL_PRECISE_VERTEX));
-			ud = i;
+			vertices = (OSL_PRECISE_VERTEX *)sceGuGetMemory(2 * sizeof(OSL_PRECISE_VERTEX));
 			if ((i + OSL_SLICE_SIZE) > size)
 				uf = size;
 			else
 				uf = i + OSL_SLICE_SIZE;
-			xd = img->x + i * zoomX;
-			xf = img->x + uf * zoomX;
+			// Cut on whole screen pixels and derive u from them, so each piece continues the UV
+			// interpolation exactly where an unstripped sprite would (no shift on fractional zooms).
+			xd = (int)(i * zoomX + 0.5f);
+			xf = uf == size ? img->stretchX : (int)(uf * zoomX + 0.5f);
 
-			vertices[0].u = img->offsetX0 + ud;
+			// Sprites, not triangle strips: the two triangles of a quad break texel ties differently
+			// (a diagonal jag on scaled draws); a sprite samples exactly like the unstripped blit.
+			vertices[0].u = img->offsetX0 + xd / zoomX;
 			vertices[0].v = img->offsetY0;
-			vertices[0].x = xd;
+			vertices[0].x = img->x + xd;
 			vertices[0].y = img->y;
 			vertices[0].z = 0;
 
-			vertices[1].u = img->offsetX0 + uf;
-			vertices[1].v = img->offsetY0;
-			vertices[1].x = xf;
-			vertices[1].y = img->y;
+			vertices[1].u = img->offsetX0 + (uf == size ? size : xf / zoomX);
+			vertices[1].v = img->offsetY1;
+			vertices[1].x = img->x + xf;
+			vertices[1].y = img->y + img->stretchY;
 			vertices[1].z = 0;
 
-			vertices[2].u = img->offsetX0 + ud;
-			vertices[2].v = img->offsetY1;
-			vertices[2].x = xd;
-			vertices[2].y = img->y + img->stretchY;
-			vertices[2].z = 0;
-
-			vertices[3].u = img->offsetX0 + uf;
-			vertices[3].v = img->offsetY1;
-			vertices[3].x = xf;
-			vertices[3].y = img->y + img->stretchY;
-			vertices[3].z = 0;
-
-			sceGuDrawArray(GU_TRIANGLE_STRIP, GU_TEXTURE_32BITF | GU_VERTEX_32BITF | GU_TRANSFORM_2D, 4, 0, vertices);
+			sceGuDrawArray(GU_SPRITES, GU_TEXTURE_32BITF | GU_VERTEX_32BITF | GU_TRANSFORM_2D, 2, 0, vertices);
 		}
 		return 1;
 	} else
