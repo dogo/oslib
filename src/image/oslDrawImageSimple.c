@@ -19,9 +19,10 @@ void oslDrawImageSimple(OSL_IMAGE *img) {
 	oslSetTexture(img);
 
 	// The GE's bilinear filter doesn't land on exact texel centres for 1:1 sprites (it depends on the
-	// size and even the texture address), blurring them. Unscaled draws need no filtering anyway.
-	int unscaled = osl_bilinearFilterEnabled && img->stretchX == oslAbs((int)(img->offsetX1 - img->offsetX0)) &&
-	               img->stretchY == oslAbs((int)(img->offsetY1 - img->offsetY0));
+	// size and even the texture address), blurring them. Unscaled draws need no filtering anyway,
+	// unless the UVs are fractional (e.g. a half-texel shift), which does need interpolation.
+	int unscaled = osl_bilinearFilterEnabled && img->offsetX0 == (int)img->offsetX0 && img->offsetY0 == (int)img->offsetY0 &&
+	               img->stretchX == oslAbs(img->offsetX1 - img->offsetX0) && img->stretchY == oslAbs(img->offsetY1 - img->offsetY0);
 	if (unscaled)
 		sceGuTexFilter(GU_NEAREST, GU_NEAREST);
 

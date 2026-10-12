@@ -55,24 +55,28 @@ static void unscaled(const char *name, int w, int h, int bilinear, int mirror) {
 	fprintf(f, "%-28s %3dx%-3d %4d/%-4d differ %s\n", name, w, h, bad, w * h, bad ? "FAIL" : "PASS");
 }
 
-// A 2x stretch must still be filtered: some pixels are blends, not copies of a texel.
-static void scaledStillFilters(void) {
-	OSL_IMAGE *img = makeImage(30, 20);
-	img->stretchX = 60;
-	img->stretchY = 40;
+// Draws that genuinely resample must still be filtered: some pixels are blends, not copies of a texel.
+static void stillFilters(const char *name, float u0, float v0, float u1, float v1, int w, int h) {
+	OSL_IMAGE *img = makeImage(32, 32);
+	img->offsetX0 = u0;
+	img->offsetY0 = v0;
+	img->offsetX1 = u1;
+	img->offsetY1 = v1;
+	img->stretchX = w;
+	img->stretchY = h;
 	draw(img, 1);
 	int blended = 0;
-	for (int y = 0; y < 40; y++)
-		for (int x = 0; x < 60; x++) {
+	for (int y = 0; y < h; y++)
+		for (int x = 0; x < w; x++) {
 			u32 p = screen(x, y);
 			int copy = 0;
-			for (int ty = 0; ty < 20 && !copy; ty++)
-				for (int tx = 0; tx < 30 && !copy; tx++)
+			for (int ty = 0; ty < 32 && !copy; ty++)
+				for (int tx = 0; tx < 32 && !copy; tx++)
 					copy = p == pattern(tx, ty);
 			blended += !copy;
 		}
 	oslDeleteImage(img);
-	fprintf(f, "%-28s  60x40  %4d/2400 blended %s\n", "bilinear 2x stretch", blended, blended ? "PASS" : "FAIL");
+	fprintf(f, "%-28s %3dx%-3d %4d/%-4d blended %s\n", name, w, h, blended, w * h, blended ? "PASS" : "FAIL");
 }
 
 int main() {
@@ -87,7 +91,8 @@ int main() {
 	unscaled("bilinear 1:1", 64, 48, 1, 0);
 	unscaled("bilinear 1:1", 100, 50, 1, 0);
 	unscaled("bilinear 1:1 mirrored", 30, 20, 1, 1);
-	scaledStillFilters();
+	stillFilters("bilinear 2x stretch", 0, 0, 30, 20, 60, 40);
+	stillFilters("bilinear half-texel shift", 0.5f, 0.5f, 30.5f, 20.5f, 30, 20);
 
 	oslEndDrawing();
 	fclose(f);
