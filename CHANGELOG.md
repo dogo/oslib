@@ -1,3 +1,16 @@
+## Version 1.5.2
+
+Added: Host unit tests (vram_mgr, VirtualFile) and on-device regression tests, run in CI<br>
+Added: cppcheck as a real CI gate<br>
+Fixed: Stale GE texture cache after render-to-texture, CPU/DMA writes or drawing >512 px images by slice<br>
+Fixed: Unscaled images blurred with the bilinear filter on (fractional UVs are still filtered)<br>
+Fixed: oslSini/oslCosi tables truncated instead of rounded (oslSini(30, 100) returned 49)<br>
+Fixed: Diagonal jag and shifted sampling in strip-blitted images (>64 px) when scaled<br>
+Fixed: oslScaleImageCreate() failure not propagated<br>
+Fixed: Defects reported by cppcheck<br>
+Fixed: Makefile now tracks header dependencies<br>
+Updated: Code formatting enforced with uncrustify; LF line endings<br>
+
 ## Version 1.5.1
 
 Added: MP3 support in the audio sample<br>
