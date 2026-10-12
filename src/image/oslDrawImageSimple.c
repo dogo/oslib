@@ -18,10 +18,18 @@ void oslDrawImageSimple(OSL_IMAGE *img) {
 	// Set the texture to be used for rendering
 	oslSetTexture(img);
 
+	// The GE's bilinear filter doesn't land on exact texel centres for 1:1 sprites (it depends on the
+	// size and even the texture address), blurring them. Unscaled draws need no filtering anyway.
+	int unscaled = osl_bilinearFilterEnabled && img->stretchX == oslAbs((int)(img->offsetX1 - img->offsetX0)) &&
+	               img->stretchY == oslAbs((int)(img->offsetY1 - img->offsetY0));
+	if (unscaled)
+		sceGuTexFilter(GU_NEAREST, GU_NEAREST);
+
 	// If auto-strip is enabled, verify and handle it
-	if (oslImageGetAutoStrip(img)) {
-		if (oslVerifyStripBlit(img))
-			return; // Return early if strip blit is verified and completed
+	if (oslImageGetAutoStrip(img) && oslVerifyStripBlit(img)) {
+		if (unscaled)
+			sceGuTexFilter(GU_LINEAR, GU_LINEAR);
+		return; // Strip blit done
 	}
 
 	// Allocate memory for two vertices
@@ -43,4 +51,6 @@ void oslDrawImageSimple(OSL_IMAGE *img) {
 
 	// Draw the image as a 2D sprite
 	sceGuDrawArray(GU_SPRITES, GU_TEXTURE_32BITF | GU_VERTEX_16BIT | GU_TRANSFORM_2D, 2, 0, vertices);
+	if (unscaled)
+		sceGuTexFilter(GU_LINEAR, GU_LINEAR);
 }
