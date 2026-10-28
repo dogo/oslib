@@ -247,7 +247,8 @@ static void osl_mp3DestroyInfo(MP3_INFO *info) {
 
 // Create and allocate memory for MP3_INFO structure
 static MP3_INFO *osl_mp3CreateInfo() {
-	MP3_INFO *info = (MP3_INFO *)malloc(sizeof(MP3_INFO));
+	// dataBuffer is read by the Media Engine and must stay 64-byte aligned
+	MP3_INFO *info = (MP3_INFO *)memalign(64, sizeof(MP3_INFO));
 	if (!info) return NULL;
 
 	memset(info, 0, sizeof(MP3_INFO));
@@ -595,6 +596,23 @@ static void oslAudioCallback_DeleteSound_AT3(OSL_SOUND *s) {
 	}
 }
 
+static VIRTUAL_FILE *oslAudioCallback_StandBy_AT3(OSL_SOUND *s) {
+	if (!s || !s->data) {
+		return NULL;
+	}
+
+	return ((AT3_INFO *)s->data)->handle;
+}
+
+static VIRTUAL_FILE **oslAudioCallback_ReactiveSound_AT3(OSL_SOUND *s, VIRTUAL_FILE *f) {
+	(void)f;
+	if (!s || !s->data) {
+		return NULL;
+	}
+
+	return &((AT3_INFO *)s->data)->handle;
+}
+
 int oslAudioCallback_AudioCallback_AT3(unsigned int i, void *buf, unsigned int length) {
 	AT3_INFO *info = (AT3_INFO *)osl_audioVoices[i].data;
 	int eof = 0;
@@ -767,6 +785,8 @@ OSL_SOUND *oslLoadSoundFileAT3(const char *filename, int stream) {
 					s->playSound = oslAudioCallback_StopSound_AT3;
 					s->stopSound = oslAudioCallback_StopSound_AT3;
 					s->deleteSound = oslAudioCallback_DeleteSound_AT3;
+					s->standBySound = oslAudioCallback_StandBy_AT3;
+					s->reactiveSound = oslAudioCallback_ReactiveSound_AT3;
 					success = 1;
 				} else {
 					// Cleanup in case of failure to load the AT3 file
