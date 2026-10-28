@@ -481,7 +481,7 @@ start:
 	int samplerate_index = (mp3_header & 0xC00) >> 10;
 
 	// Validate frame (bitrate, version, and samplerate)
-	if ((bitrate > 14) || (version == 1) || (samplerate_index == 0) || (bitrate == 0)) {
+	if ((bitrate > 14) || (version == 1) || (samplerate_index == 3) || (bitrate == 0)) {
 		info->data_start = SeekNextFrameMP3(info->handle);
 		if (info->data_start == INVALID_FRAME) {
 			eof = 1;
