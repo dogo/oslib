@@ -31,3 +31,4 @@ endfunction()
 
 osl_host_test(test_vram_mgr vram_mgr.c)
 osl_host_test(test_virtualfile vfile/VirtualFile.c)
+osl_host_test(test_media audio/media.c vfile/VirtualFile.c vfile/vfsFile.c)

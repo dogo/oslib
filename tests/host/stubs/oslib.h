@@ -19,7 +19,11 @@ typedef uint32_t u32;
 #define oslMin(x, y) (((x) < (y)) ? (x) : (y))
 #define oslMax(x, y) (((x) > (y)) ? (x) : (y))
 
+#include "pspsdk.h"
 #include "VirtualFile.h"
 #include "vram_mgr.h"
+#include "audio.h"
+
+void oslHandleLoadNoFailError(const char *filename);
 
 #endif

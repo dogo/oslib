@@ -232,14 +232,14 @@ static int osl_mp3Init() {
 
 static void osl_mp3DestroyInfo(MP3_INFO *info) {
 	if (info) {
+		if (info->getEDRAM) {
+			sceAudiocodecReleaseEDRAM(info->codecBuffer);
+		}
 		if (info->codecBuffer) {
 			free(info->codecBuffer);
 		}
 		if (info->handle) {
 			VirtualFileClose(info->handle);
-		}
-		if (info->getEDRAM) {
-			sceAudiocodecReleaseEDRAM(info->codecBuffer);
 		}
 		free(info);
 	}
@@ -263,7 +263,17 @@ static MP3_INFO *osl_mp3CreateInfo() {
 // Destroy AT3_INFO structure and release resources
 static void osl_at3DestroyInfo(AT3_INFO *info) {
 	if (info) {
-		osl_mp3DestroyInfo((MP3_INFO *)info);
+		if (info->at3_getEDRAM) {
+			sceAudiocodecReleaseEDRAM(info->codecBuffer);
+		}
+		if (info->codecBuffer) {
+			free(info->codecBuffer);
+		}
+		free(info->dataBuffer);
+		if (info->handle) {
+			VirtualFileClose(info->handle);
+		}
+		free(info);
 	}
 }
 
@@ -472,16 +482,17 @@ start:
 	}
 
 	// Parse MP3 header
-	int mp3_header = (mp3_header_buf[0] << 24) | (mp3_header_buf[1] << 16) |
+	u32 mp3_header = ((u32)mp3_header_buf[0] << 24) | (mp3_header_buf[1] << 16) |
 	                 (mp3_header_buf[2] << 8) | mp3_header_buf[3];
 
 	int bitrate = (mp3_header & 0xf000) >> 12;
 	int padding = (mp3_header & 0x200) >> 9;
 	int version = (mp3_header & 0x180000) >> 19;
 	int samplerate_index = (mp3_header & 0xC00) >> 10;
+	int layer = (mp3_header & 0x60000) >> 17;
 
-	// Validate frame (bitrate, version, and samplerate)
-	if ((bitrate > 14) || (version == 1) || (samplerate_index == 3) || (bitrate == 0)) {
+	// Validate frame (layer III only, bitrate, version, and samplerate)
+	if ((layer != 1) || (bitrate > 14) || (version == 1) || (samplerate_index == 3) || (bitrate == 0)) {
 		info->data_start = SeekNextFrameMP3(info->handle);
 		if (info->data_start == INVALID_FRAME) {
 			eof = 1;
@@ -566,6 +577,24 @@ void oslAudioCallback_DeleteSound_ME(OSL_SOUND *s) {
 	}
 }
 
+static void oslAudioCallback_StopSound_AT3(OSL_SOUND *s) {
+	if (!s || !s->data) {
+		return;
+	}
+
+	AT3_INFO *info = (AT3_INFO *)s->data;
+	if (info->handle) {
+		VirtualFileSeek(info->handle, info->data_start_init, PSP_SEEK_SET);
+	}
+}
+
+static void oslAudioCallback_DeleteSound_AT3(OSL_SOUND *s) {
+	if (s && s->data) {
+		osl_at3DestroyInfo((AT3_INFO *)s->data);
+		s->data = NULL;
+	}
+}
+
 int oslAudioCallback_AudioCallback_AT3(unsigned int i, void *buf, unsigned int length) {
 	AT3_INFO *info = (AT3_INFO *)osl_audioVoices[i].data;
 	int eof = 0;
@@ -632,7 +661,7 @@ end:
 // Sound File Loading
 //
 
-static void soundInit(const char *filename, OSL_SOUND *s, MP3_INFO *info) {
+static void soundInit(const char *filename, OSL_SOUND *s, void *info, u32 sample_per_frame) {
 	// Ensure that the sound and info pointers are valid
 	if (!s || !info || !filename) {
 		return;
@@ -648,7 +677,7 @@ static void soundInit(const char *filename, OSL_SOUND *s, MP3_INFO *info) {
 	s->mono = 0; // Always stereo output
 	s->divider = OSL_FMT_44K; // Set sample rate divider to 44kHz
 	s->isStreamed = 1; // MP3 files are streamed by default
-	s->numSamples = info->sample_per_frame;
+	s->numSamples = sample_per_frame;
 
 	// If the sound is streamed, store the filename and suspend information
 	if (s->isStreamed) {
@@ -686,7 +715,7 @@ OSL_SOUND *oslLoadSoundFileMP3(const char *filename, int stream) {
 			if (info) {
 				// Load the MP3 file and initialize the sound structure
 				if (osl_mp3Load(filename, info)) {
-					soundInit(filename, s, info); // Initialize sound properties
+					soundInit(filename, s, info, info->sample_per_frame); // Initialize sound properties
 					s->audioCallback = oslAudioCallback_AudioCallback_MP3; // Set audio callback
 					success = 1;
 				} else {
@@ -732,8 +761,12 @@ OSL_SOUND *oslLoadSoundFileAT3(const char *filename, int stream) {
 			if (info) {
 				// Load the AT3 file and initialize the sound structure
 				if (osl_at3Load(filename, info)) {
-					soundInit(filename, s, (MP3_INFO *)info); // Initialize sound properties
+					soundInit(filename, s, info, info->sample_per_frame); // Initialize sound properties
 					s->audioCallback = oslAudioCallback_AudioCallback_AT3; // Set audio callback
+					// The shared ME callbacks assume an MP3_INFO layout
+					s->playSound = oslAudioCallback_StopSound_AT3;
+					s->stopSound = oslAudioCallback_StopSound_AT3;
+					s->deleteSound = oslAudioCallback_DeleteSound_AT3;
 					success = 1;
 				} else {
 					// Cleanup in case of failure to load the AT3 file
