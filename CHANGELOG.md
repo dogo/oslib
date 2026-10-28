@@ -1,3 +1,14 @@
+## Version 1.5.3
+
+Added: Host unit test for the MP3/AT3 Media Engine code, run in CI<br>
+Fixed: 44.1 kHz MP3 files playing as noise or silence (regression in 1.4.0)<br>
+Fixed: Heap corruption and memory leak when playing, stopping or deleting AT3 sounds<br>
+Fixed: Use-after-free of the codec buffer when deleting MP3 and AT3 sounds<br>
+Fixed: MP3 frame buffer not 64-byte aligned for the Media Engine<br>
+Fixed: MP3 parser feeding non-layer-III frame syncs to the decoder<br>
+Fixed: Rotated draws of mirrored images looping forever<br>
+Fixed: Mirrored images drawn out of place on the rotated draw path<br>
+
 ## Version 1.5.2
 
 Added: Host unit tests (vram_mgr, VirtualFile) and on-device regression tests, run in CI<br>
