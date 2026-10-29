@@ -173,22 +173,26 @@ extern void oslHandleLoadNoFailError(const char *filename);
  * @{
  */
 
-/** @brief Sets the current fixed frameskipping value.
+/** @brief Sets the frameskipping mode.
  *
- * @param val 1 enables auto frameskip, 2 or more enables fixed skipping
- * (val-1 frames out of val are skipped).
+ * @param val 0 disables frameskipping (the default set by oslInit).
+ * 1 enables automatic rendering skips when running late. For N > 1, bit 4
+ * of osl_vsyncEnabled requests a fixed pattern of one rendered frame per N
+ * logical frames, subject to the recovery limit in osl_maxFrameskip.
+ * Without bit 4, synchronization targets osl_currentFrameRate / N frames
+ * per second (60 / N by default), with additional rendering skips when late.
  */
 #define oslSetFrameskip(val) (osl_frameskip = val)
 
 /** @brief Sets the maximum frameskip value.
  *
- * @param val Maximum frameskip value.
+ * @param val Recovery limit; see osl_maxFrameskip. The default set by oslInit is 5.
  */
 #define oslSetMaxFrameskip(val) (osl_maxFrameskip = val)
 
-/** @brief Sets the VSync parameter.
+/** @brief Sets the frame synchronization flags.
  *
- * @param val VSync parameter value.
+ * @param val Bitmask documented in osl_vsyncEnabled. The default set by oslInit is 4.
  */
 #define oslSetVSync(val) (osl_vsyncEnabled = val)
 
@@ -196,7 +200,25 @@ extern void oslHandleLoadNoFailError(const char *filename);
  *
  * This function synchronizes the frame rate based on the current frameskip and VSync settings.
  *
- * @return A boolean value indicating if the game is running late.
+ * Run game logic on every loop iteration, including skipped frames. Use the
+ * return value only to decide whether to render on the next iteration:
+ * @code
+ * int skip = 0;
+ * while (!osl_quit) {
+ *     // Read input and update game logic here, even when skip is nonzero.
+ *     if (!skip) {
+ *         oslStartDrawing();
+ *         // Draw the game here.
+ *         oslEndDrawing();
+ *     }
+ *     oslEndFrame();
+ *     skip = oslSyncFrame();
+ * }
+ * @endcode
+ *
+ * @return 1 to skip rendering the next frame, 0 to render it. This is not a
+ * lateness indicator: fixed skipping can return 1 when on time, and disabled
+ * frameskipping always returns 0, even when late.
  */
 #define oslSyncFrame() oslSyncFrameEx(osl_frameskip, osl_maxFrameskip, osl_vsyncEnabled)
 
@@ -262,28 +284,46 @@ extern int (*osl_exitCallback)(int arg1, int arg2, void *common);
 extern int osl_vblInterruptNumber;
 
 /**
- * @brief Maximum allowed frameskip value.
+ * @brief Limits consecutive skips requested by the recovery branch.
  *
- * This variable determines the maximum number of frames that can be skipped
- * to maintain a stable frame rate. A higher value may result in a less smooth
- * visual experience but can help the game maintain its target frame rate.
+ * The recovery branch runs while its skip counter is less than this value
+ * minus 1. The default set by oslInit is 5, allowing up to four consecutive
+ * recovery skips. A value of 1 prevents that branch from requesting skips.
+ * Fixed skipping (frameskip > 1 with synchronization bit 4) can still request
+ * a skip outside that branch, so this is not an absolute limit on all skips.
+ * Ignored when frameskipping is disabled (osl_frameskip == 0).
  */
 extern int osl_maxFrameskip;
 
 /**
- * @brief Indicates whether VSync is enabled.
+ * @brief Frame synchronization bitmask (default set by oslInit: 4).
  *
- * This variable controls the VSync setting for the application. When VSync is enabled,
- * the rendering process is synchronized with the screen refresh rate to prevent screen tearing.
+ * Combine the following flags with bitwise OR:
+ * - 1: With frameskipping enabled, wait for VSync before presenting a rendered frame.
+ * - 4: With osl_frameskip > 1, request fixed rendering skips rather than
+ *   reducing the logical update rate; see oslSetFrameskip.
+ * - 8: Alternative synchronization method, historically described as "without
+ *   VSync". With frameskipping enabled, remove the extra one-count lateness
+ *   offset used by bit 1 for a rendered frame. In the recovery fallback branch,
+ *   also raise the VBlank counter wait target by one when the frame was rendered.
+ *   This flag does not clear bit 1 or allocate a third buffer.
+ * - 16: Disable automatic buffer swapping; the caller must swap buffers.
+ *
+ * With frameskipping disabled, either bit 1 or bit 4 forces at least one
+ * VBlank wait per call, even when late. Without both bits, wait only if the
+ * VBlank counter has not advanced since the previous call. Bit 8 has no effect
+ * in this mode. A zero bitmask does not disable all synchronization waits.
  */
 extern int osl_vsyncEnabled;
 
 /**
  * @brief Current frameskip setting.
  *
- * This variable determines how many frames should be skipped between rendering
- * frames. A value of 1 disables frameskipping, while higher values increase the number
- * of frames skipped, potentially improving performance at the cost of smoothness.
+ * The default set by oslInit is 0 (disabled). A value of 1 enables automatic
+ * rendering skips when late. Values N > 1 target a rendered rate of
+ * osl_currentFrameRate / N (60 / N by default); the logical update rate and
+ * skip pattern depend on synchronization bit 4 and osl_maxFrameskip.
+ * See oslSetFrameskip for the mode details.
  */
 extern int osl_frameskip;
 
@@ -312,10 +352,11 @@ extern volatile int osl_vblCallCount;
 extern volatile int osl_vblankCounterActive;
 
 /**
- * @brief Indicates whether the current frame should be skipped.
+ * @brief Indicates whether rendering should be skipped on the next iteration.
  *
- * This volatile variable is used internally to determine if rendering for the current
- * frame should be skipped based on the frameskip settings and current performance.
+ * Set by oslSyncFrameEx at the end of a frame and returned to the caller for
+ * the next iteration. A value of 1 skips rendering only; game logic must still
+ * run. The default set by oslInit is 0.
  */
 extern volatile int osl_skip;
 
@@ -332,11 +373,17 @@ extern volatile int osl_currentFrameRate;
  * This function is similar to oslSyncFrame but allows you to pass all synchronization
  * parameters directly in one call.
  *
- * @param frameskip Frameskip value.
- * @param max_frameskip Maximum frameskip value.
- * @param vsync VSync parameter.
+ * @param frameskip Frameskipping mode; see oslSetFrameskip. oslInit sets the
+ * corresponding global osl_frameskip to 0.
+ * @param max_frameskip Recovery branch limit; see osl_maxFrameskip for the
+ * counter semantics and fixed-skip exception. Ignored when frameskip is 0.
+ * oslInit sets the corresponding global to 5.
+ * @param vsync Synchronization bitmask; see osl_vsyncEnabled for bits 1, 4, 8
+ * and 16. oslInit sets the corresponding global to 4.
  *
- * @return A boolean value indicating if the game is running late.
+ * @return 1 to skip rendering the next frame, 0 to render it. Always 0 when
+ * frameskip is 0; fixed skipping may return 1 even when on time. Run game
+ * logic on every iteration; see the loop example in oslSyncFrame.
  */
 extern int oslSyncFrameEx(int frameskip, int max_frameskip, int vsync);
 
