@@ -302,15 +302,16 @@ extern int osl_maxFrameskip;
  * - 1: With frameskipping enabled, wait for VSync before presenting a rendered frame.
  * - 4: With osl_frameskip > 1, request fixed rendering skips rather than
  *   reducing the logical update rate; see oslSetFrameskip.
- * - 8: Alternative synchronization method, historically described as "without
- *   VSync". With frameskipping enabled, remove the extra one-count lateness
- *   offset used by bit 1 for a rendered frame. In the recovery fallback branch,
- *   also raise the VBlank counter wait target by one when the frame was rendered.
+ * - 8: Alternative synchronization method. With frameskipping enabled,
+ *   remove the extra one-count lateness offset used by bit 1 for a rendered
+ *   frame. When the recovery branch is not taken (including when its skip
+ *   limit is reached), also raise the VBlank counter wait target by one when
+ *   the frame was rendered.
  *   This flag does not clear bit 1 or allocate a third buffer.
  * - 16: Disable automatic buffer swapping; the caller must swap buffers.
  *
  * With frameskipping disabled, either bit 1 or bit 4 forces at least one
- * VBlank wait per call, even when late. Without both bits, wait only if the
+ * VBlank wait per call, even when late. With neither bit set, wait only if the
  * VBlank counter has not advanced since the previous call. Bit 8 has no effect
  * in this mode. A zero bitmask does not disable all synchronization waits.
  */
