@@ -76,9 +76,10 @@ int main() {
 	oslSetImageTile(big, 512, 0, 544, 32);
 	u32 bigCpu = runBig(big, 200, 0), bigCtl = runBig(big, 250, 1);
 	oslEndDrawing();
+	oslWriteImageFilePNG(OSL_DEFAULT_BUFFER, "screen.png", 0);
 
 	u32 g = GREEN & 0xffffff, b = BLUE & 0xffffff;
-	FILE *f = fopen("ms0:/PSP/GAME/texcache/result.txt", "w");
+	FILE *f = fopen("result.txt", "w");
 	fprintf(f, "render-to-texture: %06lx (control %06lx) %s\n", gpu, gpuCtl, gpu == g ? "PASS" : "FAIL");
 	fprintf(f, "cpu write:         %06lx (control %06lx) %s\n", cpu, cpuCtl, cpu == b ? "PASS" : "FAIL");
 	fprintf(f, "big image slice:   %06lx (control %06lx) %s\n", bigCpu, bigCtl, bigCpu == b ? "PASS" : "FAIL");

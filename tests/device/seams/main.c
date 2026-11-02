@@ -180,7 +180,7 @@ static void mapBleed(const char *name, int bilinear) {
 int main() {
 	oslInit(0);
 	oslInitGfx(OSL_PF_8888, 1);
-	f = fopen("ms0:/PSP/GAME/seams/result.txt", "w");
+	f = fopen("result.txt", "w");
 	oslStartDrawing();
 	oslSetAlpha(OSL_FX_NONE, 0);
 
@@ -199,6 +199,7 @@ int main() {
 	mapBleed("map bilinear", 1);
 
 	oslEndDrawing();
+	oslWriteImageFilePNG(OSL_DEFAULT_BUFFER, "screen.png", 0);
 	fclose(f);
 	oslEndGfx();
 	sceKernelExitGame();

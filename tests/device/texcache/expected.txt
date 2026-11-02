@@ -1,0 +1,4 @@
+render-to-texture: 00ff00 (control 00ff00) PASS
+cpu write:         ff0000 (control ff0000) PASS
+big image slice:   ff0000 (control ff0000) PASS
+controls valid:    yes

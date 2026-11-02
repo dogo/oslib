@@ -20,12 +20,30 @@ Behaviour that only real hardware shows (GE, VFPU, ...). PPSSPP is not a
 substitute: e.g. 1.20.4 does not model the GE texture cache, even with the
 software renderer.
 
-Each test builds an `EBOOT.PBP` against the installed OSLib, runs once without
-UI, writes `ms0:/PSP/GAME/<name>/result.txt` with a `PASS`/`FAIL` line per case
-and exits.
+Each test runs once without UI, writes `result.txt` with a `PASS`/`FAIL` line
+per case next to itself (visual tests also save the frame they drew as
+`screen.png`) and exits. Tests link the installed `libosl.a`, so `make install`
+first.
+
+**Over USB (no screen needed):** start [PSPLink](https://github.com/pspdev/psplinkusb/releases)
+on the PSP with the cable plugged in (not in USB mode), then
 
 ```sh
-make install                      # the test links the installed libosl.a
+tests/device/run.py            # all tests; or e.g. tests/device/run.py seams
+```
+
+builds each test, runs it on the PSP and prints its results; they land in
+`tests/device/<test>/` on the PC. A test also fails if its `result.txt` or
+`screen.png` differs from the `expected.txt`/`expected.png` recorded on a real
+PSP (the PSP gives byte-identical output run to run), which catches changes the
+PASS thresholds let through. After an intended change, re-record them with
+`tests/device/run.py --update <test>`. `--port` changes the `usbhostfs_pc`/`pspsh`
+port (default 10000). The approach comes from
+[pspautotests](https://github.com/hrydgard/pspautotests).
+
+**From the memory stick:**
+
+```sh
 make -C tests/device/texcache
 cp tests/device/texcache/EBOOT.PBP /path/to/memstick/PSP/GAME/texcache/
 # run it on the PSP, then read PSP/GAME/texcache/result.txt

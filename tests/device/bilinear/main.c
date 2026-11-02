@@ -82,7 +82,7 @@ static void stillFilters(const char *name, float u0, float v0, float u1, float v
 int main() {
 	oslInit(0);
 	oslInitGfx(OSL_PF_8888, 1);
-	f = fopen("ms0:/PSP/GAME/bilinear/result.txt", "w");
+	f = fopen("result.txt", "w");
 	oslStartDrawing();
 	oslSetAlpha(OSL_FX_NONE, 0);
 
@@ -95,6 +95,7 @@ int main() {
 	stillFilters("bilinear half-texel shift", 0.5f, 0.5f, 30.5f, 20.5f, 30, 20);
 
 	oslEndDrawing();
+	oslWriteImageFilePNG(OSL_DEFAULT_BUFFER, "screen.png", 0);
 	fclose(f);
 	oslEndGfx();
 	sceKernelExitGame();
