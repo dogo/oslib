@@ -28,14 +28,22 @@ static int teardown(void) {
 	return 0;
 }
 
+// Seconds; each 1 s wait advances it. The firmware's time_t is 32 bits, so like
+// on the PSP only the low word is set and the high word holds whatever was there.
+static unsigned int clockSeconds, delays, garbage = 0xDEAD0000;
+
 int sceKernelDelayThread(unsigned int delay) {
-	(void)delay;
+	delays++;
+	if (delay >= 1000 * 1000) clockSeconds += delay / (1000 * 1000);
 	return 0;
 }
 
 time_t sceKernelLibcTime(time_t *t) {
-	if (t) *t = 0;
-	return 0;
+	if (t) {
+		((uint32_t *)t)[0] = clockSeconds;
+		((uint32_t *)t)[1] = garbage++;
+	}
+	return (time_t)(((uint64_t)garbage++ << 32) | clockSeconds);
 }
 
 SceUID pspSdkLoadStartModule(const char *filename, int mpid) {
@@ -298,6 +306,16 @@ static void test_receive_returns_one_datagram_from_the_peer(void) {
 	oslAdhocTerm();
 }
 
+// The request waits out its timeout instead of giving up on the first check
+static void test_request_waits_for_its_timeout(void) {
+	CHECK_EQ(oslAdhocInit("ULUS99999"), 0);
+	join(0xA1, "Alice", 5);
+	delays = 0;
+	CHECK_EQ(oslAdhocRequestConnection(oslAdhocGetPspByIndex(0), 3, NULL), -1);
+	CHECK_EQ(delays, 3);
+	oslAdhocTerm();
+}
+
 // Whichever setup step fails, init undoes the earlier ones so it can be retried
 static void test_failed_init_is_torn_down(void) {
 	int stage;
@@ -321,6 +339,7 @@ int main(void) {
 	test_peer_list_stays_in_bounds();
 	test_peer_pointers_stay_with_their_psp();
 	test_receive_returns_one_datagram_from_the_peer();
+	test_request_waits_for_its_timeout();
 	test_failed_init_is_torn_down();
 	return TEST_RESULT();
 }

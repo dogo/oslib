@@ -6,6 +6,7 @@
 #include <time.h>
 
 typedef uint8_t u8;
+typedef uint32_t u32;
 
 int sceKernelDelayThread(unsigned int delay);
 time_t sceKernelLibcTime(time_t *t);

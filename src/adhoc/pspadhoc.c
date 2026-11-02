@@ -318,9 +318,8 @@ int oslAdhocRequestConnection(struct remotePsp *aPsp, int timeOut, int (*request
 	if (ret < 0) return ret;
 
 	int quit = 0;
-	time_t startTime;
-	time_t currentTime;
-	sceKernelLibcTime(&startTime);
+	// The firmware's time_t is 32 bits: the high word of newlib's 64-bit one is never set
+	u32 startTime = (u32)sceKernelLibcTime(NULL);
 
 	while (!quit) {
 		if (aPsp->connectionState == OSL_ADHOC_DISCONNECTED)
@@ -337,8 +336,7 @@ int oslAdhocRequestConnection(struct remotePsp *aPsp, int timeOut, int (*request
 			aPsp->connectionState = OSL_ADHOC_JOINED; // reset the state flag
 			return aPsp->connectionState;
 		}
-		sceKernelLibcTime(&currentTime);
-		if (timeOut > 0 && currentTime - startTime >= timeOut)
+		if (timeOut > 0 && (u32)sceKernelLibcTime(NULL) - startTime >= (u32)timeOut)
 			break;
 		sceKernelDelayThread(1000 * 1000); // 1 sec
 	}
