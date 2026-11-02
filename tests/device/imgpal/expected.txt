@@ -1,0 +1,9 @@
+pal8.png   8bit colour   0/768 alpha   0/768 wrong PASS
+pal8t.png  8bit colour   0/768 alpha   0/768 wrong PASS
+pal4.png   8bit colour   0/768 alpha   0/768 wrong PASS
+pal4.png   4bit colour   0/768 alpha   0/768 wrong PASS
+gray4.png  8bit colour   0/768 alpha   0/768 wrong PASS
+gray4.png  4bit colour   0/768 alpha   0/768 wrong PASS
+gray8.png  8bit colour   0/768 alpha   0/768 wrong PASS
+grayt.png  8bit colour   0/768 alpha   0/768 wrong PASS
+gray16.png 8bit colour   0/768 alpha   0/768 wrong PASS
