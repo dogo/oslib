@@ -12,8 +12,21 @@
 #include "pspadhoc.h"
 #include "test.h"
 
-// Fake network stack: every call succeeds and the control link connects at once
+// Fake network stack: the control link connects at once and every setup call
+// succeeds, except the failStage-th one; opened counts what is left to tear down
 static char sentProduct[sizeof(((struct productStruct *)0)->product)];
+static int opened, setupCalls, failStage;
+
+static int setup(int handle) {
+	if (++setupCalls == failStage) return -1;
+	opened++;
+	return handle;
+}
+
+static int teardown(void) {
+	opened--;
+	return 0;
+}
 
 int sceKernelDelayThread(unsigned int delay) {
 	(void)delay;
@@ -41,29 +54,29 @@ int sceWlanGetEtherAddr(uint8_t *etherAddr) {
 
 int sceNetInit(int poolsize, int calloutprio, int calloutstack, int netintrprio, int netintrstack) {
 	(void)poolsize; (void)calloutprio; (void)calloutstack; (void)netintrprio; (void)netintrstack;
-	return 0;
+	return setup(0);
 }
 
 int sceNetTerm(void) {
-	return 0;
+	return teardown();
 }
 
 int sceNetAdhocInit(void) {
-	return 0;
+	return setup(0);
 }
 
 int sceNetAdhocTerm(void) {
-	return 0;
+	return teardown();
 }
 
 int sceNetAdhocPdpCreate(unsigned char *mac, unsigned short port, unsigned int bufsize, int unk1) {
 	(void)mac; (void)port; (void)bufsize; (void)unk1;
-	return 1;
+	return setup(1);
 }
 
 int sceNetAdhocPdpDelete(int id, int unk1) {
 	(void)id; (void)unk1;
-	return 0;
+	return teardown();
 }
 
 int sceNetAdhocPdpSend(int id, unsigned char *destMacAddr, unsigned short port, void *data, unsigned int len, unsigned int timeout, int nonblock) {
@@ -84,20 +97,20 @@ int sceNetAdhocGetPdpStat(int *size, pdpStatStruct *stat) {
 int sceNetAdhocctlInit(int stacksize, int priority, struct productStruct *product) {
 	(void)stacksize; (void)priority;
 	memcpy(sentProduct, product->product, sizeof(sentProduct));
-	return 0;
+	return setup(0);
 }
 
 int sceNetAdhocctlTerm(void) {
-	return 0;
+	return teardown();
 }
 
 int sceNetAdhocctlConnect(const char *name) {
 	(void)name;
-	return 0;
+	return setup(0);
 }
 
 int sceNetAdhocctlDisconnect(void) {
-	return 0;
+	return teardown();
 }
 
 int sceNetAdhocctlGetState(int *event) {
@@ -107,31 +120,31 @@ int sceNetAdhocctlGetState(int *event) {
 
 int sceNetAdhocMatchingInit(int memsize) {
 	(void)memsize;
-	return 0;
+	return setup(0);
 }
 
 int sceNetAdhocMatchingTerm(void) {
-	return 0;
+	return teardown();
 }
 
 int sceNetAdhocMatchingCreate(int mode, int maxpeers, unsigned short port, int bufsize, unsigned int hellodelay, unsigned int pingdelay, int initcount, unsigned int msgdelay, pspAdhocMatchingCallback callback) {
 	(void)mode; (void)maxpeers; (void)port; (void)bufsize; (void)hellodelay; (void)pingdelay; (void)initcount; (void)msgdelay; (void)callback;
-	return 2;
+	return setup(2);
 }
 
 int sceNetAdhocMatchingDelete(int matchingid) {
 	(void)matchingid;
-	return 0;
+	return teardown();
 }
 
 int sceNetAdhocMatchingStart(int matchingid, int evthpri, int evthstack, int inthpri, int inthstack, int optlen, void *optdata) {
 	(void)matchingid; (void)evthpri; (void)evthstack; (void)inthpri; (void)inthstack; (void)optlen; (void)optdata;
-	return 0;
+	return setup(0);
 }
 
 int sceNetAdhocMatchingStop(int matchingid) {
 	(void)matchingid;
-	return 0;
+	return teardown();
 }
 
 int sceNetAdhocMatchingSelectTarget(int matchingid, unsigned char *mac, int optlen, void *optdata) {
@@ -206,9 +219,27 @@ static void test_peer_list_stays_in_bounds(void) {
 	oslAdhocTerm();
 }
 
+// Whichever setup step fails, init undoes the earlier ones so it can be retried
+static void test_failed_init_is_torn_down(void) {
+	int stage;
+	for (stage = 1; stage <= 8; stage++) {
+		setupCalls = 0;
+		failStage = stage;
+		CHECK(oslAdhocInit("ULUS99999") < 0);
+		CHECK_EQ(oslAdhocGetState(), ADHOC_UNINIT);
+		CHECK_EQ(opened, 0);
+	}
+	failStage = 0;
+	CHECK_EQ(oslAdhocInit("ULUS99999"), 0);
+	CHECK_EQ(opened, 8);
+	oslAdhocTerm();
+	CHECK_EQ(opened, 0);
+}
+
 int main(void) {
 	test_product_id_keeps_all_nine_characters();
 	test_join_reads_only_the_given_bytes();
 	test_peer_list_stays_in_bounds();
+	test_failed_init_is_torn_down();
 	return TEST_RESULT();
 }

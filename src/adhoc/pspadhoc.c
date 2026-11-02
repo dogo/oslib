@@ -212,31 +212,65 @@ int oslAdhocInit(char *productID) {
 	if (_libNetInit() < 0)
 		return ADHOC_ERROR_NET_INIT;
 
-	if (_libAdhocInit() < 0)
-		return ADHOC_ERROR_INIT;
+	// oslAdhocTerm() only runs once fully initialized, so undo a partial init here
+	int ret;
+	if (_libAdhocInit() < 0) {
+		ret = ADHOC_ERROR_INIT;
+		goto net_term;
+	}
 
-	if (_libAdhocctlInit() < 0)
-		return ADHOC_ERROR_CTL_INIT;
+	if (_libAdhocctlInit() < 0) {
+		ret = ADHOC_ERROR_CTL_INIT;
+		goto adhoc_term;
+	}
 
-	if (_adhocctlConnect())
-		return ADHOC_ERROR_CTL_CONNECT;
+	if (_adhocctlConnect()) {
+		ret = ADHOC_ERROR_CTL_CONNECT;
+		goto ctl_term;
+	}
 
 	_adhocctlState();
 
-	if (_pdpCreate() < 0)
-		return ADHOC_ERROR_PDP_CREATE;
+	if (_pdpCreate() < 0) {
+		ret = ADHOC_ERROR_PDP_CREATE;
+		goto ctl_disconnect;
+	}
 
-	if (_matchingInit() < 0)
-		return ADHOC_ERROR_MATCHING_INIT;
+	if (_matchingInit() < 0) {
+		ret = ADHOC_ERROR_MATCHING_INIT;
+		goto pdp_delete;
+	}
 
-	if (_createMatching() < 0)
-		return ADHOC_ERROR_MATCHING_CREATE;
+	if (_createMatching() < 0) {
+		ret = ADHOC_ERROR_MATCHING_CREATE;
+		goto matching_term;
+	}
 
-	if (_startMatching() < 0)
-		return ADHOC_ERROR_MATCHING_START;
+	if (_startMatching() < 0) {
+		ret = ADHOC_ERROR_MATCHING_START;
+		goto matching_delete;
+	}
 
 	state = ADHOC_INIT;
 	return 0;
+
+matching_delete:
+	sceNetAdhocMatchingDelete(matchingHD);
+matching_term:
+	sceNetAdhocMatchingTerm();
+pdp_delete:
+	sceNetAdhocPdpDelete(pdpHD, 0);
+ctl_disconnect:
+	sceNetAdhocctlDisconnect();
+ctl_term:
+	sceNetAdhocctlTerm();
+adhoc_term:
+	sceNetAdhocTerm();
+net_term:
+	sceNetTerm();
+	matchingHD = -1;
+	pdpHD = -1;
+	return ret;
 }
 
 u8 *oslAdhocGetMacAddress() {
