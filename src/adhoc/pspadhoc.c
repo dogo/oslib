@@ -21,8 +21,11 @@ static int matchingHD = 0;
 static int pdpHD = 0;
 static int port = 0;
 
+// Entries never move, so a remotePsp pointer keeps naming the same PSP; one that
+// left stays in its slot as OSL_ADHOC_DISCONNECTED
 static struct remotePsp allRemotePSP[MAX_REMOTEPSP];
-static int allRemotePSPCount;
+static int allRemotePSPCount; // PSPs present
+static int usedRemotePSPSlots; // slots filled since init, present or not
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Internal functions:
@@ -105,34 +108,40 @@ int _startMatching() {
 	return sceNetAdhocMatchingStart(matchingHD, 0x10, 0x2000, 0x10, 0x2000, strlen(name), name);
 }
 
-struct remotePsp *_findByMacAddress(const u8 aMacAddress[6]) {
+struct remotePsp *_findSlotByMacAddress(const u8 aMacAddress[6]) {
 	int i = 0;
-	for ( i = 0; i < allRemotePSPCount; i++) {
+	for ( i = 0; i < usedRemotePSPSlots; i++) {
 		if (memcmp(aMacAddress, allRemotePSP[i].macAddress, 6 * sizeof(u8)) == 0)
 			return &allRemotePSP[i];
 	}
 	return NULL;
 }
 
+struct remotePsp *_findByMacAddress(const u8 aMacAddress[6]) {
+	struct remotePsp *pPsp = _findSlotByMacAddress(aMacAddress);
+	return (pPsp != NULL && pPsp->connectionState != OSL_ADHOC_DISCONNECTED) ? pPsp : NULL;
+}
+
 struct remotePsp *_findByState(int remotePspState) {
 	int i = 0;
-	for ( i = 0; i < allRemotePSPCount; i++) {
+	for ( i = 0; i < usedRemotePSPSlots; i++) {
 		if (allRemotePSP[i].connectionState == remotePspState)
 			return &allRemotePSP[i];
 	}
 	return NULL;
 }
 
-int _removeByMacAddress(const u8 aMacAddress[6]) {
+struct remotePsp *_newSlot(const u8 aMacAddress[6]) {
 	int i = 0;
-	for ( i = 0; i < allRemotePSPCount; i++) {
-		if (memcmp(aMacAddress, allRemotePSP[i].macAddress, 6 * sizeof(u8)) == 0) {
-			allRemotePSPCount--;
-			memmove(&allRemotePSP[i], &allRemotePSP[i + 1], (allRemotePSPCount - i) * sizeof(allRemotePSP[0]));
-			return 1;
-		}
+	struct remotePsp *pPsp = _findSlotByMacAddress(aMacAddress); // a PSP coming back gets its old slot
+	if (pPsp != NULL) return pPsp;
+	if (usedRemotePSPSlots < MAX_REMOTEPSP) return &allRemotePSP[usedRemotePSPSlots++];
+	// shortcut: once every slot was filled a newcomer reuses a departed PSP's slot, so a pointer kept to that PSP names the newcomer; add a generation counter if that matters
+	for ( i = 0; i < usedRemotePSPSlots; i++) {
+		if (allRemotePSP[i].connectionState == OSL_ADHOC_DISCONNECTED)
+			return &allRemotePSP[i];
 	}
-	return 0;
+	return NULL;
 }
 
 void _matchingCB(int unk1, int event, unsigned char *macSource, int size, void *data) {
@@ -140,20 +149,21 @@ void _matchingCB(int unk1, int event, unsigned char *macSource, int size, void *
 
 	switch (event) {
 	case MATCHING_JOINED: // A psp has joined
-		if (pPsp == NULL && allRemotePSPCount < MAX_REMOTEPSP) { // it's a new PSP, we add it to the list
-			struct remotePsp newPsp;
-			memset(&newPsp, 0, sizeof(newPsp));
-			memcpy(newPsp.macAddress, macSource, 6 * sizeof(u8));
+		if (pPsp == NULL && (pPsp = _newSlot(macSource)) != NULL) { // it's a new PSP, we add it to the list
+			memset(pPsp, 0, sizeof(*pPsp));
+			memcpy(pPsp->macAddress, macSource, 6 * sizeof(u8));
 			// the nickname is size bytes, not NUL-terminated
 			if (data != NULL && size > 0)
-				memcpy(newPsp.name, data, size < (int)sizeof(newPsp.name) ? size : (int)sizeof(newPsp.name) - 1);
-			newPsp.connectionState = OSL_ADHOC_JOINED;
-			allRemotePSP[allRemotePSPCount++] = newPsp;
+				memcpy(pPsp->name, data, size < (int)sizeof(pPsp->name) ? size : (int)sizeof(pPsp->name) - 1);
+			pPsp->connectionState = OSL_ADHOC_JOINED;
+			allRemotePSPCount++;
 		}
 		break;
 	case MATCHING_DISCONNECT: // A psp has given up
-		if (pPsp != NULL)
-			_removeByMacAddress(pPsp->macAddress);
+		if (pPsp != NULL) {
+			pPsp->connectionState = OSL_ADHOC_DISCONNECTED;
+			allRemotePSPCount--;
+		}
 		break;
 	case MATCHING_SELECTED: // A PSP has selected me
 		if (pPsp != NULL) {
@@ -200,6 +210,7 @@ int oslAdhocInit(char *productID) {
 	pdpHD = -1;
 	port = 0x309;
 	allRemotePSPCount = 0;
+	usedRemotePSPSlots = 0;
 
 	if (sceWlanDevIsPowerOn() != 1)
 		return ADHOC_ERROR_WLAN;
@@ -290,10 +301,12 @@ struct remotePsp *oslAdhocFindRemotePspByMacAddress(const u8 aMacAddress[6]) {
 }
 
 struct remotePsp *oslAdhocGetPspByIndex(int index) {
-	if (index < allRemotePSPCount)
-		return &allRemotePSP[index];
-	else
-		return NULL;
+	int i = 0;
+	for ( i = 0; i < usedRemotePSPSlots; i++) {
+		if (allRemotePSP[i].connectionState != OSL_ADHOC_DISCONNECTED && index-- == 0)
+			return &allRemotePSP[i];
+	}
+	return NULL;
 }
 
 int oslAdhocRequestConnection(struct remotePsp *aPsp, int timeOut, int (*requestConnectionCB)(int aPspState)) {
@@ -310,7 +323,7 @@ int oslAdhocRequestConnection(struct remotePsp *aPsp, int timeOut, int (*request
 	sceKernelLibcTime(&startTime);
 
 	while (!quit) {
-		if (aPsp == NULL)
+		if (aPsp->connectionState == OSL_ADHOC_DISCONNECTED)
 			return -1;
 
 		if (requestConnectionCB != NULL)

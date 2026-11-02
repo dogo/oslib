@@ -219,6 +219,41 @@ static void test_peer_list_stays_in_bounds(void) {
 	oslAdhocTerm();
 }
 
+// A kept pointer names the same PSP while others come and go; one that left reads as disconnected
+static void test_peer_pointers_stay_with_their_psp(void) {
+	int i;
+	CHECK_EQ(oslAdhocInit("ULUS99999"), 0);
+	join(0xA1, "Alice", 5);
+	join(0xB2, "Bob", 3);
+	struct remotePsp *alice = oslAdhocGetPspByIndex(0);
+	struct remotePsp *bob = oslAdhocGetPspByIndex(1);
+
+	leave(0xA1);
+	CHECK(strcmp(bob->name, "Bob") == 0);
+	CHECK_EQ(alice->connectionState, OSL_ADHOC_DISCONNECTED);
+	CHECK_EQ(oslAdhocGetRemotePspCount(), 1);
+	CHECK(oslAdhocGetPspByIndex(0) == bob);
+	CHECK(oslAdhocGetPspByIndex(-1) == NULL);
+	CHECK(oslAdhocGetPspByMacAddress(alice->macAddress) == NULL);
+
+	join(0xC3, "Carol", 5);
+	CHECK(strcmp(alice->name, "Alice") == 0);
+	join(0xA1, "Alice", 5);
+	CHECK(oslAdhocGetPspByMacAddress(alice->macAddress) == alice);
+	CHECK_EQ(alice->connectionState, OSL_ADHOC_JOINED);
+	CHECK_EQ(oslAdhocGetRemotePspCount(), 3);
+
+	// shortcut: with every slot taken, a newcomer reuses a departed PSP's slot
+	for (i = 3; i < MAX_REMOTEPSP; i++)
+		join((u8)i, "x", 1);
+	leave(0xB2);
+	join(0xD4, "Dave", 4);
+	CHECK_EQ(oslAdhocGetRemotePspCount(), MAX_REMOTEPSP);
+	CHECK(oslAdhocGetPspByMacAddress(bob->macAddress) == bob);
+	CHECK(strcmp(bob->name, "Dave") == 0);
+	oslAdhocTerm();
+}
+
 // Whichever setup step fails, init undoes the earlier ones so it can be retried
 static void test_failed_init_is_torn_down(void) {
 	int stage;
@@ -240,6 +275,7 @@ int main(void) {
 	test_product_id_keeps_all_nine_characters();
 	test_join_reads_only_the_given_bytes();
 	test_peer_list_stays_in_bounds();
+	test_peer_pointers_stay_with_their_psp();
 	test_failed_init_is_torn_down();
 	return TEST_RESULT();
 }

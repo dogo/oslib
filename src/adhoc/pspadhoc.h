@@ -59,6 +59,9 @@ enum remotePspState {
 
 /**
  * @brief Structure for holding information about a remote PSP.
+ *
+ * A pointer to it stays tied to the same PSP until the next oslAdhocInit(): when
+ * that PSP leaves, its connectionState becomes OSL_ADHOC_DISCONNECTED.
  */
 struct remotePsp {
 	u8 macAddress[8];        ///< MAC address of the PSP.
