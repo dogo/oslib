@@ -193,9 +193,9 @@ int oslAdhocInit(char *productID) {
 
 	memset(myMacAddress, 0, 8 * sizeof(u8));
 
-	// Ensure null termination after copying
-	strncpy(product.product, productID, 8); // Copy up to 8 characters
-	product.product[8] = '\0'; // Null-terminate explicitly
+	// product is a fixed 9-byte field (e.g. "ULUS99999"), not a NUL-terminated string
+	memset(product.product, 0, sizeof(product.product));
+	memcpy(product.product, productID, strnlen(productID, sizeof(product.product)));
 
 	product.unknown = 0;
 	matchingHD = -1;
