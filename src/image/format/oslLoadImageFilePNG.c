@@ -113,12 +113,15 @@ OSL_IMAGE *oslLoadImageFilePNG(char *filename, int location, int volatile pixelF
 				switch (color_type) {
 				case PNG_COLOR_TYPE_GRAY:
 					r = g = b = *pRow++;
-					if (!r && !g && !b) a = 0x00;
+					// Same colour key as RGB images; black is just black
+					if (osl_colorKeyEnabled && r == (osl_colorKeyValue & 0xff) && g == ((osl_colorKeyValue >> 8) & 0xff) && b == ((osl_colorKeyValue >> 16) & 0xff)) {
+						a = r = g = b = 0;
+					}
 					break;
 				case PNG_COLOR_TYPE_GRAY_ALPHA:
+					// Also what PNG_TRANSFORM_EXPAND makes of a grey PNG with a tRNS chunk
 					r = g = b = *pRow++;
-					if (!r && !g && !b) a = 0x00;
-					pRow++;
+					a = *pRow++;
 					break;
 				case PNG_COLOR_TYPE_RGB:
 					b = *pRow++;
