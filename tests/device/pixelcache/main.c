@@ -48,7 +48,7 @@ static void run(const char *name, int dirtyFirst) {
 	int bad = lost(img);
 	int aligned = ((u32)img->data & 63) == 0;
 	fprintf(f, "%-28s %3d/768 pixels lost, data %s %s\n", name, bad,
-		aligned ? "on a cache line" : "shares a cache line", bad || !aligned ? "FAIL" : "PASS");
+	        aligned ? "on a cache line" : "shares a cache line", bad || !aligned ? "FAIL" : "PASS");
 	oslDeleteImage(img);
 }
 
