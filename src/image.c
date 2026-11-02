@@ -138,13 +138,21 @@ void *oslAllocImageData(OSL_IMAGE *img, int location) {
 		break;
 
 	case OSL_IN_RAM:
-		img->data = memalign(16, img->totalSize);
+		// Own whole cache lines (64 bytes): pixels are written through the uncached pointer
+		// (oslSetImagePixel), and a line shared with a neighbour's cached writes would be
+		// written back over them
+		img->data = memalign(64, (img->totalSize + 63) & ~63);
 		break;
 
 	default:
 		img->data = NULL;
 		break;
 	}
+
+	// The block may hold its previous owner's dirty cache lines; flush them now, or the next
+	// oslUncacheImage writes them back over pixels set through the uncached pointer
+	if (img->data)
+		oslUncacheData(img->data, img->totalSize);
 
 	// Don't forget to set its location
 	img->location = location;

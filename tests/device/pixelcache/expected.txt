@@ -1,0 +1,6 @@
+fresh image                    0/768 pixels lost, data on a cache line PASS
+image reusing a dirty block    0/768 pixels lost, data on a cache line PASS
+image after a small block      0/768 pixels lost, data on a cache line PASS
+image after a small block      0/768 pixels lost, data on a cache line PASS
+image after a small block      0/768 pixels lost, data on a cache line PASS
+image after a small block      0/768 pixels lost, data on a cache line PASS
