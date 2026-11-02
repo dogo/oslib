@@ -6,6 +6,7 @@
 #include <pspnet_adhocctl.h>
 #include <pspnet_adhocmatching.h>
 #include <psputility_sysparam.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "pspadhoc.h"
@@ -156,7 +157,34 @@ static void test_product_id_keeps_all_nine_characters(void) {
 	oslAdhocTerm();
 }
 
+void _matchingCB(int unk1, int event, unsigned char *macSource, int size, void *data);
+
+// Heap copies sized exactly like the SDK's, so ASan flags any read past them
+static void join(u8 macByte, const char *nick, int len) {
+	unsigned char *mac = malloc(6);
+	char *data = len ? malloc(len) : NULL;
+	memset(mac, macByte, 6);
+	if (len) memcpy(data, nick, len);
+	_matchingCB(0, MATCHING_JOINED, mac, len, data);
+	free(data);
+	free(mac);
+}
+
+// The nickname arrives as optlen bytes without a NUL; the MAC is 6 bytes, not 8
+static void test_join_reads_only_the_given_bytes(void) {
+	CHECK_EQ(oslAdhocInit("ULUS99999"), 0);
+	join(0xA1, "Alice", 5);
+	join(0xB2, NULL, 0);
+	CHECK_EQ(oslAdhocGetRemotePspCount(), 2);
+	CHECK(strcmp(oslAdhocGetPspByIndex(0)->name, "Alice") == 0);
+	CHECK(strcmp(oslAdhocGetPspByIndex(1)->name, "") == 0);
+	CHECK_EQ(oslAdhocGetPspByIndex(0)->macAddress[5], 0xA1);
+	CHECK_EQ(oslAdhocGetPspByIndex(0)->connectionState, OSL_ADHOC_JOINED);
+	oslAdhocTerm();
+}
+
 int main(void) {
 	test_product_id_keeps_all_nine_characters();
+	test_join_reads_only_the_given_bytes();
 	return TEST_RESULT();
 }

@@ -143,12 +143,12 @@ void _matchingCB(int unk1, int event, unsigned char *macSource, int size, void *
 	switch (event) {
 	case MATCHING_JOINED: // A psp has joined
 		if (pPsp == NULL) { // it's a new PSP, we add it to the list
-			char buffer[42];
-			memcpy(buffer, data, 42);
-			buffer[41] = 0;
 			struct remotePsp newPsp;
-			memcpy(newPsp.macAddress, macSource, 8 * sizeof(u8));
-			strcpy(newPsp.name, buffer);
+			memset(&newPsp, 0, sizeof(newPsp));
+			memcpy(newPsp.macAddress, macSource, 6 * sizeof(u8));
+			// the nickname is size bytes, not NUL-terminated
+			if (data != NULL && size > 0)
+				memcpy(newPsp.name, data, size < (int)sizeof(newPsp.name) ? size : (int)sizeof(newPsp.name) - 1);
 			newPsp.connectionState = OSL_ADHOC_JOINED;
 			allRemotePSP[allRemotePSPCount++] = newPsp;
 		}
