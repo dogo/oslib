@@ -125,16 +125,14 @@ struct remotePsp *_findByState(int remotePspState) {
 
 int _removeByMacAddress(const u8 aMacAddress[6]) {
 	int i = 0;
-	int found = 0;
 	for ( i = 0; i < allRemotePSPCount; i++) {
 		if (memcmp(aMacAddress, allRemotePSP[i].macAddress, 6 * sizeof(u8)) == 0) {
-			found = 1;
 			allRemotePSPCount--;
+			memmove(&allRemotePSP[i], &allRemotePSP[i + 1], (allRemotePSPCount - i) * sizeof(allRemotePSP[0]));
+			return 1;
 		}
-		if (found)
-			allRemotePSP[i] = allRemotePSP[i + 1];
 	}
-	return found;
+	return 0;
 }
 
 void _matchingCB(int unk1, int event, unsigned char *macSource, int size, void *data) {
@@ -142,7 +140,7 @@ void _matchingCB(int unk1, int event, unsigned char *macSource, int size, void *
 
 	switch (event) {
 	case MATCHING_JOINED: // A psp has joined
-		if (pPsp == NULL) { // it's a new PSP, we add it to the list
+		if (pPsp == NULL && allRemotePSPCount < MAX_REMOTEPSP) { // it's a new PSP, we add it to the list
 			struct remotePsp newPsp;
 			memset(&newPsp, 0, sizeof(newPsp));
 			memcpy(newPsp.macAddress, macSource, 6 * sizeof(u8));

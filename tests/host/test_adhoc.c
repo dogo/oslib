@@ -183,8 +183,32 @@ static void test_join_reads_only_the_given_bytes(void) {
 	oslAdhocTerm();
 }
 
+static void leave(u8 macByte) {
+	unsigned char mac[6];
+	memset(mac, macByte, 6);
+	_matchingCB(0, MATCHING_DISCONNECT, mac, 0, NULL);
+}
+
+// A full list must neither take one PSP more nor read past its end when compacting
+static void test_peer_list_stays_in_bounds(void) {
+	int i;
+	CHECK_EQ(oslAdhocInit("ULUS99999"), 0);
+	for (i = 0; i <= MAX_REMOTEPSP; i++)
+		join((u8)i, "x", 1);
+	CHECK_EQ(oslAdhocGetRemotePspCount(), MAX_REMOTEPSP);
+
+	leave(MAX_REMOTEPSP - 1);
+	leave(0);
+	CHECK_EQ(oslAdhocGetRemotePspCount(), MAX_REMOTEPSP - 2);
+	CHECK_EQ(oslAdhocGetPspByIndex(0)->macAddress[0], 1);
+	CHECK_EQ(oslAdhocGetPspByIndex(MAX_REMOTEPSP - 3)->macAddress[0], MAX_REMOTEPSP - 2);
+	CHECK(oslAdhocGetPspByIndex(MAX_REMOTEPSP - 2) == NULL);
+	oslAdhocTerm();
+}
+
 int main(void) {
 	test_product_id_keeps_all_nine_characters();
 	test_join_reads_only_the_given_bytes();
+	test_peer_list_stays_in_bounds();
 	return TEST_RESULT();
 }
