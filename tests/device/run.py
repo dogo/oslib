@@ -30,6 +30,9 @@ def compare(t, update):
     for out, exp in (("result.txt", "expected.txt"), ("screen.png", "expected.png")):
         out, exp = os.path.join(HERE, t, out), os.path.join(HERE, t, exp)
         if not os.path.exists(out):
+            # A test may write no screenshot, unless one was recorded for it
+            if os.path.exists(exp) and not update:
+                problems.append(f"no {os.path.basename(out)} to compare with {os.path.basename(exp)}")
             continue
         if update:
             shutil.copyfile(out, exp)
