@@ -1,0 +1,3 @@
+tone44.mp3 frames  78 (want 76+) peak  2753 440 Hz sum fb7c145d PASS
+tone48.mp3 frames  85 (want 83+) peak  2753 439 Hz sum d20c09bd PASS
+tone22.mp3 frames  79 (want 76+) peak  3892 440 Hz sum 77018f1d PASS
