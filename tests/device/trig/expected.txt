@@ -1,0 +1,8 @@
+oslSini(30, 100)      50 (want    50) PASS
+oslSini(150, 100)     50 (want    50) PASS
+oslSini(90, 100)     100 (want   100) PASS
+oslSini(270, 100)   -100 (want  -100) PASS
+oslCosi(60, 100)      50 (want    50) PASS
+oslCosi(0, 100)      100 (want   100) PASS
+oslCosi(180, 100)   -100 (want  -100) PASS
+tables vs libm         1/722 entries off PASS

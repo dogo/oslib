@@ -19,7 +19,7 @@ static void exact(const char *name, int got, int want) {
 int main() {
 	oslInit(0);
 	oslSetupFTrigo();
-	f = fopen("ms0:/PSP/GAME/trig/result.txt", "w");
+	f = fopen("result.txt", "w");
 
 	exact("oslSini(30, 100)", oslSini(30, 100), 50);
 	exact("oslSini(150, 100)", oslSini(150, 100), 50);

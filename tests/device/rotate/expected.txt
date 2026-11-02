@@ -1,0 +1,6 @@
+angle   0 plain    box 190,116-289,155 (want 190,116-289,155) PASS
+angle   0 mirrored box 190,116-289,155 (want 190,116-289,155) PASS
+angle  90 plain    box 220, 86-259,185 red 2000 blue 2000
+angle  90 mirrored box 220, 86-259,185 red 2000 blue 2000 same place PASS, halves swapped PASS
+angle  37 plain    box 188, 90-291,181 red 2002 blue 2001
+angle  37 mirrored box 188, 90-291,181 red 2001 blue 2002 same place PASS, halves swapped PASS

@@ -1,0 +1,13 @@
+strip 1:1 nearest vs source            0/4000  differ PASS
+strip 1.5x nearest vs sprite           0/9000  differ (0 at seams) PASS
+strip 1.5x bilinear vs sprite          0/9000  differ (0 at seams) PASS
+strip 0.75x nearest vs sprite          0/2250  differ (0 at seams) PASS
+strip 1.37x nearest vs sprite        326/7398  differ (9 at seams) PASS
+strip 1.37x bilinear vs sprite       638/7398  differ (9 at seams) PASS
+strip gaps 1.37x nearest               0/6800  not white PASS
+strip gaps 1.37x bilinear              0/6800  not white PASS
+big 1:1 nearest vs source              0/9600  differ PASS
+big gaps 0.67x nearest                 0/7164  not white PASS
+big gaps 0.67x bilinear                0/7164  not white PASS
+map nearest                            0/10240 wrong colour PASS
+map bilinear                           0/10240 wrong colour PASS

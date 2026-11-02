@@ -1,0 +1,7 @@
+nearest (control)             30x20     0/600  differ PASS
+bilinear 1:1                  30x20     0/600  differ PASS
+bilinear 1:1                  64x48     0/3072 differ PASS
+bilinear 1:1                 100x50     0/5000 differ PASS
+bilinear 1:1 mirrored         30x20     0/600  differ PASS
+bilinear 2x stretch           60x40  2400/2400 blended PASS
+bilinear half-texel shift     30x20   600/600  blended PASS
