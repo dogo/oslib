@@ -137,10 +137,12 @@ int oslAdhocSendData(struct remotePsp *pPsp, void *data, int lenData);
 /**
  * @brief Receives data from a remote PSP.
  *
+ * Reads one datagram. One sent by another PSP is dropped and counts as no data.
+ *
  * @param pPsp Pointer to the remotePsp structure.
  * @param data Pointer to the buffer to store received data.
  * @param maxLen Maximum length of the buffer.
- * @return Length of the received data, 0 if no data received.
+ * @return Length of the received datagram, 0 if no data received, negative value on error.
  */
 int oslAdhocReceiveData(struct remotePsp *pPsp, void *data, int maxLen);
 

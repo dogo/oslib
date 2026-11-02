@@ -84,13 +84,36 @@ int sceNetAdhocPdpSend(int id, unsigned char *destMacAddr, unsigned short port, 
 	return 0;
 }
 
+// Received datagrams, oldest first
+#define MAX_QUEUED 4
+static struct { u8 mac[6]; char data[16]; unsigned int len; } queued[MAX_QUEUED];
+static int queuedCount;
+
+static void queue(u8 macByte, const char *data) {
+	memset(queued[queuedCount].mac, macByte, 6);
+	queued[queuedCount].len = strlen(data);
+	memcpy(queued[queuedCount].data, data, queued[queuedCount].len);
+	queuedCount++;
+}
+
 int sceNetAdhocPdpRecv(int id, unsigned char *srcMacAddr, unsigned short *port, void *data, void *dataLength, unsigned int timeout, int nonblock) {
-	(void)id; (void)srcMacAddr; (void)port; (void)data; (void)dataLength; (void)timeout; (void)nonblock;
-	return 0;
+	unsigned int *len = dataLength;
+	(void)id; (void)timeout; (void)nonblock;
+	if (queuedCount == 0 || *len < queued[0].len) return -1;
+	memcpy(srcMacAddr, queued[0].mac, 6);
+	*port = 0x309;
+	memcpy(data, queued[0].data, queued[0].len);
+	*len = queued[0].len;
+	memmove(&queued[0], &queued[1], --queuedCount * sizeof(queued[0]));
+	return *len;
 }
 
 int sceNetAdhocGetPdpStat(int *size, pdpStatStruct *stat) {
-	(void)size; (void)stat;
+	int i;
+	(void)size;
+	stat->rcvdData = 0;
+	for (i = 0; i < queuedCount; i++)
+		stat->rcvdData += queued[i].len;
 	return 0;
 }
 
@@ -254,6 +277,27 @@ static void test_peer_pointers_stay_with_their_psp(void) {
 	oslAdhocTerm();
 }
 
+// One call returns one datagram from the given PSP, and never rewrites that PSP's MAC
+static void test_receive_returns_one_datagram_from_the_peer(void) {
+	char buffer[16] = "";
+	CHECK_EQ(oslAdhocInit("ULUS99999"), 0);
+	join(0xA1, "Alice", 5);
+	struct remotePsp *alice = oslAdhocGetPspByIndex(0);
+
+	queue(0xA1, "hi");
+	queue(0xB2, "stranger");
+	queue(0xA1, "again");
+	CHECK_EQ(oslAdhocReceiveData(alice, buffer, sizeof(buffer)), 2);
+	CHECK(memcmp(buffer, "hi", 2) == 0);
+	CHECK_EQ(oslAdhocReceiveData(alice, buffer, sizeof(buffer)), 0);
+	CHECK_EQ(alice->macAddress[0], 0xA1);
+	CHECK(oslAdhocGetPspByMacAddress(alice->macAddress) == alice);
+	CHECK_EQ(oslAdhocReceiveData(alice, buffer, sizeof(buffer)), 5);
+	CHECK(memcmp(buffer, "again", 5) == 0);
+	CHECK_EQ(oslAdhocReceiveData(alice, buffer, sizeof(buffer)), 0);
+	oslAdhocTerm();
+}
+
 // Whichever setup step fails, init undoes the earlier ones so it can be retried
 static void test_failed_init_is_torn_down(void) {
 	int stage;
@@ -276,6 +320,7 @@ int main(void) {
 	test_join_reads_only_the_given_bytes();
 	test_peer_list_stays_in_bounds();
 	test_peer_pointers_stay_with_their_psp();
+	test_receive_returns_one_datagram_from_the_peer();
 	test_failed_init_is_torn_down();
 	return TEST_RESULT();
 }

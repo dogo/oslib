@@ -354,21 +354,19 @@ int oslAdhocReceiveData(struct remotePsp *pPsp, void *data, int maxLen) {
 	aStat.next = NULL;
 	int sizeStat = sizeof(pdpStatStruct);
 	unsigned int sizeData = maxLen;
+	u8 sourceMac[8];
 
 	int ret = sceNetAdhocGetPdpStat(&sizeStat, &aStat);
 	if (ret < 0) return ret;
 
-	if (aStat.rcvdData > 0) {
-		// there are data to be read
-		// sizeData = ( maxLen<aStat.rcvdData)?maxLen:aStat.rcvdData; //MIN
-		// if the size isn't big enough there is an error ....
-		ret = sceNetAdhocPdpRecv(pdpHD, pPsp->macAddress, &(aStat.port), data, &sizeData, 0, 0);
-		if (ret < 0)
-			return ret;
-		return aStat.rcvdData;
-	} else {
-		return 0;
-	}
+	// rcvdData is everything queued; one recv returns one datagram, from any PSP
+	if (aStat.rcvdData == 0) return 0;
+	ret = sceNetAdhocPdpRecv(pdpHD, sourceMac, &(aStat.port), data, &sizeData, 0, 1);
+	if (ret < 0)
+		return ret;
+	if (memcmp(sourceMac, pPsp->macAddress, 6 * sizeof(u8)) != 0)
+		return 0; // sent by another PSP: dropped
+	return sizeData;
 }
 
 struct remotePsp *oslAdhocGetConnectionRequest() {
