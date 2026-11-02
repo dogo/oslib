@@ -55,15 +55,25 @@ static Shape draw(OSL_IMAGE *img, int angle, int mirrored) {
 			if (y < s.y0) s.y0 = y;
 			if (x > s.x1) s.x1 = x;
 			if (y > s.y1) s.y1 = y;
-			if (c == RED) { s.red++; s.rx += x; s.ry += y; }
-			if (c == BLUE) { s.blue++; s.bx += x; s.by += y; }
+			if (c == RED) {
+				s.red++; s.rx += x; s.ry += y;
+			}
+			if (c == BLUE) {
+				s.blue++; s.bx += x; s.by += y;
+			}
 		}
-	if (s.red) { s.rx /= s.red; s.ry /= s.red; }
-	if (s.blue) { s.bx /= s.blue; s.by /= s.blue; }
+	if (s.red) {
+		s.rx /= s.red; s.ry /= s.red;
+	}
+	if (s.blue) {
+		s.bx /= s.blue; s.by /= s.blue;
+	}
 	return s;
 }
 
-static int near(float a, float b, float tol) { return a - b <= tol && b - a <= tol; }
+static int near(float a, float b, float tol) {
+	return a - b <= tol && b - a <= tol;
+}
 
 // The mirrored shape must cover the same area with red and blue swapped.
 static void compare(OSL_IMAGE *img, int angle) {
@@ -73,7 +83,7 @@ static void compare(OSL_IMAGE *img, int angle) {
 	           near(m.rx, n.bx, 1) && near(m.ry, n.by, 1) && near(m.bx, n.rx, 1) && near(m.by, n.ry, 1);
 	fprintf(f, "angle %3d plain    box %3d,%3d-%3d,%3d red %4d blue %4d\n", angle, n.x0, n.y0, n.x1, n.y1, n.red, n.blue);
 	fprintf(f, "angle %3d mirrored box %3d,%3d-%3d,%3d red %4d blue %4d same place %s, halves swapped %s\n",
-		angle, m.x0, m.y0, m.x1, m.y1, m.red, m.blue, box ? "PASS" : "FAIL", swap ? "PASS" : "FAIL");
+	        angle, m.x0, m.y0, m.x1, m.y1, m.red, m.blue, box ? "PASS" : "FAIL", swap ? "PASS" : "FAIL");
 }
 
 int main() {
@@ -90,7 +100,7 @@ int main() {
 		Shape s = draw(img, 0, mirrored);
 		int ok = s.x0 == CX - 50 && s.x1 == CX + 49 && s.y0 == CY - 20 && s.y1 == CY + 19;
 		fprintf(f, "angle   0 %-8s box %3d,%3d-%3d,%3d (want %d,%d-%d,%d) %s\n", mirrored ? "mirrored" : "plain",
-			s.x0, s.y0, s.x1, s.y1, CX - 50, CY - 20, CX + 49, CY + 19, ok ? "PASS" : "FAIL");
+		        s.x0, s.y0, s.x1, s.y1, CX - 50, CY - 20, CX + 49, CY + 19, ok ? "PASS" : "FAIL");
 	}
 	compare(img, 90);
 	compare(img, 37); // looped forever before 4638a26 when mirrored

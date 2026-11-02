@@ -67,7 +67,7 @@ static void colourKey(const char *file) {
 		}
 	if (img) oslDeleteImage(img);
 	fprintf(f, "%-16s colour key: %d/%d white keyed, %d others %s\n", file, keyed, H, others,
-		img && keyed == H && !others ? "PASS" : "FAIL");
+	        img && keyed == H && !others ? "PASS" : "FAIL");
 }
 
 int main() {

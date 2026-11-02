@@ -53,7 +53,7 @@ static void decode(const char *file, int spf, int wantFrames) {
 	int hz = last > first ? (int)((long long)(crossings - 1) * 44100 / (2LL * (last - first))) : 0;
 	int ok = frames == wantFrames && peak > 1000 && hz >= 430 && hz <= 450;
 	fprintf(f, "%-9s frames %2d (want %d) peak %5d %3d Hz sum %08lx %s\n",
-		file, frames, wantFrames, peak, hz, sum, ok ? "PASS" : "FAIL");
+	        file, frames, wantFrames, peak, hz, sum, ok ? "PASS" : "FAIL");
 }
 
 int main() {
