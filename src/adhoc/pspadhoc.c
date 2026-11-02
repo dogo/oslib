@@ -21,8 +21,11 @@ static int matchingHD = 0;
 static int pdpHD = 0;
 static int port = 0;
 
+// Entries never move, so a remotePsp pointer keeps naming the same PSP; one that
+// left stays in its slot as OSL_ADHOC_DISCONNECTED
 static struct remotePsp allRemotePSP[MAX_REMOTEPSP];
-static int allRemotePSPCount;
+static int allRemotePSPCount; // PSPs present
+static int usedRemotePSPSlots; // slots filled since init, present or not
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Internal functions:
@@ -105,36 +108,40 @@ int _startMatching() {
 	return sceNetAdhocMatchingStart(matchingHD, 0x10, 0x2000, 0x10, 0x2000, strlen(name), name);
 }
 
-struct remotePsp *_findByMacAddress(const u8 aMacAddress[6]) {
+struct remotePsp *_findSlotByMacAddress(const u8 aMacAddress[6]) {
 	int i = 0;
-	for ( i = 0; i < allRemotePSPCount; i++) {
+	for ( i = 0; i < usedRemotePSPSlots; i++) {
 		if (memcmp(aMacAddress, allRemotePSP[i].macAddress, 6 * sizeof(u8)) == 0)
 			return &allRemotePSP[i];
 	}
 	return NULL;
 }
 
+struct remotePsp *_findByMacAddress(const u8 aMacAddress[6]) {
+	struct remotePsp *pPsp = _findSlotByMacAddress(aMacAddress);
+	return (pPsp != NULL && pPsp->connectionState != OSL_ADHOC_DISCONNECTED) ? pPsp : NULL;
+}
+
 struct remotePsp *_findByState(int remotePspState) {
 	int i = 0;
-	for ( i = 0; i < allRemotePSPCount; i++) {
+	for ( i = 0; i < usedRemotePSPSlots; i++) {
 		if (allRemotePSP[i].connectionState == remotePspState)
 			return &allRemotePSP[i];
 	}
 	return NULL;
 }
 
-int _removeByMacAddress(const u8 aMacAddress[6]) {
+struct remotePsp *_newSlot(const u8 aMacAddress[6]) {
 	int i = 0;
-	int found = 0;
-	for ( i = 0; i < allRemotePSPCount; i++) {
-		if (memcmp(aMacAddress, allRemotePSP[i].macAddress, 6 * sizeof(u8)) == 0) {
-			found = 1;
-			allRemotePSPCount--;
-		}
-		if (found)
-			allRemotePSP[i] = allRemotePSP[i + 1];
+	struct remotePsp *pPsp = _findSlotByMacAddress(aMacAddress); // a PSP coming back gets its old slot
+	if (pPsp != NULL) return pPsp;
+	if (usedRemotePSPSlots < MAX_REMOTEPSP) return &allRemotePSP[usedRemotePSPSlots++];
+	// shortcut: once every slot was filled a newcomer reuses a departed PSP's slot, so a pointer kept to that PSP names the newcomer; add a generation counter if that matters
+	for ( i = 0; i < usedRemotePSPSlots; i++) {
+		if (allRemotePSP[i].connectionState == OSL_ADHOC_DISCONNECTED)
+			return &allRemotePSP[i];
 	}
-	return found;
+	return NULL;
 }
 
 void _matchingCB(int unk1, int event, unsigned char *macSource, int size, void *data) {
@@ -142,20 +149,21 @@ void _matchingCB(int unk1, int event, unsigned char *macSource, int size, void *
 
 	switch (event) {
 	case MATCHING_JOINED: // A psp has joined
-		if (pPsp == NULL) { // it's a new PSP, we add it to the list
-			char buffer[42];
-			memcpy(buffer, data, 42);
-			buffer[41] = 0;
-			struct remotePsp newPsp;
-			memcpy(newPsp.macAddress, macSource, 8 * sizeof(u8));
-			strcpy(newPsp.name, buffer);
-			newPsp.connectionState = OSL_ADHOC_JOINED;
-			allRemotePSP[allRemotePSPCount++] = newPsp;
+		if (pPsp == NULL && (pPsp = _newSlot(macSource)) != NULL) { // it's a new PSP, we add it to the list
+			memset(pPsp, 0, sizeof(*pPsp));
+			memcpy(pPsp->macAddress, macSource, 6 * sizeof(u8));
+			// the nickname is size bytes, not NUL-terminated
+			if (data != NULL && size > 0)
+				memcpy(pPsp->name, data, size < (int)sizeof(pPsp->name) ? size : (int)sizeof(pPsp->name) - 1);
+			pPsp->connectionState = OSL_ADHOC_JOINED;
+			allRemotePSPCount++;
 		}
 		break;
 	case MATCHING_DISCONNECT: // A psp has given up
-		if (pPsp != NULL)
-			_removeByMacAddress(pPsp->macAddress);
+		if (pPsp != NULL) {
+			pPsp->connectionState = OSL_ADHOC_DISCONNECTED;
+			allRemotePSPCount--;
+		}
 		break;
 	case MATCHING_SELECTED: // A PSP has selected me
 		if (pPsp != NULL) {
@@ -193,15 +201,16 @@ int oslAdhocInit(char *productID) {
 
 	memset(myMacAddress, 0, 8 * sizeof(u8));
 
-	// Ensure null termination after copying
-	strncpy(product.product, productID, 8); // Copy up to 8 characters
-	product.product[8] = '\0'; // Null-terminate explicitly
+	// product is a fixed 9-byte field (e.g. "ULUS99999"), not a NUL-terminated string
+	memset(product.product, 0, sizeof(product.product));
+	memcpy(product.product, productID, strnlen(productID, sizeof(product.product)));
 
 	product.unknown = 0;
 	matchingHD = -1;
 	pdpHD = -1;
 	port = 0x309;
 	allRemotePSPCount = 0;
+	usedRemotePSPSlots = 0;
 
 	if (sceWlanDevIsPowerOn() != 1)
 		return ADHOC_ERROR_WLAN;
@@ -214,31 +223,65 @@ int oslAdhocInit(char *productID) {
 	if (_libNetInit() < 0)
 		return ADHOC_ERROR_NET_INIT;
 
-	if (_libAdhocInit() < 0)
-		return ADHOC_ERROR_INIT;
+	// oslAdhocTerm() only runs once fully initialized, so undo a partial init here
+	int ret;
+	if (_libAdhocInit() < 0) {
+		ret = ADHOC_ERROR_INIT;
+		goto net_term;
+	}
 
-	if (_libAdhocctlInit() < 0)
-		return ADHOC_ERROR_CTL_INIT;
+	if (_libAdhocctlInit() < 0) {
+		ret = ADHOC_ERROR_CTL_INIT;
+		goto adhoc_term;
+	}
 
-	if (_adhocctlConnect())
-		return ADHOC_ERROR_CTL_CONNECT;
+	if (_adhocctlConnect()) {
+		ret = ADHOC_ERROR_CTL_CONNECT;
+		goto ctl_term;
+	}
 
 	_adhocctlState();
 
-	if (_pdpCreate() < 0)
-		return ADHOC_ERROR_PDP_CREATE;
+	if (_pdpCreate() < 0) {
+		ret = ADHOC_ERROR_PDP_CREATE;
+		goto ctl_disconnect;
+	}
 
-	if (_matchingInit() < 0)
-		return ADHOC_ERROR_MATCHING_INIT;
+	if (_matchingInit() < 0) {
+		ret = ADHOC_ERROR_MATCHING_INIT;
+		goto pdp_delete;
+	}
 
-	if (_createMatching() < 0)
-		return ADHOC_ERROR_MATCHING_CREATE;
+	if (_createMatching() < 0) {
+		ret = ADHOC_ERROR_MATCHING_CREATE;
+		goto matching_term;
+	}
 
-	if (_startMatching() < 0)
-		return ADHOC_ERROR_MATCHING_START;
+	if (_startMatching() < 0) {
+		ret = ADHOC_ERROR_MATCHING_START;
+		goto matching_delete;
+	}
 
 	state = ADHOC_INIT;
 	return 0;
+
+matching_delete:
+	sceNetAdhocMatchingDelete(matchingHD);
+matching_term:
+	sceNetAdhocMatchingTerm();
+pdp_delete:
+	sceNetAdhocPdpDelete(pdpHD, 0);
+ctl_disconnect:
+	sceNetAdhocctlDisconnect();
+ctl_term:
+	sceNetAdhocctlTerm();
+adhoc_term:
+	sceNetAdhocTerm();
+net_term:
+	sceNetTerm();
+	matchingHD = -1;
+	pdpHD = -1;
+	return ret;
 }
 
 u8 *oslAdhocGetMacAddress() {
@@ -258,10 +301,12 @@ struct remotePsp *oslAdhocFindRemotePspByMacAddress(const u8 aMacAddress[6]) {
 }
 
 struct remotePsp *oslAdhocGetPspByIndex(int index) {
-	if (index < allRemotePSPCount)
-		return &allRemotePSP[index];
-	else
-		return NULL;
+	int i = 0;
+	for ( i = 0; i < usedRemotePSPSlots; i++) {
+		if (allRemotePSP[i].connectionState != OSL_ADHOC_DISCONNECTED && index-- == 0)
+			return &allRemotePSP[i];
+	}
+	return NULL;
 }
 
 int oslAdhocRequestConnection(struct remotePsp *aPsp, int timeOut, int (*requestConnectionCB)(int aPspState)) {
@@ -273,12 +318,11 @@ int oslAdhocRequestConnection(struct remotePsp *aPsp, int timeOut, int (*request
 	if (ret < 0) return ret;
 
 	int quit = 0;
-	time_t startTime;
-	time_t currentTime;
-	sceKernelLibcTime(&startTime);
+	// The firmware's time_t is 32 bits: the high word of newlib's 64-bit one is never set
+	u32 startTime = (u32)sceKernelLibcTime(NULL);
 
 	while (!quit) {
-		if (aPsp == NULL)
+		if (aPsp->connectionState == OSL_ADHOC_DISCONNECTED)
 			return -1;
 
 		if (requestConnectionCB != NULL)
@@ -292,8 +336,7 @@ int oslAdhocRequestConnection(struct remotePsp *aPsp, int timeOut, int (*request
 			aPsp->connectionState = OSL_ADHOC_JOINED; // reset the state flag
 			return aPsp->connectionState;
 		}
-		sceKernelLibcTime(&currentTime);
-		if (timeOut > 0 && currentTime - startTime >= timeOut)
+		if (timeOut > 0 && (u32)sceKernelLibcTime(NULL) - startTime >= (u32)timeOut)
 			break;
 		sceKernelDelayThread(1000 * 1000); // 1 sec
 	}
@@ -309,21 +352,19 @@ int oslAdhocReceiveData(struct remotePsp *pPsp, void *data, int maxLen) {
 	aStat.next = NULL;
 	int sizeStat = sizeof(pdpStatStruct);
 	unsigned int sizeData = maxLen;
+	u8 sourceMac[8];
 
 	int ret = sceNetAdhocGetPdpStat(&sizeStat, &aStat);
 	if (ret < 0) return ret;
 
-	if (aStat.rcvdData > 0) {
-		// there are data to be read
-		// sizeData = ( maxLen<aStat.rcvdData)?maxLen:aStat.rcvdData; //MIN
-		// if the size isn't big enough there is an error ....
-		ret = sceNetAdhocPdpRecv(pdpHD, pPsp->macAddress, &(aStat.port), data, &sizeData, 0, 0);
-		if (ret < 0)
-			return ret;
-		return aStat.rcvdData;
-	} else {
-		return 0;
-	}
+	// rcvdData is everything queued; one recv returns one datagram, from any PSP
+	if (aStat.rcvdData == 0) return 0;
+	ret = sceNetAdhocPdpRecv(pdpHD, sourceMac, &(aStat.port), data, &sizeData, 0, 1);
+	if (ret < 0)
+		return ret;
+	if (memcmp(sourceMac, pPsp->macAddress, 6 * sizeof(u8)) != 0)
+		return 0; // sent by another PSP: dropped
+	return sizeData;
 }
 
 struct remotePsp *oslAdhocGetConnectionRequest() {

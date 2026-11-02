@@ -53,6 +53,7 @@ static inline void *osl_host_memalign(size_t align, size_t size) {
 #define memalign osl_host_memalign
 
 #define PSP_MEMORY_PARTITION_KERNEL 1
+#define PSP_MEMORY_PARTITION_USER 2
 #define PSP_AV_MODULE_AVCODEC 0
 
 typedef struct SceKernelLMOption {
@@ -69,5 +70,6 @@ int sceKernelDevkitVersion(void);
 SceUID sceKernelLoadModule(const char *path, int flags, SceKernelLMOption *option);
 int sceKernelStartModule(SceUID modid, SceSize argsize, void *argp, int *status, void *option);
 int sceUtilityLoadAvModule(int module);
+SceUID pspSdkLoadStartModule(const char *filename, int mpid);
 
 #endif
