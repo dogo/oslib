@@ -65,6 +65,7 @@ int main() {
 	decode("lp3.at3", 1024, 87);  // ATRAC3 105 kbps, align 304
 	decode("lp4.at3", 1024, 87);  // ATRAC3 66 kbps, align 192, joint stereo
 	decode("plus.at3", 2048, 44); // ATRAC3plus 352 kbps, align 2048
+	decode("plus40.at3", 2048, 44); // the same without Sony's fmt extension
 	fclose(f);
 	sceKernelExitGame();
 	return 0;
