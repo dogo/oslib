@@ -11,8 +11,9 @@ ffmpeg -v error -y -f lavfi -i "sine=frequency=440:duration=2:sample_rate=44100"
 "$E" -e atrac3_lp4 -i tone.wav -o lp4.at3 >/dev/null             # 66 kbps, align 192, joint stereo
 "$E" -e atrac3plus -i tone.wav -o plus.at3 >/dev/null            # 352 kbps, align 2048
 rm tone.wav
-# atracdenc writes a 40-byte WAVE_FORMAT_EXTENSIBLE fmt chunk; Sony's tools (and
-# OSLib, which reads the codec config from bytes 42-43) use 52 bytes: 01 00, then
+cp plus.at3 plus40.at3   # also keep atracdenc's own 40-byte fmt chunk
+# atracdenc writes a 40-byte WAVE_FORMAT_EXTENSIBLE fmt chunk (kept as plus40.at3);
+# Sony's tools write 52 bytes, the codec config at bytes 42-43: 01 00, then
 # 0x2800 | (block align / 8 - 1) big-endian (0x28 = stereo), then 8 zero bytes.
 python3 -I - plus.at3 <<'PY'
 import struct, sys

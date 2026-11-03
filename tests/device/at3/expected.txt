@@ -2,3 +2,4 @@ lp2.at3   frames 87 (want 87) peak  3024 439 Hz sum 73a7ede9 PASS
 lp3.at3   frames 87 (want 87) peak  3024 439 Hz sum 84b0573d PASS
 lp4.at3   frames 87 (want 87) peak  3024 439 Hz sum 978bae39 PASS
 plus.at3  frames 44 (want 44) peak  2929 439 Hz sum 1559c551 PASS
+plus40.at3 frames 44 (want 44) peak  2929 439 Hz sum 1559c551 PASS

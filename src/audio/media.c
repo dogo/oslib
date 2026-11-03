@@ -357,13 +357,27 @@ static int osl_at3Load(const char *fileName, AT3_INFO *info) {
 	info->at3_data_align = *((u16 *)(wavefmt_data + 12));
 
 	if (info->at3_type == TYPE_ATRAC3PLUS) {
-		if (wavefmt_header[2] < WAVEFMT_AT3PLUS_MIN_SIZE) {
-			free(wavefmt_data);
-			return 0;
+		if (wavefmt_header[2] >= WAVEFMT_AT3PLUS_MIN_SIZE) {
+			info->at3_at3plus_flagdata[0] = wavefmt_data[42];
+			info->at3_at3plus_flagdata[1] = wavefmt_data[43];
+		} else {
+			// No Sony extension (a plain WAVE_FORMAT_EXTENSIBLE chunk): build the codec config
+			// from the header, as OMA files lay it out: sample rate index << 13 |
+			// channel id << 10 | (block align / 8 - 1)
+			static const u32 rates[] = { 32000, 44100, 48000, 88200, 96000 };
+			int rate = -1;
+			for (int i = 0; i < (int)(sizeof(rates) / sizeof(rates[0])); i++)
+				if (info->at3_samplerate == rates[i]) rate = i;
+			// Channel ids 1 and 2 are mono and stereo; more channels don't map 1:1
+			if (rate < 0 || info->at3_channels < 1 || info->at3_channels > 2 ||
+			    info->at3_data_align == 0 || info->at3_data_align % 8 || info->at3_data_align > 0x400 * 8) {
+				free(wavefmt_data);
+				return 0;
+			}
+			u16 config = rate << 13 | info->at3_channels << 10 | (info->at3_data_align / 8 - 1);
+			info->at3_at3plus_flagdata[0] = config >> 8;
+			info->at3_at3plus_flagdata[1] = config & 0xff;
 		}
-
-		info->at3_at3plus_flagdata[0] = wavefmt_data[42];
-		info->at3_at3plus_flagdata[1] = wavefmt_data[43];
 	}
 
 	free(wavefmt_data);
