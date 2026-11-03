@@ -4,6 +4,9 @@
 *.so
 *.lib
 
+# Built by make (and published on GitHub Releases); not tracked
+libosl.a
+
 # Ignore build directory
 build
 

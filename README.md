@@ -58,9 +58,9 @@ After running `cmake --preset psp` at the root, a symlink `compile_commands.json
 
 ## Installation
 
-To install OSLib:
-1. Copy `libosl.a` to `$PSPSDK/lib/`.
-2. Copy the `oslib` directory (containing header files) to `$PSPSDK/include/`.
+To install OSLib, either:
+- build it from source: `make && make install` copies `libosl.a` and the headers into the PSPSDK, or
+- download a release from [GitHub Releases](https://github.com/dogo/oslib/releases), then copy `Install/libosl.a` to `$PSPSDK/lib/` and the `Install/oslib` directory (header files) to `$PSPSDK/include/`.
 
 ## Documentation
 
