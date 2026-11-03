@@ -242,8 +242,8 @@ typedef union {
 		int rmback : 1;  ///< Back button.
 		int rmvolup : 1; ///< Volume Up button.
 		int rmvoldown : 1; ///< Volume Down button.
-		int rmhold : 1;  ///< Hold button.
 		int reserved2 : 1; ///< Reserved for padding, do not use.
+		int rmhold : 1;  ///< Hold button (PSP_HPRM_HOLD is bit 7).
 	};
 	u32 value;                ///< 32-bit value containing all keys.
 } OSL_REMOTEKEYLIST;
