@@ -28,8 +28,11 @@ OSL_IMAGE *oslConvertImageTo(OSL_IMAGE *originalImage, int newLocation, int newF
 		newImage->palette = oslCreatePalette(paletteSize, OSL_PF_8888);
 	}
 
-	// Initialize the new image data to zero
+	// Pixels are read and written below through the uncached pointer: push the source's
+	// cached writes to memory, and the zeroing out of the cache so it can't land on top later
+	oslUncacheImage(originalImage);
 	memset(newImage->data, 0, newImage->totalSize);
+	oslUncacheData(newImage->data, newImage->totalSize);
 
 	// Iterate over each pixel in the original image
 	for (int y = 0; y < height; y++) {

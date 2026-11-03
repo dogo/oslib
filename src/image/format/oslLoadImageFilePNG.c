@@ -16,8 +16,10 @@ void oslPngFlushFn(png_structp png_ptr) {
 }
 
 OSL_IMAGE *oslLoadImageFilePNG(char *filename, int location, int volatile pixelFormat) {
-	const size_t nSigSize = 8;
-	u8 signature[nSigSize];
+	// The PNG signature, then the IHDR chunk: length (4), "IHDR" (4), width (4), height (4),
+	// bit depth (1), colour type (1)
+	enum { nSigSize = 8, nIhdrTag = nSigSize + 4, nColourType = nIhdrTag + 4 + 4 + 4 + 1 };
+	u8 header[nColourType + 1];
 	OSL_IMAGE * volatile img = NULL;
 	VIRTUAL_FILE *f;
 	// We only keep the location bits
@@ -27,9 +29,14 @@ OSL_IMAGE *oslLoadImageFilePNG(char *filename, int location, int volatile pixelF
 	f = VirtualFileOpen((void *)filename, 0, VF_AUTO, VF_O_READ);
 	if (!f) goto error;
 
-	if (VirtualFileRead(signature, sizeof(u8), nSigSize, f) == 0) goto error;
+	if (VirtualFileRead(header, sizeof(u8), sizeof(header), f) != sizeof(header)) goto error;
 
-	if (!png_check_sig(signature, nSigSize)) goto error;
+	if (!png_check_sig(header, nSigSize) || memcmp(header + nIhdrTag, "IHDR", 4)) goto error;
+
+	// Only a PNG with its own palette can go straight into a paletted format; expand anything
+	// else (low-bit grey, tRNS) and convert it afterwards
+	int keepPalette = osl_pixelWidth[pixelFormat] <= 8 && header[nColourType] == PNG_COLOR_TYPE_PALETTE;
+	VirtualFileSeek(f, nSigSize, PSP_SEEK_SET);
 
 	png_structp pPngStruct = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
 	if (!pPngStruct) goto error;
@@ -48,7 +55,7 @@ OSL_IMAGE *oslLoadImageFilePNG(char *filename, int location, int volatile pixelF
 	png_set_read_fn(pPngStruct, f, oslPngReadFn);
 	png_set_sig_bytes(pPngStruct, nSigSize);
 
-	if (osl_pixelWidth[pixelFormat] <= 8) {
+	if (keepPalette) {
 		png_read_png(pPngStruct, pPngInfo, PNG_TRANSFORM_STRIP_16 | PNG_TRANSFORM_PACKING | PNG_TRANSFORM_BGR, NULL);
 	} else {
 		png_read_png(pPngStruct, pPngInfo, PNG_TRANSFORM_STRIP_16 | PNG_TRANSFORM_PACKING | PNG_TRANSFORM_EXPAND | PNG_TRANSFORM_BGR, NULL);
@@ -60,9 +67,15 @@ OSL_IMAGE *oslLoadImageFilePNG(char *filename, int location, int volatile pixelF
 	int color_type = png_get_color_type(pPngStruct, pPngInfo);
 
 	png_byte **pRowTable = png_get_rows(pPngStruct, pPngInfo);
-	png_colorp palette;
-	int num_palette;
-	png_get_PLTE(pPngStruct, pPngInfo, &palette, &num_palette);
+	// Both stay untouched when the PNG has no palette
+	png_colorp palette = NULL;
+	int num_palette = 0;
+	if (!png_get_PLTE(pPngStruct, pPngInfo, &palette, &num_palette))
+		num_palette = 0;
+	png_bytep trans_alpha = NULL;
+	int num_trans = 0;
+	if (!png_get_tRNS(pPngStruct, pPngInfo, &trans_alpha, &num_trans, NULL))
+		num_trans = 0;
 
 	int wantedPixelFormat = pixelFormat;
 
@@ -84,12 +97,12 @@ OSL_IMAGE *oslLoadImageFilePNG(char *filename, int location, int volatile pixelF
 				// The palette can hold fewer entries than the PNG provides (e.g. a 256 colour
 				// PNG loaded as OSL_PF_4BIT); never write past what was allocated
 				int paletteEntries = oslMin(num_palette, img->palette->nElements);
-				// Suggestion: consider num_trans?
 				for (i = 0; i < paletteEntries; i++) {
 					unsigned char r = palette[i].red;
 					unsigned char g = palette[i].green;
 					unsigned char b = palette[i].blue;
-					unsigned char a = 0xff;
+					// tRNS gives the first num_trans entries an alpha
+					unsigned char a = i < num_trans ? trans_alpha[i] : 0xff;
 					// Color key?
 					if (osl_colorKeyEnabled && RGBA(r, g, b, 0) == (osl_colorKeyValue & 0x00ffffff)) a = 0;
 					((u32 *)img->palette->data)[i] = RGBA(r, g, b, a);
