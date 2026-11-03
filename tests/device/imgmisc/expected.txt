@@ -4,5 +4,7 @@ mirrored H and V       IsMirroredH 1 IsMirroredV 1 PASS
 mirrored V             IsMirroredH 0 IsMirroredV 1 PASS
 tile                   IsMirroredH 0 IsMirroredV 0 PASS
 tile mirrored H        IsMirroredH 1 IsMirroredV 0 PASS
+new image in RAM       0/10240 bytes not zero PASS
+new image in VRAM      0/10240 bytes not zero PASS
 oslDeleteImage(NULL) returned PASS
 DONE
