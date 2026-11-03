@@ -137,7 +137,11 @@ extern OSL_SOUND *oslLoadSoundFile(const char *filename, int stream);
  *
  * WAV files are a common uncompressed audio format that offers high fidelity, making them suitable for short sound effects where quality is a priority over file size.
  *
- * @param filename Path to the WAV sound file. It should be a valid file stored on the memory stick. Alternate file sources have not been tested and may not work properly.
+ * Only 44100, 22050 and 11025 Hz WAVs play at their pitch: the output is always 44100 Hz, and other rates take the divider
+ * of the range below them (a 48 kHz file plays about 8% low, a 32 kHz one as if it were 22050 Hz, about 31% low).
+ *
+ * @param filename Path to the WAV sound file, on the memory stick or any virtual file source, e.g. a file in memory added
+ *                 with oslAddVirtualFileList (loaded whole or streamed, both checked on a PSP by tests/device/wavload).
  * @param stream Determines the mode of operation:
  *               - OSL_FMT_STREAM: Sound is streamed from the file, minimizing memory usage but requiring more CPU resources.
  *               - OSL_FMT_NONE: Sound is completely loaded into memory, providing faster access at the cost of increased memory usage.

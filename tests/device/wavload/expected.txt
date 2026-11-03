@@ -1,0 +1,10 @@
+tone44s.wav file        22048 samples,     0 differ from the file (22050 in it) PASS
+tone44s.wav file stream 22048 samples,     0 differ from the file (22050 in it) PASS
+tone44s.wav ram         22048 samples,     0 differ from the file (22050 in it) PASS
+tone44s.wav ram stream  22048 samples,     0 differ from the file (22050 in it) PASS
+tone22m.wav file        11024 samples,     0 differ from the file (5513 in it) PASS
+tone22m.wav file stream 11024 samples,     0 differ from the file (5513 in it) PASS
+tone22m.wav ram         11024 samples,     0 differ from the file (5513 in it) PASS
+tone22m.wav ram stream  11024 samples,     0 differ from the file (5513 in it) PASS
+tone48s.wav 48000 Hz plays a 440 Hz tone at 404 Hz (want 404) PASS
+tone32s.wav 32000 Hz plays a 440 Hz tone at 303 Hz (want 303) PASS

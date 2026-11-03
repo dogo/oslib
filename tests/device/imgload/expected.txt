@@ -14,5 +14,8 @@ grayt.png        colour   0/768 alpha   0/768 wrong PASS
 jpeg.jpg         colour   0/768 alpha   0/768 wrong PASS
 progressive.jpg  colour   0/768 alpha   0/768 wrong PASS
 gif.gif          colour   0/768 alpha   0/768 wrong PASS
+jpeg95.jpg       colour   0/768 alpha   0/768 wrong PASS
+jpeg100.jpg      colour   0/768 alpha   0/768 wrong PASS
+wide.png         colour   0/14400 alpha   0/14400 wrong PASS
 rgb8.png         colour key: 24/24 white keyed, 0 others PASS
 gray8.png        colour key: 24/24 white keyed, 0 others PASS

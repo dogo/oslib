@@ -30,6 +30,11 @@ $M -interlace PNG PNG32:interlaced.png
 $M -background white -alpha remove -alpha off -quality 90 jpeg.jpg
 $M -background white -alpha remove -alpha off -quality 90 -interlace JPEG progressive.jpg
 $M -colors 64 gif.gif                                           # transparent index
+# The docs say JPEGs above quality 90 may crash the loader
+$M -background white -alpha remove -alpha off -quality 95 jpeg95.jpg
+$M -background white -alpha remove -alpha off -quality 100 -sampling-factor 1x1 jpeg100.jpg   # 4:4:4
+# The docs say images are limited to 512x512: a 600 px wide one (the pattern tiled)
+magick -size 32x24 -depth 8 rgba:src.rgba -write mpr:t +delete -size 600x24 tile:mpr:t PNG32:wide.png
 rm src.rgba
 # Grey with a tRNS chunk on a mid grey (pixel 5,5 of gray8) rather than black
 magick gray8.png -depth 8 gray:- | python3 -I -c '

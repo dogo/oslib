@@ -1,0 +1,3 @@
+oslCreateImage(600, 24) -> image, size 600x24
+oslDrawImage    columns 100-511:     0/9888 wrong, 512-579: 1632/1632 wrong (1632 show column x-512) PASS
+oslDrawImageBig columns 100-511:     0/9888 wrong, 512-579:    0/1632 wrong (0 show column x-512) PASS
