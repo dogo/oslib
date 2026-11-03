@@ -2702,7 +2702,9 @@ extern int oslGetImagePixel(OSL_IMAGE *img, unsigned int x, unsigned int y);
  * \endcode
  *
  * \b Note:
- * - The pixel is written through the uncached address, so it reaches memory (and the GE) without #oslUncacheImage.
+ * - The pixel is written through the uncached address, so it reaches memory without a CPU cache writeback. The GE may still
+ *   hold the old texels if the image was already drawn: call #oslUncacheImage (or wrap the writes in #oslLockImage /
+ *   #oslUnlockImage) before drawing it again.
  */
 extern void oslSetImagePixel(OSL_IMAGE *img, unsigned int x, unsigned int y, int pixelValue);
 
