@@ -1,0 +1,10 @@
+none           got 200,100, 50 want 200,100, 50 PASS
+rgba           got 120, 90,104 want 120, 90,105 PASS
+alpha 255      got 120, 90,104 want 120, 90,105 PASS
+alpha 128      got  80, 85,132 want  80, 85,132 PASS
+add 255        got 140,130,185 want 140,130,185 PASS
+add 128        got  90,105,172 want  90,105,173 PASS
+sub 255        got   0, 30,135 want   0, 30,135 PASS
+sub 128        got   0, 55,148 want   0, 55,147 PASS
+tint red       got 120, 40, 79 want 120, 40, 80 PASS
+tint cyan/2    got  30, 85,132 want  30, 85,132 PASS

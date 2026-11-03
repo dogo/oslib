@@ -60,6 +60,8 @@ CI only checks that they build.
 | `bilinear` | With the bilinear filter on, a 1:1 image matches its source pixel for pixel (mirrored too), while a stretched image is still filtered |
 | `seams` | Images split into pieces (strip blit >64 px, `oslDrawImageBig` >512 px, map tiles) show no gaps, bleeding or per-strip sampling differences |
 | `pixelcache` | Pixels set with `oslSetImagePixel` (written uncached) survive `oslUncacheImage` when the image reuses a block its previous owner left as dirty cache lines, and when the next heap block is written through the cache; RAM image data starts on a cache line |
+| `formats` | An image converted to 5650/5551/4444/8-bit palette and drawn 1:1 shows its colours as the GE widens them (bit replication), linear or swizzled |
+| `blend` | Each `oslSetAlpha` effect (none, RGBA, alpha, add, sub, tint, with full and half coefficients) blends a solid image over the background as its formula says, within the GE's rounding |
 | `rotate` | `oslDrawImage`'s rotated path (any angle, or a hotspot) draws a mirrored 100 px wide image in the same place as the plain one with its halves swapped, at 0/90/37 degrees, and finishes (it looped forever on widths not a multiple of 64) |
 | `imgload` | PNG (RGBA/RGB/16-bit/interlaced/palette 8 and 4 bit/tRNS/grey variants), JPEG (baseline, progressive) and GIF load into `OSL_PF_8888` with the pixels ImageMagick decodes from the same file (`gen.sh`), and grey PNGs key out the colour key like RGB ones |
 | `imgpal` | PNGs loaded into `OSL_PF_8BIT`/`OSL_PF_4BIT` (palette with and without tRNS, and grey 4/8/16-bit and grey+tRNS, which go through `oslConvertImageTo`) resolve through their palette to the pixels ImageMagick decodes. `imgpal.prx N` runs only case N |
