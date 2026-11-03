@@ -73,13 +73,24 @@ def main():
         if subprocess.run(["make", "-B", "-C", os.path.join(HERE, t)], stdout=subprocess.DEVNULL).returncode:
             sys.exit(f"{t}: build failed")
 
+    # Another usbhostfs_pc (e.g. left over from a killed run) can grab the PSP when PSPLink
+    # reconnects after a test, and this run then never sees the test end
+    if shutil.which("pgrep") and subprocess.run(["pgrep", "-x", "usbhostfs_pc"], stdout=subprocess.DEVNULL).returncode == 0:
+        sys.exit("another usbhostfs_pc is running and would compete for the PSP: stop it first")
+
     hostfs = subprocess.Popen(["stdbuf", "-oL", "usbhostfs_pc", "-b", str(args.port), "."], cwd=HERE,
                               stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
     connected = threading.Semaphore(0)
     bind_failed = threading.Event()
+    start = time.time()
+    log = []  # timestamped usbhostfs_pc and pspsh output, shown when a test times out
+
+    def note(line):
+        log.append(f"    {time.time() - start:7.1f}s {line.rstrip()}")
 
     def watch():
         for line in hostfs.stdout:
+            note(line)
             if "Connected to device" in line:
                 connected.release()
             elif line.startswith("bind:"):  # it keeps going without the shell port
@@ -99,8 +110,9 @@ def main():
             for f in ("result.txt", "screen.png"):
                 if os.path.exists(os.path.join(HERE, t, f)):
                     os.remove(os.path.join(HERE, t, f))
-            subprocess.run(["pspsh", "-p", str(args.port), "-e", f"./{t}/{t}.prx"], cwd=HERE,
-                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=TIMEOUT)
+            launch = subprocess.run(["pspsh", "-p", str(args.port), "-e", f"./{t}/{t}.prx"], cwd=HERE,
+                                    stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, timeout=TIMEOUT)
+            note(f"pspsh: {launch.stdout.strip()} (exit {launch.returncode})")
             # sceKernelExitGame resets PSPLink, which reconnects: that's the end of the test.
             finished = connected.acquire(timeout=TIMEOUT)
             result = os.path.join(HERE, t, "result.txt")
@@ -113,7 +125,15 @@ def main():
             if not ok:
                 failed.append(t)
             if not finished:
-                break  # PSPLink is gone; the rest would only time out too
+                print("\n".join(log[-15:]))
+                # A crashed test leaves its thread stopped in PSPLink: show why, and reset PSPLink
+                # so the next run starts clean
+                crash = subprocess.run(["pspsh", "-p", str(args.port), "-e", "exprint"], cwd=HERE,
+                                       stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, timeout=TIMEOUT)
+                print("".join("    " + line + "\n" for line in crash.stdout.splitlines()[:9]), end="")
+                subprocess.run(["pspsh", "-p", str(args.port), "-e", "reset"], cwd=HERE,
+                               stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=TIMEOUT)
+                break  # the rest would run on a PSPLink that is restarting
     finally:
         hostfs.terminate()
         hostfs.wait()  # free the ports before a next run starts

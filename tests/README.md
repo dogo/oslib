@@ -37,7 +37,10 @@ builds each test, runs it on the PSP and prints its results; they land in
 `screen.png` differs from the `expected.txt`/`expected.png` recorded on a real
 PSP (the PSP gives byte-identical output run to run), which catches changes the
 PASS thresholds let through. After an intended change, re-record them with
-`tests/device/run.py --update <test>`. `--port` changes the `usbhostfs_pc`/`pspsh`
+`tests/device/run.py --update <test>`. A test that times out is reported with the
+last `usbhostfs_pc`/`pspsh` lines and, if it crashed, PSPLink's exception
+record; PSPLink is then reset. Only one `usbhostfs_pc` may run: a second one
+can grab the PSP when PSPLink reconnects after a test. `--port` changes the `usbhostfs_pc`/`pspsh`
 port (default 10000). The approach comes from
 [pspautotests](https://github.com/hrydgard/pspautotests).
 
