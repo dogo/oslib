@@ -184,12 +184,18 @@ int oslVramMgrSetParameters(void *baseAddr, int size) {
 	int blockNum = osl_vramBlocksNb - 1;
 	int sizeDiff;
 
-	if (!osl_useVramManager)
-		return 0;
 	// The size is always a multiple of 16 - round up to the next block
 	if (size < 0 || size > INT_MAX - 15)
 		return 0;
 	size = (size + 15) & ~15;
+
+	// Without the manager, VRAM is handed out as a stack starting at baseAddr
+	if (!osl_useVramManager) {
+		osl_vramBase = (u32)baseAddr;
+		osl_vramSize = size;
+		osl_currentVramPtr = (u32)baseAddr;
+		return 1;
+	}
 
 	// Size difference (negative for reduction, positive for increase)
 	sizeDiff = size - curVramSize;

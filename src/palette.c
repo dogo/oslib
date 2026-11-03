@@ -49,7 +49,7 @@ void oslDeletePalette(OSL_PALETTE *p) {
 	if (p->location == OSL_IN_RAM) {
 		free(p->data);
 	} else if (p->location == OSL_IN_VRAM) {
-		oslVramMgrFreeBlock(p->data, p->nElements * osl_pixelWidth[p->pixelFormat]);
+		oslVramMgrFreeBlock(p->data, (p->nElements * osl_pixelWidth[p->pixelFormat]) >> 3);
 	}
 
 	free(p);
