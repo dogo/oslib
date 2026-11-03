@@ -61,7 +61,9 @@ static void check(const char *name, int format, int swizzle) {
 			u32 got = oslGetImagePixel(OSL_DEFAULT_BUFFER, 16 + x, 16 + y) & 0xffffff;
 			u32 want = expected(source(x, y), format);
 			if (got != want) {
-				if (!bad++) { fx = x; fy = y; fgot = got; fwant = want; }
+				if (!bad++) {
+					fx = x; fy = y; fgot = got; fwant = want;
+				}
 			}
 		}
 	oslDeleteImage(img);
