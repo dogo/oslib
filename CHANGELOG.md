@@ -1,3 +1,11 @@
+## Version 1.5.6
+
+Added: On-device test for the mirror queries and oslDeleteImage(NULL)<br>
+Fixed: oslImageIsMirroredH/V returning the opposite of what oslMirrorImageH/V did<br>
+Fixed: oslDeleteImage(NULL) crashing instead of doing nothing<br>
+Fixed: 161 struct member and enum descriptions missing from the docs<br>
+Fixed: Doc errors in oslWriteImageFile, oslLoadImageFileJPG, oslLoadFontFile, osl_autoSwizzleImages, OSL_MF_U16_GBA and others<br>
+
 ## Version 1.5.5
 
 Added: On-device tests for sound loading by extension and oslDrawImageBig's 1024 px width limit<br>
