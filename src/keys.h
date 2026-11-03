@@ -23,10 +23,25 @@ extern "C" {
  * @union OSL_KEYLIST
  * @brief List of keys.
  *
- * This union represents the state of the buttons on a controller.
+ * This union represents the state of the buttons on a controller. Read a button through its
+ * bit field (e.g. `osl_keys->held.cross`) or test `value` against an #OSL_KEY_MASKS value:
+ *
+ * | Field | Bit | Button |
+ * |---|---|---|
+ * | `select` | 0 | Select |
+ * | `start` | 3 | Start |
+ * | `up`, `right`, `down`, `left` | 4, 5, 6, 7 | D-pad |
+ * | `L`, `R` | 8, 9 | Shoulder buttons |
+ * | `triangle`, `circle`, `cross`, `square` | 12, 13, 14, 15 | Face buttons |
+ * | `home` | 16 | Home (may not work) |
+ * | `hold` | 17 | Hold (power switch in the opposite direction) |
+ * | `note` | 23 | Note (may not work) |
+ *
+ * The other bits are reserved.
  */
 typedef union {
-	/** @brief Individual button bits, ordered as in the `value` field. */
+	/// @cond
+	// Anonymous so the bits read as members of the union; documented in the table above
 	struct {
 		int select : 1; ///< Select button.
 		int reserved1 : 2; ///< Reserved for padding, do not use.
@@ -47,6 +62,7 @@ typedef union {
 		int reserved3 : 5; ///< Reserved for padding, do not use.
 		int note : 1;   ///< Note button (may not work).
 	};
+	/// @endcond
 	unsigned int value;     ///< 32-bit value containing all keys.
 } OSL_KEYLIST;
 
@@ -231,10 +247,20 @@ extern void oslFlushKey();
  * @union OSL_REMOTEKEYLIST
  * @brief List of remote keys.
  *
- * This union represents the state of the buttons on a remote controller.
+ * This union represents the state of the buttons on the headphone remote. Read a button through
+ * its bit field (e.g. `osl_remotekeys->held.rmplaypause`) or test `value` against a `PSP_HPRM_*` value:
+ *
+ * | Field | Bit | Button |
+ * |---|---|---|
+ * | `rmplaypause` | 0 | Play/Pause |
+ * | `rmforward` | 2 | Forward |
+ * | `rmback` | 3 | Back |
+ * | `rmvolup`, `rmvoldown` | 4, 5 | Volume up, down |
+ * | `rmhold` | 7 | Hold |
  */
 typedef union {
-	/** @brief Individual remote button bits, ordered as in the `value` field. */
+	/// @cond
+	// Anonymous so the bits read as members of the union; documented in the table above
 	struct {
 		int rmplaypause : 1; ///< Play/Pause button.
 		int reserved1 : 1; ///< Reserved for padding, do not use.
@@ -245,6 +271,7 @@ typedef union {
 		int rmhold : 1;  ///< Hold button.
 		int reserved2 : 1; ///< Reserved for padding, do not use.
 	};
+	/// @endcond
 	u32 value;                ///< 32-bit value containing all keys.
 } OSL_REMOTEKEYLIST;
 

@@ -2993,9 +2993,6 @@ extern const u8 osl_paletteSizes[];
  *
  * @param img
  * The image to set as the current drawbuffer.
- *
- * @return
- * None.
  */
 extern void oslSetDrawBuffer(OSL_IMAGE *img);
 
