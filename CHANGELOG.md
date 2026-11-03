@@ -1,3 +1,12 @@
+## Version 1.5.5
+
+Added: On-device tests for sound loading by extension and oslDrawImageBig's 1024 px width limit<br>
+Fixed: oslLoadSoundFile refusing MP3 and AT3 files and upper-case extensions<br>
+Fixed: Docs claiming MP3/AT3 need kernel mode and crash without oslInitAudioME (they return NULL)<br>
+Fixed: oslDrawImageBig marked deprecated though it is the only way to draw images over 512 px<br>
+Fixed: oslUncacheImageData missing from the docs (its comment was on osl_curTexture)<br>
+Updated: Sprite sheet and map tileset docs explain the 512x512 limit (GE wraps past texel 511)<br>
+
 ## Version 1.5.4
 
 Added: On-device tests run over USB with PSPLink (image loaders, pixel formats, MP3/AT3 decoding)<br>
