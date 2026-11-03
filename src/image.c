@@ -93,6 +93,10 @@ _error:
         Efface une image
  */
 void oslDeleteImage(OSL_IMAGE *img) {
+	if (img == NULL) {
+		return;
+	}
+
 	if (!oslImageIsCopy(img)) {
 		oslFreeImageData(img);
 		if (img->palette)

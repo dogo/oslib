@@ -1,0 +1,8 @@
+new image              IsMirroredH 0 IsMirroredV 0 PASS
+mirrored H             IsMirroredH 1 IsMirroredV 0 PASS
+mirrored H and V       IsMirroredH 1 IsMirroredV 1 PASS
+mirrored V             IsMirroredH 0 IsMirroredV 1 PASS
+tile                   IsMirroredH 0 IsMirroredV 0 PASS
+tile mirrored H        IsMirroredH 1 IsMirroredV 0 PASS
+oslDeleteImage(NULL) returned PASS
+DONE

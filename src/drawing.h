@@ -1783,8 +1783,8 @@ extern void oslDrawImageBig(OSL_IMAGE *img);
 /**
  * @brief Returns whether the image is mirrored horizontally.
  *
- * This macro checks if the image has been mirrored horizontally. An image is considered to be mirrored horizontally if the x-coordinate of the bottom-right corner
- * (`offsetX1`) is greater than the x-coordinate of the top-left corner (`offsetX0`).
+ * This macro checks if the image has been mirrored horizontally. An image is considered to be mirrored horizontally if the x-coordinate of the top-left corner
+ * (`offsetX0`) is greater than the x-coordinate of the bottom-right corner (`offsetX1`), as #oslMirrorImageH leaves it.
  *
  * @param img
  *    The image to check for horizontal mirroring.
@@ -1795,13 +1795,13 @@ extern void oslDrawImageBig(OSL_IMAGE *img);
  * @see
  *    Use `oslMirrorImageH` to mirror the image horizontally.
  */
-#define oslImageIsMirroredH(img) ((img)->offsetX1 > (img)->offsetX0)
+#define oslImageIsMirroredH(img) ((img)->offsetX0 > (img)->offsetX1)
 
 /**
  * @brief Returns whether the image is mirrored vertically.
  *
- * This macro checks if the image has been mirrored vertically. An image is considered to be mirrored vertically if the y-coordinate of the bottom-right corner
- * (`offsetY1`) is greater than the y-coordinate of the top-left corner (`offsetY0`).
+ * This macro checks if the image has been mirrored vertically. An image is considered to be mirrored vertically if the y-coordinate of the top-left corner
+ * (`offsetY0`) is greater than the y-coordinate of the bottom-right corner (`offsetY1`), as #oslMirrorImageV leaves it.
  *
  * @param img
  *    The image to check for vertical mirroring.
@@ -1812,7 +1812,7 @@ extern void oslDrawImageBig(OSL_IMAGE *img);
  * @see
  *    Use `oslMirrorImageV` to mirror the image vertically.
  */
-#define oslImageIsMirroredV(img) ((img)->offsetY1 > (img)->offsetY0)
+#define oslImageIsMirroredV(img) ((img)->offsetY0 > (img)->offsetY1)
 
 /**
  * @brief Calculates the x-coordinate for moving an image so that its top-left corner is at the specified position when no rotation is applied.
