@@ -1,3 +1,13 @@
+## Version 1.5.7
+
+Added: On-device tests for the key bit layout and the VRAM mode without the manager<br>
+Fixed: Remote Hold switch (rmhold) read from the wrong bit, so it never turned on<br>
+Fixed: VRAM images NULL when the VRAM manager is off (osl_useVramManager = 0)<br>
+Fixed: VRAM palettes freed with their size in bits instead of bytes<br>
+Fixed: 43 drawing.h entries shown in the docs as a raw code block<br>
+Fixed: Doc errors in OSL_VOLUME_MAX, the Neoflash splash screen, oslSini/oslCosi and pixel access<br>
+Updated: Docs list the key bits of OSL_KEYLIST and OSL_REMOTEKEYLIST on their own page<br>
+
 ## Version 1.5.6
 
 Added: On-device test for the mirror queries and oslDeleteImage(NULL)<br>

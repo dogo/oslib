@@ -62,7 +62,7 @@ extern "C" {
  */
 
 /** @brief OSLib version. */
-#define OSL_VERSION "1.5.6"
+#define OSL_VERSION "1.5.7"
 
 /** @brief Initializes the library.
  *
