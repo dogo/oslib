@@ -76,7 +76,8 @@ typedef enum OSL_MAP_FLAGS {
  * map data. It sets up the map's dimensions and format, returning a pointer to
  * the created `OSL_MAP` structure.
  *
- * @param img Pointer to the tileset image. The maximum size of images is 512x512 pixels.
+ * @param img Pointer to the tileset image. It is bound as one texture and the GE samples at most 512 texels per
+ *            axis, so keep the tileset within 512x512 pixels.
  *            In the tileset image, tiles are arranged from left to right and top to bottom.
  * @param map_data Pointer to the raw binary map data. This is an array where each entry
  *                represents a tile number to be displayed.

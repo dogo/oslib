@@ -13,6 +13,8 @@
 #include <pspaudio.h>
 #endif
 
+#include <strings.h>
+
 #include "oslib.h"
 #include "audio.h"
 
@@ -421,6 +423,11 @@ void oslDeinitAudio() {
 	audio_ready = 0;
 }
 
+// Weak, so oslLoadSoundFile doesn't link media.c (and -lpspaudiocodec) into every app: they are
+// set once the app calls oslInitAudioME, which MP3 and AT3 need anyway and which lives in media.c
+extern OSL_SOUND *oslLoadSoundFileMP3(const char *filename, int stream) __attribute__((weak));
+extern OSL_SOUND *oslLoadSoundFileAT3(const char *filename, int stream) __attribute__((weak));
+
 OSL_SOUND *oslLoadSoundFile(const char *filename, int stream) {
 	if (filename == NULL || strlen(filename) < 4) {
 		return NULL; // Invalid filename or file too short
@@ -429,13 +436,16 @@ OSL_SOUND *oslLoadSoundFile(const char *filename, int stream) {
 	// Determine if streaming is requested
 	int isStream = (stream & OSL_FMT_STREAM) ? 1 : 0;
 
-	// Check if the file is a BGM file
-	if (!strcmp(filename + strlen(filename) - 4, ".bgm")) {
+	// Memory stick names often come in upper case, so compare the extension without case
+	const char *ext = filename + strlen(filename) - 4;
+	if (!strcasecmp(ext, ".bgm")) {
 		return oslLoadSoundFileBGM(filename, isStream);
-	}
-	// Check if the file is a WAV file
-	else if (!strcmp(filename + strlen(filename) - 4, ".wav")) {
+	} else if (!strcasecmp(ext, ".wav")) {
 		return oslLoadSoundFileWAV(filename, isStream);
+	} else if (!strcasecmp(ext, ".mp3")) {
+		return oslLoadSoundFileMP3 ? oslLoadSoundFileMP3(filename, stream) : NULL; // the ME loaders test the OSL_FMT_STREAM bit
+	} else if (!strcasecmp(ext, ".at3")) {
+		return oslLoadSoundFileAT3 ? oslLoadSoundFileAT3(filename, stream) : NULL;
 	}
 
 	// Unsupported file type

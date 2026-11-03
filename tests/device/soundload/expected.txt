@@ -1,0 +1,11 @@
+before oslInitAudioME:
+oslLoadSoundFileMP3 -> NULL
+oslLoadSoundFileAT3 -> NULL
+after oslInitAudioME:
+oslLoadSoundFile(../wavload/tone44s.wav) -> sound PASS
+oslLoadSoundFile(tone.bgm            ) -> sound PASS
+oslLoadSoundFile(TONE.BGM            ) -> sound PASS
+oslLoadSoundFile(../mp3/tone44.mp3   ) -> sound PASS
+oslLoadSoundFile(../at3/lp2.at3      ) -> sound PASS
+oslLoadSoundFile(../at3/gen.sh       ) -> NULL PASS
+DONE
