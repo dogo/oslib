@@ -26,6 +26,7 @@ tests/device/**/*.prx
 tests/device/**/*.SFO
 tests/device/**/result.txt
 tests/device/**/screen.png
+tests/device/run.log
 build-host-tests
 
 # Ignore documentation directory
