@@ -1,0 +1,10 @@
+8888   linear        0/1024 wrong PASS
+8888   swizzled      0/1024 wrong PASS
+5650   linear        0/1024 wrong PASS
+5650   swizzled      0/1024 wrong PASS
+5551   linear        0/1024 wrong PASS
+5551   swizzled      0/1024 wrong PASS
+4444   linear        0/1024 wrong PASS
+4444   swizzled      0/1024 wrong PASS
+8bit   linear        0/1024 wrong PASS
+8bit   swizzled      0/1024 wrong PASS
