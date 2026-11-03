@@ -16,9 +16,10 @@ void oslPngFlushFn(png_structp png_ptr) {
 }
 
 OSL_IMAGE *oslLoadImageFilePNG(char *filename, int location, int volatile pixelFormat) {
-	const size_t nSigSize = 8;
-	// Signature, then the IHDR chunk (length, "IHDR", width, height, depth, colour type)
-	u8 signature[26];
+	// The PNG signature, then the IHDR chunk: length (4), "IHDR" (4), width (4), height (4),
+	// bit depth (1), colour type (1)
+	enum { nSigSize = 8, nIhdrTag = nSigSize + 4, nColourType = nIhdrTag + 4 + 4 + 4 + 1 };
+	u8 header[nColourType + 1];
 	OSL_IMAGE * volatile img = NULL;
 	VIRTUAL_FILE *f;
 	// We only keep the location bits
@@ -28,13 +29,13 @@ OSL_IMAGE *oslLoadImageFilePNG(char *filename, int location, int volatile pixelF
 	f = VirtualFileOpen((void *)filename, 0, VF_AUTO, VF_O_READ);
 	if (!f) goto error;
 
-	if (VirtualFileRead(signature, sizeof(u8), sizeof(signature), f) != sizeof(signature)) goto error;
+	if (VirtualFileRead(header, sizeof(u8), sizeof(header), f) != sizeof(header)) goto error;
 
-	if (!png_check_sig(signature, nSigSize) || memcmp(signature + 12, "IHDR", 4)) goto error;
+	if (!png_check_sig(header, nSigSize) || memcmp(header + nIhdrTag, "IHDR", 4)) goto error;
 
 	// Only a PNG with its own palette can go straight into a paletted format; expand anything
 	// else (low-bit grey, tRNS) and convert it afterwards
-	int keepPalette = osl_pixelWidth[pixelFormat] <= 8 && signature[25] == PNG_COLOR_TYPE_PALETTE;
+	int keepPalette = osl_pixelWidth[pixelFormat] <= 8 && header[nColourType] == PNG_COLOR_TYPE_PALETTE;
 	VirtualFileSeek(f, nSigSize, PSP_SEEK_SET);
 
 	png_structp pPngStruct = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
