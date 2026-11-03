@@ -1037,7 +1037,7 @@ enum OSL_PIXELFORMATS {
  *        Returns a pointer to the created `OSL_IMAGE`. If the image creation fails, the function returns `NULL`. It's essential to check for a `NULL` return value to avoid crashes, as trying to use a `NULL` image will cause the PSP to shut down after a brief period.
  *
  * @note
- * - Images larger than 512 pixels can be created and loaded (checked on a PSP with a 600 px wide one), but the GE samples at most 512 texels per axis: `oslDrawImage` wraps past texel 511 (column 512 shows column 0 again). Draw them with `oslDrawImageBig`.
+ * - Images larger than 512 pixels can be created and loaded, but the GE samples at most 512 texels per axis: `oslDrawImage` wraps past texel 511 (column 512 shows column 0 again). Draw them with `oslDrawImageBig`.
  * - Empty images created using this function are not automatically swizzled, even if the `oslSetImageAutoSwizzle` parameter is enabled.
  * - Do NOT pass `OSL_SWIZZLED` or `OSL_UNSWIZZLED` flags to `oslCreateImage()`; these flags are not applicable during image creation.
  */
@@ -1134,8 +1134,7 @@ extern OSL_IMAGE *oslLoadImageFilePNG(char *filename, int location, int pixelFor
  * Always check if the returned image pointer is `NULL` before using it to avoid crashes. Display a user-friendly message if the image fails to load, advising the user to check their files.
  *
  * @note
- * Decoding uses libjpeg: baseline and progressive JPEGs load at any quality, including 100 and 4:4:4 chroma (checked
- * on a PSP by tests/device/imgload).
+ * Decoding uses libjpeg: baseline and progressive JPEGs load at any quality, including 100 and 4:4:4 chroma.
  *
  * @see oslLoadImageFile
  */
@@ -1428,7 +1427,7 @@ extern void oslDrawImageSimple(OSL_IMAGE *img);
 /**
  * @brief Draws a very large image.
  *
- * This function is designed to draw images larger than the 512 texels the GE samples per axis. It renders images up to 1024 pixels in width (wider ones come out wrong; both checked on a PSP by tests/device/bigdraw), but comes with additional complexity and potentially significant performance drawbacks.
+ * This function is designed to draw images larger than the 512 texels the GE samples per axis. It renders images up to 1024 pixels in width (wider ones come out wrong), but comes with additional complexity and potentially significant performance drawbacks.
  *
  * \note
  *    The PSP hardware is not optimized for handling images larger than 512x512 pixels. While this function allows you to draw larger images, it can be extremely slow and is not recommended for typical use. The GPU must process all the pixels of the image, even if you scale it down, which can be very inefficient.

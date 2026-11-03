@@ -95,7 +95,7 @@ extern void oslDeinitAudio();
  *
  * This function is required for playing AT3 and MP3 files. It loads the firmware's audio codec module and works in user
  * mode (only firmware 1.50 loads the codec in kernel mode). Before it is called, #oslLoadSoundFileMP3 and
- * #oslLoadSoundFileAT3 return NULL (checked on a PSP by tests/device/soundload).
+ * #oslLoadSoundFileAT3 return NULL.
  * @param formats Bitmask of formats to initialize, see oslInitAudioME_formats.
  */
 extern void oslInitAudioME(int formats);
@@ -144,7 +144,7 @@ extern OSL_SOUND *oslLoadSoundFile(const char *filename, int stream);
  * of the range below them (a 48 kHz file plays about 8% low, a 32 kHz one as if it were 22050 Hz, about 31% low).
  *
  * @param filename Path to the WAV sound file, on the memory stick or any virtual file source, e.g. a file in memory added
- *                 with oslAddVirtualFileList (loaded whole or streamed, both checked on a PSP by tests/device/wavload).
+ *                 with oslAddVirtualFileList, loaded whole or streamed.
  * @param stream Determines the mode of operation:
  *               - OSL_FMT_STREAM: Sound is streamed from the file, minimizing memory usage but requiring more CPU resources.
  *               - OSL_FMT_NONE: Sound is completely loaded into memory, providing faster access at the cost of increased memory usage.
