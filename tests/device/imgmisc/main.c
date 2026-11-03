@@ -1,7 +1,9 @@
 // oslImageIsMirroredH/V before and after mirroring an image (and a tile of it),
-// then oslDeleteImage(NULL), which is documented to do nothing.
+// then oslDeleteImage(NULL), which is documented to do nothing, and that a new
+// image's buffer (padding included) starts zeroed even over dirty RAM/VRAM.
 #include <pspkernel.h>
 #include <stdio.h>
+#include <string.h>
 #include <oslib/oslib.h>
 
 PSP_MODULE_INFO("imgmisc", 0, 1, 0);
@@ -12,6 +14,23 @@ static FILE *f;
 static void mirrored(const char *name, OSL_IMAGE *img, int wantH, int wantV) {
 	int h = !!oslImageIsMirroredH(img), v = !!oslImageIsMirroredV(img);
 	fprintf(f, "%-22s IsMirroredH %d IsMirroredV %d %s\n", name, h, v, h == wantH && v == wantV ? "PASS" : "FAIL");
+}
+
+// Dirty the memory a 37x33 image will reuse, then check its whole buffer is zero:
+// the GPU samples the padding past sizeX/sizeY at the image's edges.
+static void zeroed(const char *name, int location) {
+	OSL_IMAGE *img = oslCreateImage(37, 33, location, OSL_PF_8888);
+	int size = img->totalSize;
+	memset(img->data, 0xab, size);
+	oslUncacheData(img->data, size);
+	oslDeleteImage(img);
+	img = oslCreateImage(37, 33, location, OSL_PF_8888);
+	const u8 *p = (const u8 *)oslGetUncachedPtr(img->data);
+	int dirty = 0;
+	for (int i = 0; i < img->totalSize; i++)
+		dirty += p[i] != 0;
+	fprintf(f, "%-22s %d/%d bytes not zero %s\n", name, dirty, img->totalSize, dirty ? "FAIL" : "PASS");
+	oslDeleteImage(img);
 }
 
 int main() {
@@ -33,6 +52,9 @@ int main() {
 	oslMirrorImageH(img);
 	mirrored("tile mirrored H", img, 1, 0);
 	oslDeleteImage(img);
+
+	zeroed("new image in RAM", OSL_IN_RAM);
+	zeroed("new image in VRAM", OSL_IN_VRAM);
 
 	fprintf(f, "oslDeleteImage(NULL) ");
 	oslDeleteImage(NULL);

@@ -153,10 +153,12 @@ void *oslAllocImageData(OSL_IMAGE *img, int location) {
 		break;
 	}
 
-	// The block may hold its previous owner's dirty cache lines; flush them now, or the next
-	// oslUncacheImage writes them back over pixels set through the uncached pointer
-	if (img->data)
+	// Zero the padding (the GPU samples it at the edges). Flush after, or dirty lines
+	// overwrite pixels later set through the uncached pointer
+	if (img->data) {
+		memset(img->data, 0, img->totalSize);
 		oslUncacheData(img->data, img->totalSize);
+	}
 
 	// Don't forget to set its location
 	img->location = location;
