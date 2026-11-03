@@ -1,3 +1,20 @@
+## Version 1.5.4
+
+Added: On-device tests run over USB with PSPLink (image loaders, pixel formats, MP3/AT3 decoding)<br>
+Fixed: Grey PNGs losing their alpha and having black pixels keyed out<br>
+Fixed: Grey PNGs crashing and tRNS ignored when loaded into paletted formats<br>
+Fixed: Image pixels set through the uncached pointer lost to stale cache lines<br>
+Fixed: ATRAC3plus RIFF files without Sony's fmt extension refused<br>
+Fixed: oslAdhocRequestConnection timing out at once<br>
+Fixed: oslAdhocReceiveData overwriting the peer's MAC and returning the wrong size<br>
+Fixed: remotePsp pointers naming another PSP after one leaves<br>
+Fixed: Remote PSP list writing and reading past its array<br>
+Fixed: Partial oslAdhocInit not undone on failure<br>
+Fixed: Adhoc reading more bytes than a joining PSP sends<br>
+Fixed: Adhoc product ID truncated (now the full 9 characters)<br>
+Updated: Docs on image size, JPEG quality and WAV sources/sample rates corrected<br>
+Updated: libosl.a is no longer tracked in git<br>
+
 ## Version 1.5.3
 
 Added: Host unit test for the MP3/AT3 Media Engine code, run in CI<br>
