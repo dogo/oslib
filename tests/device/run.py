@@ -84,9 +84,13 @@ def main():
     bind_failed = threading.Event()
     start = time.time()
     log = []  # timestamped usbhostfs_pc and pspsh output, shown when a test times out
+    # ...and kept in run.log as it happens, in case this run is killed before it can show it
+    log_file = open(os.path.join(HERE, "run.log"), "w")
 
     def note(line):
         log.append(f"    {time.time() - start:7.1f}s {line.rstrip()}")
+        log_file.write(log[-1] + "\n")
+        log_file.flush()
 
     def watch():
         for line in hostfs.stdout:
@@ -129,14 +133,20 @@ def main():
                 # A crashed test leaves its thread stopped in PSPLink: show why, and reset PSPLink
                 # so the next run starts clean
                 crash = subprocess.run(["pspsh", "-p", str(args.port), "-e", "exprint"], cwd=HERE,
-                                       stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, timeout=TIMEOUT)
+                                       stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, timeout=10)
                 print("".join("    " + line + "\n" for line in crash.stdout.splitlines()[:9]), end="")
                 subprocess.run(["pspsh", "-p", str(args.port), "-e", "reset"], cwd=HERE,
-                               stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=TIMEOUT)
+                               stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=10)
                 break  # the rest would run on a PSPLink that is restarting
     finally:
         hostfs.terminate()
-        hostfs.wait()  # free the ports before a next run starts
+        # usbhostfs_pc prints "Exiting" but can stay stuck in a USB call (seen right after
+        # PSPLink reconnects); it must be gone, or it holds the ports and the PSP for the next run
+        try:
+            hostfs.wait(timeout=5)
+        except subprocess.TimeoutExpired:
+            hostfs.kill()
+            hostfs.wait()
     sys.exit(1 if failed else 0)
 
 
