@@ -1,0 +1,22 @@
+select      0x000001 -> select       PASS
+start       0x000008 -> start        PASS
+up          0x000010 -> up           PASS
+right       0x000020 -> right        PASS
+down        0x000040 -> down         PASS
+left        0x000080 -> left         PASS
+L           0x000100 -> L            PASS
+R           0x000200 -> R            PASS
+triangle    0x001000 -> triangle     PASS
+circle      0x002000 -> circle       PASS
+cross       0x004000 -> cross        PASS
+square      0x008000 -> square       PASS
+home        0x010000 -> home         PASS
+hold        0x020000 -> hold         PASS
+note        0x800000 -> note         PASS
+rmplaypause 0x000001 -> rmplaypause  PASS
+rmforward   0x000004 -> rmforward    PASS
+rmback      0x000008 -> rmback       PASS
+rmvolup     0x000010 -> rmvolup      PASS
+rmvoldown   0x000020 -> rmvoldown    PASS
+rmhold      0x000080 -> rmhold       PASS
+DONE
