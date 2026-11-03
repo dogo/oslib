@@ -11,22 +11,22 @@ PSP_MODULE_INFO("imgload", 0, 1, 0);
 PSP_MAIN_THREAD_ATTR(THREAD_ATTR_USER | THREAD_ATTR_VFPU);
 PSP_HEAP_SIZE_KB(4 * 1024);
 
-#define W 32
-#define H 24
+#define MAXW 600
 
 static FILE *f;
 
-static void check(const char *name, const char *ext, int tol) {
+static unsigned char want[MAXW * 24 * 4];
+
+static void checkSized(const char *name, const char *ext, int tol, int W, int H) {
 	char file[32], ref[32];
-	unsigned char want[W * H * 4];
 	snprintf(file, sizeof(file), "%s.%s", name, ext);
 	snprintf(ref, sizeof(ref), "%s.rgba", name);
 	FILE *r = fopen(ref, "rb");
-	int got = r ? fread(want, 1, sizeof(want), r) : 0;
+	int got = r ? fread(want, 1, W * H * 4, r) : 0;
 	if (r) fclose(r);
 
 	OSL_IMAGE *img = oslLoadImageFile(file, OSL_IN_RAM | OSL_UNSWIZZLED, OSL_PF_8888);
-	if (!img || got != sizeof(want) || img->sizeX != W || img->sizeY != H) {
+	if (!img || got != W * H * 4 || img->sizeX != W || img->sizeY != H) {
 		fprintf(f, "%-16s load failed FAIL\n", file);
 		if (img) oslDeleteImage(img);
 		return;
@@ -53,8 +53,13 @@ static void check(const char *name, const char *ext, int tol) {
 	fprintf(f, " %s\n", badColour || badAlpha ? "FAIL" : "PASS");
 }
 
+static void check(const char *name, const char *ext, int tol) {
+	checkSized(name, ext, tol, 32, 24);
+}
+
 // With a colour key set, grey PNGs must key out the same pixels as RGB ones: the white column.
 static void colourKey(const char *file) {
+	const int W = 32, H = 24;
 	oslSetTransparentColor(RGB(255, 255, 255));
 	OSL_IMAGE *img = oslLoadImageFile((char *)file, OSL_IN_RAM | OSL_UNSWIZZLED, OSL_PF_8888);
 	oslDisableTransparentColor();
@@ -90,6 +95,9 @@ int main() {
 	check("jpeg", "jpg", 4);
 	check("progressive", "jpg", 4);
 	check("gif", "gif", 0);
+	check("jpeg95", "jpg", 4);
+	check("jpeg100", "jpg", 4);
+	checkSized("wide", "png", 0, 600, 24);
 	colourKey("rgb8.png");
 	colourKey("gray8.png");
 	fclose(f);
