@@ -102,7 +102,7 @@ extern void oslInitAudioME(int formats);
 
 /** Number of audio channels. No more than 8 sounds can be played at once! */
 #define OSL_NUM_AUDIO_CHANNELS 8
-/** This is the default volume for audio channels. Though the real maximum value is 0xffff, this value is the maximum value before distorsion may happen. */
+/** Default and maximum volume for audio channels (PSP_AUDIO_VOLUME_MAX). Higher volumes are clamped to it. */
 #define OSL_VOLUME_MAX 0x8000
 
 /**

@@ -615,7 +615,7 @@ extern float oslSin(float angle, float dist);
  */
 extern float oslCos(float angle, float dist);
 
-/** @brief Returns the sine of an angle in degrees (0 to 360) multiplied by an integer radius.
+/** @brief Returns the sine of an angle in whole degrees (any value, negative included) multiplied by an integer radius.
  *
  * This function uses a lookup table for faster computation.
  *
@@ -626,7 +626,7 @@ extern float oslCos(float angle, float dist);
  */
 extern int oslSini(int angle, int dist);
 
-/** @brief Returns the cosine of an angle in degrees (0 to 360) multiplied by an integer radius.
+/** @brief Returns the cosine of an angle in whole degrees (any value, negative included) multiplied by an integer radius.
  *
  * This function uses a lookup table for faster computation.
  *
@@ -862,10 +862,11 @@ extern int oslShowSplashScreen1();
 /**
  * @brief Displays the second predefined splash screen.
  *
- * This function shows the second splash screen provided by the OldSchool Library, typically
- * associated with the Neoflash logo. It can be used at the start of your application as an introduction.
+ * This function shows the Neoflash logo. Unlike the first splash screen, the logo is not built into
+ * OSLib: it is loaded from `logo/neoflash.png`, relative to the application's directory, which you
+ * must ship with your EBOOT. In no-fail mode (#oslSetQuitOnLoadFailure), a missing file quits the application.
  *
- * @return Returns 1 on success, 0 if the splash screen could not be displayed.
+ * @return Returns 1 on success, 0 if the splash screen could not be displayed (e.g. the logo file is missing).
  */
 extern int oslShowSplashScreen2();
 
@@ -887,7 +888,7 @@ static inline int oslShowSplashScreen(int splashType) {
 
 /** @brief Shows the Neoflash logo splash screen.
  *
- * This function displays the Neoflash logo splash screen.
+ * This function displays the Neoflash logo splash screen, loaded from `logo/neoflash.png`; see #oslShowSplashScreen2.
  *
  * @return 1 in case of success, 0 otherwise.
  */
