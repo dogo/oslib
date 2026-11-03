@@ -28,16 +28,16 @@
  *  positions, and other properties like font type and intraFont data.
  */
 typedef struct {
-	OSL_IMAGE *img;                        // !< Image containing character sprites.
-	unsigned char *charWidths;             // !< Table containing the width of each character (256 entries).
-	unsigned short *charPositions;         // !< Position of characters in the image (16-bits: y:7, x:9).
-	int isCharWidthConstant;               // !< Internal (to determine if charWidth needs to be freed).
-	int charWidth;                         // !< Width of characters.
-	int charHeight;                        // !< Height of characters (constant).
-	int recentrage;                        // !< Added to text positions when drawing.
-	unsigned char addedSpace;              // !< Space added between characters on the texture (allows making characters bigger than indicated by charWidths).
-	int fontType;                          // !< Font type (OSL_FONT_OFT or OSL_FONT_INTRA).
-	intraFont *intra;                      // !< IntraFont data.
+	OSL_IMAGE *img;                        ///< Image containing character sprites.
+	unsigned char *charWidths;             ///< Table containing the width of each character (256 entries).
+	unsigned short *charPositions;         ///< Position of characters in the image (16-bits: y:7, x:9).
+	int isCharWidthConstant;               ///< Internal (to determine if charWidth needs to be freed).
+	int charWidth;                         ///< Width of characters.
+	int charHeight;                        ///< Height of characters (constant).
+	int recentrage;                        ///< Added to text positions when drawing.
+	unsigned char addedSpace;              ///< Space added between characters on the texture (allows making characters bigger than indicated by charWidths).
+	int fontType;                          ///< Font type (OSL_FONT_OFT or OSL_FONT_INTRA).
+	intraFont *intra;                      ///< IntraFont data.
 } OSL_FONT;
 
 /** @brief Font information type.
@@ -46,16 +46,16 @@ typedef struct {
  *  palette data, and information about character sizes and widths.
  */
 typedef struct {
-	void *fontdata;                        // !< Character image data.
-	short pixelFormat;                     // !< 1 = 1 bit (default).
-	unsigned char *charWidths;             // !< Width of characters.
-	int charWidth;                         // !< Default character width (if charWidths is NULL).
-	int charHeight;                        // !< Height of characters (constant).
-	int lineWidth;                         // !< Number of bytes of data per line.
-	int recentrage;                        // !< Added to text positions for drawing text (recentering).
-	unsigned char addedSpace;              // !< Space added between characters on the texture.
-	unsigned short paletteCount;           // !< Palette count.
-	unsigned long *paletteData;            // !< Palette data.
+	void *fontdata;                        ///< Character image data.
+	short pixelFormat;                     ///< 1 = 1 bit (default).
+	unsigned char *charWidths;             ///< Width of characters.
+	int charWidth;                         ///< Default character width (if charWidths is NULL).
+	int charHeight;                        ///< Height of characters (constant).
+	int lineWidth;                         ///< Number of bytes of data per line.
+	int recentrage;                        ///< Added to text positions for drawing text (recentering).
+	unsigned char addedSpace;              ///< Space added between characters on the texture.
+	unsigned short paletteCount;           ///< Palette count.
+	unsigned long *paletteData;            ///< Palette data.
 } OSL_FONTINFO;
 
 /** @brief Header of a .oft file (Oslib FonT).
@@ -63,14 +63,14 @@ typedef struct {
  *  This structure represents the header for a font file used in OSLib.
  */
 typedef struct {
-	char strVersion[12];                   // !< "OSLFont v01".
-	unsigned char pixelFormat;             // !< Number of bits per pixel (1 = 1 bit, default).
-	unsigned char variableWidth;           // !< True if the first 256 bytes specify the character widths.
-	int charWidth, charHeight;             // !< Mean character sizes (used for the console).
-	int lineWidth;                         // !< Number of bytes of data per line.
-	unsigned char addedSpace;              // !< Space added between characters on the texture.
-	unsigned short paletteCount;           // !< Palette count.
-	unsigned char reserved[29];            // !< Must be null (reserved).
+	char strVersion[12];                   ///< "OSLFont v01".
+	unsigned char pixelFormat;             ///< Number of bits per pixel (1 = 1 bit, default).
+	unsigned char variableWidth;           ///< True if the first 256 bytes specify the character widths.
+	int charWidth, charHeight;             ///< Mean character sizes (used for the console).
+	int lineWidth;                         ///< Number of bytes of data per line.
+	unsigned char addedSpace;              ///< Space added between characters on the texture.
+	unsigned short paletteCount;           ///< Palette count.
+	unsigned char reserved[29];            ///< Must be null (reserved).
 } OSL_FONT_FORMAT_HEADER;
 
 /** Current font.
@@ -127,7 +127,8 @@ extern void oslInitConsole();
 
 /** @brief Loads a font from a file.
  *
- *  Loads a font file (.oft format) from the specified file path.
+ *  Loads a font file from the specified file path: an .oft font, or a .pgf/.bwfon font through
+ *  intraFont (call #oslIntraFontInit first).
  *
  *  @param filename The path to the .oft font file.
  *  @return A pointer to the loaded font.

@@ -443,11 +443,11 @@ extern int sceDmacTryMemcpy(void *dest, const void *source, unsigned int size);
 
 /** @brief Does a memset using the 64-bit capabilities of the CPU.
  *
- * This function is faster than memcpy for certain operations.
+ * Fills `length` bytes at `dst` with the 8-byte value `*src`, repeated, using 64-bit stores.
  *
- * @param dst Destination address.
- * @param src Source address.
- * @param length Length of the data to be set.
+ * @param dst Destination address, 8-byte aligned.
+ * @param src Pointer to the 8-byte fill value.
+ * @param length Number of bytes to fill.
  */
 extern void oslFasterMemset(u64 *dst, u64 *src, u32 length);
 

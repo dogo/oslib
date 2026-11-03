@@ -73,9 +73,6 @@ extern void oslInitGfx(int pixelFormat, int bDoubleBuffer);
  * It also resets the current texture and palette to null and starts a new command list for rendering.
  *
  * @note If drawing has already started, this function will do nothing.
- *
- * @note The commented section related to intraFont initialization is left out because it could interfere
- *       with user applications. If you need specific matrix configurations, consider setting them in your application.
  */
 extern void oslStartDrawing();
 
@@ -1114,8 +1111,7 @@ extern OSL_IMAGE *oslLoadImageFilePNG(char *filename, int location, int pixelFor
 /**
  * @brief Loads an image from a JPG file.
  *
- * This function loads an image from a specified JPG file, with options to select the memory location and pixel format. It is optimized for JPG files, but the decompression is limited and may not support
- * high-quality JPGs.
+ * This function loads an image from a specified JPG file, with options to select the memory location and pixel format. It is optimized for JPG files.
  *
  * @param filename
  *        The path to the JPG file to be loaded.
@@ -1170,7 +1166,7 @@ extern OSL_IMAGE *oslLoadImageFileGIF(char *filename, int location, int pixelFor
  *
  * This variable determines whether images are automatically swizzled upon loading. Swizzling optimizes memory access patterns for images in VRAM, enhancing performance during rendering.
  *
- * - If set to a non-zero value, images loaded by functions like `oslLoadImageFile` and its variants will be automatically swizzled if the location is in VRAM.
+ * - If set to a non-zero value, images loaded by functions like `oslLoadImageFile` and its variants will be automatically swizzled, in RAM or in VRAM.
  * - If set to zero, images will not be swizzled automatically.
  *
  * @note
@@ -2167,7 +2163,7 @@ extern void oslUnswizzleImage(OSL_IMAGE *img);
         Example usage:
         \code
         OSL_IMAGE *sourceImage = oslLoadImageFile("example.png", OSL_IN_RAM, OSL_PF_8888);
-        OSL_IMAGE *destinationImage = oslCreateImage(sourceImage->sizeX, sourceImage->sizeY, OSL_PF_8888);
+        OSL_IMAGE *destinationImage = oslCreateImage(sourceImage->sizeX, sourceImage->sizeY, OSL_IN_RAM, OSL_PF_8888);
         oslSwizzleImageTo(destinationImage, sourceImage);
         // Use destinationImage for fast drawing
         \endcode
@@ -2225,12 +2221,12 @@ extern void oslClearImage(OSL_IMAGE *img, int color);         // A tester!!!
         @param filename
                 The path to the file where the image will be saved. The file type is determined based on the file extension.
         @param flags
-                Options for the image writing operation. These flags control how the image is processed during writing. The specific flags available depend on the implementation and version of OSLib.
+                Either 0 or #OSL_WRI_ALPHA, see #oslWriteImageFilePNG.
 
         @return
-                Returns a status code indicating the success or failure of the operation. The exact values and meaning of the return codes depend on the implementation.
+                1 if the image was written, 0 otherwise (swizzled image, unsupported extension or write error).
 
-        This function saves the provided image to the specified file. The file type is automatically detected based on the file extension, which includes support for various formats. However, using this function can increase the size of your project and use unnecessary RAM because it supports every possible format.
+        This function saves the provided image to the specified file. The file type is picked from the extension, in any case; PNG (.png) is the only format OSLib writes.
 
         \b Note: If the image is swizzled, the function will not perform any action. To write a swizzled image, you must first unswizzle it using the #oslUnswizzleImage function.
 
@@ -2239,7 +2235,7 @@ extern void oslClearImage(OSL_IMAGE *img, int color);         // A tester!!!
         OSL_IMAGE *img = oslCreateImage(64, 64, OSL_IN_RAM, OSL_PF_5551);
         // Assuming img is properly initialized and contains image data
         int result = oslWriteImageFile(img, "output_image.png", 0);
-        if (result == 0) {
+        if (result) {
                 // Image was written successfully
         } else {
                 // Error occurred
@@ -2989,7 +2985,7 @@ extern const u8 osl_paletteSizes[];
 
         \b Important:
         - The image pixel format must be non-paletted. Supported formats are 4444, 5551, 5650, and 8888. Note that 8888 mode (32-bit) is slower and results in a larger image size.
-        - The image must be in video memory (OSL_IN_VRAM). The GPU can only write to video memory and can only read from regular RAM.
+        - The image must be in video memory (OSL_IN_VRAM). The GPU can only render into video memory (it reads textures from both RAM and VRAM).
         - A common issue is that the image may not be displayed if its alpha is null. To avoid this, either clear the image after creation or temporarily disable alpha blending by calling `oslSetAlpha(OSL_FX_NONE, 0)`.
 
         @param img
@@ -3216,7 +3212,7 @@ static inline void oslImageSetAutoStrip(OSL_IMAGE *img, bool enabled) {
         }
         \endcode
 
-        As you can see, drawing with GU is straightforward if you are familiar with it. For those new to GU, it is recommended to review tutorials and examples available on ps2dev.org for a deeper understanding.
+        As you can see, drawing with GU is straightforward if you are familiar with it. For those new to GU, it is recommended to review the samples of the PSP SDK (https://github.com/pspdev/pspsdk) for a deeper understanding.
  */
 
 #ifdef PSP
