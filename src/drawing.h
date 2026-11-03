@@ -485,7 +485,7 @@ extern int osl_colorKeyValue;
  * @brief Creates a 15-bit opaque color.
  *
  * This macro generates a 15-bit color value with full opacity. The red, green, and blue components
- * are scaled down to fit the 15-bit format (5 bits for red and blue, 5 or 6 bits for green).
+ * are scaled down to fit the 15-bit format (5 bits each), with the alpha bit set (`OSL_PF_5551`).
  *
  * @param r Red component (0-255)
  * @param v Green component (0-255)
@@ -763,24 +763,24 @@ extern void oslDrawGradientRect(int x0, int y0, int x1, int y1, OSL_COLOR c1, OS
  */
 
 /** @brief Swizzles texture data.
-
-        This function performs a swizzling operation on texture data. Swizzling is a process that reorders texture data to improve memory access patterns, often used for better performance on specific hardware. The function takes an input texture and writes the swizzled output to the provided buffer.
-
-        @param out Pointer to the buffer where the swizzled texture data will be stored.
-        @param in Pointer to the input texture data.
-        @param width The width of the texture in pixels.
-        @param height The height of the texture in pixels.
+ *
+ * This function performs a swizzling operation on texture data. Swizzling is a process that reorders texture data to improve memory access patterns, often used for better performance on specific hardware. The function takes an input texture and writes the swizzled output to the provided buffer.
+ *
+ * @param out Pointer to the buffer where the swizzled texture data will be stored.
+ * @param in Pointer to the input texture data.
+ * @param width The width of the texture in pixels.
+ * @param height The height of the texture in pixels.
  */
 extern void oslSwizzleTexture(u8 *out, const u8 *in, unsigned int width, unsigned int height);
 
 /** @brief Unswizzles texture data.
-
-        This function performs the inverse of the swizzling operation. It converts texture data that has been swizzled back into its original order. The function takes a swizzled texture and writes the unswizzled output to the provided buffer.
-
-        @param out Pointer to the buffer where the unswizzled texture data will be stored.
-        @param in Pointer to the swizzled texture data.
-        @param width The width of the texture in pixels.
-        @param height The height of the texture in pixels.
+ *
+ * This function performs the inverse of the swizzling operation. It converts texture data that has been swizzled back into its original order. The function takes a swizzled texture and writes the unswizzled output to the provided buffer.
+ *
+ * @param out Pointer to the buffer where the unswizzled texture data will be stored.
+ * @param in Pointer to the swizzled texture data.
+ * @param width The width of the texture in pixels.
+ * @param height The height of the texture in pixels.
  */
 extern void oslUnswizzleTexture(u8 *out, const u8 *in, unsigned int width, unsigned int height);
 
@@ -809,41 +809,41 @@ extern void oslDrawTile(int u, int v, int x, int y, int tX, int tY);
  */
 
 /** @brief Type definition for 16-bit palette data.
-
-        This type defines a 16-bit palette data structure with 16-byte alignment. It is used for handling image palettes in memory with proper alignment for performance optimization.
-
-        This type is typically used when working with image data that requires a palette of 16-bit entries.
-
-        @note The alignment ensures that the data structure is properly aligned in memory, which can be important for certain hardware optimizations.
-
+ *
+ * This type defines a 16-bit palette data structure with 16-byte alignment. It is used for handling image palettes in memory with proper alignment for performance optimization.
+ *
+ * This type is typically used when working with image data that requires a palette of 16-bit entries.
+ *
+ * @note The alignment ensures that the data structure is properly aligned in memory, which can be important for certain hardware optimizations.
+ *
  */
 #define OSL_PALETTEDATA16 unsigned short __attribute__((aligned(16)))
 
 /** @brief Type definition for 32-bit palette data.
-
-        This type defines a 32-bit palette data structure with 16-byte alignment. It is used for handling image palettes in memory with proper alignment for performance optimization.
-
-        This type is typically used when working with image data that requires a palette of 32-bit entries.
-
-        @note The alignment ensures that the data structure is properly aligned in memory, which can be important for certain hardware optimizations.
-
+ *
+ * This type defines a 32-bit palette data structure with 16-byte alignment. It is used for handling image palettes in memory with proper alignment for performance optimization.
+ *
+ * This type is typically used when working with image data that requires a palette of 32-bit entries.
+ *
+ * @note The alignment ensures that the data structure is properly aligned in memory, which can be important for certain hardware optimizations.
+ *
  */
 #define OSL_PALETTEDATA32 unsigned long __attribute__((aligned(16)))
 
 /** @brief Structure representing a palette.
-
-        This structure defines a palette used for image processing in OSLib. It holds information about the pixel format, the number of palette entries, the location of the palette, and a pointer to the raw palette data.
-
-        @struct OSL_PALETTE
-        @param pixelFormat
-                Pixel format of the palette entries. This defines how colors are stored in the palette.
-        @param nElements
-                Number of entries in the palette. This indicates how many colors are available in the palette.
-        @param location
-                Location of the palette. This should always be set to `OSL_IN_RAM` to indicate that the palette is stored in RAM.
-        @param data
-                Pointer to the actual raw data representing the color entries in their pixel format.
-
+ *
+ * This structure defines a palette used for image processing in OSLib. It holds information about the pixel format, the number of palette entries, the location of the palette, and a pointer to the raw palette data.
+ *
+ * @struct OSL_PALETTE
+ * @param pixelFormat
+ * Pixel format of the palette entries. This defines how colors are stored in the palette.
+ * @param nElements
+ * Number of entries in the palette. This indicates how many colors are available in the palette.
+ * @param location
+ * Location of the palette. This should always be set to `OSL_IN_RAM` to indicate that the palette is stored in RAM.
+ * @param data
+ * Pointer to the actual raw data representing the color entries in their pixel format.
+ *
  */
 typedef struct {
 	short pixelFormat;         ///< Pixel format of palette entries
@@ -853,16 +853,16 @@ typedef struct {
 } OSL_PALETTE;
 
 /** @brief Constants for the flags member of OSL_IMAGE.
-
-        These constants define the flags that can be used to specify various attributes of an image in OSLib.
-
-        @enum OSL_IMAGE_FLAGS
-        @param OSL_IMAGE_SWIZZLED
-                Indicates that the image is swizzled. Swizzling refers to a technique used to optimize texture access patterns.
-        @param OSL_IMAGE_COPY
-                Indicates that the image is a copy of another image. This can be used to identify and manage image copies.
-        @param OSL_IMAGE_AUTOSTRIP
-                Indicates that the image can be automatically stripped. This flag is used to manage automatic stripping operations on images.
+ *
+ * These constants define the flags that can be used to specify various attributes of an image in OSLib.
+ *
+ * @enum OSL_IMAGE_FLAGS
+ * @param OSL_IMAGE_SWIZZLED
+ * Indicates that the image is swizzled. Swizzling refers to a technique used to optimize texture access patterns.
+ * @param OSL_IMAGE_COPY
+ * Indicates that the image is a copy of another image. This can be used to identify and manage image copies.
+ * @param OSL_IMAGE_AUTOSTRIP
+ * Indicates that the image can be automatically stripped. This flag is used to manage automatic stripping operations on images.
  */
 enum OSL_IMAGE_FLAGS {
 	OSL_IMAGE_SWIZZLED = 1,         ///< Image is swizzled
@@ -871,60 +871,60 @@ enum OSL_IMAGE_FLAGS {
 };
 
 /** @brief Structure representing an image loaded in memory.
-
-        This structure defines an image in OSLib, including various properties like dimensions, raw data, pixel format, and additional attributes used for drawing and transforming the image.
-
-        @struct OSL_IMAGE
-        @param sizeX
-                Displayable width of the image.
-        @param sizeY
-                Displayable height of the image.
-        @param sysSizeX
-                Width aligned to the next power of two, used for system-level optimizations.
-        @param sysSizeY
-                Height aligned to the next power of two, used for system-level optimizations.
-        @param realSizeX
-                Actual buffer width of the image. Never write outside of these dimensions!
-        @param realSizeY
-                Actual buffer height of the image. Never write outside of these dimensions!
-        @param data
-                Pointer to the raw image data in memory.
-        @param flags
-                Special flags for the image, defined by `OSL_IMAGE_FLAGS`.
-        @param totalSize
-                Total size of the image in bytes.
-        @param location
-                Location of the image, either in RAM (`OSL_IN_RAM`) or VRAM (`OSL_IN_VRAM`).
-        @param pixelFormat
-                Pixel format of the image data, determining how the colors are stored.
-        @param palette
-                Pointer to the palette used in 4-bit and 8-bit color modes.
-        @param frameSizeX
-                Width of a frame in the image, useful for animations.
-        @param frameSizeY
-                Height of a frame in the image, useful for animations.
-        @param x
-                X-coordinate of the image position on the screen.
-        @param y
-                Y-coordinate of the image position on the screen.
-        @param stretchX
-                Final width of the image when drawn, allowing for stretching.
-        @param stretchY
-                Final height of the image when drawn, allowing for stretching.
-        @param offsetX0
-                Horizontal offset in the texture for the first point.
-        @param offsetY0
-                Vertical offset in the texture for the first point.
-        @param offsetX1
-                Horizontal offset in the texture for the second point.
-        @param offsetY1
-                Vertical offset in the texture for the second point.
-        @param centerX
-                X-coordinate of the rotation center.
-        @param centerY
-                Y-coordinate of the rotation center.
-        @param angle
-                Rotation angle in degrees, used for rotating the image.
+ *
+ * This structure defines an image in OSLib, including various properties like dimensions, raw data, pixel format, and additional attributes used for drawing and transforming the image.
+ *
+ * @struct OSL_IMAGE
+ * @param sizeX
+ * Displayable width of the image.
+ * @param sizeY
+ * Displayable height of the image.
+ * @param sysSizeX
+ * Width aligned to the next power of two, used for system-level optimizations.
+ * @param sysSizeY
+ * Height aligned to the next power of two, used for system-level optimizations.
+ * @param realSizeX
+ * Actual buffer width of the image. Never write outside of these dimensions!
+ * @param realSizeY
+ * Actual buffer height of the image. Never write outside of these dimensions!
+ * @param data
+ * Pointer to the raw image data in memory.
+ * @param flags
+ * Special flags for the image, defined by `OSL_IMAGE_FLAGS`.
+ * @param totalSize
+ * Total size of the image in bytes.
+ * @param location
+ * Location of the image, either in RAM (`OSL_IN_RAM`) or VRAM (`OSL_IN_VRAM`).
+ * @param pixelFormat
+ * Pixel format of the image data, determining how the colors are stored.
+ * @param palette
+ * Pointer to the palette used in 4-bit and 8-bit color modes.
+ * @param frameSizeX
+ * Width of a frame in the image, useful for animations.
+ * @param frameSizeY
+ * Height of a frame in the image, useful for animations.
+ * @param x
+ * X-coordinate of the image position on the screen.
+ * @param y
+ * Y-coordinate of the image position on the screen.
+ * @param stretchX
+ * Final width of the image when drawn, allowing for stretching.
+ * @param stretchY
+ * Final height of the image when drawn, allowing for stretching.
+ * @param offsetX0
+ * Horizontal offset in the texture for the first point.
+ * @param offsetY0
+ * Vertical offset in the texture for the first point.
+ * @param offsetX1
+ * Horizontal offset in the texture for the second point.
+ * @param offsetY1
+ * Vertical offset in the texture for the second point.
+ * @param centerX
+ * X-coordinate of the rotation center.
+ * @param centerY
+ * Y-coordinate of the rotation center.
+ * @param angle
+ * Rotation angle in degrees, used for rotating the image.
  */
 typedef struct {
 	// Protected
@@ -952,23 +952,23 @@ typedef struct {
 } OSL_IMAGE;
 
 /** @brief Flags indicating the memory location of an image and optional swizzling.
-
-        This enumeration defines various flags used to specify where an image should be placed in memory (RAM or VRAM) and whether it should be swizzled or unswizzled. These flags are typically used in functions that load or manage images within OSLib.
-
-        @enum OSL_LOCATION_FLAGS
-        @param OSL_IN_NONE
-                Indicates that the image does not exist or the location is not specified.
-        @param OSL_IN_VRAM
-                Places the image in VRAM (Video RAM), typically used for faster rendering.
-        @param OSL_IN_RAM
-                Places the image in RAM (main system memory), offering more flexibility but potentially slower access.
-        @param OSL_LOCATION_MASK
-                A mask value that covers all potential locations, ensuring compatibility with future location types.
-        @param OSL_SWIZZLED
-                Directly swizzles the image upon loading, optimizing it for certain types of texture mapping. Only works with specific `oslLoadImage[...]` functions.
-        @param OSL_UNSWIZZLED
-                Forces the image to be loaded without swizzling, overriding default behavior in the `oslLoadImage[...]` functions.
-
+ *
+ * This enumeration defines various flags used to specify where an image should be placed in memory (RAM or VRAM) and whether it should be swizzled or unswizzled. These flags are typically used in functions that load or manage images within OSLib.
+ *
+ * @enum OSL_LOCATION_FLAGS
+ * @param OSL_IN_NONE
+ * Indicates that the image does not exist or the location is not specified.
+ * @param OSL_IN_VRAM
+ * Places the image in VRAM (Video RAM), typically used for faster rendering.
+ * @param OSL_IN_RAM
+ * Places the image in RAM (main system memory), offering more flexibility but potentially slower access.
+ * @param OSL_LOCATION_MASK
+ * A mask value that covers all potential locations, ensuring compatibility with future location types.
+ * @param OSL_SWIZZLED
+ * Directly swizzles the image upon loading, optimizing it for certain types of texture mapping. Only works with specific `oslLoadImage[...]` functions.
+ * @param OSL_UNSWIZZLED
+ * Forces the image to be loaded without swizzling, overriding default behavior in the `oslLoadImage[...]` functions.
+ *
  */
 typedef enum OSL_LOCATION_FLAGS {
 	OSL_IN_NONE = 0,                ///< Doesn't exist
@@ -980,29 +980,29 @@ typedef enum OSL_LOCATION_FLAGS {
 } OSL_LOCATION_FLAGS;
 
 /** @brief Pixel formats used for defining color modes in OSLib.
-
-        This enumeration defines various pixel formats that are used to describe the color depth and layout of image data within OSLib. These formats are aligned with the PlayStation Portable (PSP) graphics engine's formats and are used for texture and image processing.
-
-        @enum OSL_PIXELFORMATS
-        @param OSL_PF_5650
-                16-bit format with 5 bits for the red, 6 bits for the green, and 5 bits for the blue components, with no alpha (transparency) channel.
-                This format corresponds to `GU_PSM_5650` in the PSP's graphics engine.
-        @param OSL_PF_5551
-                16-bit format with 5 bits for the red, 5 bits for the green, 5 bits for the blue components, and 1 bit for alpha (transparency).
-                This format corresponds to `GU_PSM_5551` in the PSP's graphics engine.
-        @param OSL_PF_4444
-                16-bit format with 4 bits each for the red, green, blue, and alpha components.
-                This format corresponds to `GU_PSM_4444` in the PSP's graphics engine.
-        @param OSL_PF_8888
-                32-bit format with 8 bits for each of the red, green, blue, and alpha components, allowing for a full range of colors and transparency.
-                This format corresponds to `GU_PSM_8888` in the PSP's graphics engine.
-        @param OSL_PF_4BIT
-                Paletted format with 4 bits per pixel, allowing for 16 different colors. This format is typically used with a palette and cannot be used as a drawbuffer.
-                It corresponds to `GU_PSM_T4` in the PSP's graphics engine.
-        @param OSL_PF_8BIT
-                Paletted format with 8 bits per pixel, allowing for 256 different colors. Like the 4-bit format, it is used with a palette and cannot be set as a drawbuffer.
-                It corresponds to `GU_PSM_T8` in the PSP's graphics engine.
-
+ *
+ * This enumeration defines various pixel formats that are used to describe the color depth and layout of image data within OSLib. These formats are aligned with the PlayStation Portable (PSP) graphics engine's formats and are used for texture and image processing.
+ *
+ * @enum OSL_PIXELFORMATS
+ * @param OSL_PF_5650
+ * 16-bit format with 5 bits for the red, 6 bits for the green, and 5 bits for the blue components, with no alpha (transparency) channel.
+ * This format corresponds to `GU_PSM_5650` in the PSP's graphics engine.
+ * @param OSL_PF_5551
+ * 16-bit format with 5 bits for the red, 5 bits for the green, 5 bits for the blue components, and 1 bit for alpha (transparency).
+ * This format corresponds to `GU_PSM_5551` in the PSP's graphics engine.
+ * @param OSL_PF_4444
+ * 16-bit format with 4 bits each for the red, green, blue, and alpha components.
+ * This format corresponds to `GU_PSM_4444` in the PSP's graphics engine.
+ * @param OSL_PF_8888
+ * 32-bit format with 8 bits for each of the red, green, blue, and alpha components, allowing for a full range of colors and transparency.
+ * This format corresponds to `GU_PSM_8888` in the PSP's graphics engine.
+ * @param OSL_PF_4BIT
+ * Paletted format with 4 bits per pixel, allowing for 16 different colors. This format is typically used with a palette and cannot be used as a drawbuffer.
+ * It corresponds to `GU_PSM_T4` in the PSP's graphics engine.
+ * @param OSL_PF_8BIT
+ * Paletted format with 8 bits per pixel, allowing for 256 different colors. Like the 4-bit format, it is used with a palette and cannot be set as a drawbuffer.
+ * It corresponds to `GU_PSM_T8` in the PSP's graphics engine.
+ *
  */
 enum OSL_PIXELFORMATS {
 	OSL_PF_5650 = GU_PSM_5650,         ///< 16 bits, 5 bits per component, except green which has 6, no alpha
@@ -1959,394 +1959,395 @@ extern void oslDrawImageBig(OSL_IMAGE *img);
  */
 
 /** Creates an alternate image referencing a part (tile) of another one.
-
-        @param img
-                The original image from which a tile will be created.
-        @param offsetX0
-                The starting x position of the image part to reference.
-        @param offsetY0
-                The starting y position of the image part to reference.
-        @param offsetX1
-                The ending x position of the image part to reference.
-        @param offsetY1
-                The ending y position of the image part to reference.
-
-        This will return a pointer to a new image, but the data will not be copied to the new image. Instead, it will reference the original
-        image data. When you delete the new image, the original image will be left unchanged; only the size of an `OSL_IMAGE` will be freed from memory
-        (about 80 bytes). However, if you delete the original image, the new one will be unusable. Attempting to draw it may result in corrupt data,
-        and writing to it may cause a crash.
-
-        Example usage:
-        \code
-        OSL_IMAGE *imageTile = oslCreateImageTile(originalImage, 0, 0, 32, 32);
-        oslDrawImage(imageTile);                                  // Will draw a 32x32 image inside of originalImage
-        oslDeleteImage(imageTile);                                // Only frees the copy, the original remains untouched!
-        \endcode
-
-        This routine was meant to create individual "sprite" images from a big one and manipulate them easily. However, as it's not very clear,
-        it's advised to avoid using it. An alternative approach would be:
-        \code
-        oslSetImageTile(originalImage, 0, 0, 32, 32);
-        oslDrawImage(originalImage);                              // Will draw a 32x32 image inside of originalImage
-        \endcode
+ *
+ * @param img
+ * The original image from which a tile will be created.
+ * @param offsetX0
+ * The starting x position of the image part to reference.
+ * @param offsetY0
+ * The starting y position of the image part to reference.
+ * @param offsetX1
+ * The ending x position of the image part to reference.
+ * @param offsetY1
+ * The ending y position of the image part to reference.
+ *
+ * This will return a pointer to a new image, but the data will not be copied to the new image. Instead, it will reference the original
+ * image data. When you delete the new image, the original image will be left unchanged; only the size of an `OSL_IMAGE` will be freed from memory
+ * (about 80 bytes). However, if you delete the original image, the new one will be unusable. Attempting to draw it may result in corrupt data,
+ * and writing to it may cause a crash.
+ *
+ * Example usage:
+ * \code
+ * OSL_IMAGE *imageTile = oslCreateImageTile(originalImage, 0, 0, 32, 32);
+ * oslDrawImage(imageTile);                                  // Will draw a 32x32 image inside of originalImage
+ * oslDeleteImage(imageTile);                                // Only frees the copy, the original remains untouched!
+ * \endcode
+ *
+ * This routine was meant to create individual "sprite" images from a big one and manipulate them easily. However, as it's not very clear,
+ * it's advised to avoid using it. An alternative approach would be:
+ * \code
+ * oslSetImageTile(originalImage, 0, 0, 32, 32);
+ * oslDrawImage(originalImage);                              // Will draw a 32x32 image inside of originalImage
+ * \endcode
  */
 extern OSL_IMAGE *oslCreateImageTile(OSL_IMAGE *img, int offsetX0, int offsetY0, int offsetX1, int offsetY1);
 
 /** Creates an alternate image referencing a part (tile) of another one using width and height.
-
-        @param img
-                The original image from which a tile will be created.
-        @param offsetX0
-                The starting x position of the image part to reference.
-        @param offsetY0
-                The starting y position of the image part to reference.
-        @param width
-                The width of the image part to reference.
-        @param height
-                The height of the image part to reference.
-
-        This function returns a pointer to a new image, but the data will not be copied to the new image. Instead, it will reference the original
-        image data. When you delete the new image, the original image will be left unchanged; only the size of an `OSL_IMAGE` will be freed from memory
-        (about 80 bytes). However, if you delete the original image, the new one will be unusable. Attempting to draw it may result in corrupt data,
-        and writing to it may cause a crash.
-
-        Example usage:
-        \code
-        OSL_IMAGE *imageTile = oslCreateImageTileSize(originalImage, 0, 0, 32, 32);
-        oslDrawImage(imageTile);                                  // Will draw a 32x32 image inside of originalImage
-        oslDeleteImage(imageTile);                                // Only frees the copy, the original remains untouched!
-        \endcode
-
-        This routine was designed to create individual "sprite" images from a large image using width and height specifications. An alternative approach
-        for creating image tiles is using coordinates with the `oslSetImageTile` function.
+ *
+ * @param img
+ * The original image from which a tile will be created.
+ * @param offsetX0
+ * The starting x position of the image part to reference.
+ * @param offsetY0
+ * The starting y position of the image part to reference.
+ * @param width
+ * The width of the image part to reference.
+ * @param height
+ * The height of the image part to reference.
+ *
+ * This function returns a pointer to a new image, but the data will not be copied to the new image. Instead, it will reference the original
+ * image data. When you delete the new image, the original image will be left unchanged; only the size of an `OSL_IMAGE` will be freed from memory
+ * (about 80 bytes). However, if you delete the original image, the new one will be unusable. Attempting to draw it may result in corrupt data,
+ * and writing to it may cause a crash.
+ *
+ * Example usage:
+ * \code
+ * OSL_IMAGE *imageTile = oslCreateImageTileSize(originalImage, 0, 0, 32, 32);
+ * oslDrawImage(imageTile);                                  // Will draw a 32x32 image inside of originalImage
+ * oslDeleteImage(imageTile);                                // Only frees the copy, the original remains untouched!
+ * \endcode
+ *
+ * This routine was designed to create individual "sprite" images from a large image using width and height specifications. An alternative approach
+ * for creating image tiles is using coordinates with the `oslSetImageTile` function.
  */
 extern OSL_IMAGE *oslCreateImageTileSize(OSL_IMAGE *img, int offsetX0, int offsetY0, int width, int height);
 
 /** Converts an image to another pixel format and places it in another location.
-
-        @param imgOriginal
-                The original image to be converted.
-        @param newLocation
-                The location where the converted image should be placed. Common locations include `OSL_IN_RAM` and `OSL_IN_VRAM`.
-        @param newFormat
-                The pixel format to convert the image to, such as `OSL_PF_5551`, `OSL_PF_8888`, etc.
-
-        This function converts an image to a different pixel format and places it in a specified location. The original image may have been moved or modified
-        during the conversion process, so you should use the returned image instead of the original one.
-
-        Example usage:
-        \code
-        image = oslConvertImageTo(image, OSL_IN_RAM, OSL_PF_5551);
-        \endcode
-
-        After calling this function, the `imgOriginal` image should no longer be used directly. Instead, the function returns a new image with the specified
-        pixel format and location. Ensure to properly manage and delete the converted image as needed.
+ *
+ * @param imgOriginal
+ * The original image to be converted.
+ * @param newLocation
+ * The location where the converted image should be placed. Common locations include `OSL_IN_RAM` and `OSL_IN_VRAM`.
+ * @param newFormat
+ * The pixel format to convert the image to, such as `OSL_PF_5551`, `OSL_PF_8888`, etc.
+ *
+ * This function converts an image to a different pixel format and places it in a specified location. The original image may have been moved or modified
+ * during the conversion process, so you should use the returned image instead of the original one.
+ *
+ * Example usage:
+ * \code
+ * image = oslConvertImageTo(image, OSL_IN_RAM, OSL_PF_5551);
+ * \endcode
+ *
+ * After calling this function, the `imgOriginal` image should no longer be used directly. Instead, the function returns a new image with the specified
+ * pixel format and location. Ensure to properly manage and delete the converted image as needed.
  */
 extern OSL_IMAGE *oslConvertImageTo(OSL_IMAGE *imgOriginal, int newLocation, int newFormat);
 
 /** Creates a copy of an image.
-
-        @param src
-                The source image to be copied.
-        @param newLocation
-                The location where the copied image should be placed. Common locations include `OSL_IN_RAM` and `OSL_IN_VRAM`.
-
-        This function creates a complete copy of the source image, including its image data. The returned image is a new instance, independent of the original. Changes to the copied image will not affect the source image and vice versa.
-
-        Example usage:
-        \code
-        OSL_IMAGE *originalImage = oslLoadImageFile("example.png", OSL_IN_RAM, OSL_PF_8888);
-        OSL_IMAGE *copiedImage = oslCreateImageCopy(originalImage, OSL_IN_VRAM);
-        // Now you can use copiedImage independently of originalImage
-        \endcode
-
-        Both the original and copied images are not linked together. Ensure to manage and free the memory for both images as needed.
+ *
+ * @param src
+ * The source image to be copied.
+ * @param newLocation
+ * The location where the copied image should be placed. Common locations include `OSL_IN_RAM` and `OSL_IN_VRAM`.
+ *
+ * This function creates a complete copy of the source image, including its image data. The returned image is a new instance, independent of the original. Changes to the copied image will not affect the source image and vice versa.
+ *
+ * Example usage:
+ * \code
+ * OSL_IMAGE *originalImage = oslLoadImageFile("example.png", OSL_IN_RAM, OSL_PF_8888);
+ * OSL_IMAGE *copiedImage = oslCreateImageCopy(originalImage, OSL_IN_VRAM);
+ * // Now you can use copiedImage independently of originalImage
+ * \endcode
+ *
+ * Both the original and copied images are not linked together. Ensure to manage and free the memory for both images as needed.
  */
 extern OSL_IMAGE *oslCreateImageCopy(OSL_IMAGE *src, int newLocation);
 
 /** Creates a copy of an image and swizzles the new one.
-
-        @param src
-                The source image to be copied.
-        @param newLocation
-                The location where the swizzled image should be placed. Common locations include `OSL_IN_RAM` and `OSL_IN_VRAM`.
-
-        This function creates a complete copy of the source image and applies swizzling to the new image. Swizzling is a technique used to improve texture performance by rearranging the image data. The returned image is a new instance, independent of the original.
-
-        Example usage:
-        \code
-        OSL_IMAGE *originalImage = oslLoadImageFile("example.png", OSL_IN_RAM, OSL_PF_8888);
-        OSL_IMAGE *swizzledImage = oslCreateSwizzledImage(originalImage, OSL_IN_VRAM);
-        // Now you can use swizzledImage independently of originalImage
-        \endcode
-
-        Both the original and swizzled images are not linked together. Ensure to manage and free the memory for both images as needed.
+ *
+ * @param src
+ * The source image to be copied.
+ * @param newLocation
+ * The location where the swizzled image should be placed. Common locations include `OSL_IN_RAM` and `OSL_IN_VRAM`.
+ *
+ * This function creates a complete copy of the source image and applies swizzling to the new image. Swizzling is a technique used to improve texture performance by rearranging the image data. The returned image is a new instance, independent of the original.
+ *
+ * Example usage:
+ * \code
+ * OSL_IMAGE *originalImage = oslLoadImageFile("example.png", OSL_IN_RAM, OSL_PF_8888);
+ * OSL_IMAGE *swizzledImage = oslCreateSwizzledImage(originalImage, OSL_IN_VRAM);
+ * // Now you can use swizzledImage independently of originalImage
+ * \endcode
+ *
+ * Both the original and swizzled images are not linked together. Ensure to manage and free the memory for both images as needed.
  */
 extern OSL_IMAGE *oslCreateSwizzledImage(OSL_IMAGE *src, int newLocation);
 
 /** Copies the content of one image to another.
-
-        @param imgDst
-                The destination image where the content will be copied to.
-        @param imgSrc
-                The source image from which the content will be copied.
-
-        This function copies the image data from `imgSrc` to `imgDst`. Both images must have the same dimensions (width and height) and pixel format. If the formats do not match, the copy operation will fail, and the destination image may not be updated correctly.
-
-        Note: This function only copies the image data and does not change the properties of `imgDst`. Ensure that `imgDst` has been properly initialized and allocated with the same format and size as `imgSrc`.
-
-        Example usage:
-        \code
-        OSL_IMAGE *sourceImage = oslLoadImageFile("source.png", OSL_IN_RAM, OSL_PF_8888);
-        OSL_IMAGE *destinationImage = oslCreateImage(sourceImage->sizeX, sourceImage->sizeY, OSL_IN_RAM, OSL_PF_8888);
-        oslCopyImageTo(destinationImage, sourceImage);
-        // Now destinationImage contains a copy of the sourceImage data
-        \endcode
-
-        Ensure both images have the same properties before calling this function to avoid unexpected behavior.
+ *
+ * @param imgDst
+ * The destination image where the content will be copied to.
+ * @param imgSrc
+ * The source image from which the content will be copied.
+ *
+ * This function copies the image data from `imgSrc` to `imgDst`. Both images must have the same dimensions (width and height) and pixel format. If the formats do not match, the copy operation will fail, and the destination image may not be updated correctly.
+ *
+ * Note: This function only copies the image data and does not change the properties of `imgDst`. Ensure that `imgDst` has been properly initialized and allocated with the same format and size as `imgSrc`.
+ *
+ * Example usage:
+ * \code
+ * OSL_IMAGE *sourceImage = oslLoadImageFile("source.png", OSL_IN_RAM, OSL_PF_8888);
+ * OSL_IMAGE *destinationImage = oslCreateImage(sourceImage->sizeX, sourceImage->sizeY, OSL_IN_RAM, OSL_PF_8888);
+ * oslCopyImageTo(destinationImage, sourceImage);
+ * // Now destinationImage contains a copy of the sourceImage data
+ * \endcode
+ *
+ * Ensure both images have the same properties before calling this function to avoid unexpected behavior.
  */
 extern void oslCopyImageTo(OSL_IMAGE *imgDst, OSL_IMAGE *imgSrc);
 
 /** Swizzles an image to improve drawing performance.
-
-        @param img
-                The image to be swizzled.
-
-        Swizzling is a process that optimizes image drawing performance by reorganizing the image data into a format that is more efficient for the GPU to handle. After swizzling, the image can be drawn much faster. However, swizzled images cannot be modified directly due to their special format.
-
-        If you need to modify the image after swizzling, you will need to unswizzle it, which can be slow. Therefore, it is recommended to swizzle images that are stored in RAM and are not intended to be modified frequently.
-
-        Hint: When loading images, use the `OSL_SWIZZLED` bit to automatically swizzle images for convenience.
-
-        Example usage:
-        \code
-        OSL_IMAGE *image = oslLoadImageFile("example.png", OSL_IN_RAM, OSL_PF_8888);
-        oslSwizzleImage(image);
-        // The image is now swizzled and can be drawn faster
-        \endcode
-
-        Be cautious with unswizzling images frequently, as it can impact performance. Use swizzling for images that are primarily used for rendering and do not require modifications.
+ *
+ * @param img
+ * The image to be swizzled.
+ *
+ * Swizzling is a process that optimizes image drawing performance by reorganizing the image data into a format that is more efficient for the GPU to handle. After swizzling, the image can be drawn much faster. However, swizzled images cannot be modified directly due to their special format.
+ *
+ * If you need to modify the image after swizzling, you will need to unswizzle it, which can be slow. Therefore, it is recommended to swizzle images that are stored in RAM and are not intended to be modified frequently.
+ *
+ * Hint: When loading images, use the `OSL_SWIZZLED` bit to automatically swizzle images for convenience.
+ *
+ * Example usage:
+ * \code
+ * OSL_IMAGE *image = oslLoadImageFile("example.png", OSL_IN_RAM, OSL_PF_8888);
+ * oslSwizzleImage(image);
+ * // The image is now swizzled and can be drawn faster
+ * \endcode
+ *
+ * Be cautious with unswizzling images frequently, as it can impact performance. Use swizzling for images that are primarily used for rendering and do not require modifications.
  */
 extern void oslSwizzleImage(OSL_IMAGE *img);
 
 /** Restores an image from its swizzled format to its original format.
-
-        @param img
-                The swizzled image to be unswizzled.
-
-        This function performs the opposite operation of `oslSwizzleImage`, converting the swizzled image back to its original format. After unswizzling, the image will be accessible for raw reading and writing.
-
-        Note that unswizzling an image can be a slow process, so it should be used judiciously. It's generally best to swizzle images for performance improvements and avoid frequent unswizzling unless necessary.
-
-        Example usage:
-        \code
-        OSL_IMAGE *swizzledImage = oslLoadImageFile("example.png", OSL_IN_RAM, OSL_PF_8888);
-        oslSwizzleImage(swizzledImage);
-        // Use the image for fast drawing
-        oslUnswizzleImage(swizzledImage);
-        // Now you can read or write to the image directly
-        \endcode
-
-        Make sure to only unswizzle images that were previously swizzled to avoid potential issues with image data integrity.
+ *
+ * @param img
+ * The swizzled image to be unswizzled.
+ *
+ * This function performs the opposite operation of `oslSwizzleImage`, converting the swizzled image back to its original format. After unswizzling, the image will be accessible for raw reading and writing.
+ *
+ * Note that unswizzling an image can be a slow process, so it should be used judiciously. It's generally best to swizzle images for performance improvements and avoid frequent unswizzling unless necessary.
+ *
+ * Example usage:
+ * \code
+ * OSL_IMAGE *swizzledImage = oslLoadImageFile("example.png", OSL_IN_RAM, OSL_PF_8888);
+ * oslSwizzleImage(swizzledImage);
+ * // Use the image for fast drawing
+ * oslUnswizzleImage(swizzledImage);
+ * // Now you can read or write to the image directly
+ * \endcode
+ *
+ * Make sure to only unswizzle images that were previously swizzled to avoid potential issues with image data integrity.
  */
 extern void oslUnswizzleImage(OSL_IMAGE *img);
 
 /** Swizzles an image and writes the result to another image.
-
-        @param imgDst
-                The destination image where the swizzled data will be written. This image must have enough memory allocated to hold the swizzled data.
-        @param imgSrc
-                The source image that will be swizzled.
-
-        This function swizzles the `imgSrc` image and writes the swizzled result to `imgDst`. This routine is considered outdated. For modern usage, it is recommended to use `oslSwizzleImage` which operates directly on a single image.
-
-        Example usage:
-        \code
-        OSL_IMAGE *sourceImage = oslLoadImageFile("example.png", OSL_IN_RAM, OSL_PF_8888);
-        OSL_IMAGE *destinationImage = oslCreateImage(sourceImage->sizeX, sourceImage->sizeY, OSL_IN_RAM, OSL_PF_8888);
-        oslSwizzleImageTo(destinationImage, sourceImage);
-        // Use destinationImage for fast drawing
-        \endcode
-
-        Note: Ensure that `imgDst` has been properly allocated and has sufficient size to accommodate the swizzled image data from `imgSrc`.
+ *
+ * @param imgDst
+ * The destination image where the swizzled data will be written. This image must have enough memory allocated to hold the swizzled data.
+ * @param imgSrc
+ * The source image that will be swizzled.
+ *
+ * This function swizzles the `imgSrc` image and writes the swizzled result to `imgDst`. This routine is considered outdated. For modern usage, it is recommended to use `oslSwizzleImage` which operates directly on a single image.
+ *
+ * Example usage:
+ * \code
+ * OSL_IMAGE *sourceImage = oslLoadImageFile("example.png", OSL_IN_RAM, OSL_PF_8888);
+ * OSL_IMAGE *destinationImage = oslCreateImage(sourceImage->sizeX, sourceImage->sizeY, OSL_IN_RAM, OSL_PF_8888);
+ * oslSwizzleImageTo(destinationImage, sourceImage);
+ * // Use destinationImage for fast drawing
+ * \endcode
+ *
+ * Note: Ensure that `imgDst` has been properly allocated and has sufficient size to accommodate the swizzled image data from `imgSrc`.
  */
 extern void oslSwizzleImageTo(OSL_IMAGE *imgDst, OSL_IMAGE *imgSrc);
 
 /** Moves an image to a new location in memory.
-
-        @param img
-                The image to be moved.
-        @param newLocation
-                The new location where the image should be moved. This can be either `OSL_IN_RAM` or `OSL_IN_VRAM`.
-
-        This function relocates an image to a new memory location. The new location can be either RAM or VRAM. After moving, the image can be used in its new location, but note that moving images between different memory types might have implications for performance and accessibility.
-
-        Example usage:
-        \code
-        OSL_IMAGE *image = oslLoadImageFile("example.png", OSL_IN_RAM, OSL_PF_8888);
-        oslMoveImageTo(image, OSL_IN_VRAM);
-        // Now the image is in VRAM and can be used for rendering
-        \endcode
-
-        Returns `true` if the move was successful, and `false` otherwise.
+ *
+ * @param img
+ * The image to be moved.
+ * @param newLocation
+ * The new location where the image should be moved. This can be either `OSL_IN_RAM` or `OSL_IN_VRAM`.
+ *
+ * This function relocates an image to a new memory location. The new location can be either RAM or VRAM. After moving, the image can be used in its new location, but note that moving images between different memory types might have implications for performance and accessibility.
+ *
+ * Example usage:
+ * \code
+ * OSL_IMAGE *image = oslLoadImageFile("example.png", OSL_IN_RAM, OSL_PF_8888);
+ * oslMoveImageTo(image, OSL_IN_VRAM);
+ * // Now the image is in VRAM and can be used for rendering
+ * \endcode
+ *
+ * Returns `true` if the move was successful, and `false` otherwise.
  */
 extern bool oslMoveImageTo(OSL_IMAGE *img, int newLocation);
 
 /** Clears an image with a specific value.
-
-        @param img
-                The image to be cleared. This image must be properly allocated and must have a format compatible with the provided color value.
-        @param color
-                The color value used to clear the image. The format of this color value depends on the pixel format of the image. For example:
-                - If the image format is `OSL_PF_4BIT`, the color value is a palette entry number.
-                - If the image format is `OSL_PF_5551`, the color value is a 15-bit color with alpha.
-
-        This function fills the entire image with the specified color value. The color is applied according to the image's pixel format. For instance, in a `OSL_PF_4444` format, you might use a 16-bit color value where each channel has 4 bits.
-
-        Example usage:
-        \code
-        OSL_IMAGE *img = oslCreateImage(32, 32, OSL_IN_RAM, OSL_PF_4444);
-        // Clear the image to black with full opacity (alpha=255)
-        oslClearImage(img, RGBA12(0, 0, 0, 255));
-        \endcode
-
-        Note: The `color` parameter must be appropriate for the image's pixel format. The provided value should match the format's bit depth and channel order.
+ *
+ * @param img
+ * The image to be cleared. This image must be properly allocated and must have a format compatible with the provided color value.
+ * @param color
+ * The color value used to clear the image. The format of this color value depends on the pixel format of the image. For example:
+ * - If the image format is `OSL_PF_4BIT`, the color value is a palette entry number.
+ * - If the image format is `OSL_PF_5551`, the color value is a 15-bit color with alpha.
+ *
+ * This function fills the entire image with the specified color value. The color is applied according to the image's pixel format. For instance, in a `OSL_PF_4444` format, you might use a 16-bit color value where each channel has 4 bits.
+ *
+ * Example usage:
+ * \code
+ * OSL_IMAGE *img = oslCreateImage(32, 32, OSL_IN_RAM, OSL_PF_4444);
+ * // Clear the image to black with full opacity (alpha=255)
+ * oslClearImage(img, RGBA12(0, 0, 0, 255));
+ * \endcode
+ *
+ * Note: The `color` parameter must be appropriate for the image's pixel format. The provided value should match the format's bit depth and channel order.
  */
 extern void oslClearImage(OSL_IMAGE *img, int color);         // A tester!!!
 
 /** Writes an image to a file.
-
-        @param img
-                The image to be written to the file. This image must not be swizzled; if it is, the function will not perform any operation.
-        @param filename
-                The path to the file where the image will be saved. The file type is determined based on the file extension.
-        @param flags
-                Either 0 or #OSL_WRI_ALPHA, see #oslWriteImageFilePNG.
-
-        @return
-                1 if the image was written, 0 otherwise (swizzled image, unsupported extension or write error).
-
-        This function saves the provided image to the specified file. The file type is picked from the extension, in any case; PNG (.png) is the only format OSLib writes.
-
-        \b Note: If the image is swizzled, the function will not perform any action. To write a swizzled image, you must first unswizzle it using the #oslUnswizzleImage function.
-
-        Example usage:
-        \code
-        OSL_IMAGE *img = oslCreateImage(64, 64, OSL_IN_RAM, OSL_PF_5551);
-        // Assuming img is properly initialized and contains image data
-        int result = oslWriteImageFile(img, "output_image.png", 0);
-        if (result) {
-                // Image was written successfully
-        } else {
-                // Error occurred
-        }
-        \endcode
+ *
+ * @param img
+ * The image to be written to the file. This image must not be swizzled; if it is, the function will not perform any operation.
+ * @param filename
+ * The path to the file where the image will be saved. The file type is determined based on the file extension.
+ * @param flags
+ * Either 0 or #OSL_WRI_ALPHA, see #oslWriteImageFilePNG.
+ *
+ * @return
+ * 1 if the image was written, 0 otherwise (swizzled image, unsupported extension or write error).
+ *
+ * This function saves the provided image to the specified file. The file type is picked from the extension, in any case; PNG (.png) is the only format OSLib writes.
+ *
+ * \b Note: If the image is swizzled, the function will not perform any action. To write a swizzled image, you must first unswizzle it using the #oslUnswizzleImage function.
+ *
+ * Example usage:
+ * \code
+ * OSL_IMAGE *img = oslCreateImage(64, 64, OSL_IN_RAM, OSL_PF_5551);
+ * // Assuming img is properly initialized and contains image data
+ * int result = oslWriteImageFile(img, "output_image.png", 0);
+ * if (result) {
+ *         // Image was written successfully
+ * } else {
+ *         // Error occurred
+ * }
+ * \endcode
  */
 extern int oslWriteImageFile(OSL_IMAGE *img, const char *filename, int flags);
 
 /** Writes an image to a PNG file. Same remarks as oslWriteImageFile apply.
-        @param img
-                The image you want to write.
-        @param filename
-                The name of the file that you want to write to.
-        @param flags
-                Either 0 or OSL_WRI_ALPHA. If OSL_WRI_ALPHA is specified, the alpha will be written to the PNG image file, making it semi-transparent. Else, alpha is ignored and always set to opaque.
-
-        You can pass for example OSL_SECONDARY_BUFFER (the buffer which is currently displayed on the screen) to take a screenshot.
-   \code
-   oslWriteImageFilePNG(OSL_SECONDARY_BUFFER, "screenshot.png", 0);
-   \endcode
-
-   \b Note: The same considerations as #oslWriteImageFile apply. */
+ * @param img
+ * The image you want to write.
+ * @param filename
+ * The name of the file that you want to write to.
+ * @param flags
+ * Either 0 or OSL_WRI_ALPHA. If OSL_WRI_ALPHA is specified, the alpha will be written to the PNG image file, making it semi-transparent. Else, alpha is ignored and always set to opaque.
+ *
+ * You can pass for example OSL_SECONDARY_BUFFER (the buffer which is currently displayed on the screen) to take a screenshot.
+ * \code
+ * oslWriteImageFilePNG(OSL_SECONDARY_BUFFER, "screenshot.png", 0);
+ * \endcode
+ *
+ * \b Note: The same considerations as #oslWriteImageFile apply.
+ */
 extern int oslWriteImageFilePNG(OSL_IMAGE *img, const char *filename, int flags);
 
 /** Resets the properties of an image, including its position, tile settings, angle, rotation center, and stretching.
-
-        @param img
-                The image whose properties will be reset.
-
-        This function resets the following properties of the image:
-        - Position: The image's current position will be reset to its default.
-        - Image Tile: Any modifications to the image tile (e.g., using `oslSetImageTile`) will be cleared.
-        - Angle: Any rotation applied to the image will be reset.
-        - Rotation Center: The center used for rotation will be reset.
-        - Stretching: Any stretching applied to the image will be reset.
-
-        Example usage:
-        \code
-        OSL_IMAGE *img = oslCreateImage(64, 64, OSL_IN_RAM, OSL_PF_5551);
-        // Modify image properties
-        oslResetImageProperties(img);
-        \endcode
+ *
+ * @param img
+ * The image whose properties will be reset.
+ *
+ * This function resets the following properties of the image:
+ * - Position: The image's current position will be reset to its default.
+ * - Image Tile: Any modifications to the image tile (e.g., using `oslSetImageTile`) will be cleared.
+ * - Angle: Any rotation applied to the image will be reset.
+ * - Rotation Center: The center used for rotation will be reset.
+ * - Stretching: Any stretching applied to the image will be reset.
+ *
+ * Example usage:
+ * \code
+ * OSL_IMAGE *img = oslCreateImage(64, 64, OSL_IN_RAM, OSL_PF_5551);
+ * // Modify image properties
+ * oslResetImageProperties(img);
+ * \endcode
  */
 extern void oslResetImageProperties(OSL_IMAGE *img);
 
 /** Draws srcImg to dstImg with scaling applied.
-
-        @param dstImg
-                The destination image where the scaled source image will be drawn.
-        @param srcImg
-                The source image to be scaled and drawn.
-        @param newX
-                The x-coordinate for the position of the scaled source image in the destination image.
-        @param newY
-                The y-coordinate for the position of the scaled source image in the destination image.
-        @param newWidth
-                The width of the scaled source image.
-        @param newHeight
-                The height of the scaled source image.
-
-        This function scales the source image (srcImg) and draws it onto the destination image (dstImg) at the specified position and with the specified dimensions.
-
-        Example usage:
-        \code
-        OSL_IMAGE *srcImg = oslCreateImage(64, 64, OSL_IN_RAM, OSL_PF_5551);
-        OSL_IMAGE *dstImg = oslCreateImage(128, 128, OSL_IN_RAM, OSL_PF_5551);
-        // Scale and draw srcImg onto dstImg
-        oslScaleImage(dstImg, srcImg, 10, 10, 100, 100);
-        \endcode
+ *
+ * @param dstImg
+ * The destination image where the scaled source image will be drawn.
+ * @param srcImg
+ * The source image to be scaled and drawn.
+ * @param newX
+ * The x-coordinate for the position of the scaled source image in the destination image.
+ * @param newY
+ * The y-coordinate for the position of the scaled source image in the destination image.
+ * @param newWidth
+ * The width of the scaled source image.
+ * @param newHeight
+ * The height of the scaled source image.
+ *
+ * This function scales the source image (srcImg) and draws it onto the destination image (dstImg) at the specified position and with the specified dimensions.
+ *
+ * Example usage:
+ * \code
+ * OSL_IMAGE *srcImg = oslCreateImage(64, 64, OSL_IN_RAM, OSL_PF_5551);
+ * OSL_IMAGE *dstImg = oslCreateImage(128, 128, OSL_IN_RAM, OSL_PF_5551);
+ * // Scale and draw srcImg onto dstImg
+ * oslScaleImage(dstImg, srcImg, 10, 10, 100, 100);
+ * \endcode
  */
 extern void oslScaleImage(OSL_IMAGE *dstImg, OSL_IMAGE *srcImg, int newX, int newY, int newWidth, int newHeight);
 
 /** Creates a scaled copy of an image.
-
-        @param img
-                The image to be scaled and copied.
-        @param newLocation
-                The location where the new scaled image will be stored (e.g., in RAM or VRAM).
-        @param newWidth
-                The width of the scaled image.
-        @param newHeight
-                The height of the scaled image.
-        @param newPixelFormat
-                The pixel format of the new scaled image.
-
-        @return
-                A pointer to the new scaled image. If the scaling operation fails, the function may return NULL.
-
-        This function creates a new image that is a scaled version of the original image (img). The new image will have the specified dimensions and pixel format.
-
-        Example usage:
-        \code
-        OSL_IMAGE *originalImg = oslCreateImage(64, 64, OSL_IN_RAM, OSL_PF_5551);
-        OSL_IMAGE *scaledImg = oslScaleImageCreate(originalImg, OSL_IN_RAM, 128, 128, OSL_PF_5551);
-        \endcode
+ *
+ * @param img
+ * The image to be scaled and copied.
+ * @param newLocation
+ * The location where the new scaled image will be stored (e.g., in RAM or VRAM).
+ * @param newWidth
+ * The width of the scaled image.
+ * @param newHeight
+ * The height of the scaled image.
+ * @param newPixelFormat
+ * The pixel format of the new scaled image.
+ *
+ * @return
+ * A pointer to the new scaled image. If the scaling operation fails, the function may return NULL.
+ *
+ * This function creates a new image that is a scaled version of the original image (img). The new image will have the specified dimensions and pixel format.
+ *
+ * Example usage:
+ * \code
+ * OSL_IMAGE *originalImg = oslCreateImage(64, 64, OSL_IN_RAM, OSL_PF_5551);
+ * OSL_IMAGE *scaledImg = oslScaleImageCreate(originalImg, OSL_IN_RAM, 128, 128, OSL_PF_5551);
+ * \endcode
  */
 extern OSL_IMAGE *oslScaleImageCreate(OSL_IMAGE *img, short newLocation, int newWidth, int newHeight, short newPixelFormat);
 
 /** Enum for specifying write flags when saving an image to a file.
-
-        The flags determine how the image data is processed when written to a file.
-        For example, flags can control whether the alpha channel is included in the output file.
-
-        @see oslWriteImageFilePNG for details on specific write flags.
-
-        @note Use these flags to customize the behavior of image writing functions.
-
-        \code
-        int flags = OSL_WRI_ALPHA; // Include alpha channel when writing the image
-        oslWriteImageFile(myImage, "output.png", flags);
-        \endcode
+ *
+ * The flags determine how the image data is processed when written to a file.
+ * For example, flags can control whether the alpha channel is included in the output file.
+ *
+ * @see oslWriteImageFilePNG for details on specific write flags.
+ *
+ * @note Use these flags to customize the behavior of image writing functions.
+ *
+ * \code
+ * int flags = OSL_WRI_ALPHA; // Include alpha channel when writing the image
+ * oslWriteImageFile(myImage, "output.png", flags);
+ * \endcode
  */
 enum OSL_WRITE_FLAGS {
 	OSL_WRI_ALPHA = 1         ///< Writes the alpha channel of the image. If set, the alpha channel data will be included in the output file.
@@ -2362,33 +2363,33 @@ enum OSL_WRITE_FLAGS {
  */
 
 /** Defines the size of a frame in an image, preparing it for use as a sprite sheet.
-
-        A sprite sheet is an image where multiple sprites (small images) are arranged in a grid. Each sprite in the sheet has the same dimensions, and the grid is typically filled from left to right and top to bottom.
-
-        @param img
-                Pointer to the image to be used as a sprite sheet.
-        @param width
-                The width of each sprite frame in pixels.
-        @param height
-                The height of each sprite frame in pixels.
-
-        For example, if you have a 64x64 image containing 32x32 sprites, the image will be divided into four sprites as follows:
-
-        \code
-        sprite 1 | sprite 2
-        ---------|---------
-        sprite 3 | sprite 4
-
-        Coordinates:
-        0, 0     | 32, 0
-        ---------|---------
-        0, 32    | 32, 32
-        \endcode
-
-        \b Important: Frames are drawn with #oslDrawImage, which samples at most 512 texels per axis (column 512 shows
-        column 0 again), so keep the sprite sheet within 512x512.
-
-        \see oslCreateImage for considerations when creating images.
+ *
+ * A sprite sheet is an image where multiple sprites (small images) are arranged in a grid. Each sprite in the sheet has the same dimensions, and the grid is typically filled from left to right and top to bottom.
+ *
+ * @param img
+ * Pointer to the image to be used as a sprite sheet.
+ * @param width
+ * The width of each sprite frame in pixels.
+ * @param height
+ * The height of each sprite frame in pixels.
+ *
+ * For example, if you have a 64x64 image containing 32x32 sprites, the image will be divided into four sprites as follows:
+ *
+ * \code
+ * sprite 1 | sprite 2
+ * ---------|---------
+ * sprite 3 | sprite 4
+ *
+ * Coordinates:
+ * 0, 0     | 32, 0
+ * ---------|---------
+ * 0, 32    | 32, 32
+ * \endcode
+ *
+ * \b Important: Frames are drawn with #oslDrawImage, which samples at most 512 texels per axis (column 512 shows
+ * column 0 again), so keep the sprite sheet within 512x512.
+ *
+ * \see oslCreateImage for considerations when creating images.
  */
 static inline void oslSetImageFrameSize(OSL_IMAGE *img, u16 width, u16 height) {
 	img->frameSizeX = width;
@@ -2396,60 +2397,60 @@ static inline void oslSetImageFrameSize(OSL_IMAGE *img, u16 width, u16 height) {
 }
 
 /** Sets the current frame of an image for sprite-based rendering.
-
-        This function prepares the image to display a specific frame from a sprite sheet. A sprite sheet is an image where multiple sprites (small images) are arranged in a grid. This function is used to select the sprite frame that you want to draw.
-
-        @param img
-                Pointer to the image to set the frame for.
-        @param frame
-                The index of the frame to be displayed. Frames are indexed starting from 0.
-
-        \b Example:
-        \code
-        // Draws a specific frame of an image
-        void DrawImageFrame(OSL_IMAGE *img, int frame) {
-                oslSetImageFrame(img, frame);
-                oslDrawImage(img);
-        }
-
-         // Alternative method using a macro
- \#define DrawImageFrame(img, frame) ({ oslSetImageFrame(img, frame); oslDrawImage(img); })
-
-
-        // Inline function for specific frame drawing
-        extern inline void DrawImageFrame(OSL_IMAGE *img, int frame) {
-                oslSetImageFrame(img, frame);
-                oslDrawImage(img);
-        }
-
-        // Draws a specific frame of an image at a specified location
-        void DrawImageFrameXY(OSL_IMAGE *img, int x, int y, int frame) {
-                oslSetImageFrame(img, frame);
-                oslDrawImageXY(img, x, y);
-        }
-
-        // Load an image with specified frame size
-        OSL_IMAGE *LoadSpriteFilePNG(char *filename, int location, int pixelFormat, int frameWidth, int frameHeight) {
-                OSL_IMAGE *img = oslLoadImageFile(filename, location, pixelFormat);
-                if (img)
-                        oslSetImageFrameSize(img, frameWidth, frameHeight);
-                return img;
-        }
-
-        void main() {
-                // Initialization
-                [...]
-
-                // 30x40 pixels per sprite
-                OSL_IMAGE *myImage;
-                myImage = LoadSpriteFilePNG("test.png", OSL_IN_RAM, OSL_PF_5551, 30, 40);
-                [...]
-
-                // Draw the frame n°2 (that is, the third sprite) at location (0, 0)
-                DrawImageFrameXY(myImage, 0, 0, 2);
-                [...]
-        }
-        \endcode
+ *
+ * This function prepares the image to display a specific frame from a sprite sheet. A sprite sheet is an image where multiple sprites (small images) are arranged in a grid. This function is used to select the sprite frame that you want to draw.
+ *
+ * @param img
+ * Pointer to the image to set the frame for.
+ * @param frame
+ * The index of the frame to be displayed. Frames are indexed starting from 0.
+ *
+ * \b Example:
+ * \code
+ * // Draws a specific frame of an image
+ * void DrawImageFrame(OSL_IMAGE *img, int frame) {
+ *         oslSetImageFrame(img, frame);
+ *         oslDrawImage(img);
+ * }
+ *
+ *  // Alternative method using a macro
+ * \#define DrawImageFrame(img, frame) ({ oslSetImageFrame(img, frame); oslDrawImage(img); })
+ *
+ *
+ * // Inline function for specific frame drawing
+ * extern inline void DrawImageFrame(OSL_IMAGE *img, int frame) {
+ *         oslSetImageFrame(img, frame);
+ *         oslDrawImage(img);
+ * }
+ *
+ * // Draws a specific frame of an image at a specified location
+ * void DrawImageFrameXY(OSL_IMAGE *img, int x, int y, int frame) {
+ *         oslSetImageFrame(img, frame);
+ *         oslDrawImageXY(img, x, y);
+ * }
+ *
+ * // Load an image with specified frame size
+ * OSL_IMAGE *LoadSpriteFilePNG(char *filename, int location, int pixelFormat, int frameWidth, int frameHeight) {
+ *         OSL_IMAGE *img = oslLoadImageFile(filename, location, pixelFormat);
+ *         if (img)
+ *                 oslSetImageFrameSize(img, frameWidth, frameHeight);
+ *         return img;
+ * }
+ *
+ * void main() {
+ *         // Initialization
+ *         [...]
+ *
+ *         // 30x40 pixels per sprite
+ *         OSL_IMAGE *myImage;
+ *         myImage = LoadSpriteFilePNG("test.png", OSL_IN_RAM, OSL_PF_5551, 30, 40);
+ *         [...]
+ *
+ *         // Draw the frame n°2 (that is, the third sprite) at location (0, 0)
+ *         DrawImageFrameXY(myImage, 0, 0, 2);
+ *         [...]
+ * }
+ * \endcode
  */
 extern void oslSetImageFrame(OSL_IMAGE *img, int frame);
 
@@ -2462,131 +2463,131 @@ extern void oslSetImageFrame(OSL_IMAGE *img, int frame);
  */
 
 /** Creates a new (empty) palette with the specified pixel format.
-
-        This function creates a new palette that can be used with 4-bit or 8-bit images. The palette is allocated in the specified location and uses the provided pixel format. For most cases, the pixel format should be `OSL_PF_8888` as palettes are generally small in size.
-
-        @param size
-                The number of colors in the palette. For example, a 4-bit image palette will have 16 colors (2^4), and an 8-bit image palette will have 256 colors (2^8).
-        @param location
-                The memory location where the palette will be stored. Use `OSL_IN_RAM` to allocate the palette in RAM.
-        @param pixelFormat
-                The pixel format of each palette entry. Typically, this should be `OSL_PF_8888` to match the common palette size.
-
-        \b Note:
-        - After creating and filling the palette, it is essential to uncache it to ensure that changes are applied correctly.
-        - If you need to uncache both the image and its palette, you can use `oslUncacheImage(img)` which will also uncache the palette.
-
-        \b Example:
-        \code
-        OSL_IMAGE *img = oslCreateImage(32, 32, OSL_IN_RAM, OSL_PF_4BIT);
-        // Determine the palette size based on the image's pixel format.
-        int palSize = 1 << osl_paletteSizes[img->pixelFormat];
-        // Create the palette with the required size.
-        img->palette = oslCreatePaletteEx(palSize, OSL_IN_RAM, OSL_PF_8888);
-        // Get a pointer to the palette data.
-        u32 *paletteData = (u32*)img->palette->data;
-        // Set all entries to bright opaque red.
-        for (int i = 0; i < img->palette->nElements; i++)
-                paletteData[i] = RGBA(255, 0, 0, 255);
-        // Uncache the palette after finishing.
-        oslUncachePalette(img->palette);
-        // Alternatively, uncache the image which also uncaches the palette.
-        // oslUncacheImage(img);
-        \endcode
+ *
+ * This function creates a new palette that can be used with 4-bit or 8-bit images. The palette is allocated in the specified location and uses the provided pixel format. For most cases, the pixel format should be `OSL_PF_8888` as palettes are generally small in size.
+ *
+ * @param size
+ * The number of colors in the palette. For example, a 4-bit image palette will have 16 colors (2^4), and an 8-bit image palette will have 256 colors (2^8).
+ * @param location
+ * The memory location where the palette will be stored. Use `OSL_IN_RAM` to allocate the palette in RAM.
+ * @param pixelFormat
+ * The pixel format of each palette entry. Typically, this should be `OSL_PF_8888` to match the common palette size.
+ *
+ * \b Note:
+ * - After creating and filling the palette, it is essential to uncache it to ensure that changes are applied correctly.
+ * - If you need to uncache both the image and its palette, you can use `oslUncacheImage(img)` which will also uncache the palette.
+ *
+ * \b Example:
+ * \code
+ * OSL_IMAGE *img = oslCreateImage(32, 32, OSL_IN_RAM, OSL_PF_4BIT);
+ * // Determine the palette size based on the image's pixel format.
+ * int palSize = 1 << osl_paletteSizes[img->pixelFormat];
+ * // Create the palette with the required size.
+ * img->palette = oslCreatePaletteEx(palSize, OSL_IN_RAM, OSL_PF_8888);
+ * // Get a pointer to the palette data.
+ * u32 *paletteData = (u32*)img->palette->data;
+ * // Set all entries to bright opaque red.
+ * for (int i = 0; i < img->palette->nElements; i++)
+ *         paletteData[i] = RGBA(255, 0, 0, 255);
+ * // Uncache the palette after finishing.
+ * oslUncachePalette(img->palette);
+ * // Alternatively, uncache the image which also uncaches the palette.
+ * // oslUncacheImage(img);
+ * \endcode
  */
 extern OSL_PALETTE *oslCreatePaletteEx(int size, int location, short pixelFormat);
 
 /** Creates a new palette with the specified pixel format.
-
-        This is a simpler function for creating a new palette. It allocates the palette in RAM and uses the provided pixel format. This function is a wrapper around `oslCreatePaletteEx` with the location parameter set to `OSL_IN_RAM`.
-
-        @param size
-                The number of colors in the palette (e.g., 16 for 4-bit images, 256 for 8-bit images).
-        @param pixelFormat
-                The pixel format of each palette entry, typically `OSL_PF_8888`.
-
-        @return
-                A pointer to the newly created palette.
-
-        \b Example:
-        \code
-        OSL_PALETTE *palette = oslCreatePalette(16, OSL_PF_8888);
-        \endcode
+ *
+ * This is a simpler function for creating a new palette. It allocates the palette in RAM and uses the provided pixel format. This function is a wrapper around `oslCreatePaletteEx` with the location parameter set to `OSL_IN_RAM`.
+ *
+ * @param size
+ * The number of colors in the palette (e.g., 16 for 4-bit images, 256 for 8-bit images).
+ * @param pixelFormat
+ * The pixel format of each palette entry, typically `OSL_PF_8888`.
+ *
+ * @return
+ * A pointer to the newly created palette.
+ *
+ * \b Example:
+ * \code
+ * OSL_PALETTE *palette = oslCreatePalette(16, OSL_PF_8888);
+ * \endcode
  */
 static inline OSL_PALETTE *oslCreatePalette(int size, short pixelFormat) {
 	return oslCreatePaletteEx(size, OSL_IN_RAM, pixelFormat);
 }
 
 /** Creates a palette from existing data.
-
-        This function creates a palette using data that already exists. The data is not copied; it is used directly. You need to specify the size of the palette and the pixel format of the data.
-
-        @param data
-                Pointer to the existing palette data.
-        @param size
-                The number of colors in the palette.
-        @param pixelFormat
-                The pixel format of each palette entry.
-
-        @return
-                A pointer to the newly created palette.
-
-        \b Note:
-        - The data is not copied; it is used as is. Ensure that the data remains valid for the lifetime of the palette.
-        - Only the `OSL_PALETTE` structure is freed when the palette is deleted; the data is not affected.
-
-        \b Example:
-        \code
-        void *existingData = existing palette data;
-        OSL_PALETTE *palette = oslCreatePaletteFrom(existingData, 256, OSL_PF_8888);
-        \endcode
+ *
+ * This function creates a palette using data that already exists. The data is not copied; it is used directly. You need to specify the size of the palette and the pixel format of the data.
+ *
+ * @param data
+ * Pointer to the existing palette data.
+ * @param size
+ * The number of colors in the palette.
+ * @param pixelFormat
+ * The pixel format of each palette entry.
+ *
+ * @return
+ * A pointer to the newly created palette.
+ *
+ * \b Note:
+ * - The data is not copied; it is used as is. Ensure that the data remains valid for the lifetime of the palette.
+ * - Only the `OSL_PALETTE` structure is freed when the palette is deleted; the data is not affected.
+ *
+ * \b Example:
+ * \code
+ * void *existingData = existing palette data;
+ * OSL_PALETTE *palette = oslCreatePaletteFrom(existingData, 256, OSL_PF_8888);
+ * \endcode
  */
 extern OSL_PALETTE *oslCreatePaletteFrom(void *data, int size, short pixelFormat);
 
 /** Deletes an existing palette.
-
-        This function frees the memory used by an `OSL_PALETTE` structure. If the palette was created using `oslCreatePaletteFrom`, the data used to create the palette is not freed.
-
-        @param p
-                Pointer to the palette to be deleted.
-
-        \b Example:
-        \code
-        oslDeletePalette(palette);
-        \endcode
+ *
+ * This function frees the memory used by an `OSL_PALETTE` structure. If the palette was created using `oslCreatePaletteFrom`, the data used to create the palette is not freed.
+ *
+ * @param p
+ * Pointer to the palette to be deleted.
+ *
+ * \b Example:
+ * \code
+ * oslDeletePalette(palette);
+ * \endcode
  */
 extern void oslDeletePalette(OSL_PALETTE *p);
 
 /** Returns a color entry from a palette.
-
-        This function retrieves a color from the palette at a specified index. The color value is in the same pixel format as the palette.
-
-        @param p
-                Pointer to the palette.
-        @param index
-                The index of the color entry to retrieve.
-
-        @return
-                The color value at the specified index.
-
-        \b Example:
-        \code
-        int color = oslGetPaletteColor(palette, 0);
-        \endcode
+ *
+ * This function retrieves a color from the palette at a specified index. The color value is in the same pixel format as the palette.
+ *
+ * @param p
+ * Pointer to the palette.
+ * @param index
+ * The index of the color entry to retrieve.
+ *
+ * @return
+ * The color value at the specified index.
+ *
+ * \b Example:
+ * \code
+ * int color = oslGetPaletteColor(palette, 0);
+ * \endcode
  */
 extern int oslGetPaletteColor(OSL_PALETTE *p, int index);
 
 /** Uncaches a palette.
-
-        After accessing palette data in a cached way (e.g., through `pal->data`), you must uncache the palette to ensure changes are applied correctly.
-
-        @param pal
-                Pointer to the palette to uncache.
-
-        \b Example:
-        \code
-        oslUncachePalette(palette);
-        \endcode
+ *
+ * After accessing palette data in a cached way (e.g., through `pal->data`), you must uncache the palette to ensure changes are applied correctly.
+ *
+ * @param pal
+ * Pointer to the palette to uncache.
+ *
+ * \b Example:
+ * \code
+ * oslUncachePalette(palette);
+ * \endcode
  */
 extern void oslUncachePalette(OSL_PALETTE *pal);
 
@@ -2601,20 +2602,20 @@ extern void oslUncachePalette(OSL_PALETTE *pal);
 extern void *osl_curTexture;
 
 /** Flushes the image data from the cache.
-
-        This function is necessary to call after modifying an image's data directly (e.g., manipulating `img->data` manually). It ensures that the image data is properly written back and invalidated in the cache.
-
-        @param img
-                Pointer to the image whose data needs to be flushed from the cache.
-
-        \b Note:
-        - This routine only flushes the image data and does not affect the associated palette data. To flush the palette data as well, use #oslUncacheImage.
-
-        \code
-        OSL_IMAGE *img = your image;
-        // Modify the image data manually
-        oslUncacheImageData(img); // Ensure changes are flushed
-        \endcode
+ *
+ * This function is necessary to call after modifying an image's data directly (e.g., manipulating `img->data` manually). It ensures that the image data is properly written back and invalidated in the cache.
+ *
+ * @param img
+ * Pointer to the image whose data needs to be flushed from the cache.
+ *
+ * \b Note:
+ * - This routine only flushes the image data and does not affect the associated palette data. To flush the palette data as well, use #oslUncacheImage.
+ *
+ * \code
+ * OSL_IMAGE *img = your image;
+ * // Modify the image data manually
+ * oslUncacheImageData(img); // Ensure changes are flushed
+ * \endcode
  */
 static inline void oslUncacheImageData(OSL_IMAGE *img) {
 	if (img != NULL) {
@@ -2627,161 +2628,163 @@ static inline void oslUncacheImageData(OSL_IMAGE *img) {
 }
 
 /** Uncaches an entire image, including its associated palette.
-
-        This function not only flushes the image data from the cache but also handles the associated palette data, ensuring that both are properly uncached.
-
-        @param img
-                Pointer to the image to be uncached.
-
-        \b Note:
-        - This routine is a comprehensive solution for ensuring that all parts of the image (data and palette) are properly managed in memory.
-
-        \code
-        OSL_IMAGE *img = your image;
-        oslUncacheImage(img); // Flushes image data and associated palette
-        \endcode
+ *
+ * This function not only flushes the image data from the cache but also handles the associated palette data, ensuring that both are properly uncached.
+ *
+ * @param img
+ * Pointer to the image to be uncached.
+ *
+ * \b Note:
+ * - This routine is a comprehensive solution for ensuring that all parts of the image (data and palette) are properly managed in memory.
+ *
+ * \code
+ * OSL_IMAGE *img = your image;
+ * oslUncacheImage(img); // Flushes image data and associated palette
+ * \endcode
  */
 extern void oslUncacheImage(OSL_IMAGE *img);
 
 /** High-level routine to read a single pixel from an image.
-
-        This function retrieves the value of a pixel at a specified position from an image. Note that caching is enabled, so after reading and/or writing pixels, you should uncache the image. The recommended approach is to use #oslLockImage and #oslUnlockImage for proper management. For an example of usage, see #oslGetImagePixel.
-
-        @param img
-                Pointer to the image from which the pixel is read.
-        @param x
-                The x-coordinate of the pixel to be read.
-        @param y
-                The y-coordinate of the pixel to be read.
-
-        @return
-                The value of the pixel at the specified position. The returned value depends on the pixel format of the image. It could be a palette entry number for paletted images or a color value in the image's format. You might need to convert this value depending on your needs.
-
-        \b Example:
-        \code
-        // Get a 32-bit (OSL_PF_8888) color for the pixel at x, y, regardless of the image's pixel format.
-        int pixel = oslConvertColorEx(yourImage->palette, OSL_PF_8888, yourImage->pixelFormat, oslGetImagePixel(yourImage, x, y));
-        \endcode
-
-        \b Note:
-        - This function works for both regular and swizzled images.
-        - It may be slower compared to raw access methods; consider using raw access if performance is critical.
+ *
+ * This function retrieves the value of a pixel at a specified position from an image. It reads through the uncached address, so it sees what is in memory: if you wrote the image through `img->data` (cached), call #oslUncacheImage first.
+ *
+ * @param img
+ * Pointer to the image from which the pixel is read.
+ * @param x
+ * The x-coordinate of the pixel to be read.
+ * @param y
+ * The y-coordinate of the pixel to be read.
+ *
+ * @return
+ * The value of the pixel at the specified position. The returned value depends on the pixel format of the image. It could be a palette entry number for paletted images or a color value in the image's format. You might need to convert this value depending on your needs.
+ *
+ * \b Example:
+ * \code
+ * // Get a 32-bit (OSL_PF_8888) color for the pixel at x, y, regardless of the image's pixel format.
+ * int pixel = oslConvertColorEx(yourImage->palette, OSL_PF_8888, yourImage->pixelFormat, oslGetImagePixel(yourImage, x, y));
+ * \endcode
+ *
+ * \b Note:
+ * - This function works for both regular and swizzled images.
+ * - It may be slower compared to raw access methods; consider using raw access if performance is critical.
  */
 extern int oslGetImagePixel(OSL_IMAGE *img, unsigned int x, unsigned int y);
 
 /** Sets a pixel value on the image.
-
-        This function sets the value of a pixel at a specified position in the image. The value should be in the image's destination format, which could be a palette entry or a color value. If needed, perform conversions to match the image's format.
-
-        @param img
-                Pointer to the image where the pixel will be set.
-        @param x
-                The x-coordinate of the pixel to be set.
-        @param y
-                The y-coordinate of the pixel to be set.
-        @param pixelValue
-                The value to set at the specified pixel position. This value should be in the format used by the image (e.g., a color value or a palette entry).
-
-        \b Example:
-        \code
-        // Before performing low-level operations on an image, lock it to handle cache operations.
-        oslLockImage(image);
-        {
-                // Iterate over all pixels in the image
-                for (j = 0; j < image->sizeY; j++) {
-                        for (i = 0; i < image->sizeX; i++) {
-                                // Get the current pixel value (assuming a 8888 format here)
-                                u32 pixel = oslGetImagePixel(image, i, j);
-                                // Mask out the green and blue components
-                                oslSetImagePixel(image, i, j, pixel & 0xff0000ff);
-                        }
-                }
-        }
-        oslUnlockImage(image);
-        \endcode
-
-        \b Note:
-        - Similar caching considerations apply as with #oslGetImagePixel. Make sure to manage the image cache properly by locking and unlocking the image.
+ *
+ * This function sets the value of a pixel at a specified position in the image. The value should be in the image's destination format, which could be a palette entry or a color value. If needed, perform conversions to match the image's format.
+ *
+ * @param img
+ * Pointer to the image where the pixel will be set.
+ * @param x
+ * The x-coordinate of the pixel to be set.
+ * @param y
+ * The y-coordinate of the pixel to be set.
+ * @param pixelValue
+ * The value to set at the specified pixel position. This value should be in the format used by the image (e.g., a color value or a palette entry).
+ *
+ * \b Example:
+ * \code
+ * // Before performing low-level operations on an image, lock it to handle cache operations.
+ * oslLockImage(image);
+ * {
+ *         // Iterate over all pixels in the image
+ *         for (j = 0; j < image->sizeY; j++) {
+ *                 for (i = 0; i < image->sizeX; i++) {
+ *                         // Get the current pixel value (assuming a 8888 format here)
+ *                         u32 pixel = oslGetImagePixel(image, i, j);
+ *                         // Mask out the green and blue components
+ *                         oslSetImagePixel(image, i, j, pixel & 0xff0000ff);
+ *                 }
+ *         }
+ * }
+ * oslUnlockImage(image);
+ * \endcode
+ *
+ * \b Note:
+ * - The pixel is written through the uncached address, so it reaches memory without a CPU cache writeback. The GE may still
+ *   hold the old texels if the image was already drawn: call #oslUncacheImage (or wrap the writes in #oslLockImage /
+ *   #oslUnlockImage) before drawing it again.
  */
 extern void oslSetImagePixel(OSL_IMAGE *img, unsigned int x, unsigned int y, int pixelValue);
 
 /** Returns the address of the beginning (left border) of a specific line in an image.
-
-        This macro provides access to the raw data of a specific line in the image. When using this macro, make sure to respect the pixel format of the image. For images with 16-bit pixel formats (e.g., 4444, 5551, or 5650), use a `u16` pointer and the appropriate RGBxx macros for accessing pixel values.
-
-        @param img
-                Pointer to the image from which the line address is obtained.
-        @param y
-                The line number (0 is the first line, 1 is the second, and so on).
-
-        @return
-                A pointer to the beginning of the specified line in the image's raw data.
-
-        \b Example:
-        \code
-        // Create a 15-bit image (16-bit pixel width, with 1 alpha bit included)
-        OSL_IMAGE *img = oslCreateImage(32, 32, OSL_IN_RAM, OSL_PF_5551);
-
-        // Get a pointer to the 4th line (0-based index)
-        u16 *data = (u16*)oslGetImageLine(img, 3);
-
-                // Loop through each pixel in the line
-        for (int i = 0; i < img->sizeX; i++) {
-                // Set this pixel to bright red
-                (*data) = RGBA15(255, 0, 0, 255);
-                // Move to the next pixel
-                data++;
-        }
-        \endcode
-
-        \b Note:
-        - Ensure you use the correct pixel format and data type when accessing raw image data.
+ *
+ * This macro provides access to the raw data of a specific line in the image. When using this macro, make sure to respect the pixel format of the image. For images with 16-bit pixel formats (e.g., 4444, 5551, or 5650), use a `u16` pointer and the appropriate RGBxx macros for accessing pixel values.
+ *
+ * @param img
+ * Pointer to the image from which the line address is obtained.
+ * @param y
+ * The line number (0 is the first line, 1 is the second, and so on).
+ *
+ * @return
+ * A pointer to the beginning of the specified line in the image's raw data.
+ *
+ * \b Example:
+ * \code
+ * // Create a 15-bit image (16-bit pixel width, with 1 alpha bit included)
+ * OSL_IMAGE *img = oslCreateImage(32, 32, OSL_IN_RAM, OSL_PF_5551);
+ *
+ * // Get a pointer to the 4th line (0-based index)
+ * u16 *data = (u16*)oslGetImageLine(img, 3);
+ *
+ *         // Loop through each pixel in the line
+ * for (int i = 0; i < img->sizeX; i++) {
+ *         // Set this pixel to bright red
+ *         (*data) = RGBA15(255, 0, 0, 255);
+ *         // Move to the next pixel
+ *         data++;
+ * }
+ * \endcode
+ *
+ * \b Note:
+ * - Ensure you use the correct pixel format and data type when accessing raw image data.
  */
 #define oslGetImageLine(img, y) ((char *)((img)->data) + (y) * (((img)->realSizeX * osl_pixelWidth[(img)->pixelFormat]) >> 3))
 
 /** Gets the address of a single pixel in an image.
-
-        This macro provides a pointer to the address of a specific pixel in the image. It is designed to work with pixel formats ranging from 8 to 32 bits per pixel. Note that this macro does not handle 4-bit images correctly, as a byte in 4-bit images represents two pixels. For 4-bit images, this macro returns a pointer to the corresponding byte, and additional bit manipulation is required to access individual pixels.
-
-        @param img
-                Pointer to the image from which to retrieve the pixel address.
-        @param x
-                The x-coordinate of the pixel.
-        @param y
-                The y-coordinate of the pixel.
-
-        @return
-                A pointer to the address of the specified pixel in the image's raw data.
-
-        \b Example:
-        \code
-        void setPixel(OSL_IMAGE *img, int x, int y, int value) {
-                u8 *data = (u8 *)oslGetImagePixelAddr(img, x, y);
-
-                // Ensure the pixel value does not exceed the bit depth
-                value &= 0xf;
-
-                // Handle 4-bit images by checking if x is even or odd
-                if (x & 1) {
-                        // Mask out the last 4 bits
-                        (*data) &= 0x0f;
-                        // Write to the last 4 bits
-                        (*data) |= value << 4;
-                } else {
-                        // Mask out the first 4 bits
-                        (*data) &= 0xf0;
-                        // Write to the first 4 bits
-                        (*data) |= value;
-                }
-
-                 // Alternative method with parity checking
-                (*data) &= ~(15 << ((x & 1) << 2));
-                (*data) |= value << ((x & 1) << 2);
-        }
-        \endcode
-
-        \b Note:
-        - Ensure that you handle the pixel data according to its format and bit depth. For 4-bit images, additional bit manipulation is required.
+ *
+ * This macro provides a pointer to the address of a specific pixel in the image. It is designed to work with pixel formats ranging from 8 to 32 bits per pixel. Note that this macro does not handle 4-bit images correctly, as a byte in 4-bit images represents two pixels. For 4-bit images, this macro returns a pointer to the corresponding byte, and additional bit manipulation is required to access individual pixels.
+ *
+ * @param img
+ * Pointer to the image from which to retrieve the pixel address.
+ * @param x
+ * The x-coordinate of the pixel.
+ * @param y
+ * The y-coordinate of the pixel.
+ *
+ * @return
+ * A pointer to the address of the specified pixel in the image's raw data.
+ *
+ * \b Example:
+ * \code
+ * void setPixel(OSL_IMAGE *img, int x, int y, int value) {
+ *         u8 *data = (u8 *)oslGetImagePixelAddr(img, x, y);
+ *
+ *         // Ensure the pixel value does not exceed the bit depth
+ *         value &= 0xf;
+ *
+ *         // Handle 4-bit images by checking if x is even or odd
+ *         if (x & 1) {
+ *                 // Mask out the last 4 bits
+ *                 (*data) &= 0x0f;
+ *                 // Write to the last 4 bits
+ *                 (*data) |= value << 4;
+ *         } else {
+ *                 // Mask out the first 4 bits
+ *                 (*data) &= 0xf0;
+ *                 // Write to the first 4 bits
+ *                 (*data) |= value;
+ *         }
+ *
+ *          // Alternative method with parity checking
+ *         (*data) &= ~(15 << ((x & 1) << 2));
+ *         (*data) |= value << ((x & 1) << 2);
+ * }
+ * \endcode
+ *
+ * \b Note:
+ * - Ensure that you handle the pixel data according to its format and bit depth. For 4-bit images, additional bit manipulation is required.
  */
 #define oslGetImagePixelAddr(img, x, y) ((char *)((img)->data) + ((((y) * (img)->realSizeX + (x)) * osl_pixelWidth[(img)->pixelFormat]) >> 3))
 
@@ -2968,31 +2971,28 @@ extern const u8 osl_paletteSizes[];
 #define OSL_SCREEN_HEIGHT (osl_curBuf->sizeY)
 
 /** Define an image as the current drawbuffer. Use this function to specify the image to which drawing operations will be directed. Remember to restore the original drawbuffer after you have finished drawing.
-
-        \code
-        OSL_IMAGE *drawBuf = oslCreateImage(320, 182, OSL_IN_VRAM, OSL_PF_5650);
-        // Clear the image to black
-        oslClearImage(drawBuf, RGB16(0, 0, 0));
-        // Set that image as the drawbuffer
-        oslSetDrawBuffer(drawBuf);
-        // Draw a red filled rectangle on the image
-        oslDrawFillRect(0, 0, 100, 100, RGB(255, 0, 0));
-        // Restore the default drawbuffer
-        oslSetDrawBuffer(OSL_DEFAULT_BUFFER);
-        // Draw that image somewhere on the screen
-        oslDrawImageXY(drawBuf, 80, 45);
-        \endcode
-
-        \b Important:
-        - The image pixel format must be non-paletted. Supported formats are 4444, 5551, 5650, and 8888. Note that 8888 mode (32-bit) is slower and results in a larger image size.
-        - The image must be in video memory (OSL_IN_VRAM). The GPU can only render into video memory (it reads textures from both RAM and VRAM).
-        - A common issue is that the image may not be displayed if its alpha is null. To avoid this, either clear the image after creation or temporarily disable alpha blending by calling `oslSetAlpha(OSL_FX_NONE, 0)`.
-
-        @param img
-                The image to set as the current drawbuffer.
-
-        @return
-                None.
+ *
+ * \code
+ * OSL_IMAGE *drawBuf = oslCreateImage(320, 182, OSL_IN_VRAM, OSL_PF_5650);
+ * // Clear the image to black
+ * oslClearImage(drawBuf, RGB16(0, 0, 0));
+ * // Set that image as the drawbuffer
+ * oslSetDrawBuffer(drawBuf);
+ * // Draw a red filled rectangle on the image
+ * oslDrawFillRect(0, 0, 100, 100, RGB(255, 0, 0));
+ * // Restore the default drawbuffer
+ * oslSetDrawBuffer(OSL_DEFAULT_BUFFER);
+ * // Draw that image somewhere on the screen
+ * oslDrawImageXY(drawBuf, 80, 45);
+ * \endcode
+ *
+ * \b Important:
+ * - The image pixel format must be non-paletted. Supported formats are 4444, 5551, 5650, and 8888. Note that 8888 mode (32-bit) is slower and results in a larger image size.
+ * - The image must be in video memory (OSL_IN_VRAM). The GPU can only render into video memory (it reads textures from both RAM and VRAM).
+ * - A common issue is that the image may not be displayed if its alpha is null. To avoid this, either clear the image after creation or temporarily disable alpha blending by calling `oslSetAlpha(OSL_FX_NONE, 0)`.
+ *
+ * @param img
+ * The image to set as the current drawbuffer.
  */
 extern void oslSetDrawBuffer(OSL_IMAGE *img);
 
@@ -3162,57 +3162,57 @@ static inline void oslImageSetAutoStrip(OSL_IMAGE *img, bool enabled) {
 /** @} */         // end of image
 
 /** \ingroup drawing
-        @defgroup drawing_lowlev Low level drawing
-
-        Low-level drawing routines, closer to the hardware and thus faster.
-        @{
+ * @defgroup drawing_lowlev Low level drawing
+ *
+ * Low-level drawing routines, closer to the hardware and thus faster.
+ * @{
  */
 
 /** @defgroup drawing_lowlev_general Basic documentation
-
-        This section provides basic guidance on drawing textured and untextured objects, assuming some familiarity with GU (Graphics Utility).
-
-        Here's a basic example of drawing a textured object and an untextured object:
-
-        \code
-        void drawSomethingTextured(OSL_IMAGE *img) {
-                // Define the vertices for your shape. Sprites use 2 vertices, triangles use 3, and quads use 4.
-                VERTEX_TYPE *vertices;
-
-                // Set the provided image as the current texture
-                oslSetTexture(img);
-
-                // Allocate memory for the vertices
-                vertices = (VERTEX_TYPE*)sceGuGetMemory(NUMBER_OF_VERTICES * sizeof(vertices[0]));
-
-                // Initialize the vertex data
-                vertices[0].something = ...;
-                // [Additional vertex data setup]
-
-                // Draw the array of vertices using GU (Graphics Utility)
-                sceGuDrawArray(PRIMITIVETYPE, VERTEX_DESCRIPTION | GU_TRANSFORM_2D, NUMBER_OF_VERTICES, 0, vertices);
-        }
-
-        void drawSomethingUntextured(OSL_IMAGE *img) {
-                // Define the vertices for your shape. Sprites use 2 vertices, triangles use 3, and quads use 4.
-                VERTEX_TYPE *vertices;
-
-                // Disable texturing
-                oslDisableTexturing();
-
-                // Allocate memory for the vertices
-                vertices = (VERTEX_TYPE*)sceGuGetMemory(NUMBER_OF_VERTICES * sizeof(vertices[0]));
-
-                // Initialize the vertex data
-                vertices[0].something = ...;
-                // [Additional vertex data setup]
-
-                // Draw the array of vertices using GU
-                sceGuDrawArray(PRIMITIVETYPE, VERTEX_DESCRIPTION | GU_TRANSFORM_2D, NUMBER_OF_VERTICES, 0, vertices);
-        }
-        \endcode
-
-        As you can see, drawing with GU is straightforward if you are familiar with it. For those new to GU, it is recommended to review the samples of the PSP SDK (https://github.com/pspdev/pspsdk) for a deeper understanding.
+ *
+ * This section provides basic guidance on drawing textured and untextured objects, assuming some familiarity with GU (Graphics Utility).
+ *
+ * Here's a basic example of drawing a textured object and an untextured object:
+ *
+ * \code
+ * void drawSomethingTextured(OSL_IMAGE *img) {
+ *         // Define the vertices for your shape. Sprites use 2 vertices, triangles use 3, and quads use 4.
+ *         VERTEX_TYPE *vertices;
+ *
+ *         // Set the provided image as the current texture
+ *         oslSetTexture(img);
+ *
+ *         // Allocate memory for the vertices
+ *         vertices = (VERTEX_TYPE*)sceGuGetMemory(NUMBER_OF_VERTICES * sizeof(vertices[0]));
+ *
+ *         // Initialize the vertex data
+ *         vertices[0].something = ...;
+ *         // [Additional vertex data setup]
+ *
+ *         // Draw the array of vertices using GU (Graphics Utility)
+ *         sceGuDrawArray(PRIMITIVETYPE, VERTEX_DESCRIPTION | GU_TRANSFORM_2D, NUMBER_OF_VERTICES, 0, vertices);
+ * }
+ *
+ * void drawSomethingUntextured(OSL_IMAGE *img) {
+ *         // Define the vertices for your shape. Sprites use 2 vertices, triangles use 3, and quads use 4.
+ *         VERTEX_TYPE *vertices;
+ *
+ *         // Disable texturing
+ *         oslDisableTexturing();
+ *
+ *         // Allocate memory for the vertices
+ *         vertices = (VERTEX_TYPE*)sceGuGetMemory(NUMBER_OF_VERTICES * sizeof(vertices[0]));
+ *
+ *         // Initialize the vertex data
+ *         vertices[0].something = ...;
+ *         // [Additional vertex data setup]
+ *
+ *         // Draw the array of vertices using GU
+ *         sceGuDrawArray(PRIMITIVETYPE, VERTEX_DESCRIPTION | GU_TRANSFORM_2D, NUMBER_OF_VERTICES, 0, vertices);
+ * }
+ * \endcode
+ *
+ * As you can see, drawing with GU is straightforward if you are familiar with it. For those new to GU, it is recommended to review the samples of the PSP SDK (https://github.com/pspdev/pspsdk) for a deeper understanding.
  */
 
 #ifdef PSP
