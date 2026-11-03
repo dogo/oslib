@@ -53,7 +53,7 @@ enum OSL_MAP_FORMATS {
 	OSL_MF_U16_GBA = 2, /**< 16-bit, 10 bits for the tile number, 2 bits for mirroring.
 	                         Palette is unsupported. `addit1` holds the number of tile bits
 	                         (default 10), and the next two bits are for mirroring
-	                         (11 = horizontal, 12 = vertical). */
+	                         (bit 10 = horizontal, bit 11 = vertical). */
 };
 
 /**

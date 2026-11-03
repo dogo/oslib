@@ -118,7 +118,7 @@ struct remotePsp *oslAdhocGetPspByIndex(int index);
  * @brief Requests a connection to a remote PSP.
  *
  * @param aPsp Pointer to the remotePsp structure.
- * @param timeOut Timeout for the connection request.
+ * @param timeOut Timeout for the connection request, in seconds; 0 waits until the peer answers or leaves.
  * @param requestConnectionCB Callback function for connection status updates.
  * @return 0 on success, negative value on error.
  */
