@@ -1,0 +1,4 @@
+first VRAM image allocated PASS
+palette took 1024 bytes, delete gave back 1024 PASS
+next VRAM image is after the first one PASS
+DONE
