@@ -1,6 +1,7 @@
 // Device test: what each draw call does with an image wider than 512 pixels
-// (the docs give 512x512 as the image size limit). The image is drawn 100 px
+// (oslDrawImage samples at most 512 texels per axis). The image is drawn 100 px
 // to the left, so texture columns 100..579 land on screen, 512..579 included.
+// Then 1024 and 1100 px wide images check the 1024 width limit of oslDrawImageBig.
 #include <pspkernel.h>
 #include <stdio.h>
 #include <oslib/oslib.h>
@@ -41,6 +42,35 @@ static void check(const char *name, OSL_IMAGE *img, int big) {
 	        412 * H, above, 68 * H, wrapped, below || (big && above) ? "FAIL" : "PASS");
 }
 
+// oslDrawImageBig of a w wide image, drawn so its last 480 columns land on screen.
+// The docs give 1024 as its width limit: past it the draw should come out wrong.
+static void checkWide(int w) {
+	OSL_IMAGE *img = oslCreateImage(w, H, OSL_IN_RAM, OSL_PF_8888);
+	if (!img) {
+		fprintf(f, "oslCreateImage(%d, %d) -> NULL FAIL\n", w, H);
+		return;
+	}
+	for (int y = 0; y < H; y++)
+		for (int x = 0; x < w; x++)
+			oslSetImagePixel(img, x, y, pattern(x, y) | 0xff000000);
+	oslUncacheImage(img);
+	int x0 = w - 480, bad = 0;
+	oslStartDrawing();
+	oslClearScreen(RGBA(255, 0, 255, 255));
+	img->x = -x0;
+	img->y = 16;
+	oslDrawImageBig(img);
+	oslSyncDrawing();
+	sceKernelDcacheWritebackInvalidateAll();
+	for (int y = 0; y < H; y++)
+		for (int sx = 0; sx < 480; sx++)
+			bad += (oslGetImagePixel(OSL_DEFAULT_BUFFER, sx, 16 + y) & 0xffffff) != pattern(sx + x0, y);
+	oslEndDrawing();
+	fprintf(f, "oslDrawImageBig %4d wide, columns %d-%d: %5d/%d wrong %s\n", w, x0, w - 1, bad, 480 * H,
+	        (w <= 1024) == !bad ? "PASS" : "FAIL");
+	oslDeleteImage(img);
+}
+
 int main() {
 	oslInit(0);
 	oslInitGfx(OSL_PF_8888, 1);
@@ -59,6 +89,8 @@ int main() {
 	check("oslDrawImageBig", img, 1);
 	oslEndDrawing();
 	oslWriteImageFilePNG(OSL_DEFAULT_BUFFER, "screen.png", 0);
+	checkWide(1024);
+	checkWide(1100);
 	fclose(f);
 	oslEndGfx();
 	sceKernelExitGame();

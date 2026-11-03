@@ -1428,7 +1428,7 @@ extern void oslDrawImageSimple(OSL_IMAGE *img);
 /**
  * @brief Draws a very large image.
  *
- * This function is designed to draw images larger than the standard 512x512 pixel limit. It provides a way to render images up to 1024 pixels in width, but comes with additional complexity and potentially significant performance drawbacks.
+ * This function is designed to draw images larger than the 512 texels the GE samples per axis. It renders images up to 1024 pixels in width (wider ones come out wrong; both checked on a PSP by tests/device/bigdraw), but comes with additional complexity and potentially significant performance drawbacks.
  *
  * \note
  *    The PSP hardware is not optimized for handling images larger than 512x512 pixels. While this function allows you to draw larger images, it can be extremely slow and is not recommended for typical use. The GPU must process all the pixels of the image, even if you scale it down, which can be very inefficient.
@@ -1441,8 +1441,7 @@ extern void oslDrawImageSimple(OSL_IMAGE *img);
  * @param img
  *    Pointer to the `OSL_IMAGE` structure representing the image to be drawn.
  *
- * \deprecated
- *    This function is deprecated and may change or be removed in future releases of OSLib. It is recommended to use `oslDrawImage` for standard image drawing needs.
+ * Use `oslDrawImage` for images up to 512x512 pixels: this function falls back to it for them.
  */
 extern void oslDrawImageBig(OSL_IMAGE *img);
 
@@ -2362,7 +2361,8 @@ enum OSL_WRITE_FLAGS {
 
 /** @defgroup image_sprites Simili sprite system
  *
- * A basic system allowing you to cut your images just as if they were sprites. Remember that the maximum size of an image is 512x512!
+ * A basic system allowing you to cut your images just as if they were sprites. Frames are drawn with #oslDrawImage, which
+ * wraps past texel 511: keep sprite sheets within 512x512.
  * @{
  */
 
@@ -2390,7 +2390,8 @@ enum OSL_WRITE_FLAGS {
         0, 32    | 32, 32
         \endcode
 
-        \b Important: The maximum size of an image is 512x512! Ensure that your sprite sheet dimensions do not exceed this limit.
+        \b Important: Frames are drawn with #oslDrawImage, which samples at most 512 texels per axis (column 512 shows
+        column 0 again), so keep the sprite sheet within 512x512.
 
         \see oslCreateImage for considerations when creating images.
  */
@@ -2602,6 +2603,8 @@ extern void oslUncachePalette(OSL_PALETTE *pal);
  * @{
  */
 
+extern void *osl_curTexture;
+
 /** Flushes the image data from the cache.
 
         This function is necessary to call after modifying an image's data directly (e.g., manipulating `img->data` manually). It ensures that the image data is properly written back and invalidated in the cache.
@@ -2618,7 +2621,6 @@ extern void oslUncachePalette(OSL_PALETTE *pal);
         oslUncacheImageData(img); // Ensure changes are flushed
         \endcode
  */
-extern void *osl_curTexture;
 static inline void oslUncacheImageData(OSL_IMAGE *img) {
 	if (img != NULL) {
 		sceKernelDcacheWritebackInvalidateRange(img->data, img->totalSize);

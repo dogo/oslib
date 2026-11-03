@@ -93,7 +93,9 @@ extern void oslDeinitAudio();
 /**
  * @brief Initializes Media Engine audio support.
  *
- * This function is required for playing AT3 and MP3 files and may need additional privileges depending on the firmware version.
+ * This function is required for playing AT3 and MP3 files. It loads the firmware's audio codec module and works in user
+ * mode (only firmware 1.50 loads the codec in kernel mode). Before it is called, #oslLoadSoundFileMP3 and
+ * #oslLoadSoundFileAT3 return NULL (checked on a PSP by tests/device/soundload).
  * @param formats Bitmask of formats to initialize, see oslInitAudioME_formats.
  */
 extern void oslInitAudioME(int formats);
@@ -123,10 +125,11 @@ extern int osl_audioDefaultNumSamples; // !< Default number of samples per buffe
 /**
  * @brief Loads a sound file and determines its format based on the file extension.
  *
- * Supported formats include WAV, MP3, AT3, and BGM. The function selects streaming or full memory loading based on the 'stream' parameter.
+ * The extension picks the loader, in any case: .wav, .bgm, .mp3 or .at3 (MP3 and AT3 need #oslInitAudioME first). Any
+ * other extension returns NULL. The function selects streaming or full memory loading based on the 'stream' parameter.
  * @param filename Path to the sound file.
  * @param stream Streaming mode; OSL_FMT_STREAM for streaming, OSL_FMT_NONE for full loading.
- * @return Pointer to the loaded sound object.
+ * @return Pointer to the loaded sound object, or NULL if the file fails to load or its extension is not supported.
  */
 extern OSL_SOUND *oslLoadSoundFile(const char *filename, int stream);
 
@@ -196,8 +199,7 @@ OSL_SOUND *oslLoadSoundFileMOD(const char *filename, int stream);
  * @brief Loads an MP3 sound file.
  *
  * This function loads an MP3 sound file into the OSLib sound system. MP3 is a widely-used compressed audio format that allows for efficient storage of high-quality audio. Before calling this function,
- * it is mandatory to initialize the Media Engine audio subsystem by calling #oslInitAudioME in kernel mode. Failing to do so will result in a program crash, as MP3 playback relies on features available only
- * in kernel mode.
+ * initialize the Media Engine audio subsystem with #oslInitAudioME and OSL_FMT_MP3; until then, this function returns NULL.
  *
  * @param filename Path to the MP3 file. The file should be accessible on the device, and the path must be correctly specified.
  * @param stream Determines the loading behavior:
@@ -206,15 +208,15 @@ OSL_SOUND *oslLoadSoundFileMOD(const char *filename, int stream);
  *
  * @return Pointer to the loaded OSL_SOUND structure, or NULL if the file fails to load or initialization requirements are not met.
  *
- * @warning Ensure that #oslInitAudioME has been called in kernel mode prior to using this function.
+ * @warning Ensure that #oslInitAudioME has been called prior to using this function.
  */
 OSL_SOUND *oslLoadSoundFileMP3(const char *filename, int stream);
 
 /**
  * @brief Loads an AT3 (ATRAC3) sound file.
  *
- * This function handles the loading of ATRAC3 format sound files, which are proprietary audio formats developed by Sony that offer good compression rates and sound quality. Similar to MP3, initializing the
- * Media Engine audio subsystem with #oslInitAudioME in kernel mode is required before using this function to prevent the program from crashing.
+ * This function handles the loading of ATRAC3 format sound files, which are proprietary audio formats developed by Sony that offer good compression rates and sound quality. Similar to MP3, the
+ * Media Engine audio subsystem must be initialized with #oslInitAudioME and OSL_FMT_AT3 first; until then, this function returns NULL.
  *
  * @param filename Path to the AT3 file. Ensure the file is stored locally and the path is correctly specified for successful loading.
  * @param stream Determines the loading method:
@@ -223,7 +225,7 @@ OSL_SOUND *oslLoadSoundFileMP3(const char *filename, int stream);
  *
  * @return Pointer to the loaded OSL_SOUND structure, or NULL if the file fails to load or if pre-conditions are not met.
  *
- * @warning The Media Engine audio subsystem must be initialized in kernel mode prior to calling this function to ensure proper functionality and to avoid crashes.
+ * @warning The Media Engine audio subsystem must be initialized with #oslInitAudioME prior to calling this function.
  */
 OSL_SOUND *oslLoadSoundFileAT3(const char *filename, int stream);
 
