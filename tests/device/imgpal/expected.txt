@@ -9,3 +9,7 @@ grayt.png  8bit colour   0/768 alpha   0/768 wrong PASS
 gray16.png 8bit colour   0/768 alpha   0/768 wrong PASS
 pal256.png 8bit colour   0/768 alpha   0/768 wrong PASS
 pal256.png 4bit colour   0/768 alpha   0/768 wrong PASS
+pal256t.png 8bit colour   0/768 alpha   0/768 wrong PASS
+pal256t.png 4bit colour   0/768 alpha   0/768 wrong PASS
+pal256.png 8bit colour key: 48/48 keyed, 0 wrong PASS
+pal256.png 4bit colour key: 48/48 keyed, 0 wrong PASS

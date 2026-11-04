@@ -160,9 +160,12 @@ OSL_IMAGE *oslLoadImageFilePNG(char *filename, int location, int volatile pixelF
 						b = (((u32 *)img->palette->data)[pixel_value] >> 16) & 0xff;
 						a = (((u32 *)img->palette->data)[pixel_value] >> 24) & 0xff;
 					} else {
+						// No OSL palette (32-bit, converted later): the same tRNS and colour key
 						b = palette[pixel_value].blue;
 						g = palette[pixel_value].green;
 						r = palette[pixel_value].red;
+						a = pixel_value < num_trans ? trans_alpha[pixel_value] : 0xff;
+						if (osl_colorKeyEnabled && RGBA(r, g, b, 0) == (osl_colorKeyValue & 0x00ffffff)) a = 0;
 					}
 					break;
 				}

@@ -54,6 +54,26 @@ static void check(const char *name, int format, int tol) {
 	fprintf(f, " %s\n", badColour || badAlpha ? "FAIL" : "PASS");
 }
 
+// With a colour key on palette entry 250's colour, exactly its pixels (x % 8 == 2 in the
+// bands that use 248-255: 4 per row, 12 rows) must come out transparent
+static void colourKey256(int format) {
+	oslSetTransparentColor(RGB(250, 5, (250 * 7) & 255));
+	OSL_IMAGE *img = oslLoadImageFilePNG("pal256.png", OSL_IN_RAM | OSL_UNSWIZZLED, format);
+	oslDisableTransparentColor();
+	int keyed = 0, wrong = 0;
+	for (int y = 0; img && img->palette && y < H; y++)
+		for (int x = 0; x < W; x++) {
+			int index = oslGetImagePixel(img, x, y);
+			int clear = index < img->palette->nElements && !(((u32 *)img->palette->data)[index] >> 24);
+			int want = x % 8 == 2 && (y / 3) % 2;
+			keyed += clear && want;
+			wrong += clear != want;
+		}
+	if (img) oslDeleteImage(img);
+	fprintf(f, "pal256.png %s colour key: %d/48 keyed, %d wrong %s\n", format == OSL_PF_8BIT ? "8bit" : "4bit",
+	        keyed, wrong, keyed == 48 && !wrong ? "PASS" : "FAIL");
+}
+
 int main(int argc, char *argv[]) {
 	oslInit(0);
 	oslInitGfx(OSL_PF_8888, 1);
@@ -73,6 +93,12 @@ int main(int argc, char *argv[]) {
 	CASE("gray16", OSL_PF_8BIT, 1) // libpng truncates 16-bit, ImageMagick rounds
 	CASE("pal256", OSL_PF_8BIT, 0)
 	CASE("pal256", OSL_PF_4BIT, 0) // 256-entry palette, 16 colours used, some past index 15
+	CASE("pal256t", OSL_PF_8BIT, 0)
+	CASE("pal256t", OSL_PF_4BIT, 0) // the same with tRNS
+	if (only < 0) {
+		colourKey256(OSL_PF_8BIT);
+		colourKey256(OSL_PF_4BIT);
+	}
 	fclose(f);
 	oslEndGfx();
 	sceKernelExitGame();
