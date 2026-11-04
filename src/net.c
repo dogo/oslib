@@ -355,14 +355,12 @@ int oslNetPostForm(const char *url, char *data, char *response, unsigned int res
 	 */// <-- STAS END -->
 	template = sceHttpCreateTemplate("OSL-agent/0.0.1 libhttp/1.0.0", 1, 1);
 	if (template < 0) {
-		sceHttpEnd();
 		return OSL_ERR_HTTP_TEMPLATE;
 	}
 
 	ret = sceHttpSetResolveTimeOut(template, 3000000);
 	if (ret < 0) {
 		sceHttpDeleteTemplate(template);
-		sceHttpEnd();
 		return OSL_ERR_HTTP_TIMEOUT;
 	}
 
@@ -370,7 +368,6 @@ int oslNetPostForm(const char *url, char *data, char *response, unsigned int res
 
 	if (ret < 0) {
 		sceHttpDeleteTemplate(template);
-		sceHttpEnd();
 		return OSL_ERR_HTTP_TIMEOUT;
 	}
 
@@ -378,7 +375,6 @@ int oslNetPostForm(const char *url, char *data, char *response, unsigned int res
 
 	if (ret < 0) {
 		sceHttpDeleteTemplate(template);
-		sceHttpEnd();
 		return OSL_ERR_HTTP_TIMEOUT;
 	}
 
@@ -386,7 +382,6 @@ int oslNetPostForm(const char *url, char *data, char *response, unsigned int res
 
 	if (connection < 0) {
 		sceHttpDeleteTemplate(template);
-		sceHttpEnd();
 		return OSL_ERR_HTTP_TIMEOUT;
 	}
 
@@ -395,7 +390,6 @@ int oslNetPostForm(const char *url, char *data, char *response, unsigned int res
 	if (request < 0) {
 		sceHttpDeleteConnection(connection);
 		sceHttpDeleteTemplate(template);
-		sceHttpEnd();
 		return OSL_ERR_HTTP_REQUEST;
 	}
 
@@ -406,7 +400,6 @@ int oslNetPostForm(const char *url, char *data, char *response, unsigned int res
 		sceHttpDeleteRequest(request);
 		sceHttpDeleteConnection(connection);
 		sceHttpDeleteTemplate(template);
-		sceHttpEnd();
 		return OSL_ERR_HTTP_REQUEST;
 	}
 
@@ -415,7 +408,6 @@ int oslNetPostForm(const char *url, char *data, char *response, unsigned int res
 		sceHttpDeleteRequest(request);
 		sceHttpDeleteConnection(connection);
 		sceHttpDeleteTemplate(template);
-		sceHttpEnd();
 		return OSL_ERR_HTTP_GENERIC;
 	}
 
@@ -423,7 +415,6 @@ int oslNetPostForm(const char *url, char *data, char *response, unsigned int res
 		sceHttpDeleteRequest(request);
 		sceHttpDeleteConnection(connection);
 		sceHttpDeleteTemplate(template);
-		sceHttpEnd();
 		return OSL_ERR_HTTP_GENERIC;
 	}
 
@@ -433,7 +424,6 @@ int oslNetPostForm(const char *url, char *data, char *response, unsigned int res
 			sceHttpDeleteRequest(request);
 			sceHttpDeleteConnection(connection);
 			sceHttpDeleteTemplate(template);
-			sceHttpEnd();
 			return OSL_ERR_HTTP_GENERIC;
 		}
 	}
