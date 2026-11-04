@@ -75,7 +75,28 @@ static void leakPngNoVram(void) {
 	int n = 0;
 	while (n < 1024 && (blocks[n] = oslVramMgrAllocBlock(4096))) n++;
 	leak("PNG into full VRAM", "rgb.png", OSL_IN_VRAM, OSL_PF_8888);
+	// Decoded in 32-bit in RAM, then the conversion to VRAM fails
+	leak("PNG 8bit into full VRAM", "rgb.png", OSL_IN_VRAM, OSL_PF_8BIT);
+	leak("GIF 4bit into full VRAM", "pal256.gif", OSL_IN_VRAM, OSL_PF_4BIT);
 	while (n > 0) oslVramMgrFreeBlock(blocks[--n], 4096);
+}
+
+// About 512 bytes of heap left: enough for the new image, not for its 1 KB palette
+static void convertWithoutPalette(void) {
+	fprintf(f, "convert, no memory for palette ");
+	OSL_IMAGE *img = oslCreateImage(8, 8, OSL_IN_RAM, OSL_PF_8888);
+	void *hog = NULL, *p;
+	while ((p = malloc(512))) {
+		*(void **)p = hog;
+		hog = p;
+	}
+	p = hog;
+	hog = *(void **)hog;
+	free(p);
+	OSL_IMAGE *out = oslConvertImageTo(img, OSL_IN_VRAM, OSL_PF_8BIT);
+	freeHog(hog);
+	fprintf(f, "-> %s %s\n", out ? "image" : "NULL", out ? "FAIL" : "PASS");
+	oslDeleteImage(out ? out : img);
 }
 
 static void gif4bit(void) {
@@ -112,6 +133,7 @@ int main() {
 	leak("missing GIF, true colour", "missing.gif", OSL_IN_RAM, OSL_PF_8888);
 	leakPngNoVram();
 	gif4bit();
+	convertWithoutPalette();
 
 	fprintf(f, "DONE\n");
 	fclose(f);

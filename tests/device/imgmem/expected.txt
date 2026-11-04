@@ -2,5 +2,8 @@ move to RAM without memory -> moved 0, location VRAM PASS
 GIF with two frames         -> 0 bytes kept over 20 loads PASS
 missing GIF, true colour    -> 0 bytes kept over 20 loads PASS
 PNG into full VRAM          -> 0 bytes kept over 20 loads PASS
+PNG 8bit into full VRAM     -> 0 bytes kept over 20 loads PASS
+GIF 4bit into full VRAM     -> 0 bytes kept over 20 loads PASS
 pal256.gif 4bit colour 0/768 wrong PASS
+convert, no memory for palette -> NULL PASS
 DONE

@@ -2044,6 +2044,7 @@ extern OSL_IMAGE *oslCreateImageTileSize(OSL_IMAGE *img, int offsetX0, int offse
  *
  * After calling this function, the `imgOriginal` image should no longer be used directly. Instead, the function returns a new image with the specified
  * pixel format and location. Ensure to properly manage and delete the converted image as needed.
+ * If the new image can't be created, it returns `NULL` and leaves `imgOriginal` as it was: delete it yourself.
  */
 extern OSL_IMAGE *oslConvertImageTo(OSL_IMAGE *imgOriginal, int newLocation, int newFormat);
 

@@ -188,12 +188,14 @@ OSL_IMAGE *oslLoadImageFilePNG(char *filename, int location, int volatile pixelF
 			p_dest4 += img->realSizeX;
 		}
 
-		// Finally convert to the paletted format
+		// Finally convert to the paletted format; on failure the 32-bit image is still ours
 		if (wantedPixelFormat != pixelFormat) {
-			img = oslConvertImageTo(img, imgLocation, wantedPixelFormat);
+			OSL_IMAGE *converted = oslConvertImageTo(img, imgLocation, wantedPixelFormat);
+			if (!converted) oslDeleteImage(img);
+			img = converted;
 		}
 
-		if (oslImageLocationIsSwizzled(location)) {
+		if (img && oslImageLocationIsSwizzled(location)) {
 			oslSwizzleImage(img);
 		}
 

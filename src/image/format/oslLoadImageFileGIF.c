@@ -214,9 +214,12 @@ OSL_IMAGE *oslLoadImageFileGIF(char *filename, int location, int pixelFormat) {
 		// Free the temporary line buffer
 		oslGifFreeLineBuf();
 
-		// A frame decoded in 32-bit goes to the wanted format now
-		if (img && img->pixelFormat != pixelFormat)
-			img = oslConvertImageTo(img, imgLocation, pixelFormat);
+		// A frame decoded in 32-bit goes to the wanted format now; on failure it's still ours
+		if (img && img->pixelFormat != pixelFormat) {
+			OSL_IMAGE *converted = oslConvertImageTo(img, imgLocation, pixelFormat);
+			if (!converted) oslDeleteImage(img);
+			img = converted;
+		}
 
 		if (img) {
 			// Swizzle the image if necessary
