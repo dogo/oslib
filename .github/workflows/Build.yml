@@ -78,7 +78,7 @@ jobs:
           # One build tree for every sample: each must package into its own directory
           (cd samples && cmake --preset psp && cmake --build --preset psp -j)
           want=$(grep -c add_subdirectory samples/CMakeLists.txt)
-          got=$(find samples/cbuild -mindepth 2 -name EBOOT.PBP | wc -l)
+          got=$(find samples/cbuild -mindepth 2 -maxdepth 2 -name EBOOT.PBP | wc -l) # cbuild/<sample>/EBOOT.PBP
           echo "EBOOT.PBP: $got of $want samples"
           test "$got" -eq "$want"
 
