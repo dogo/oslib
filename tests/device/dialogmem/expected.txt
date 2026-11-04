@@ -1,0 +1,5 @@
+5 autosaves of 64 KB       -> result 0, 0 bytes kept PASS
+20 keyboards, not activated -> 0 bytes kept PASS
+20 oslInitOsk, text alloc fails -> 0 bytes kept, active 0 PASS
+oslInitOsk, another active -> other still active 1 PASS
+DONE

@@ -97,6 +97,9 @@ extern unsigned short *oslOskOutTextEx(OSL_KEYBOARD *kbd, int idx);
 /**
  * @brief Ends the on-screen keyboard session and releases resources.
  *
+ * Frees the keyboard whether or not it was activated. The firmware reads its buffers while the
+ * dialog runs: end it once oslGetOskStatus() is PSP_UTILITY_DIALOG_NONE.
+ *
  * @param kbd Pointer to the OSL_KEYBOARD structure.
  */
 extern void oslEndOskEx(OSL_KEYBOARD *kbd);

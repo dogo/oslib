@@ -50,6 +50,7 @@ int oslInitOskDataEx(OSL_KEYBOARD *kbd, int idx, unsigned short *desc, unsigned 
 	if (!outtext) return 0;
 
 	SceUtilityOskData *oskData = &kbd->oskParams.data[idx];
+	free(oskData->outtext); // set up again: the previous text buffer is ours too
 	memset(oskData, 0, sizeof(SceUtilityOskData));
 
 	oskData->language = PSP_UTILITY_OSK_LANGUAGE_DEFAULT;
@@ -108,7 +109,8 @@ unsigned short *oslOskOutTextEx(OSL_KEYBOARD *kbd, int idx) {
 }
 
 void oslEndOskEx(OSL_KEYBOARD *kbd) {
-	if (!kbd || !oslOskIsActiveEx(kbd)) return;
+	// Active or not (e.g. set up but never activated), the keyboard is freed
+	if (!kbd) return;
 
 	oslDeActivateOskEx(kbd);
 	for (int i = 0; i < kbd->oskParams.datacount; i++) {
@@ -124,8 +126,11 @@ void oslInitOsk(char *descStr, char *initialStr, int textLimit, int linesNumber,
 	intext = (unsigned short *)malloc((strlen(initialStr) + 1) * sizeof(unsigned short));
 	desc = (unsigned short *)malloc((strlen(descStr) + 1) * sizeof(unsigned short));
 
+	// On failure free only what this call made: osl_osk may be another, active keyboard
 	if (!intext || !desc) {
-		oslEndOsk();
+		free(intext);
+		free(desc);
+		intext = desc = NULL;
 		return;
 	}
 
@@ -139,7 +144,10 @@ void oslInitOsk(char *descStr, char *initialStr, int textLimit, int linesNumber,
 
 	OSL_KEYBOARD *kbd = oslInitOskEx(1, language);
 	if (!kbd || !oslInitOskDataEx(kbd, 0, desc, intext, textLimit, linesNumber) || (oslActivateOskEx(kbd, 0) < 0)) {
-		oslEndOsk();
+		oslEndOskEx(kbd);
+		free(intext);
+		free(desc);
+		intext = desc = NULL;
 	}
 }
 
