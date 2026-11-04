@@ -164,6 +164,9 @@ int oslSaveLoadGetResult(void);
 
 /**
  * @brief Ends the current dialog.
+ *
+ * Frees the copy of the data a save dialog wrote, which the firmware reads while the dialog runs:
+ * call it once oslGetLoadSaveStatus() is PSP_UTILITY_DIALOG_NONE.
  */
 void oslEndSaveLoadDialog(void);
 

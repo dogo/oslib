@@ -12,6 +12,25 @@ SceUtilitySavedataParam savedata;
 PspUtilitySavedataListSaveNewData newData;
 char key[] = "QTAK319JQKJ952HA";
 int saveLoadType = OSL_DIALOG_NONE;
+// The copy of the data a save dialog writes; load and delete dialogs use the caller's buffer
+static void *ownedDataBuf = NULL;
+
+// The firmware reads the copy until the dialog ends: freed by oslEndSaveLoadDialog, or by the
+// next dialog if the caller never ended this one
+static void oslFreeSaveLoadData(void) {
+	free(ownedDataBuf);
+	ownedDataBuf = NULL;
+}
+
+static int oslCopySaveData(struct oslSaveLoad *saveData) {
+	ownedDataBuf = malloc(saveData->dataSize);
+	if (!ownedDataBuf) return 0;
+	memcpy(ownedDataBuf, saveData->data, saveData->dataSize);
+	savedata.dataBuf = ownedDataBuf;
+	savedata.dataBufSize = saveData->dataSize;
+	savedata.dataSize = saveData->dataSize;
+	return 1;
+}
 
 #if _PSP_FW_VERSION >= 200
 static void oslSetSavedataKey() {
@@ -33,6 +52,7 @@ void oslInitSaveDialog(struct oslSaveLoad *saveData) {
 }
 
 void oslInitMultiSaveDialog(struct oslSaveLoad *saveData) {
+	oslFreeSaveLoadData();
 	memset(&savedata, 0, sizeof(SceUtilitySavedataParam));
 	memset(&newData, 0, sizeof(PspUtilitySavedataListSaveNewData));
 
@@ -60,13 +80,8 @@ void oslInitMultiSaveDialog(struct oslSaveLoad *saveData) {
 
 	strcpy(savedata.fileName, "DATA.BIN");  // name of the data file
 
-	// Allocate buffers used to store various parts of the save data
-	savedata.dataBuf = malloc(saveData->dataSize);
-	savedata.dataBufSize = saveData->dataSize;
-	savedata.dataSize = saveData->dataSize;
-
-	memset(savedata.dataBuf, 0, saveData->dataSize);
-	memcpy(savedata.dataBuf, saveData->data, saveData->dataSize);
+	// The dialog writes a copy of the data; without memory for it, no dialog starts
+	if (!oslCopySaveData(saveData)) return;
 
 	strcpy(savedata.sfoParam.title, saveData->gameTitle);
 	strcpy(savedata.sfoParam.savedataTitle, saveData->savedataTitle);
@@ -103,6 +118,7 @@ void oslInitMultiSaveDialog(struct oslSaveLoad *saveData) {
 }
 
 void oslInitSingleSaveDialog(struct oslSaveLoad *saveData) {
+	oslFreeSaveLoadData();
 	memset(&savedata, 0, sizeof(SceUtilitySavedataParam));
 	memset(&newData, 0, sizeof(PspUtilitySavedataListSaveNewData));
 
@@ -131,13 +147,8 @@ void oslInitSingleSaveDialog(struct oslSaveLoad *saveData) {
 
 	strcpy(savedata.fileName, "DATA.BIN");  // name of the data file
 
-	// Allocate buffers used to store various parts of the save data
-	savedata.dataBuf = malloc(saveData->dataSize);
-	savedata.dataBufSize = saveData->dataSize;
-	savedata.dataSize = saveData->dataSize;
-
-	memset(savedata.dataBuf, 0, saveData->dataSize);
-	memcpy(savedata.dataBuf, saveData->data, saveData->dataSize);
+	// The dialog writes a copy of the data; without memory for it, no dialog starts
+	if (!oslCopySaveData(saveData)) return;
 
 	strcpy(savedata.sfoParam.title, saveData->gameTitle);
 	strcpy(savedata.sfoParam.savedataTitle, saveData->savedataTitle);
@@ -174,6 +185,7 @@ void oslInitSingleSaveDialog(struct oslSaveLoad *saveData) {
 }
 
 void oslInitAutoSaveDialog(struct oslSaveLoad *saveData) {
+	oslFreeSaveLoadData();
 	memset(&savedata, 0, sizeof(SceUtilitySavedataParam));
 	memset(&newData, 0, sizeof(PspUtilitySavedataListSaveNewData));
 
@@ -202,13 +214,8 @@ void oslInitAutoSaveDialog(struct oslSaveLoad *saveData) {
 
 	strcpy(savedata.fileName, "DATA.BIN");  // name of the data file
 
-	// Allocate buffers used to store various parts of the save data
-	savedata.dataBuf = malloc(saveData->dataSize);
-	savedata.dataBufSize = saveData->dataSize;
-	savedata.dataSize = saveData->dataSize;
-
-	memset(savedata.dataBuf, 0, saveData->dataSize);
-	memcpy(savedata.dataBuf, saveData->data, saveData->dataSize);
+	// The dialog writes a copy of the data; without memory for it, no dialog starts
+	if (!oslCopySaveData(saveData)) return;
 
 	strcpy(savedata.sfoParam.title, saveData->gameTitle);
 	strcpy(savedata.sfoParam.savedataTitle, saveData->savedataTitle);
@@ -257,6 +264,7 @@ void oslInitLoadDialog(struct oslSaveLoad *loadData) {
 }
 
 void oslInitMultiLoadDialog(struct oslSaveLoad *loadData) {
+	oslFreeSaveLoadData();
 	memset(&savedata, 0, sizeof(SceUtilitySavedataParam));
 	savedata.base.size = sizeof(SceUtilitySavedataParam);
 
@@ -291,6 +299,7 @@ void oslInitMultiLoadDialog(struct oslSaveLoad *loadData) {
 }
 
 void oslInitSingleLoadDialog(struct oslSaveLoad *loadData) {
+	oslFreeSaveLoadData();
 	memset(&savedata, 0, sizeof(SceUtilitySavedataParam));
 	savedata.base.size = sizeof(SceUtilitySavedataParam);
 
@@ -326,6 +335,7 @@ void oslInitSingleLoadDialog(struct oslSaveLoad *loadData) {
 }
 
 void oslInitAutoLoadDialog(struct oslSaveLoad *loadData) {
+	oslFreeSaveLoadData();
 	memset(&savedata, 0, sizeof(SceUtilitySavedataParam));
 	savedata.base.size = sizeof(SceUtilitySavedataParam);
 
@@ -361,6 +371,7 @@ void oslInitAutoLoadDialog(struct oslSaveLoad *loadData) {
 }
 
 void oslInitDeleteDialog(struct oslSaveLoad *deleteData) {
+	oslFreeSaveLoadData();
 	memset(&savedata, 0, sizeof(SceUtilitySavedataParam));
 	savedata.base.size = sizeof(SceUtilitySavedataParam);
 
@@ -430,4 +441,5 @@ int oslSaveLoadGetResult() {
 
 void oslEndSaveLoadDialog() {
 	saveLoadType = OSL_DIALOG_NONE;
+	oslFreeSaveLoadData();
 }
