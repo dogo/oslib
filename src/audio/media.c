@@ -193,7 +193,7 @@ int SeekNextFrameMP3(VIRTUAL_FILE *fd) {
 		}
 
 		pBuffer = buf;
-		for (i = 0; i < size; i++) {
+		for (i = 0; i + 1 < size; i++) {
 			// if this is a valid frame sync (0xe0 is for mpeg version 2.5,2+1)
 			if ((pBuffer[i] == 0xff) && ((pBuffer[i + 1] & 0xE0) == 0xE0)) {
 				offset += i;
@@ -403,6 +403,10 @@ static int osl_at3Load(const char *fileName, AT3_INFO *info) {
 		return 0;
 
 	if (info->at3_type == TYPE_ATRAC3) {
+		// Each block is read into the fixed-size ATRAC3 buffer (the 0xC0 joint stereo block twice)
+		if (info->at3_data_align > ATRAC3_BUFFER_SIZE)
+			return 0;
+
 		info->at3_channel_mode = 0x0;
 		if (info->at3_data_align == AUDIO_ALIGN_ATRAC3)
 			info->at3_channel_mode = 0x1;

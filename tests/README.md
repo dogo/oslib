@@ -14,6 +14,9 @@ ctest --test-dir build-host-tests --output-on-failure
 
 Runs in CI on every push.
 
+`test_audio` also checks custom-driver cancellation and deletion of another channel's sound
+from an end callback, using pthread conditions to hold the decoder until the test releases it.
+
 ## Device tests (`tests/device`)
 
 Behaviour that only real hardware shows (GE, VFPU, ...). PPSSPP is not a
@@ -71,5 +74,7 @@ CI only checks that they build.
 | `keybits` | Each `OSL_KEYLIST` and `OSL_REMOTEKEYLIST` bit field reads the SDK's button bit (`PSP_CTRL_*`, `PSP_HPRM_*`) and no other field does; no buttons need pressing |
 | `palvram` | With `osl_useVramManager = 0` (VRAM as a stack), a VRAM image gets allocated, and deleting a VRAM palette gives back exactly its bytes so the next image doesn't overlap a live one |
 | `soundload` | Before `oslInitAudioME`, the MP3 and AT3 loaders return NULL (no crash, user mode); after it, `oslLoadSoundFile` hands `.wav`, `.bgm` (any case), `.mp3` and `.at3` to their loaders, streamed, and returns NULL for other extensions. Uses the sounds of the `wavload`, `mp3` and `at3` tests |
+| `soundlife` | Missing WAV and BGM files load as NULL (no crash); `oslDeleteSound` returns only after the sound's audio thread is done with it; a channel whose thread can't be created (no stack memory) or can't allocate its buffer (heap exhausted) ends, and plays the next sound; stopping a sound while its callback runs ends it without its endCallback (a loop used to replay it, a self-deleting one to free it under the stop), and two endCallbacks stopping each other's sound don't deadlock |
+| `soundprio` | With the main thread above the audio threads, `oslPlaySound` on a channel whose thread is ending lets that thread finish (it used to spin forever). The test times its wake-up into the few-us end window |
 | `mp3` | MP3 files decode frame by frame on the Media Engine with the right frame count, level, pitch and PCM: MPEG-1 44.1 kHz (with an ID3v2 tag) and 48 kHz, MPEG-2 22.05 kHz mono. Copy the `.mp3` files along with the EBOOT when running from the memory stick |
 | `at3` | ATRAC3 at 132/105/66 kbps (block align 384/304/192, the last joint stereo) and ATRAC3plus, with and without Sony's fmt extension, decode frame by frame on the Media Engine with exactly data size / block align frames, the right level and pitch. `gen.sh` regenerates the files from a 440 Hz sine with [atracdenc](https://github.com/dcherednik/atracdenc). Copy the `.at3` files along with the EBOOT when running from the memory stick |
