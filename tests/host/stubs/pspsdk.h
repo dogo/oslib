@@ -72,4 +72,21 @@ int sceKernelStartModule(SceUID modid, SceSize argsize, void *argp, int *status,
 int sceUtilityLoadAvModule(int module);
 SceUID pspSdkLoadStartModule(const char *filename, int mpid);
 
+// Threads and audio output, for audio.c
+typedef int (*SceKernelThreadEntry)(SceSize args, void *argp);
+SceUID sceKernelCreateThread(const char *name, SceKernelThreadEntry entry, int initPriority, int stackSize,
+                             unsigned int attr, void *option);
+int sceKernelStartThread(SceUID thid, SceSize arglen, void *argp);
+int sceKernelWaitThreadEnd(SceUID thid, unsigned int *timeout);
+int sceKernelDeleteThread(SceUID thid);
+int sceKernelExitDeleteThread(int status);
+int sceKernelGetThreadId(void);
+int sceKernelDelayThread(unsigned int delay);
+unsigned int sceKernelCpuSuspendIntr(void);
+void sceKernelCpuResumeIntr(unsigned int flags);
+int sceAudioChReserve(int channel, int samplecount, int format);
+int sceAudioChRelease(int channel);
+int sceAudioOutputPannedBlocking(int channel, int leftvol, int rightvol, void *buf);
+int sceAudioChangeChannelConfig(int channel, int format);
+
 #endif

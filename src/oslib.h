@@ -699,7 +699,7 @@ extern void oslSetupFTrigo();
  * This macro uses a printf-style format string. The formatted output will be
  * written to an internal buffer and printed to the debug console.
  */
-#define oslPrintf(format ...) ({ char __str[1000]; sprintf(__str, ## format); oslConsolePrint(__str); })
+#define oslPrintf(format ...) ({ char __str[1000]; snprintf(__str, sizeof(__str), ## format); oslConsolePrint(__str); })
 
 /** @brief Prints formatted text at a specific position on the screen.
  *
@@ -715,7 +715,7 @@ extern void oslSetupFTrigo();
  */
 #define oslPrintf_xy(x, y, str, format ...) ({ osl_consolePosX = x; osl_consolePosY = y; oslPrintf(str, ## format); })
 #else
-#define oslPrintf(...) { char __str[1000]; sprintf(__str, __VA_ARGS__); oslConsolePrint(__str); }
+#define oslPrintf(...) { char __str[1000]; snprintf(__str, sizeof(__str), __VA_ARGS__); oslConsolePrint(__str); }
 #define oslPrintf_xy(x, y, ...) { osl_consolePosX = x; osl_consolePosY = y; oslPrintf(__VA_ARGS__); }
 #endif
 

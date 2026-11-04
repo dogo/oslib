@@ -7,3 +7,15 @@ gray4.png  4bit colour   0/768 alpha   0/768 wrong PASS
 gray8.png  8bit colour   0/768 alpha   0/768 wrong PASS
 grayt.png  8bit colour   0/768 alpha   0/768 wrong PASS
 gray16.png 8bit colour   0/768 alpha   0/768 wrong PASS
+pal256.png 8bit colour   0/768 alpha   0/768 wrong PASS
+pal256.png 4bit colour   0/768 alpha   0/768 wrong PASS
+pal256t.png 8bit colour   0/768 alpha   0/768 wrong PASS
+pal256t.png 4bit colour   0/768 alpha   0/768 wrong PASS
+pal256.png 8bit colour key: 48/48 keyed, 0 wrong PASS
+pal256.png 4bit colour key: 48/48 keyed, 0 wrong PASS
+PNG target failure -> NULL 1, faults 1, images 0 PASS
+PNG unswizzled target failure -> NULL 1, faults 1, images 0 PASS
+PNG converted palette failure -> NULL 1, faults 1, images 0 PASS
+PNG direct palette failure -> NULL 1, faults 1, images 0 PASS
+convert image failure -> source preserved 1, faults 1 PASS
+convert palette failure -> source preserved 1, faults 1 PASS
