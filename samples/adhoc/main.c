@@ -122,7 +122,7 @@ void serverConnected(struct remotePsp *aPsp) {
 
 	while (!osl_quit) {
 		if (dataLength <= 0)
-			dataLength = oslAdhocReceiveData(aPsp, buffer, 100);
+			dataLength = oslAdhocReceiveData(aPsp, buffer, sizeof(buffer) - 1); // keep the terminator
 
 		if (!skip) {
 			oslStartDrawing();
@@ -135,7 +135,7 @@ void serverConnected(struct remotePsp *aPsp) {
 				oslDrawStringf(10, 40, "Waiting for data from %s", aPsp->name);
 			} else {
 				oslDrawStringf(10, 40, "Data received from %s:", aPsp->name);
-				oslDrawStringf(10, 55, buffer);
+				oslDrawString(10, 55, buffer); // received data, not a format string
 				oslDrawString(10, 70, "Press O to receive more data");
 			}
 			oslDrawString(150, 250, "Press X to quit");

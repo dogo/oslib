@@ -233,7 +233,6 @@ OSL_SFONT *oslLoadSFontFile(char *filename, int pixelFormat) {
 	}
 
 	unsigned int refcolor = _getPixel(img, 0, 0) & 0x00FFFFFFU;
-	int letterCount = 0;
 	int x = 0;
 
 	sfont->lettersCount = 0;
@@ -250,8 +249,10 @@ OSL_SFONT *oslLoadSFontFile(char *filename, int pixelFormat) {
 				++x;
 			}
 
-			// Allocate memory for a new letter
-			OSL_SFLETTER *lt = (OSL_SFLETTER *)malloc(sizeof(OSL_SFLETTER));
+			// Allocate memory for a new letter; a font with more letters than it holds is rejected
+			OSL_SFLETTER *lt = NULL;
+			if (sfont->lettersCount < 256)
+				lt = (OSL_SFLETTER *)malloc(sizeof(OSL_SFLETTER));
 			if (!lt) {
 				_deletePngImage(img);
 				oslDeleteSFont(sfont); // Frees all previously allocated letters and sfont
@@ -284,15 +285,14 @@ OSL_SFONT *oslLoadSFontFile(char *filename, int pixelFormat) {
 			oslUnlockImage(lt->letter);
 			oslSwizzleImage(lt->letter);
 
-			// Assign the letter to the font and increment the letter count
-			sfont->letters[letterCount++] = lt;
+			// Assign the letter to the font and count it now, so a failure frees it too
+			sfont->letters[sfont->lettersCount++] = lt;
 		} else {
 			++x;
 		}
 	}
 
 	sfont->height = img->sizeY - 1;
-	sfont->lettersCount = letterCount;
 
 	// Clean up the image data after processing
 	_deletePngImage(img);
