@@ -3,4 +3,5 @@ map 3 tiles per line, GBA     0/1536 wrong colour PASS
 scale 2x2 to 4x4, alpha 64  0/16 wrong PASS
 scale 2x2 to 4x2            0/8 wrong PASS
 8bit to 8888 conversion     0/16 wrong PASS
+5650 to 8888 conversion    0/65536 wrong PASS
 DONE

@@ -85,10 +85,28 @@ static void convertIndexed(void) {
 	if (img) oslDeleteImage(img);
 }
 
+static void convert5650(void) {
+	int bad = 0;
+	for (int colour = 0; colour <= 0xffff; colour++) {
+		u32 r = colour & 31;
+		u32 g = (colour >> 5) & 63;
+		u32 b = (colour >> 11) & 31;
+		u32 expected = RGBA((r << 3) | (r >> 2), (g << 2) | (g >> 4), (b << 3) | (b >> 2), 255);
+		bad += (u32)oslConvertColor(OSL_PF_8888, OSL_PF_5650, colour) != expected;
+	}
+	fprintf(f, "%-26s %d/65536 wrong %s\n", "5650 to 8888 conversion", bad, bad ? "FAIL" : "PASS");
+}
+
 int main() {
 	oslInit(0);
 	oslInitGfx(OSL_PF_8888, 1);
 	f = fopen("result.txt", "w");
+	if (!f) {
+		perror("result.txt");
+		oslEndGfx();
+		sceKernelExitGame();
+		return 1;
+	}
 	setvbuf(f, NULL, _IONBF, 0);
 
 	oslStartDrawing();
@@ -100,6 +118,7 @@ int main() {
 	scale("scale 2x2 to 4x4, alpha 64", 2, 2, 4, 4, RGBA(10, 20, 30, 64));
 	scale("scale 2x2 to 4x2", 2, 2, 4, 2, RGBA(10, 20, 30, 255));
 	convertIndexed();
+	convert5650();
 
 	fprintf(f, "DONE\n");
 	fclose(f);

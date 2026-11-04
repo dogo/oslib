@@ -689,7 +689,7 @@ extern int osl_colorKeyValue;
  *
  * This example will provide more accurate color values compared to `oslRgbGet5650`.
  */
-#define oslRgbGet5650f(data, r, g, b) ((r) = ((data) & 0x1f) << 3 | ((data) & 0x1f) >> 2, (g) = (((data) >> 5) & 0x3f) << 2 | (((data) >> 5) & 0x3f) >> 4, (b) = (((data) >> 11) & 0x1f) << 3 | (((data) >> 10) & 0x1f) >> 2)
+#define oslRgbGet5650f(data, r, g, b) ((r) = ((data) & 0x1f) << 3 | ((data) & 0x1f) >> 2, (g) = (((data) >> 5) & 0x3f) << 2 | (((data) >> 5) & 0x3f) >> 4, (b) = (((data) >> 11) & 0x1f) << 3 | (((data) >> 11) & 0x1f) >> 2)
 
 /** @} */         // end of drawing_color
 
