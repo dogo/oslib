@@ -26,14 +26,14 @@ if(PSPDIR)
 endif()
 
 # Outputs go to the build directory for this sample
-set_target_properties(helloworld PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
+set_target_properties(helloworld PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
 
 # PSP packaging tools
 find_program(MKSFOEX mksfoex)
 find_program(PACKPBP pack-pbp)
 find_program(PSP_PRXGEN psp-prxgen)
 
-set(OUT_DIR "${CMAKE_BINARY_DIR}")
+set(OUT_DIR "${CMAKE_CURRENT_BINARY_DIR}")
 set(PARAM_SFO "${OUT_DIR}/PARAM.SFO")
 set(EBOOT_PBP "${OUT_DIR}/EBOOT.PBP")
 set(TITLE "Hello World")

@@ -72,6 +72,16 @@ jobs:
             fi
           done
 
+      - name: Build all samples together (CMake)
+        run: |
+          set -euo pipefail
+          # One build tree for every sample: each must package into its own directory
+          (cd samples && cmake --preset psp && cmake --build --preset psp -j)
+          want=$(grep -c add_subdirectory samples/CMakeLists.txt)
+          got=$(find samples/cbuild -mindepth 2 -name EBOOT.PBP | wc -l)
+          echo "EBOOT.PBP: $got of $want samples"
+          test "$got" -eq "$want"
+
   host-tests:
     name: Host unit tests
     runs-on: ubuntu-latest

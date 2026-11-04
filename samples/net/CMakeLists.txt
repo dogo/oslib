@@ -24,7 +24,7 @@ set_target_properties(net PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_B
 find_program(MKSFOEX mksfoex)
 find_program(PACKPBP pack-pbp)
 
-set(OUT_DIR "${CMAKE_BINARY_DIR}")
+set(OUT_DIR "${CMAKE_CURRENT_BINARY_DIR}")
 set(PARAM_SFO "${OUT_DIR}/PARAM.SFO")
 set(EBOOT_PBP "${OUT_DIR}/EBOOT.PBP")
 set(TITLE "Net test")
