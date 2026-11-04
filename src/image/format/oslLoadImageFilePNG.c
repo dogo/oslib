@@ -79,9 +79,9 @@ OSL_IMAGE *oslLoadImageFilePNG(char *filename, int location, int volatile pixelF
 
 	int wantedPixelFormat = pixelFormat;
 
-	// If we don't have a palette in the PNG but the pixel format requires one,
+	// If we don't have a palette in the PNG, or it has more entries than the pixel format holds,
 	// we load the image in 32-bit mode and convert it to paletted later with oslConvertImageTo.
-	if (!num_palette && osl_pixelWidth[pixelFormat] <= 8) {
+	if (osl_pixelWidth[pixelFormat] <= 8 && (!num_palette || num_palette > 1 << osl_paletteSizes[pixelFormat])) {
 		pixelFormat = OSL_PF_8888;
 		img = oslCreateImage(width, height, OSL_IN_RAM, pixelFormat);
 	} else {

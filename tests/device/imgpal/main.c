@@ -71,6 +71,8 @@ int main(int argc, char *argv[]) {
 	CASE("gray8", OSL_PF_8BIT, 0)
 	CASE("grayt", OSL_PF_8BIT, 0)  // tRNS on a mid grey
 	CASE("gray16", OSL_PF_8BIT, 1) // libpng truncates 16-bit, ImageMagick rounds
+	CASE("pal256", OSL_PF_8BIT, 0)
+	CASE("pal256", OSL_PF_4BIT, 0) // 256-entry palette, 16 colours used, some past index 15
 	fclose(f);
 	oslEndGfx();
 	sceKernelExitGame();
