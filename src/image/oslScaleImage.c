@@ -106,7 +106,7 @@ static void horizontalScale(const float rs[], const float gs[], const float bs[]
 			/* Set up to start filling next output column */
 			newcol++;
 			fraccoltofill = 1.0;
-			r = g = b = 0.0;
+			r = g = b = a = 0.0;
 		}
 
 		/* There's not enough left in the current input pixel to fill up
@@ -197,6 +197,8 @@ static int scaleImage(OSL_IMAGE *dstImg, OSL_IMAGE *srcImg, int newX, int newY, 
 
 		if (newHeight == srcImg->sizeY) {   /* shortcut Y scaling if possible */
 			readRow(srcImg, row, orgxelrow);
+			zeroAccum(srcImg->sizeX, rs, gs, bs, as);
+			accumOutputRow(orgxelrow, 1.0, rs, gs, bs, as, srcImg->sizeX);
 		} else {
 			zeroAccum(srcImg->sizeX, rs, gs, bs, as);
 			while (fracrowtofill > 0) {

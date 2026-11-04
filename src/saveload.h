@@ -88,6 +88,9 @@ struct oslSaveLoad {
 /**
  * @brief Initializes the save dialog.
  * @param saveData Pointer to a oslSaveLoad structure containing data to be saved.
+ *
+ * The save initializers leave the dialog type as OSL_DIALOG_NONE on allocation or firmware
+ * initialization failure. oslSaveLoadGetResult() returns -ENOMEM or the firmware error.
  */
 void oslInitSaveDialog(struct oslSaveLoad *saveData);
 
@@ -158,12 +161,15 @@ int oslGetSaveLoadType(void);
 
 /**
  * @brief Gets the dialog's result.
- * @return The result of the save/load operation.
+ * @return The result of the save/load operation, or a negative save initialization error.
  */
 int oslSaveLoadGetResult(void);
 
 /**
  * @brief Ends the current dialog.
+ *
+ * Frees the copy of the data a save dialog wrote, which the firmware reads while the dialog runs:
+ * call it once oslGetLoadSaveStatus() is PSP_UTILITY_DIALOG_NONE.
  */
 void oslEndSaveLoadDialog(void);
 

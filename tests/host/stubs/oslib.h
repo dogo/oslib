@@ -26,5 +26,7 @@ typedef uint32_t u32;
 
 void oslHandleLoadNoFailError(const char *filename);
 extern int osl_quit;
+void oslFatalError(const char *format, ...);
+extern int (*osl_powerCallback)(int, int, void *);
 
 #endif

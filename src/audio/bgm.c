@@ -296,7 +296,7 @@ OSL_SOUND *oslLoadSoundFileBGM(const char *filename, int stream) {
 cleanup_and_error:
 	free(s);
 	if (ad) free(ad);
-	VirtualFileClose(f);
+	if (f) VirtualFileClose(f);
 
 error:
 	oslHandleLoadNoFailError(filename);
