@@ -92,15 +92,11 @@ OSL_IMAGE *oslLoadImageFileGIF(char *filename, int location, int pixelFormat) {
 	int imgLocation = location & OSL_LOCATION_MASK;
 	VIRTUAL_FILE *f;
 
-	// Allocate temporary palette memory for true color mode
-	if (osl_pixelWidth[pixelFormat] > 8) {
-		osl_gifTempPalette = (u32 *)malloc(256 * sizeof(u32));
-		if (!osl_gifTempPalette)
-			return NULL;
-		Palette = osl_gifTempPalette;
-	} else {
-		osl_gifTempPalette = NULL;
-	}
+	// Temporary palette for frames decoded in true color (also a paletted format's frame
+	// whose colour table doesn't fit: decoded in 32-bit, converted at the end)
+	osl_gifTempPalette = (u32 *)malloc(256 * sizeof(u32));
+	if (!osl_gifTempPalette)
+		return NULL;
 
 	// Open the GIF file using the virtual file system
 	f = VirtualFileOpen((void *)filename, 0, VF_AUTO, VF_O_READ);
@@ -131,13 +127,22 @@ OSL_IMAGE *oslLoadImageFileGIF(char *filename, int location, int pixelFormat) {
 				if (!ColorMap)
 					break;
 
+				// Only the last frame is returned: drop the previous one
+				if (img) {
+					oslDeleteImage(img);
+					img = NULL;
+				}
+
 				// Create the image to store the data
-				img = oslCreateImage(Width, Height, imgLocation, pixelFormat);
+				int format = pixelFormat;
+				if (osl_pixelWidth[format] <= 8 && ColorMap->ColorCount > 1 << osl_paletteSizes[format])
+					format = OSL_PF_8888;
+				img = oslCreateImage(Width, Height, format == pixelFormat ? imgLocation : OSL_IN_RAM, format);
 				if (!img)
 					break;
 
-				if (osl_pixelWidth[pixelFormat] <= 8) {
-					ColorMap->ColorCount = oslMin(ColorMap->ColorCount, 1 << osl_paletteSizes[pixelFormat]);
+				Palette = osl_gifTempPalette;
+				if (osl_pixelWidth[format] <= 8) {
 					img->palette = oslCreatePalette(ColorMap->ColorCount, OSL_PF_8888);
 					if (!img->palette) {
 						oslDeleteImage(img);
@@ -163,13 +168,13 @@ OSL_IMAGE *oslLoadImageFileGIF(char *filename, int location, int pixelFormat) {
 					// Perform 4 passes for interlaced images
 					for (i = 0; i < 4; i++) {
 						for (j = Row + InterlacedOffset[i]; j < Row + Height; j += InterlacedJumps[i]) {
-							DGifGetLineByte(GifFile, (GifPixelType *)oslGetImagePixelAdr(img, Col, j), Width, pixelFormat);
+							DGifGetLineByte(GifFile, (GifPixelType *)oslGetImagePixelAdr(img, Col, j), Width, img->pixelFormat);
 						}
 					}
 				} else {
 					// For non-interlaced images, read the lines sequentially
 					for (i = 0; i < Height; i++) {
-						DGifGetLineByte(GifFile, (GifPixelType *)oslGetImagePixelAdr(img, Col, Row), Width, pixelFormat);
+						DGifGetLineByte(GifFile, (GifPixelType *)oslGetImagePixelAdr(img, Col, Row), Width, img->pixelFormat);
 						Row++;
 					}
 				}
@@ -206,12 +211,15 @@ OSL_IMAGE *oslLoadImageFileGIF(char *filename, int location, int pixelFormat) {
 			DGifCloseFile(GifFile, &ErrorCode);
 		VirtualFileClose(f);
 
-		// Free the memory allocated for the temporary palette
-		if (osl_pixelWidth[pixelFormat] > 8)
-			free(osl_gifTempPalette);
-
 		// Free the temporary line buffer
 		oslGifFreeLineBuf();
+
+		// A frame decoded in 32-bit goes to the wanted format now; on failure it's still ours
+		if (img && img->pixelFormat != pixelFormat) {
+			OSL_IMAGE *converted = oslConvertImageTo(img, imgLocation, pixelFormat);
+			if (!converted) oslDeleteImage(img);
+			img = converted;
+		}
 
 		if (img) {
 			// Swizzle the image if necessary
@@ -222,6 +230,9 @@ OSL_IMAGE *oslLoadImageFileGIF(char *filename, int location, int pixelFormat) {
 			oslUncacheImage(img);
 		}
 	}
+
+	free(osl_gifTempPalette);
+	osl_gifTempPalette = NULL;
 
 	if (!img)
 		oslHandleLoadNoFailError(filename);
