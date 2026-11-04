@@ -37,6 +37,23 @@ static void nop(OSL_SOUND *s) {
 	(void)s;
 }
 
+static volatile int selfDeleted;
+
+static int deleteSelf(OSL_SOUND *s, int voice) {
+	(void)voice;
+	oslDeleteSound(s);
+	selfDeleted = 1;
+	return 0;
+}
+
+static OSL_SOUND *peer[2];
+
+static int stopPeer(OSL_SOUND *s, int voice) {
+	oslStopSound(peer[s == peer[0]]);
+	(void)voice;
+	return 0;
+}
+
 static OSL_SOUND *slowSound(void) {
 	OSL_SOUND *s = calloc(1, sizeof(OSL_SOUND));
 	s->audioCallback = slowCallback;
@@ -139,6 +156,35 @@ int main() {
 	active = osl_audioActive[4];
 	fprintf(f, "-> callback entered %d, channel %d %s\n", entered, active, entered && !active ? "PASS" : "FAIL");
 	oslDeleteSound(s);
+
+	// The end callback would delete the sound, but the stop was requested first: it must win
+	fprintf(f, "stop self-deleting sound   ");
+	s = slowSound();
+	s->audioCallback = slowEnd;
+	s->endCallback = deleteSelf;
+	selfDeleted = 0;
+	oslPlaySound(s, 5);
+	entered = waitFor(&inCallback, 1000);
+	oslStopSound(s);
+	active = osl_audioActive[5];
+	fprintf(f, "-> callback entered %d, deleted by it %d, channel %d %s\n", entered, selfDeleted, active,
+	        entered && !selfDeleted && !active ? "PASS" : "FAIL");
+	if (!selfDeleted) oslDeleteSound(s);
+
+	// Two end callbacks stopping each other's sound: the audio threads must not wait for each other
+	fprintf(f, "end callbacks stop each other ");
+	for (int i = 0; i < 2; i++) {
+		peer[i] = slowSound();
+		peer[i]->audioCallback = slowEnd;
+		peer[i]->endCallback = stopPeer;
+		oslPlaySound(peer[i], 6 + i);
+	}
+	for (int ms = 0; ms < 2000 && (osl_audioActive[6] || osl_audioActive[7]); ms++)
+		sceKernelDelayThread(1000);
+	fprintf(f, "-> channels %d %d %s\n", osl_audioActive[6], osl_audioActive[7],
+	        !osl_audioActive[6] && !osl_audioActive[7] ? "PASS" : "FAIL");
+	oslDeleteSound(peer[0]);
+	oslDeleteSound(peer[1]);
 
 	fprintf(f, "DONE\n");
 	fclose(f);

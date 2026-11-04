@@ -210,6 +210,49 @@ static void loopingSoundStopsDuringItsCallback(void) {
 	oslDeleteSound(s);
 }
 
+// The end callback deletes the sound; a stop requested while the decoder runs must win,
+// so the stopping thread is the only one to touch the sound afterwards
+static void stopWhileSelfDeletingSoundDecodes(void) {
+	OSL_SOUND *s = calloc(1, sizeof(OSL_SOUND));
+	s->audioCallback = slowEnd;
+	s->playSound = s->stopSound = s->deleteSound = nop;
+	s->endCallback = deleteSelf;
+	deleted = 0;
+	oslPlaySound(s, 0);
+	for (int ms = 0; ms < 1000 && !inCallback; ms++)
+		usleep(1000);
+	CHECK(inCallback);
+	oslStopSound(s);
+	CHECK_EQ(deleted, 0);
+	CHECK_EQ(osl_audioActive[0], 0);
+	oslDeleteSound(s);
+}
+
+// Two sounds whose end callbacks stop each other: the audio threads must not wait for each other
+static OSL_SOUND *peer[2];
+
+static int stopPeer(OSL_SOUND *s, int voice) {
+	(void)s;
+	oslStopSound(peer[!voice]);
+	return 0;
+}
+
+static void endCallbacksStopEachOther(void) {
+	for (int i = 0; i < 2; i++) {
+		peer[i] = calloc(1, sizeof(OSL_SOUND));
+		peer[i]->audioCallback = slowEnd;
+		peer[i]->playSound = peer[i]->stopSound = peer[i]->deleteSound = nop;
+		peer[i]->endCallback = stopPeer;
+		oslPlaySound(peer[i], i);
+	}
+	for (int ms = 0; ms < 2000 && (osl_audioActive[0] || osl_audioActive[1]); ms++)
+		usleep(1000);
+	CHECK_EQ(osl_audioActive[0], 0);
+	CHECK_EQ(osl_audioActive[1], 0);
+	oslDeleteSound(peer[0]);
+	oslDeleteSound(peer[1]);
+}
+
 static void hung(int sig) {
 	(void)sig;
 	static const char msg[] = "test_audio: hung (alarm)\n";
@@ -228,5 +271,7 @@ int main(int argc, char **argv) {
 	if (!*only || !strcmp(only, "wav")) wavDeletedByItsEndCallback(0);
 	if (!*only || !strcmp(only, "wavstream")) wavDeletedByItsEndCallback(OSL_FMT_STREAM);
 	if (!*only || !strcmp(only, "loopstop")) loopingSoundStopsDuringItsCallback();
+	if (!*only || !strcmp(only, "stopdelete")) stopWhileSelfDeletingSoundDecodes();
+	if (!*only || !strcmp(only, "crossstop")) endCallbacksStopEachOther();
 	return TEST_RESULT();
 }

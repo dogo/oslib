@@ -124,6 +124,14 @@ void oslAudioDeleteChannel(int i) {
 		osl_audioActive[i] = -1;
 }
 
+// Whether the caller is one of the channel threads (e.g. in an endCallback)
+static int oslAudioOnChannelThread(void) {
+	int self = sceKernelGetThreadId();
+	for (int i = 0; i < OSL_NUM_AUDIO_CHANNELS; i++)
+		if (AudioStatus[i].threadhandle == self) return 1;
+	return 0;
+}
+
 // Returns once the channel's thread has exited: it no longer touches the channel or its sound
 static void oslAudioWaitChannelEnd(int i) {
 	while (osl_audioActive[i] != 0)
@@ -319,9 +327,10 @@ void oslDecodeWav(unsigned int i, void *buf, unsigned int length) {
 	// which may delete the sound: nothing below touches wav
 	free(streambuffer);
 
-	// If the chunk is finished, trigger the end callback
+	// If the chunk is finished, trigger the end callback, unless a stop is pending: the
+	// stopping thread then owns the sound, which the callback could replay or delete
 	if (wav->chunk_left <= 0) {
-		if (osl_audioVoices[i].sound->endCallback) {
+		if (osl_audioVoices[i].sound->endCallback && osl_audioActive[i] == 1) {
 			if (osl_audioVoices[i].sound->endCallback(osl_audioVoices[i].sound, i)) {
 				return;
 			}
@@ -343,8 +352,9 @@ void oslAudioCallback(unsigned int i, void *buf, unsigned int length) {
 
 	// Call the audio callback for this channel
 	if (!osl_audioVoices[i].sound->audioCallback(i, buf, length)) {
-		// If the callback returns 0, the sound is finished. Check for the end callback.
-		if (osl_audioVoices[i].sound->endCallback) {
+		// If the callback returns 0, the sound is finished. Check for the end callback, unless a
+		// stop is pending: the stopping thread then owns the sound
+		if (osl_audioVoices[i].sound->endCallback && osl_audioActive[i] == 1) {
 			// Call the end callback. If it returns non-zero, the sound continues, so we return.
 			if (osl_audioVoices[i].sound->endCallback(osl_audioVoices[i].sound, i)) {
 				return;
@@ -587,10 +597,11 @@ void oslStopSound(OSL_SOUND *s) {
 	int voice = oslGetSoundChannel(s);
 
 	// If the sound was playing, delete the associated audio channel and wait until its thread no
-	// longer uses the sound. From that thread itself (an endCallback) the wait would never end.
+	// longer uses the sound. Not from a channel thread (an endCallback): two of them stopping
+	// each other's sound would wait for each other, and one can't wait for itself.
 	if (voice >= 0) {
 		oslAudioDeleteChannel(voice);
-		if (AudioStatus[voice].threadhandle != sceKernelGetThreadId())
+		if (!oslAudioOnChannelThread())
 			oslAudioWaitChannelEnd(voice);
 	}
 
