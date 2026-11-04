@@ -82,6 +82,9 @@ static int oslAudioChannelThread(int args, void *argp) {
 		void *bufptr = (u8 *)audio_sndbuf[channel] + bufferIndex * osl_audioVoices[channel].numSamples * bytes_per_sample;
 		// Our callback function
 		void (*callback)(unsigned int channel, void *buf, unsigned int reqn) = AudioStatus[channel].callback;
+		// Read before the callback: its endCallback may delete the sound
+		OSL_SOUND *sound = osl_audioVoices[channel].sound;
+		unsigned int volumeLeft = sound ? sound->volumeLeft : 0, volumeRight = sound ? sound->volumeRight : 0;
 
 		AudioStatus[channel].inProgress = 1;
 		if (callback && osl_audioActive[channel] == 1) {
@@ -91,7 +94,7 @@ static int oslAudioChannelThread(int args, void *argp) {
 		}
 		AudioStatus[channel].inProgress = 0;
 
-		oslAudioOutBlocking(channel, osl_audioVoices[channel].sound->volumeLeft, osl_audioVoices[channel].sound->volumeRight, bufptr);
+		oslAudioOutBlocking(channel, volumeLeft, volumeRight, bufptr);
 		bufferIndex = (bufferIndex ? 0 : 1);
 	}
 
@@ -308,20 +311,18 @@ void oslDecodeWav(unsigned int i, void *buf, unsigned int length) {
 		}
 	}
 
+	// Done with the stream buffer (NULL when not streamed). Free it before the end callback,
+	// which may delete the sound: nothing below touches wav
+	free(streambuffer);
+
 	// If the chunk is finished, trigger the end callback
 	if (wav->chunk_left <= 0) {
 		if (osl_audioVoices[i].sound->endCallback) {
 			if (osl_audioVoices[i].sound->endCallback(osl_audioVoices[i].sound, i)) {
-				free(streambuffer); // Free dynamically allocated buffer
 				return;
 			}
 		}
 		oslAudioDeleteChannel(i);
-	}
-
-	// Free the dynamically allocated buffer if streaming
-	if (wav->stream) {
-		free(streambuffer);
 	}
 }
 
