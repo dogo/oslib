@@ -1,0 +1,9 @@
+missing WAV, RAM           -> NULL PASS
+missing WAV, stream        -> NULL PASS
+missing BGM, RAM           -> NULL PASS
+missing BGM, stream        -> NULL PASS
+delete during callback     -> callback entered 1, still running 0, channel 0 PASS
+thread buffer alloc fails  -> channel 0, voice -1 PASS
+thread creation fails      -> stack memory exhausted, channel 0, voice -1 PASS
+channel plays again        -> callback called PASS
+DONE

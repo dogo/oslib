@@ -314,6 +314,7 @@ extern void oslPlaySound(OSL_SOUND *s, int voice);
  * @param s Pointer to an OSL_SOUND structure representing the sound to stop. The sound must be currently playing; otherwise, the function has no effect.
  *
  * @note Stopping a sound does not free the memory associated with the sound; it only halts its playback. To completely release a sound resource, use oslDeleteSound().
+ * @note It returns once the sound's audio thread is done with it (up to one buffer and the callback in progress), so the sound can be deleted or reused right after. Called from that thread itself (an endCallback), it returns without waiting: the thread stops after the callback.
  *
  * @code
  * OSL_SOUND *music;
