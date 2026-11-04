@@ -16,7 +16,7 @@ STDLIBS= -losl -lpng -lz \
          -lpspnet_adhocmatching -lpspnet_adhoc -lpspnet_adhocctl -lm -ljpeg
 LIBS=$(STDLIBS) $(MYLIBS)
 
-LDFLAGS =
+LDFLAGS = -Wl,--wrap=oslCreateImage,--wrap=oslDeleteImage,--wrap=oslCreatePaletteEx
 EXTRA_TARGETS = EBOOT.PBP
 PSP_EBOOT_TITLE = imgpal
 #PSP_EBOOT_ICON = ICON0.PNG

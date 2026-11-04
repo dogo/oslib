@@ -79,9 +79,9 @@ OSL_IMAGE *oslLoadImageFilePNG(char *filename, int location, int volatile pixelF
 
 	int wantedPixelFormat = pixelFormat;
 
-	// If we don't have a palette in the PNG but the pixel format requires one,
+	// If we don't have a palette in the PNG, or it has more entries than the pixel format holds,
 	// we load the image in 32-bit mode and convert it to paletted later with oslConvertImageTo.
-	if (!num_palette && osl_pixelWidth[pixelFormat] <= 8) {
+	if (osl_pixelWidth[pixelFormat] <= 8 && (!num_palette || num_palette > 1 << osl_paletteSizes[pixelFormat])) {
 		pixelFormat = OSL_PF_8888;
 		img = oslCreateImage(width, height, OSL_IN_RAM, pixelFormat);
 	} else {
@@ -93,22 +93,23 @@ OSL_IMAGE *oslLoadImageFilePNG(char *filename, int location, int volatile pixelF
 		// If there is need for a palette ...
 		if (osl_pixelWidth[pixelFormat] <= 8) {
 			img->palette = oslCreatePalette(oslMin(num_palette, 1 << osl_paletteSizes[pixelFormat]), OSL_PF_8888);
-			if (img->palette) {
-				// The palette can hold fewer entries than the PNG provides (e.g. a 256 colour
-				// PNG loaded as OSL_PF_4BIT); never write past what was allocated
-				int paletteEntries = oslMin(num_palette, img->palette->nElements);
-				for (i = 0; i < paletteEntries; i++) {
-					unsigned char r = palette[i].red;
-					unsigned char g = palette[i].green;
-					unsigned char b = palette[i].blue;
-					// tRNS gives the first num_trans entries an alpha
-					unsigned char a = i < num_trans ? trans_alpha[i] : 0xff;
-					// Color key?
-					if (osl_colorKeyEnabled && RGBA(r, g, b, 0) == (osl_colorKeyValue & 0x00ffffff)) a = 0;
-					((u32 *)img->palette->data)[i] = RGBA(r, g, b, a);
-				}
-				oslUncachePalette(img->palette);
+			if (!img->palette) {
+				oslDeleteImage(img);
+				img = NULL;
+				goto cleanup;
 			}
+			int paletteEntries = oslMin(num_palette, img->palette->nElements);
+			for (i = 0; i < paletteEntries; i++) {
+				unsigned char r = palette[i].red;
+				unsigned char g = palette[i].green;
+				unsigned char b = palette[i].blue;
+				// tRNS gives the first num_trans entries an alpha
+				unsigned char a = i < num_trans ? trans_alpha[i] : 0xff;
+				// Color key?
+				if (osl_colorKeyEnabled && RGBA(r, g, b, 0) == (osl_colorKeyValue & 0x00ffffff)) a = 0;
+				((u32 *)img->palette->data)[i] = RGBA(r, g, b, a);
+			}
+			oslUncachePalette(img->palette);
 		}
 
 		u32 *p_dest4 = (u32 *)img->data;
@@ -160,9 +161,12 @@ OSL_IMAGE *oslLoadImageFilePNG(char *filename, int location, int volatile pixelF
 						b = (((u32 *)img->palette->data)[pixel_value] >> 16) & 0xff;
 						a = (((u32 *)img->palette->data)[pixel_value] >> 24) & 0xff;
 					} else {
+						// No OSL palette (32-bit, converted later): the same tRNS and colour key
 						b = palette[pixel_value].blue;
 						g = palette[pixel_value].green;
 						r = palette[pixel_value].red;
+						a = pixel_value < num_trans ? trans_alpha[pixel_value] : 0xff;
+						if (osl_colorKeyEnabled && RGBA(r, g, b, 0) == (osl_colorKeyValue & 0x00ffffff)) a = 0;
 					}
 					break;
 				}
@@ -188,22 +192,24 @@ OSL_IMAGE *oslLoadImageFilePNG(char *filename, int location, int volatile pixelF
 			p_dest4 += img->realSizeX;
 		}
 
-		// Finally convert to the paletted format; on failure the 32-bit image is still ours
+		// Finally convert to the paletted format
 		if (wantedPixelFormat != pixelFormat) {
-			OSL_IMAGE *converted = oslConvertImageTo(img, imgLocation, wantedPixelFormat);
-			if (!converted) oslDeleteImage(img);
-			img = converted;
+			OSL_IMAGE *originalImage = img;
+			img = oslConvertImageTo(originalImage, imgLocation, wantedPixelFormat);
+			if (!img) oslDeleteImage(originalImage);
 		}
+	}
 
-		if (img && oslImageLocationIsSwizzled(location)) {
+cleanup:
+	png_destroy_read_struct(&pPngStruct, &pPngInfo, NULL);
+
+	if (img) {
+		if (oslImageLocationIsSwizzled(location)) {
 			oslSwizzleImage(img);
 		}
 
 		oslUncacheImage(img);
 	}
-
-	// Whether or not the image could be created
-	png_destroy_read_struct(&pPngStruct, &pPngInfo, NULL);
 
 error:
 	if (f) VirtualFileClose(f);

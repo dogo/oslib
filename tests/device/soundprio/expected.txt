@@ -1,0 +1,3 @@
+sound end found            PASS
+replay of an ending channel PASS
+DONE

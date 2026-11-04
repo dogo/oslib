@@ -204,7 +204,7 @@ extern void oslDrawStringLimited(int x, int y, int width, const char *str);
  *  oslDrawStringf(0, 0, "Test string %i", 1);
  *  \endcode
  */
-#define oslDrawStringf(x, y, ...) { char __str[1000]; sprintf(__str, __VA_ARGS__); oslDrawString(x, y, __str); }
+#define oslDrawStringf(x, y, ...) { char __str[1000]; snprintf(__str, sizeof(__str), __VA_ARGS__); oslDrawString(x, y, __str); }
 
 /** @brief Outputs a text to the console at the current cursor position.
  *

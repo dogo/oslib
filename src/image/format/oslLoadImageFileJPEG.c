@@ -46,24 +46,28 @@ OSL_IMAGE *oslLoadImageFileJPG(char *filename, int location, int pixelFormat) {
 	jpeg_stdio_src(&cinfo, infile);
 	jpeg_read_header(&cinfo, TRUE);
 
+	// The loop below reads RGB triplets: libjpeg expands grey to them, but can't convert CMYK
+	cinfo.out_color_space = JCS_RGB;
+
 	// Create image structure
 	int width = cinfo.image_width;
 	int height = cinfo.image_height;
-	img = oslCreateImage(width, height, imgLocation, pixelFormat);
+	if (cinfo.num_components == 1 || cinfo.num_components == 3)
+		img = oslCreateImage(width, height, imgLocation, pixelFormat);
 
 	if (img) {
 		jpeg_start_decompress(&cinfo);
 		JSAMPROW row_pointer[1];
-		row_pointer[0] = (unsigned char *)malloc(cinfo.output_width * cinfo.num_components);
+		row_pointer[0] = (unsigned char *)malloc(cinfo.output_width * cinfo.output_components);
 
 		if (row_pointer[0]) {
 			JDIMENSION x;
 			while (cinfo.output_scanline < cinfo.image_height) {
 				jpeg_read_scanlines(&cinfo, row_pointer, 1);
 				for (x = 0; x < cinfo.image_width; x++) {
-					unsigned int pixelValue = row_pointer[0][x * cinfo.num_components] |
-					                          (row_pointer[0][x * cinfo.num_components + 1] << 8) |
-					                          (row_pointer[0][x * cinfo.num_components + 2] << 16) |
+					unsigned int pixelValue = row_pointer[0][x * 3] |
+					                          (row_pointer[0][x * 3 + 1] << 8) |
+					                          (row_pointer[0][x * 3 + 2] << 16) |
 					                          (0xFF << 24); // Alpha channel
 					oslSetImagePixel(img, x, cinfo.output_scanline - 1,
 					                 oslConvertColor(pixelFormat, OSL_PF_8888, pixelValue));

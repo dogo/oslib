@@ -40,7 +40,7 @@ typedef struct {
  *
  * @param filename The name of the file to load the SFont from.
  * @param pixelFormat The pixel format to use for the SFont.
- * @return A pointer to the loaded OSL_SFONT, or NULL on failure.
+ * @return A pointer to the loaded OSL_SFONT, or NULL on failure, including a font with more than 256 letters.
  */
 OSL_SFONT *oslLoadSFontFile(char *filename, int pixelFormat);
 

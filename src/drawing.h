@@ -1130,7 +1130,7 @@ extern OSL_IMAGE *oslLoadImageFilePNG(char *filename, int location, int pixelFor
  * Always check if the returned image pointer is `NULL` before using it to avoid crashes. Display a user-friendly message if the image fails to load, advising the user to check their files.
  *
  * @note
- * Decoding uses libjpeg: baseline and progressive JPEGs load at any quality, including 100 and 4:4:4 chroma.
+ * Decoding uses libjpeg: baseline and progressive JPEGs load at any quality, including 100 and 4:4:4 chroma. Colour and greyscale JPEGs load; CMYK ones return NULL.
  *
  * @see oslLoadImageFile
  */
@@ -2034,17 +2034,16 @@ extern OSL_IMAGE *oslCreateImageTileSize(OSL_IMAGE *img, int offsetX0, int offse
  * @param newFormat
  * The pixel format to convert the image to, such as `OSL_PF_5551`, `OSL_PF_8888`, etc.
  *
- * This function converts an image to a different pixel format and places it in a specified location. The original image may have been moved or modified
- * during the conversion process, so you should use the returned image instead of the original one.
+ * On success, this function deletes the original image and returns the converted image. On allocation failure, it returns `NULL` and leaves the original
+ * image unchanged and owned by the caller.
  *
  * Example usage:
  * \code
- * image = oslConvertImageTo(image, OSL_IN_RAM, OSL_PF_5551);
+ * OSL_IMAGE *converted = oslConvertImageTo(image, OSL_IN_RAM, OSL_PF_5551);
+ * if (converted) image = converted;
  * \endcode
  *
- * After calling this function, the `imgOriginal` image should no longer be used directly. Instead, the function returns a new image with the specified
- * pixel format and location. Ensure to properly manage and delete the converted image as needed.
- * If the new image can't be created, it returns `NULL` and leaves `imgOriginal` as it was: delete it yourself.
+ * After a successful conversion, `imgOriginal` must no longer be used. Delete the returned image when it is no longer needed.
  */
 extern OSL_IMAGE *oslConvertImageTo(OSL_IMAGE *imgOriginal, int newLocation, int newFormat);
 
