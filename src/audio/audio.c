@@ -558,9 +558,8 @@ void oslPlaySound(OSL_SOUND *s, int voice) {
 	}
 
 	// Wait if the audio channel is in a transition state (-2 indicates it is in use)
-	while (osl_audioActive[voice] == -2) {
-		// Busy-wait until the channel transition.
-	}
+	while (osl_audioActive[voice] == -2)
+		sceKernelDelayThread(1000); // a busy loop would starve a lower priority audio thread
 
 	// Create the audio channel if it's not active, otherwise recreate or reuse it
 	if (!osl_audioActive[voice]) {
