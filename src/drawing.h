@@ -1155,6 +1155,9 @@ extern OSL_IMAGE *oslLoadImageFileJPG(char *filename, int location, int pixelFor
  *        Returns a pointer to an `OSL_IMAGE` structure representing the loaded GIF image. If the image fails to load, the function returns `NULL`.
  *
  * @note
+ * An animated GIF loads as its last frame. A colour table bigger than a paletted pixel format holds is decoded in 32-bit and converted to it.
+ *
+ * @note
  * Always check if the returned image pointer is `NULL` before using it to avoid crashes. Display a user-friendly message if the image fails to load, advising the user to check their files.
  *
  * @see oslLoadImageFile

@@ -193,14 +193,15 @@ OSL_IMAGE *oslLoadImageFilePNG(char *filename, int location, int volatile pixelF
 			img = oslConvertImageTo(img, imgLocation, wantedPixelFormat);
 		}
 
-		png_destroy_read_struct(&pPngStruct, &pPngInfo, NULL);
-
 		if (oslImageLocationIsSwizzled(location)) {
 			oslSwizzleImage(img);
 		}
 
 		oslUncacheImage(img);
 	}
+
+	// Whether or not the image could be created
+	png_destroy_read_struct(&pPngStruct, &pPngInfo, NULL);
 
 error:
 	if (f) VirtualFileClose(f);
