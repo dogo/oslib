@@ -23,7 +23,7 @@ it in the PPSSPP flatpak (restoring PPSSPP's ini afterwards) and compares `resul
 
 | Test | Covers |
 |---|---|
-| `httpget` | `oslNetGetFile` against a local server (`server.py`): a download lands complete; a 404, a connection cut short or a missing directory returns an error and leaves an existing file (and no `.tmp`); a failed `oslNetPostForm` doesn't shut HTTP down for the next call |
+| `httpget` | `oslNetGetFile` against a local server (`server.py`): a download lands complete; a 404, a connection cut short or a missing directory returns an error and leaves an existing file (and no `.oslpart`); a failed `oslNetPostForm` doesn't shut HTTP down for the next call |
 
 ## Device tests (`tests/device`)
 

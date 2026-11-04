@@ -163,8 +163,10 @@ int oslResolveAddress(char *address, char *resolvedIP);
 /**
  * @brief Gets a file from the web and saves it to the specified filepath.
  *
- * The file is written to `<filepath>.tmp` and replaces `filepath` only once complete; on failure an
- * existing `filepath` is left as it was. Use a full path (`ms0:/...`): it goes straight to sceIoOpen.
+ * The file is written to `<filepath>.oslpart` and replaces `filepath` only once complete (the old
+ * one briefly becomes `<filepath>.oslbak`); on failure an existing `filepath` is left as it was.
+ * Both names are OSLib's: a leftover `.oslpart` (e.g. from a power-off mid-download) is
+ * overwritten by the next download. Use a full path (`ms0:/...`): it goes straight to sceIoOpen.
  *
  * @param url The URL of the file to download.
  * @param filepath The path where the file should be saved.

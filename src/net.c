@@ -272,15 +272,16 @@ int oslResolveAddress(char *address, char *resolvedIP) {
 
 int oslNetGetFile(const char *url, const char *filepath) {
 	int template, connection = -1, request = -1, ret, status;
-	int result = OSL_ERR_HTTP_GENERIC;
+	int result = OSL_ERR_HTTP_GENERIC, opened = 0;
 	SceUID fd = -1;
 	SceULong64 length, written = 0;
 	unsigned char readbuffer[8192];
 	char tmppath[256], bakpath[256];
 
-	// The download goes to <filepath>.tmp: an existing file is replaced only by a complete one
-	if (snprintf(tmppath, sizeof(tmppath), "%s.tmp", filepath) >= (int)sizeof(tmppath) ||
-	    snprintf(bakpath, sizeof(bakpath), "%s.bak", filepath) >= (int)sizeof(bakpath))
+	// The download goes to <filepath>.oslpart (names reserved to OSLib, see net.h): an existing
+	// file is replaced only by a complete one
+	if (snprintf(tmppath, sizeof(tmppath), "%s.oslpart", filepath) >= (int)sizeof(tmppath) ||
+	    snprintf(bakpath, sizeof(bakpath), "%s.oslbak", filepath) >= (int)sizeof(bakpath))
 		return OSL_ERR_HTTP_GENERIC;
 
 	template = sceHttpCreateTemplate("OSL-agent/0.0.1 libhttp/1.0.0", 1, 1);
@@ -311,6 +312,7 @@ int oslNetGetFile(const char *url, const char *filepath) {
 	fd = sceIoOpen(tmppath, PSP_O_WRONLY | PSP_O_TRUNC | PSP_O_CREAT, 0777);
 	if (fd < 0)
 		goto end;
+	opened = 1;
 	while ((ret = sceHttpReadData(request, readbuffer, sizeof(readbuffer))) > 0) {
 		if (sceIoWrite(fd, readbuffer, ret) != ret)
 			goto end;
@@ -338,7 +340,7 @@ int oslNetGetFile(const char *url, const char *filepath) {
 
 end:
 	if (fd >= 0) sceIoClose(fd);
-	if (result) sceIoRemove(tmppath);
+	if (result && opened) sceIoRemove(tmppath); // only what this call wrote
 	if (request >= 0) sceHttpDeleteRequest(request);
 	if (connection >= 0) sceHttpDeleteConnection(connection);
 	sceHttpDeleteTemplate(template);

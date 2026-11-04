@@ -60,9 +60,9 @@ static void keeps(const char *what, const char *path) {
 	int r = oslNetGetFile(path, at("keep.bin"));
 	int size = fileInfo(at("keep.bin"), &sum);
 	u32 tmpSum;
-	int tmp = fileInfo(at("keep.bin.tmp"), &tmpSum) >= 0;
+	int tmp = fileInfo(at("keep.bin.oslpart"), &tmpSum) >= 0;
 	fprintf(f, "%-20s -> %s, file %s%s %s\n", what, r < 0 ? "error" : "success", size == 3 && sum == old ? "kept" : "changed",
-	        tmp ? ", .tmp left" : "", r < 0 && size == 3 && sum == old && !tmp ? "PASS" : "FAIL");
+	        tmp ? ", .oslpart left" : "", r < 0 && size == 3 && sum == old && !tmp ? "PASS" : "FAIL");
 }
 
 static void noDirectory(void) {

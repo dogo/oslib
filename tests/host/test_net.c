@@ -252,11 +252,22 @@ static void get(int status, int length, int size, int failAt, int wantOk) {
 	int r = oslNetGetFile("http://host/x", FILE_);
 	CHECK_EQ(r == 0, wantOk);
 	CHECK_EQ(fileSize(FILE_), wantOk ? size : 3);
-	CHECK_EQ(fileSize(FILE_ ".tmp"), -1);
-	CHECK_EQ(fileSize(FILE_ ".bak"), -1);
+	CHECK_EQ(fileSize(FILE_ ".oslpart"), -1);
+	CHECK_EQ(fileSize(FILE_ ".oslbak"), -1);
 	CHECK_EQ(nextFd(), fd);
 	CHECK_EQ(live, 0);
 	remove(FILE_);
+}
+
+// A failure before anything was written leaves files of that name alone
+static void notOursIsKept(void) {
+	FILE *f = fopen(FILE_ ".oslpart", "wb");
+	fputs("mine", f);
+	fclose(f);
+	response.status = 404;
+	CHECK(oslNetGetFile("http://host/x", FILE_) < 0);
+	CHECK_EQ(fileSize(FILE_ ".oslpart"), 4);
+	remove(FILE_ ".oslpart");
 }
 
 int main(void) {
@@ -273,5 +284,6 @@ int main(void) {
 	CHECK(oslNetPostForm("http://host/form", "a=1", reply, sizeof(reply)) < 0);
 	CHECK_EQ(live, 0);
 	get(200, 100, 100, -1, 1);
+	notOursIsKept();
 	return TEST_RESULT();
 }
