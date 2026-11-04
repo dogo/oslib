@@ -14,6 +14,17 @@ ctest --test-dir build-host-tests --output-on-failure
 
 Runs in CI on every push.
 
+## PPSSPP tests (`tests/ppsspp`)
+
+Behaviour that needs something a real PSP here can't provide, such as networking without a
+Wi-Fi profile. Each test has a `run.sh` that builds it against the installed `libosl.a`, runs
+it in the PPSSPP flatpak (restoring PPSSPP's ini afterwards) and compares `result.txt` with
+`expected.txt`.
+
+| Test | Covers |
+|---|---|
+| `httpget` | `oslNetGetFile` against a local server (`server.py`): a download lands complete; a 404, a connection cut short or a missing directory returns an error and leaves an existing file (and no `.tmp`); a failed `oslNetPostForm` doesn't shut HTTP down for the next call |
+
 ## Device tests (`tests/device`)
 
 Behaviour that only real hardware shows (GE, VFPU, ...). PPSSPP is not a

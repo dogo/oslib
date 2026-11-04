@@ -1,0 +1,6 @@
+download             -> 0, 65536 bytes PASS
+404                  -> error, file kept PASS
+connection cut       -> error, file kept PASS
+missing directory    -> error PASS
+get after post error -> post error, get 0, 65536 bytes PASS
+DONE

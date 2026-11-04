@@ -27,6 +27,12 @@ tests/device/**/*.SFO
 tests/device/**/result.txt
 tests/device/**/screen.png
 tests/device/run.log
+tests/ppsspp/**/*.elf
+tests/ppsspp/**/*.PBP
+tests/ppsspp/**/*.prx
+tests/ppsspp/**/*.SFO
+tests/ppsspp/**/result.txt
+tests/ppsspp/**/server.log
 build-host-tests
 
 # Ignore documentation directory

@@ -53,7 +53,7 @@ jobs:
       - name: Build device tests
         run: |
           set -euo pipefail
-          for d in tests/device/*/ ; do
+          for d in tests/device/*/ tests/ppsspp/*/ ; do
             echo "Building $d"
             make -C "$d"
           done
