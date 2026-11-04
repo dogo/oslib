@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
+#include <errno.h>
 #include <psputility.h>
 
 #include "oslib.h"
@@ -23,13 +24,29 @@ static void oslFreeSaveLoadData(void) {
 }
 
 static int oslCopySaveData(struct oslSaveLoad *saveData) {
+	saveLoadType = OSL_DIALOG_NONE;
 	ownedDataBuf = malloc(saveData->dataSize);
-	if (!ownedDataBuf) return 0;
+	if (!ownedDataBuf) {
+		savedata.base.result = -ENOMEM;
+		return 0;
+	}
 	memcpy(ownedDataBuf, saveData->data, saveData->dataSize);
 	savedata.dataBuf = ownedDataBuf;
 	savedata.dataBufSize = saveData->dataSize;
 	savedata.dataSize = saveData->dataSize;
 	return 1;
+}
+
+static void oslStartSaveDialog(void) {
+	int result = sceUtilitySavedataInitStart(&savedata);
+	if (result < 0) {
+		oslFreeSaveLoadData();
+		savedata.dataBuf = NULL;
+		savedata.dataBufSize = savedata.dataSize = 0;
+		savedata.base.result = result;
+	} else {
+		saveLoadType = OSL_DIALOG_SAVE;
+	}
 }
 
 #if _PSP_FW_VERSION >= 200
@@ -113,8 +130,7 @@ void oslInitMultiSaveDialog(struct oslSaveLoad *saveData) {
 	savedata.newData = &newData;
 
 	savedata.focus = PSP_UTILITY_SAVEDATA_FOCUS_FIRSTEMPTY;
-	sceUtilitySavedataInitStart(&savedata);
-	saveLoadType = OSL_DIALOG_SAVE;
+	oslStartSaveDialog();
 }
 
 void oslInitSingleSaveDialog(struct oslSaveLoad *saveData) {
@@ -180,8 +196,7 @@ void oslInitSingleSaveDialog(struct oslSaveLoad *saveData) {
 	savedata.newData = &newData;
 
 	// savedata.focus = PSP_UTILITY_SAVEDATA_FOCUS_FIRSTEMPTY;
-	sceUtilitySavedataInitStart(&savedata);
-	saveLoadType = OSL_DIALOG_SAVE;
+	oslStartSaveDialog();
 }
 
 void oslInitAutoSaveDialog(struct oslSaveLoad *saveData) {
@@ -247,8 +262,7 @@ void oslInitAutoSaveDialog(struct oslSaveLoad *saveData) {
 	savedata.newData = &newData;
 
 	// savedata.focus = PSP_UTILITY_SAVEDATA_FOCUS_FIRSTEMPTY;
-	sceUtilitySavedataInitStart(&savedata);
-	saveLoadType = OSL_DIALOG_SAVE;
+	oslStartSaveDialog();
 }
 
 void oslInitLoadDialog(struct oslSaveLoad *loadData) {

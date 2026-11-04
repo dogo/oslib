@@ -2,4 +2,9 @@
 20 keyboards, not activated -> 0 bytes kept PASS
 20 oslInitOsk, text alloc fails -> 0 bytes kept, active 0 PASS
 oslInitOsk, another active -> other still active 1 PASS
+20 keyboard data reinitializations -> old buffer preserved 1, 0 bytes kept PASS
+save malloc failure, 3 modes -> 3/3 rolled back PASS
+save SDK init failure, 3 modes -> 3/3 rolled back PASS
+autosave replacement, no end -> result 0, 0 bytes kept PASS
+autosave then malloc failure -> replacement rolled back 1, 0 bytes kept PASS
 DONE

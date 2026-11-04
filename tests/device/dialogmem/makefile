@@ -16,7 +16,7 @@ STDLIBS= -losl -lpng -lz \
          -lpspnet_adhocmatching -lpspnet_adhoc -lpspnet_adhocctl -lm -ljpeg
 LIBS=$(STDLIBS) $(MYLIBS)
 
-LDFLAGS =
+LDFLAGS = -Wl,--wrap=malloc,--wrap=sceUtilitySavedataInitStart
 EXTRA_TARGETS = EBOOT.PBP
 PSP_EBOOT_TITLE = dialogmem
 #PSP_EBOOT_ICON = ICON0.PNG
