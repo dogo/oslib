@@ -75,6 +75,13 @@ static void colourKey(const char *file) {
 	        img && keyed == H && !others ? "PASS" : "FAIL");
 }
 
+// Formats the loader can't decode must fail cleanly
+static void rejected(const char *file) {
+	OSL_IMAGE *img = oslLoadImageFile((char *)file, OSL_IN_RAM | OSL_UNSWIZZLED, OSL_PF_8888);
+	fprintf(f, "%-16s -> %s %s\n", file, img ? "image" : "NULL", img ? "FAIL" : "PASS");
+	if (img) oslDeleteImage(img);
+}
+
 int main() {
 	oslInit(0);
 	oslInitGfx(OSL_PF_8888, 1);
@@ -97,6 +104,8 @@ int main() {
 	check("gif", "gif", 0);
 	check("jpeg95", "jpg", 4);
 	check("jpeg100", "jpg", 4);
+	check("grayjpg", "jpg", 4); // one component
+	rejected("cmyk.jpg");
 	checkSized("wide", "png", 0, 600, 24);
 	colourKey("rgb8.png");
 	colourKey("gray8.png");

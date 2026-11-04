@@ -26,6 +26,10 @@ OSL_IMAGE *oslConvertImageTo(OSL_IMAGE *originalImage, int newLocation, int newF
 	// If the new format uses a palette, create one
 	if (osl_pixelWidth[newFormat] <= 8) {
 		newImage->palette = oslCreatePalette(paletteSize, OSL_PF_8888);
+		if (!newImage->palette) {
+			oslDeleteImage(newImage);
+			return NULL;
+		}
 	}
 
 	// Pixels are read and written below through the uncached pointer: push the source's
