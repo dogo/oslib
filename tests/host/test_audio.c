@@ -2,6 +2,7 @@
 #include "test.h"
 
 #include <pthread.h>
+#include <signal.h>
 #include <stdarg.h>
 #include <stdint.h>
 #include <unistd.h>
@@ -182,7 +183,43 @@ static void wavDeletedByItsEndCallback(int stream) {
 	remove(path);
 }
 
+static volatile int inCallback;
+
+// Every buffer ends the sound, slowly, so a stop can land while the callback runs
+static int slowEnd(unsigned int voice, void *buf, unsigned int length) {
+	(void)voice;
+	inCallback = 1;
+	memset(buf, 0, length * 4);
+	usleep(50 * 1000);
+	inCallback = 0;
+	return 0;
+}
+
+// The loop end callback replays the sound: a stop requested meanwhile must still win
+static void loopingSoundStopsDuringItsCallback(void) {
+	OSL_SOUND *s = calloc(1, sizeof(OSL_SOUND));
+	s->audioCallback = slowEnd;
+	s->playSound = s->stopSound = s->deleteSound = nop;
+	oslSetSoundLoop(s, 1);
+	oslPlaySound(s, 0);
+	for (int ms = 0; ms < 1000 && !inCallback; ms++)
+		usleep(1000);
+	CHECK(inCallback);
+	oslStopSound(s);
+	CHECK_EQ(osl_audioActive[0], 0);
+	oslDeleteSound(s);
+}
+
+static void hung(int sig) {
+	(void)sig;
+	static const char msg[] = "test_audio: hung (alarm)\n";
+	write(2, msg, sizeof(msg) - 1);
+	_exit(1);
+}
+
 int main(int argc, char **argv) {
+	signal(SIGALRM, hung);
+	alarm(10);
 	// One case by name (each sanitizer report aborts), or all of them
 	const char *only = argc > 1 ? argv[1] : "";
 	VirtualFileInit();
@@ -190,5 +227,6 @@ int main(int argc, char **argv) {
 	if (!*only || !strcmp(only, "custom")) customSoundDeletedByItsEndCallback();
 	if (!*only || !strcmp(only, "wav")) wavDeletedByItsEndCallback(0);
 	if (!*only || !strcmp(only, "wavstream")) wavDeletedByItsEndCallback(OSL_FMT_STREAM);
+	if (!*only || !strcmp(only, "loopstop")) loopingSoundStopsDuringItsCallback();
 	return TEST_RESULT();
 }

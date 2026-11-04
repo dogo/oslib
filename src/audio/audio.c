@@ -208,6 +208,10 @@ int oslAudioCreateChannel(int i, int format, int numSamples, OSL_SOUND *s) {
 int oslAudioRecreateChannel(int i, int format, int numSamples, OSL_SOUND *s) {
 	// If the channel already has the same number of samples and the same sound, just reconfigure it.
 	if (osl_audioVoices[i].numSamples == numSamples && osl_audioVoices[i].sound == s) {
+		// Replayed by the channel's own thread (an endCallback, e.g. the loop's) while a stop
+		// is pending: the stop wins, or oslStopSound would wait for a channel kept alive
+		if (osl_audioActive[i] < 0 && AudioStatus[i].threadhandle == sceKernelGetThreadId())
+			return 0;
 		// Update the channel configuration.
 		sceAudioChangeChannelConfig(i, format);
 		setChannelSound(i, s); // Update the sound properties for this channel.

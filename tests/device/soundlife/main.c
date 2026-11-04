@@ -27,6 +27,12 @@ static int slowCallback(unsigned int voice, void *buf, unsigned int length) {
 	return 1;
 }
 
+// Like slowCallback, but every buffer ends the sound: with a loop end callback it replays
+static int slowEnd(unsigned int voice, void *buf, unsigned int length) {
+	slowCallback(voice, buf, length);
+	return 0;
+}
+
 static void nop(OSL_SOUND *s) {
 	(void)s;
 }
@@ -120,6 +126,18 @@ int main() {
 	int played = waitFor(&calls, 1000);
 	fprintf(f, "-> callback called %s\n", played ? "PASS" : "FAIL");
 	oslDeleteSound(s2);
+	oslDeleteSound(s);
+
+	// The loop's end callback replays the sound while oslStopSound waits for the channel
+	fprintf(f, "stop looping sound         ");
+	s = slowSound();
+	s->audioCallback = slowEnd;
+	oslSetSoundLoop(s, 1);
+	oslPlaySound(s, 4);
+	entered = waitFor(&inCallback, 1000);
+	oslStopSound(s);
+	active = osl_audioActive[4];
+	fprintf(f, "-> callback entered %d, channel %d %s\n", entered, active, entered && !active ? "PASS" : "FAIL");
 	oslDeleteSound(s);
 
 	fprintf(f, "DONE\n");

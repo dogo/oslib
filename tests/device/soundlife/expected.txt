@@ -6,4 +6,5 @@ delete during callback     -> callback entered 1, still running 0, channel 0 PAS
 thread buffer alloc fails  -> channel 0, voice -1 PASS
 thread creation fails      -> stack memory exhausted, channel 0, voice -1 PASS
 channel plays again        -> callback called PASS
+stop looping sound         -> callback entered 1, channel 0 PASS
 DONE
