@@ -93,22 +93,23 @@ OSL_IMAGE *oslLoadImageFilePNG(char *filename, int location, int volatile pixelF
 		// If there is need for a palette ...
 		if (osl_pixelWidth[pixelFormat] <= 8) {
 			img->palette = oslCreatePalette(oslMin(num_palette, 1 << osl_paletteSizes[pixelFormat]), OSL_PF_8888);
-			if (img->palette) {
-				// The palette can hold fewer entries than the PNG provides (e.g. a 256 colour
-				// PNG loaded as OSL_PF_4BIT); never write past what was allocated
-				int paletteEntries = oslMin(num_palette, img->palette->nElements);
-				for (i = 0; i < paletteEntries; i++) {
-					unsigned char r = palette[i].red;
-					unsigned char g = palette[i].green;
-					unsigned char b = palette[i].blue;
-					// tRNS gives the first num_trans entries an alpha
-					unsigned char a = i < num_trans ? trans_alpha[i] : 0xff;
-					// Color key?
-					if (osl_colorKeyEnabled && RGBA(r, g, b, 0) == (osl_colorKeyValue & 0x00ffffff)) a = 0;
-					((u32 *)img->palette->data)[i] = RGBA(r, g, b, a);
-				}
-				oslUncachePalette(img->palette);
+			if (!img->palette) {
+				oslDeleteImage(img);
+				img = NULL;
+				goto cleanup;
 			}
+			int paletteEntries = oslMin(num_palette, img->palette->nElements);
+			for (i = 0; i < paletteEntries; i++) {
+				unsigned char r = palette[i].red;
+				unsigned char g = palette[i].green;
+				unsigned char b = palette[i].blue;
+				// tRNS gives the first num_trans entries an alpha
+				unsigned char a = i < num_trans ? trans_alpha[i] : 0xff;
+				// Color key?
+				if (osl_colorKeyEnabled && RGBA(r, g, b, 0) == (osl_colorKeyValue & 0x00ffffff)) a = 0;
+				((u32 *)img->palette->data)[i] = RGBA(r, g, b, a);
+			}
+			oslUncachePalette(img->palette);
 		}
 
 		u32 *p_dest4 = (u32 *)img->data;
@@ -193,11 +194,16 @@ OSL_IMAGE *oslLoadImageFilePNG(char *filename, int location, int volatile pixelF
 
 		// Finally convert to the paletted format
 		if (wantedPixelFormat != pixelFormat) {
-			img = oslConvertImageTo(img, imgLocation, wantedPixelFormat);
+			OSL_IMAGE *originalImage = img;
+			img = oslConvertImageTo(originalImage, imgLocation, wantedPixelFormat);
+			if (!img) oslDeleteImage(originalImage);
 		}
+	}
 
-		png_destroy_read_struct(&pPngStruct, &pPngInfo, NULL);
+cleanup:
+	png_destroy_read_struct(&pPngStruct, &pPngInfo, NULL);
 
+	if (img) {
 		if (oslImageLocationIsSwizzled(location)) {
 			oslSwizzleImage(img);
 		}
