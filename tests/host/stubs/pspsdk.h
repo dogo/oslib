@@ -8,6 +8,7 @@
 
 #include <fcntl.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 
@@ -38,6 +39,16 @@ static inline int sceIoRead(SceUID fd, void *data, SceSize size) {
 
 static inline int sceIoWrite(SceUID fd, const void *data, SceSize size) {
 	return (int)write(fd, data, size);
+}
+
+static inline int sceIoRemove(const char *file) {
+	return unlink(file);
+}
+
+// Like the memory stick's FAT: no rename over an existing file (0x80010011, checked on a PSP)
+static inline int sceIoRename(const char *oldname, const char *newname) {
+	if (access(newname, F_OK) == 0) return (int)0x80010011;
+	return rename(oldname, newname);
 }
 
 static inline int sceIoLseek32(SceUID fd, int offset, int whence) {

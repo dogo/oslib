@@ -316,7 +316,9 @@ int oslNetGetFile(const char *url, const char *filepath) {
 			goto end;
 		written += ret;
 	}
-	ret = ret < 0 ? ret : sceIoClose(fd);
+	if (ret < 0)
+		goto end; // read error: the cleanup closes the file
+	ret = sceIoClose(fd);
 	fd = -1;
 	if (ret < 0)
 		goto end;
