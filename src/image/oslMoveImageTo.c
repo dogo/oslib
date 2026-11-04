@@ -19,8 +19,8 @@ bool oslMoveImageTo(OSL_IMAGE *img, int newLocation) {
 
 	// Allocate new data for the image at the new location.
 	if (!oslAllocImageData(img, newLocation)) {
-		// If allocation fails, restore the original data pointer and return failure.
-		img->data = oldImage.data;
+		// If allocation fails, restore the image as it was (the allocation also set its location)
+		*img = oldImage;
 		return 0;
 	}
 
