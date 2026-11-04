@@ -270,6 +270,18 @@ int oslResolveAddress(char *address, char *resolvedIP) {
 	return 0;
 }
 
+// Finishes a replacement that oslNetGetFile didn't complete (e.g. a power-off between its
+// renames): without <file>, <file>.oslbak is the old file; with it, a leftover
+static void oslNetRecoverBackup(const char *filepath, const char *bakpath) {
+	SceIoStat st;
+	if (sceIoGetstat(bakpath, &st) < 0)
+		return;
+	if (sceIoGetstat(filepath, &st) < 0)
+		sceIoRename(bakpath, filepath);
+	else
+		sceIoRemove(bakpath);
+}
+
 int oslNetGetFile(const char *url, const char *filepath) {
 	int template, connection = -1, request = -1, ret, status;
 	int result = OSL_ERR_HTTP_GENERIC, opened = 0;
@@ -282,6 +294,13 @@ int oslNetGetFile(const char *url, const char *filepath) {
 	// file is replaced only by a complete one
 	if (snprintf(tmppath, sizeof(tmppath), "%s.oslpart", filepath) >= (int)sizeof(tmppath) ||
 	    snprintf(bakpath, sizeof(bakpath), "%s.oslbak", filepath) >= (int)sizeof(bakpath))
+		return OSL_ERR_HTTP_GENERIC;
+
+	oslNetRecoverBackup(filepath, bakpath);
+
+	// Only a file is replaced: a directory would be moved aside whole
+	SceIoStat st;
+	if (sceIoGetstat(filepath, &st) >= 0 && FIO_S_ISDIR(st.st_mode))
 		return OSL_ERR_HTTP_GENERIC;
 
 	template = sceHttpCreateTemplate("OSL-agent/0.0.1 libhttp/1.0.0", 1, 1);

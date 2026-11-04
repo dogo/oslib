@@ -2,6 +2,7 @@
 #include "test.h"
 
 #include <fcntl.h>
+#include <sys/stat.h>
 #include <psphttp.h>
 #include <pspnet.h>
 #include <pspnet_apctl.h>
@@ -270,6 +271,56 @@ static void notOursIsKept(void) {
 	remove(FILE_ ".oslpart");
 }
 
+static void put(const char *path, const char *text) {
+	FILE *f = fopen(path, "wb");
+	fputs(text, f);
+	fclose(f);
+}
+
+static void respond(int status, int size) {
+	response.status = status;
+	response.length = size;
+	response.size = size;
+	response.failAt = -1;
+}
+
+// Power-off after the old file was moved aside: the next call, even a failing one, puts it back
+static void backupWithoutFileIsRestored(void) {
+	remove(FILE_);
+	put(FILE_ ".oslbak", "old");
+	respond(404, 10);
+	CHECK(oslNetGetFile("http://host/x", FILE_) < 0);
+	CHECK_EQ(fileSize(FILE_), 3);
+	CHECK_EQ(fileSize(FILE_ ".oslbak"), -1);
+	remove(FILE_);
+}
+
+// Power-off after the new file went in (or a backup that couldn't be removed): downloads go on
+static void leftoverBackupIsRemoved(void) {
+	put(FILE_, "new");
+	put(FILE_ ".oslbak", "old");
+	for (int i = 0; i < 2; i++) {
+		respond(200, 100 + i);
+		CHECK_EQ(oslNetGetFile("http://host/x", FILE_), 0);
+		CHECK_EQ(fileSize(FILE_), 100 + i);
+		CHECK_EQ(fileSize(FILE_ ".oslbak"), -1);
+	}
+	remove(FILE_);
+}
+
+// A directory is not replaced, nor moved aside
+static void directoryIsRejected(void) {
+	mkdir(FILE_, 0777);
+	put(FILE_ "/inner", "keep");
+	respond(200, 100);
+	CHECK(oslNetGetFile("http://host/x", FILE_) < 0);
+	CHECK_EQ(fileSize(FILE_ "/inner"), 4);
+	CHECK_EQ(fileSize(FILE_ ".oslbak"), -1);
+	CHECK_EQ(fileSize(FILE_ ".oslpart"), -1);
+	remove(FILE_ "/inner");
+	rmdir(FILE_);
+}
+
 int main(void) {
 	get(200, 5000, 5000, -1, 1);   // complete, replaces the old file
 	get(200, -1, 3000, -1, 1);     // no Content-Length (chunked): the end of data ends it
@@ -285,5 +336,8 @@ int main(void) {
 	CHECK_EQ(live, 0);
 	get(200, 100, 100, -1, 1);
 	notOursIsKept();
+	backupWithoutFileIsRestored();
+	leftoverBackupIsRemoved();
+	directoryIsRejected();
 	return TEST_RESULT();
 }
