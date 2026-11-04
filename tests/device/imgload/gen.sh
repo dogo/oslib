@@ -44,4 +44,16 @@ def chunk(t, b): return struct.pack(">I", len(b)) + t + b + struct.pack(">I", zl
 raw = b"".join(b"\0" + g[y * 32:(y + 1) * 32] for y in range(24))
 sys.stdout.buffer.write(b"\x89PNG\r\n\x1a\n" + chunk(b"IHDR", struct.pack(">IIBBBBB", 32, 24, 8, 0, 0, 0, 0))
     + chunk(b"tRNS", struct.pack(">H", g[5 * 32 + 5])) + chunk(b"IDAT", zlib.compress(raw)) + chunk(b"IEND", b""))' > grayt.png
-for f in *.png *.jpg *.gif; do magick "$f" -depth 8 "rgba:${f%.*}.rgba"; done
+# A grey JPEG: one component, which the loader read as three
+magick gray8.png -quality 90 -type Grayscale grayjpg.jpg
+magick jpeg.jpg -colorspace CMYK cmyk.jpg   # libjpeg can't turn CMYK into RGB: rejected
+# A 256-entry palette using 16 colours, half of them past index 15 (248-255), for OSL_PF_4BIT
+python3 -I -c '
+import struct, sys, zlib
+def chunk(t, b): return struct.pack(">I", len(b)) + t + b + struct.pack(">I", zlib.crc32(t + b))
+plte = b"".join(bytes([i, 255 - i, (i * 7) & 255]) for i in range(256))
+raw = b"".join(b"\0" + bytes((x % 8) + (248 if (y // 3) % 2 else 0) for x in range(32)) for y in range(24))
+sys.stdout.buffer.write(b"\x89PNG\r\n\x1a\n" + chunk(b"IHDR", struct.pack(">IIBBBBB", 32, 24, 8, 3, 0, 0, 0))
+    + chunk(b"PLTE", plte) + chunk(b"IDAT", zlib.compress(raw)) + chunk(b"IEND", b""))' > pal256.png
+for f in *.png *.jpg *.gif; do [ "$f" = cmyk.jpg ] || magick "$f" -depth 8 "rgba:${f%.*}.rgba"; done
+mv pal256.png pal256.rgba ../imgpal/   # only imgpal uses it

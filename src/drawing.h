@@ -1130,7 +1130,7 @@ extern OSL_IMAGE *oslLoadImageFilePNG(char *filename, int location, int pixelFor
  * Always check if the returned image pointer is `NULL` before using it to avoid crashes. Display a user-friendly message if the image fails to load, advising the user to check their files.
  *
  * @note
- * Decoding uses libjpeg: baseline and progressive JPEGs load at any quality, including 100 and 4:4:4 chroma.
+ * Decoding uses libjpeg: baseline and progressive JPEGs load at any quality, including 100 and 4:4:4 chroma. Colour and greyscale JPEGs load; CMYK ones return NULL.
  *
  * @see oslLoadImageFile
  */
