@@ -14,6 +14,9 @@ ctest --test-dir build-host-tests --output-on-failure
 
 Runs in CI on every push.
 
+`test_audio` also checks custom-driver cancellation and deletion of another channel's sound
+from an end callback, using pthread conditions to hold the decoder until the test releases it.
+
 ## Device tests (`tests/device`)
 
 Behaviour that only real hardware shows (GE, VFPU, ...). PPSSPP is not a

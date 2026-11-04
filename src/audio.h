@@ -39,7 +39,7 @@ typedef struct OSL_SOUND {
 	u8 userdata[32]; ///< Custom user data.
 	int numSamples; ///< Number of samples per read.
 	void (*playSound)(struct OSL_SOUND *);   ///< Function to start playing the sound.
-	void (*stopSound)(struct OSL_SOUND *);   ///< Function to stop playing the sound.
+	void (*stopSound)(struct OSL_SOUND *);   ///< Cancels playback before waiting for audioCallback; must not free resources still used by it.
 	int (*audioCallback)(unsigned int, void *, unsigned int); ///< Buffer fill callback.
 	VIRTUAL_FILE * (*standBySound)(struct OSL_SOUND *);    ///< Handle entering standby.
 	VIRTUAL_FILE ** (*reactiveSound)(struct OSL_SOUND *, VIRTUAL_FILE *); ///< Handle exiting standby.
@@ -314,6 +314,7 @@ extern void oslPlaySound(OSL_SOUND *s, int voice);
  * @param s Pointer to an OSL_SOUND structure representing the sound to stop. The sound must be currently playing; otherwise, the function has no effect.
  *
  * @note Stopping a sound does not free the memory associated with the sound; it only halts its playback. To completely release a sound resource, use oslDeleteSound().
+ * @note The custom stopSound hook runs before the wait, so a driver can cancel a blocked audioCallback.
  * @note It returns once the sound's audio thread is done with it (up to one buffer and the callback in progress), so the sound can be deleted or reused right after; once a stop is requested, the sound's endCallback is no longer called. Called from an audio thread (an endCallback), it only requests the stop and returns. An endCallback that is already running when the stop comes still runs: if it deletes its sound, don't also stop or delete that sound from another thread.
  *
  * @code
@@ -371,6 +372,7 @@ extern void oslPauseSound(OSL_SOUND *s, int pause);
  * @param s Pointer to an OSL_SOUND structure that is to be deleted. If the sound is currently playing, it will be stopped first.
  *
  * @note After calling this function, the pointer 's' should no longer be used as it refers to freed memory.
+ * @note From an audio thread, deletion of a playing sound is deferred until its channel finishes using it; cleanup runs on that channel's thread. The pointer is still invalid to the caller immediately after this call.
  *
  * @code
  * OSL_SOUND *effect;

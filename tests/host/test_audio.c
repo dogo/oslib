@@ -28,6 +28,16 @@ OSL_SOUND *oslLoadSoundFileBGM(const char *filename, int stream) {
 	return NULL;
 }
 
+OSL_SOUND *oslLoadSoundFileMP3(const char *filename, int stream) {
+	(void)filename; (void)stream;
+	return NULL;
+}
+
+OSL_SOUND *oslLoadSoundFileAT3(const char *filename, int stream) {
+	(void)filename; (void)stream;
+	return NULL;
+}
+
 // PSP threads on pthreads: ids are slot + 1, the main thread is 0
 #define MAX_THREADS 64
 static struct {
@@ -83,6 +93,18 @@ int sceKernelGetThreadId(void) {
 
 int sceKernelDelayThread(unsigned int delay) {
 	return usleep(delay);
+}
+
+static pthread_mutex_t interrupts = PTHREAD_MUTEX_INITIALIZER;
+
+unsigned int sceKernelCpuSuspendIntr(void) {
+	pthread_mutex_lock(&interrupts);
+	return 0;
+}
+
+void sceKernelCpuResumeIntr(unsigned int flags) {
+	(void)flags;
+	pthread_mutex_unlock(&interrupts);
 }
 
 int sceAudioChReserve(int channel, int samplecount, int format) {
@@ -253,6 +275,105 @@ static void endCallbacksStopEachOther(void) {
 	oslDeleteSound(peer[1]);
 }
 
+static pthread_mutex_t inputMutex = PTHREAD_MUTEX_INITIALIZER;
+static pthread_cond_t inputReady = PTHREAD_COND_INITIALIZER;
+static int inputEntered, inputCancelled, inputFinished, inputDeleted;
+static OSL_SOUND *inputSound;
+
+static int waitForInput(unsigned int voice, void *buf, unsigned int length) {
+	memset(buf, 0, length * 4);
+	pthread_mutex_lock(&inputMutex);
+	inputEntered = 1;
+	pthread_cond_broadcast(&inputReady);
+	while (!inputCancelled)
+		pthread_cond_wait(&inputReady, &inputMutex);
+	((short *)buf)[0] = *(int *)osl_audioVoices[voice].data;
+	inputFinished = 1;
+	pthread_mutex_unlock(&inputMutex);
+	return 0;
+}
+
+static void cancelInput(OSL_SOUND *s) {
+	(void)s;
+	pthread_mutex_lock(&inputMutex);
+	inputCancelled = 1;
+	pthread_cond_broadcast(&inputReady);
+	pthread_mutex_unlock(&inputMutex);
+}
+
+static void deleteInput(OSL_SOUND *s) {
+	pthread_mutex_lock(&inputMutex);
+	CHECK(inputFinished);
+	inputDeleted = 1;
+	free(s->data);
+	pthread_mutex_unlock(&inputMutex);
+}
+
+static void startInputSound(void) {
+	inputEntered = inputCancelled = inputFinished = inputDeleted = 0;
+	inputSound = calloc(1, sizeof(OSL_SOUND));
+	inputSound->data = calloc(1, sizeof(int));
+	inputSound->audioCallback = waitForInput;
+	inputSound->playSound = nop;
+	inputSound->stopSound = cancelInput;
+	inputSound->deleteSound = deleteInput;
+	oslPlaySound(inputSound, 1);
+	pthread_mutex_lock(&inputMutex);
+	while (!inputEntered)
+		pthread_cond_wait(&inputReady, &inputMutex);
+	pthread_mutex_unlock(&inputMutex);
+}
+
+// A custom driver's stop hook must cancel its read before waiting for that read to finish.
+static void stopCancelsBlockedDriver(void) {
+	startInputSound();
+	oslStopSound(inputSound);
+	CHECK(inputFinished);
+	CHECK(!inputDeleted);
+	CHECK_EQ(osl_audioActive[1], 0);
+	oslDeleteSound(inputSound);
+	CHECK(inputDeleted);
+}
+
+static void cancelInputAndWait(OSL_SOUND *s) {
+	cancelInput(s);
+	while (osl_audioActive[1])
+		usleep(1000);
+}
+
+static int deleteOtherSound(OSL_SOUND *s, int voice) {
+	(void)s; (void)voice;
+	oslDeleteSound(inputSound);
+	pthread_mutex_lock(&inputMutex);
+	if (inputFinished) {
+		CHECK(inputDeleted); // the channel ended during the stop hook
+	} else {
+		CHECK(!inputDeleted); // the other channel still owns the blocked read
+		inputCancelled = 1;
+		pthread_cond_broadcast(&inputReady);
+	}
+	pthread_mutex_unlock(&inputMutex);
+	return 0;
+}
+
+// Deletion from another audio thread returns without waiting, but must not free a live driver.
+static void endCallbackDeletesOtherSound(int finishDuringStop) {
+	startInputSound();
+	inputSound->stopSound = finishDuringStop ? cancelInputAndWait : nop;
+	OSL_SOUND *s = calloc(1, sizeof(OSL_SOUND));
+	s->audioCallback = endAtOnce;
+	s->playSound = s->stopSound = s->deleteSound = nop;
+	s->endCallback = deleteOtherSound;
+	oslPlaySound(s, 0);
+	for (int ms = 0; ms < 2000 && (osl_audioActive[0] || osl_audioActive[1]); ms++)
+		usleep(1000);
+	CHECK_EQ(osl_audioActive[0], 0);
+	CHECK_EQ(osl_audioActive[1], 0);
+	CHECK(inputFinished);
+	CHECK(inputDeleted);
+	oslDeleteSound(s);
+}
+
 static void hung(int sig) {
 	(void)sig;
 	static const char msg[] = "test_audio: hung (alarm)\n";
@@ -273,5 +394,8 @@ int main(int argc, char **argv) {
 	if (!*only || !strcmp(only, "loopstop")) loopingSoundStopsDuringItsCallback();
 	if (!*only || !strcmp(only, "stopdelete")) stopWhileSelfDeletingSoundDecodes();
 	if (!*only || !strcmp(only, "crossstop")) endCallbacksStopEachOther();
+	if (!*only || !strcmp(only, "cancel")) stopCancelsBlockedDriver();
+	if (!*only || !strcmp(only, "crossdelete")) endCallbackDeletesOtherSound(0);
+	if (!*only || !strcmp(only, "crossdeleteended")) endCallbackDeletesOtherSound(1);
 	return TEST_RESULT();
 }

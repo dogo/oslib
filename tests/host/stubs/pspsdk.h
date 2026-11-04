@@ -82,6 +82,8 @@ int sceKernelDeleteThread(SceUID thid);
 int sceKernelExitDeleteThread(int status);
 int sceKernelGetThreadId(void);
 int sceKernelDelayThread(unsigned int delay);
+unsigned int sceKernelCpuSuspendIntr(void);
+void sceKernelCpuResumeIntr(unsigned int flags);
 int sceAudioChReserve(int channel, int samplecount, int format);
 int sceAudioChRelease(int channel);
 int sceAudioOutputPannedBlocking(int channel, int leftvol, int rightvol, void *buf);
