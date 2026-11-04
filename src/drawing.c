@@ -203,8 +203,9 @@ int oslConvertColorEx(OSL_PALETTE *p, int pfDst, int pfSrc, int color) {
 		break;
 	case OSL_PF_8BIT:
 	case OSL_PF_4BIT:
-		// Convert indexed color to true color using the palette.
+		// Convert indexed color to true color using the palette, then take its components
 		color = oslConvertColor(OSL_PF_8888, p->pixelFormat, oslGetPaletteColor(p, color));
+		oslRgbaGet8888(color, r, g, b, a);
 		break;
 	}
 

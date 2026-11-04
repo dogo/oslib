@@ -69,9 +69,9 @@ void oslDrawMap(OSL_MAP *m) {
 		dsY = m->drawSizeY;
 	}
 
-	// Optimize tilesPerLineOpt
+	// Shift and mask instead of divide only when the tile count per line is a power of 2
 	for (int i = 1; i <= 8; i++) {
-		if (tilesPerLine >= (1 << i)) {
+		if (tilesPerLine == (1 << i)) {
 			tilesPerLineOpt = i;
 		}
 	}
