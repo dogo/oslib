@@ -4,6 +4,8 @@
 #define BASE OSL_VRAM_BASE
 #define addr(p) ((u32)(uintptr_t)(p))
 
+extern int osl_vramSize;
+
 static void allocRoundsTo16AndIsContiguous(void) {
 	void *a = oslVramMgrAllocBlock(100);
 	void *b = oslVramMgrAllocBlock(16);
@@ -58,6 +60,19 @@ static void growsBlockTablePastDefaultSize(void) {
 	CHECK_EQ(addr(oslVramMgrAllocBlock(OSL_VRAM_SIZE)), BASE);
 }
 
+// Shrinking below what is allocated must fail and leave the region as it was
+static void shrinkBelowAllocatedIsRejected(void) {
+	void *a = oslVramMgrAllocBlock(1536 << 10);
+	CHECK_EQ(addr(a), BASE);
+	CHECK_EQ(oslVramMgrSetParameters((void *)(uintptr_t)BASE, 1 << 20), 0);
+	CHECK_EQ(osl_vramSize, OSL_VRAM_SIZE);
+	CHECK(oslVramMgrAllocBlock(2 << 20) == NULL);
+	void *b = oslVramMgrAllocBlock(512 << 10); // the rest of the unchanged region
+	CHECK_EQ(addr(b), BASE + (1536 << 10));
+	oslVramMgrFreeBlock(b, 512 << 10);
+	oslVramMgrFreeBlock(a, 1536 << 10);
+}
+
 int main(void) {
 	oslVramMgrInit();
 	allocRoundsTo16AndIsContiguous();
@@ -65,6 +80,7 @@ int main(void) {
 	freedHoleIsReused();
 	freeingEverythingCoalesces();
 	unknownBlockIsRejected();
+	shrinkBelowAllocatedIsRejected();
 	growsBlockTablePastDefaultSize();
 	return TEST_RESULT();
 }
