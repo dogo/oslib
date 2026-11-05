@@ -122,8 +122,22 @@ int sceAudioOutputPannedBlocking(int channel, int leftvol, int rightvol, void *b
 	return usleep(2000); // one buffer playing
 }
 
+// Like the PSP, refuse a reconfiguration while the last buffer plays: busyCalls times
+static volatile int dataLen[8], channelFormat[8], busyCalls;
+
+static int busy(void) {
+	return busyCalls > 0 && __atomic_sub_fetch(&busyCalls, 1, __ATOMIC_SEQ_CST) >= 0;
+}
+
 int sceAudioChangeChannelConfig(int channel, int format) {
-	(void)channel; (void)format;
+	if (busy()) return (int)0x80260002;
+	channelFormat[channel] = format;
+	return 0;
+}
+
+int sceAudioSetChannelDataLen(int channel, int samplecount) {
+	if (busy()) return (int)0x80260002;
+	dataLen[channel] = samplecount;
 	return 0;
 }
 
@@ -374,6 +388,139 @@ static void endCallbackDeletesOtherSound(int finishDuringStop) {
 	oslDeleteSound(s);
 }
 
+// Sounds identified by userdata[0] that play three buffers and record the length asked for
+static volatile int played[4], lengthSeen[4];
+
+static int threeBuffers(unsigned int voice, void *buf, unsigned int length) {
+	int id = osl_audioVoices[voice].sound->userdata[0];
+	memset(buf, 0, length * (osl_audioVoices[voice].mono ? 2 : 4));
+	lengthSeen[id] = length;
+	return ++played[id] < 3;
+}
+
+static OSL_SOUND *countingSound(int id, int numSamples) {
+	OSL_SOUND *s = calloc(1, sizeof(OSL_SOUND));
+	s->userdata[0] = id;
+	s->numSamples = numSamples;
+	s->audioCallback = threeBuffers;
+	s->playSound = s->stopSound = s->deleteSound = nop;
+	played[id] = lengthSeen[id] = 0;
+	return s;
+}
+
+static void waitIdle(void) {
+	for (int ms = 0; ms < 2000 && (osl_audioActive[0] || osl_audioActive[1]); ms++)
+		usleep(1000);
+	CHECK_EQ(osl_audioActive[0], 0);
+	CHECK_EQ(osl_audioActive[1], 0);
+}
+
+// End callbacks that play another sound: next[voice] on voice target[voice], then hold the
+// channel thread for holdMs so the main thread can act while that play is pending
+static OSL_SOUND *next[2];
+static int target[2], holdMs, meet;
+static volatile int chained, entered;
+
+static int playNext(OSL_SOUND *s, int voice) {
+	(void)s;
+	// With meet, both end callbacks are running before either plays
+	__atomic_add_fetch(&entered, 1, __ATOMIC_SEQ_CST);
+	while (meet && entered < 2)
+		usleep(1000);
+	oslPlaySound(next[voice], target[voice]);
+	chained = 1;
+	usleep(holdMs * 1000);
+	return 0;
+}
+
+static OSL_SOUND *chainingSound(int voice, OSL_SOUND *then, int on) {
+	OSL_SOUND *s = calloc(1, sizeof(OSL_SOUND));
+	s->audioCallback = endAtOnce;
+	s->playSound = s->stopSound = s->deleteSound = nop;
+	s->endCallback = playNext;
+	next[voice] = then;
+	target[voice] = on;
+	return s;
+}
+
+static void waitChained(void) {
+	for (int ms = 0; ms < 1000 && !chained; ms++)
+		usleep(1000);
+	CHECK(chained);
+}
+
+// A playlist: the end callback plays the next sound, in mono with another buffer size, on its
+// own voice, while the hardware is still busy with the last buffer
+static void endCallbackPlaysNextOnItsVoice(void) {
+	holdMs = 0;
+	chained = 0;
+	OSL_SOUND *b = countingSound(1, 1152);
+	b->mono = 0x10;
+	OSL_SOUND *a = chainingSound(0, b, 0);
+	busyCalls = 3;
+	oslPlaySound(a, 0);
+	waitIdle();
+	CHECK_EQ(played[1], 3);
+	CHECK_EQ(lengthSeen[1], 1152);
+	CHECK_EQ(dataLen[0], 1152);
+	CHECK_EQ(channelFormat[0], 0x10);
+	oslDeleteSound(a);
+	oslDeleteSound(b);
+}
+
+// Two end callbacks running at once each play a sound on the other's voice: neither may wait for
+// the other
+static void endCallbacksPlayOnEachOthersVoice(void) {
+	holdMs = 0;
+	meet = 1;
+	entered = 0;
+	OSL_SOUND *c[2], *s[2];
+	for (int i = 0; i < 2; i++) {
+		c[i] = countingSound(2 + i, 0);
+		s[i] = chainingSound(i, c[i], !i);
+		s[i]->audioCallback = slowEnd;
+	}
+	oslPlaySound(s[0], 0);
+	oslPlaySound(s[1], 1);
+	waitIdle();
+	meet = 0;
+	CHECK_EQ(played[2], 3);
+	CHECK_EQ(played[3], 3);
+	for (int i = 0; i < 2; i++) {
+		oslDeleteSound(s[i]);
+		oslDeleteSound(c[i]);
+	}
+}
+
+// While an end callback's play is pending, the main thread stops or deletes the new sound,
+// plays a third one on that voice, or stops the old sound
+enum { DELETE_NEW, REPLACE, STOP_OLD };
+
+static void mainActsWhilePlayPending(int action) {
+	holdMs = 50;
+	chained = 0;
+	OSL_SOUND *b = countingSound(1, 0);
+	OSL_SOUND *a = chainingSound(0, b, 0);
+	OSL_SOUND *c = countingSound(2, 0);
+	oslPlaySound(a, 0);
+	waitChained();
+	if (action == DELETE_NEW) {
+		oslDeleteSound(b); // a pending play kept would play freed memory
+		b = NULL;
+	} else if (action == REPLACE) {
+		oslPlaySound(c, 0);
+	} else {
+		oslStopSound(a);
+		CHECK(osl_audioVoices[0].sound != a);
+	}
+	waitIdle();
+	CHECK_EQ(played[1], action == STOP_OLD ? 3 : 0);
+	CHECK_EQ(played[2], action == REPLACE ? 3 : 0);
+	oslDeleteSound(a);
+	oslDeleteSound(b);
+	oslDeleteSound(c);
+}
+
 static void hung(int sig) {
 	(void)sig;
 	static const char msg[] = "test_audio: hung (alarm)\n";
@@ -397,5 +544,10 @@ int main(int argc, char **argv) {
 	if (!*only || !strcmp(only, "cancel")) stopCancelsBlockedDriver();
 	if (!*only || !strcmp(only, "crossdelete")) endCallbackDeletesOtherSound(0);
 	if (!*only || !strcmp(only, "crossdeleteended")) endCallbackDeletesOtherSound(1);
+	if (!*only || !strcmp(only, "playlist")) endCallbackPlaysNextOnItsVoice();
+	if (!*only || !strcmp(only, "crossplay")) endCallbacksPlayOnEachOthersVoice();
+	if (!*only || !strcmp(only, "pendingdelete")) mainActsWhilePlayPending(DELETE_NEW);
+	if (!*only || !strcmp(only, "pendingreplace")) mainActsWhilePlayPending(REPLACE);
+	if (!*only || !strcmp(only, "pendingstopold")) mainActsWhilePlayPending(STOP_OLD);
 	return TEST_RESULT();
 }

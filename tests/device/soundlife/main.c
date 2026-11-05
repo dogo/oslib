@@ -2,7 +2,9 @@
 // sound waits for its thread, and a channel whose thread can't start or allocate
 // stays usable. A case that crashes or hangs leaves its line unfinished in result.txt.
 #include <pspkernel.h>
+#include <pspaudio.h>
 #include <oslib/oslib.h>
+#include <malloc.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -59,6 +61,48 @@ static OSL_SOUND *slowSound(void) {
 	s->audioCallback = slowCallback;
 	s->playSound = s->stopSound = s->deleteSound = nop;
 	return s;
+}
+
+// Sounds identified by userdata[0] that play three buffers and record the length asked for
+static volatile int buffers[4], lengthAsked[4];
+
+static int threeBuffers(unsigned int voice, void *buf, unsigned int length) {
+	int id = osl_audioVoices[voice].sound->userdata[0];
+	memset(buf, 0, length * (osl_audioVoices[voice].mono ? 2 : 4));
+	lengthAsked[id] = length;
+	return ++buffers[id] < 3;
+}
+
+static OSL_SOUND *countingSound(int id, int numSamples, int mono) {
+	OSL_SOUND *s = calloc(1, sizeof(OSL_SOUND));
+	s->userdata[0] = id;
+	s->numSamples = numSamples;
+	s->mono = mono;
+	s->audioCallback = threeBuffers;
+	s->playSound = s->stopSound = s->deleteSound = nop;
+	s->volumeLeft = s->volumeRight = OSL_VOLUME_MAX;
+	return s;
+}
+
+// End callbacks that play next[voice & 1] on target[voice & 1]; with meet, both are running
+// before either plays
+static OSL_SOUND *next[2];
+static int target[2], meet;
+static volatile int cbEntered;
+
+static int playNext(OSL_SOUND *s, int voice) {
+	(void)s;
+	cbEntered++;
+	for (int ms = 0; meet && cbEntered < 2 && ms < 1000; ms++)
+		sceKernelDelayThread(1000);
+	oslPlaySound(next[voice & 1], target[voice & 1]);
+	return 0;
+}
+
+static int waitIdle(int a, int b) {
+	for (int ms = 0; ms < 2000 && (osl_audioActive[a] || osl_audioActive[b]); ms++)
+		sceKernelDelayThread(1000);
+	return !osl_audioActive[a] && !osl_audioActive[b];
 }
 
 static int waitFor(volatile int *flag, int ms) {
@@ -185,6 +229,66 @@ int main() {
 	        !osl_audioActive[6] && !osl_audioActive[7] ? "PASS" : "FAIL");
 	oslDeleteSound(peer[0]);
 	oslDeleteSound(peer[1]);
+
+	// A playlist: the end callback plays the next sound on its own voice, in mono with MP3's
+	// frame size, which the channel must be reconfigured for
+	fprintf(f, "end callback plays next on its voice ");
+	{
+		OSL_SOUND *a = slowSound(), *b = countingSound(0, 1152, PSP_AUDIO_FORMAT_MONO);
+		a->audioCallback = slowEnd;
+		a->endCallback = playNext;
+		meet = 0;
+		next[0] = b;
+		target[0] = 4;
+		oslPlaySound(a, 4);
+		int idle = waitIdle(4, 4);
+		fprintf(f, "-> played %d, length %d, channel %d %s\n", buffers[0], lengthAsked[0], osl_audioActive[4],
+		        idle && buffers[0] == 3 && lengthAsked[0] == 1152 ? "PASS" : "FAIL");
+		oslDeleteSound(a);
+		oslDeleteSound(b);
+	}
+
+	// Two end callbacks running at once each play a sound on the other's voice
+	fprintf(f, "end callbacks play on each other's voice ");
+	{
+		OSL_SOUND *a[2], *c[2];
+		meet = 1;
+		cbEntered = 0;
+		for (int i = 0; i < 2; i++) {
+			c[i] = countingSound(2 + i, 0, 0);
+			next[i] = c[i];
+			target[i] = 4 + !i;
+			a[i] = slowSound();
+			a[i]->audioCallback = slowEnd;
+			a[i]->endCallback = playNext;
+		}
+		oslPlaySound(a[0], 4);
+		oslPlaySound(a[1], 5);
+		int idle = waitIdle(4, 5);
+		fprintf(f, "-> played %d %d, channels %d %d %s\n", buffers[2], buffers[3], osl_audioActive[4], osl_audioActive[5],
+		        idle && buffers[2] == 3 && buffers[3] == 3 ? "PASS" : "FAIL");
+		for (int i = 0; i < 2; i++) {
+			oslDeleteSound(a[i]);
+			oslDeleteSound(c[i]);
+		}
+	}
+
+	// Deleting a BGM frees its decoder state too
+	fprintf(f, "20 BGM loads and deletes ");
+	{
+		OSL_SOUND *s = oslLoadSoundFileBGM("../soundload/tone.bgm", OSL_FMT_NONE);
+		if (s) oslDeleteSound(s);
+		int before = mallinfo().uordblks, loaded = 0;
+		for (int i = 0; i < 20; i++) {
+			s = oslLoadSoundFileBGM("../soundload/tone.bgm", OSL_FMT_NONE);
+			if (s) {
+				loaded++;
+				oslDeleteSound(s);
+			}
+		}
+		int kept = mallinfo().uordblks - before;
+		fprintf(f, "-> loaded %d, %d bytes kept %s\n", loaded, kept, loaded == 20 && kept == 0 ? "PASS" : "FAIL");
+	}
 
 	fprintf(f, "DONE\n");
 	fclose(f);

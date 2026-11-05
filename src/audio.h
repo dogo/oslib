@@ -302,6 +302,8 @@ void oslSetModSampleRate(int freq, int stereo, int shift);
  * @endcode
  *
  * The example demonstrates managing different sound effects and music tracks, showing how replacing sounds on the same channel can control audio playback dynamically.
+ *
+ * @note Called from an audio thread (an endCallback) on a channel playing another sound, including the callback's own channel, it returns at once: the channel stops its current sound and starts this one when that sound's current buffer is done, so a callback can chain the next track. The stopped sound's endCallback isn't called. A later oslPlaySound on that channel, or oslStopSound / oslDeleteSound of the new sound, cancels the switch if it hasn't happened yet.
  */
 extern void oslPlaySound(OSL_SOUND *s, int voice);
 

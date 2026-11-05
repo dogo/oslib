@@ -117,5 +117,6 @@ int sceAudioChReserve(int channel, int samplecount, int format);
 int sceAudioChRelease(int channel);
 int sceAudioOutputPannedBlocking(int channel, int leftvol, int rightvol, void *buf);
 int sceAudioChangeChannelConfig(int channel, int format);
+int sceAudioSetChannelDataLen(int channel, int samplecount);
 
 #endif

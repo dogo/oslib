@@ -9,4 +9,7 @@ channel plays again        -> callback called PASS
 stop looping sound         -> callback entered 1, channel 0 PASS
 stop self-deleting sound   -> callback entered 1, deleted by it 0, channel 0 PASS
 end callbacks stop each other -> channels 0 0 PASS
+end callback plays next on its voice -> played 3, length 1152, channel 0 PASS
+end callbacks play on each other's voice -> played 3 3, channels 0 0 PASS
+20 BGM loads and deletes -> loaded 20, 0 bytes kept PASS
 DONE
