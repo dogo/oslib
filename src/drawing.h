@@ -2302,6 +2302,8 @@ extern void oslResetImageProperties(OSL_IMAGE *img);
  *
  * This function scales the source image (srcImg) and draws it onto the destination image (dstImg) at the specified position and with the specified dimensions.
  *
+ * @note An indexed (4 or 8-bit) source is read through its palette. An indexed destination needs a source in its own format: each pixel then takes the index under it (no blending), so dstImg should use srcImg's palette. Otherwise dstImg is left untouched.
+ *
  * Example usage:
  * \code
  * OSL_IMAGE *srcImg = oslCreateImage(64, 64, OSL_IN_RAM, OSL_PF_5551);
@@ -2329,6 +2331,8 @@ extern void oslScaleImage(OSL_IMAGE *dstImg, OSL_IMAGE *srcImg, int newX, int ne
  * A pointer to the new scaled image. If the scaling operation fails, the function may return NULL.
  *
  * This function creates a new image that is a scaled version of the original image (img). The new image will have the specified dimensions and pixel format.
+ *
+ * @note An indexed (4 or 8-bit) image is read through its palette. Scaled to its own indexed format, it keeps its indices (the one under each pixel, no blending) and gets a copy of its palette; to another indexed format, NULL is returned.
  *
  * Example usage:
  * \code

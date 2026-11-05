@@ -97,6 +97,8 @@ extern OSL_MAP *oslCreateMap(OSL_IMAGE *img, void *map_data, int tileX, int tile
  * This function renders the map on the screen using the properties defined
  * in the `OSL_MAP` structure, such as scroll positions and tile sizes.
  *
+ * @note Nothing is drawn if a tile or map size isn't positive or the tileset is narrower than one tile.
+ *
  * @param m Pointer to the `OSL_MAP` structure to be drawn.
  */
 extern void oslDrawMap(OSL_MAP *m);

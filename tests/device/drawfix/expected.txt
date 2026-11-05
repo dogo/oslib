@@ -4,4 +4,9 @@ scale 2x2 to 4x4, alpha 64  0/16 wrong PASS
 scale 2x2 to 4x2            0/8 wrong PASS
 8bit to 8888 conversion     0/16 wrong PASS
 5650 to 8888 conversion    0/65536 wrong PASS
+scale 8bit 2x2 to 8888 4x4  0/16 wrong PASS
+scale 4bit 2x2 to 8888 4x4  0/16 wrong PASS
+scale 8bit 2x2 to 8bit 5x3  0/15 wrong, palette copied PASS
+scale 8888 to 8bit         -> NULL PASS
+map tileset under a tile   -> 0 pixels drawn PASS
 DONE
