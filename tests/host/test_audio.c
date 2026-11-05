@@ -9,6 +9,17 @@
 
 extern volatile int osl_audioActive[];
 
+// calloc is osl_test_calloc in every source of this test (CMakeLists.txt): it fails the
+// allocations of a channel's buffer (4 KB and up) while failBuffers is set
+#undef calloc
+void *calloc(size_t n, size_t size); // its <stdlib.h> declaration was renamed too
+static volatile int failBuffers;
+
+void *osl_test_calloc(size_t n, size_t size) {
+	if (failBuffers && n * size >= 4096) return NULL;
+	return calloc(n, size);
+}
+
 int (*osl_powerCallback)(int, int, void *);
 
 void oslHandleLoadNoFailError(const char *filename) {
@@ -694,6 +705,21 @@ static void stopDuringVSyncReopen(void) {
 	remove(path);
 }
 
+// A thread that can't allocate its buffer ends its channel, which then plays the next sound
+static void threadBufferAllocFails(void) {
+	OSL_SOUND *s = countingSound(0, 0);
+	failBuffers = 1;
+	oslPlaySound(s, 2);
+	CHECK(waitEnd(2));
+	failBuffers = 0;
+	CHECK_EQ(oslGetSoundChannel(s), -1);
+	CHECK_EQ(played[0], 0);
+	oslPlaySound(s, 2);
+	CHECK(waitEnd(2));
+	CHECK_EQ(played[0], 3);
+	oslDeleteSound(s);
+}
+
 static void hung(int sig) {
 	(void)sig;
 	static const char msg[] = "test_audio: hung (alarm)\n";
@@ -730,5 +756,6 @@ int main(int argc, char **argv) {
 	if (!*only || !strcmp(only, "resumedstandby")) pausedStreamAcrossStandby(1);
 	if (!*only || !strcmp(only, "togglesuspended")) toggleSuspendedStream();
 	if (!*only || !strcmp(only, "vsyncstop")) stopDuringVSyncReopen();
+	if (!*only || !strcmp(only, "bufferfail")) threadBufferAllocFails();
 	return TEST_RESULT();
 }

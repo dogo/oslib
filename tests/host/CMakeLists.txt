@@ -37,6 +37,6 @@ target_include_directories(test_adhoc PRIVATE ${OSL_SRC}/adhoc)
 osl_host_test(test_net net.c)
 osl_host_test(test_audio audio/audio.c vfile/VirtualFile.c vfile/vfsFile.c)
 target_link_libraries(test_audio PRIVATE pthread)
-# PSP: build the standby (power callback) code too
-target_compile_definitions(test_audio PRIVATE PSP)
+# PSP: build the standby (power callback) code too; calloc: let the test fail allocations
+target_compile_definitions(test_audio PRIVATE PSP calloc=osl_test_calloc)
 osl_host_test(test_bgm audio/bgm.c vfile/VirtualFile.c vfile/vfsFile.c)

@@ -139,6 +139,7 @@ int main() {
 	oslInit(0);
 	oslInitAudio();
 	f = fopen("result.txt", "w");
+	setvbuf(f, NULL, _IONBF, 0); // keep what was written if a case below crashes or hangs
 
 	missing("missing WAV, RAM", oslLoadSoundFileWAV, "missing.wav", 0);
 	missing("missing WAV, stream", oslLoadSoundFileWAV, "missing.wav", OSL_FMT_STREAM);
@@ -155,25 +156,9 @@ int main() {
 	fprintf(f, "-> callback entered %d, still running %d, channel %d %s\n", entered, still, active,
 	        entered && !still && !active ? "PASS" : "FAIL");
 
-	// The thread can't allocate its buffer: it must still end the channel
-	fprintf(f, "thread buffer alloc fails  ");
-	void *hog = NULL, *p;
-	while ((p = malloc(1024))) { // chain the blocks through their first word
-		*(void **)p = hog;
-		hog = p;
-	}
-	s = slowSound();
-	oslPlaySound(s, 2);
-	sceKernelDelayThread(200 * 1000);
-	active = osl_audioActive[2];
-	int voice = oslGetSoundChannel(s);
-	while (hog) {
-		p = *(void **)hog;
-		free(hog);
-		hog = p;
-	}
-	fprintf(f, "-> channel %d, voice %d %s\n", active, voice, !active && voice < 0 ? "PASS" : "FAIL");
-	oslDeleteSound(s);
+	// A thread that can't allocate its buffer is checked on the host (test_audio "bufferfail"):
+	// here, once the heap is full and a malloc fails, the next one can crash or hang in the libc
+	// (with or without OSLib).
 
 	// No memory for the thread's stack: the channel must not stay active without a thread
 	fprintf(f, "thread creation fails      ");
@@ -189,7 +174,7 @@ int main() {
 	s = slowSound();
 	oslPlaySound(s, 1);
 	active = osl_audioActive[1];
-	voice = oslGetSoundChannel(s);
+	int voice = oslGetSoundChannel(s);
 	while (nblocks > 0)
 		sceKernelFreePartitionMemory(blocks[--nblocks]);
 	fprintf(f, "-> stack memory %s, channel %d, voice %d %s\n", starved ? "exhausted" : "LEFT", active, voice,
