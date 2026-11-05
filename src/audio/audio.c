@@ -294,17 +294,22 @@ static VIRTUAL_FILE *oslAudioOpenAgain(const char *filename, int channel, int re
 	return f;
 }
 
-// Hands channel's thread a reopened file for s (NULL if it couldn't be): a file handed before
-// and not installed yet is closed, nothing ever read it
+// Hands channel's thread a reopened file for s (NULL if it couldn't be). Like the other requests
+// to a channel's thread, only while the channel still plays s: its thread then installs or
+// closes the file, but it may have ended or moved on while the file opened. A file handed
+// before and not installed yet is closed: nothing ever read it.
 static void oslAudioRequestReopen(OSL_SOUND *s, int channel, VIRTUAL_FILE *f, int number, int restart) {
+	VIRTUAL_FILE *unused = f;
 	unsigned int flags = sceKernelCpuSuspendIntr();
-	VIRTUAL_FILE *unused = audio_reopenFile[channel];
-	if (audio_reopen[channel] == s)
-		restart |= audio_reopenRestart[channel];
-	audio_reopen[channel] = s;
-	audio_reopenFile[channel] = f;
-	audio_reopenRestart[channel] = restart;
-	audio_reopenNumber[channel] = number;
+	if (osl_audioVoices[channel].sound == s) {
+		unused = audio_reopenFile[channel];
+		if (audio_reopen[channel] == s)
+			restart |= audio_reopenRestart[channel];
+		audio_reopen[channel] = s;
+		audio_reopenFile[channel] = f;
+		audio_reopenRestart[channel] = restart;
+		audio_reopenNumber[channel] = number;
+	}
 	sceKernelCpuResumeIntr(flags);
 	if (unused)
 		VirtualFileClose(unused);
@@ -696,6 +701,12 @@ void oslDeleteSound(OSL_SOUND *s) {
 // On channel's thread, between two callbacks (or before the first): makes f, reopened after a
 // standby, s's file and frees the one the standby closed; then restarts s if asked.
 static void oslAudioInstall(OSL_SOUND *s, int channel, VIRTUAL_FILE *f, int number, int restart) {
+	// Requests match sounds by address: one freed during the reopen and replaced by a new sound at
+	// the same address must not get its file. A new sound doesn't need a reopen.
+	if (f && !oslAudioNeedsReopen(s)) {
+		VirtualFileClose(f);
+		f = NULL;
+	}
 	if (f) {
 		VIRTUAL_FILE **w = s->reactiveSound(s, f);
 		if (w) {

@@ -33,7 +33,8 @@ oslAudioVSync reopens a file, and a stream played after a standby (its file reop
 one freed, played from its start) or replayed while a callback the standby interrupted still
 reads it (the file only changes between two callbacks); streams remember their file as an
 absolute path, reopened after a chdir elsewhere (a virtual file's name, or a path over 255
-characters once absolute, as given); and a thread that can't allocate its buffer (calloc failures are
+characters once absolute, as given); and a reopened file whose channel ended while it opened
+being closed, from oslAudioVSync and from oslPlaySound (a file source counts opens and closes); and a thread that can't allocate its buffer (calloc failures are
 injected), which can't be checked on the PSP: there a malloc after one failed on a full heap
 can crash or hang in the libc. `test_bgm` checks that truncated BGM headers and formats other
 than IMA-ADPCM are rejected, and that deleting a BGM frees all it allocated.

@@ -908,6 +908,68 @@ static void streamsRememberAbsolutePaths(void) {
 	rmdir(tmp);
 }
 
+// A file source counting opens and closes; armed, its open ends a channel first, as another
+// audio thread's oslStopSound would while oslAudioVSync reopens a stream
+static int hookType = -1, hookOpens, hookCloses, stopOnOpen = -1;
+
+static int hookOpen(void *param1, int param2, int type, int mode, VIRTUAL_FILE *f) {
+	if (stopOnOpen >= 0) {
+		oslAudioDeleteChannel(stopOnOpen);
+		CHECK(waitEnd(stopOnOpen));
+		stopOnOpen = -1;
+	}
+	int ok = vfsMemOpen(param1, param2, type, mode, f);
+	hookOpens += ok;
+	return ok;
+}
+
+static int hookClose(VIRTUAL_FILE *f) {
+	hookCloses++;
+	return vfsMemClose(f);
+}
+
+// A reopened file whose channel ended meanwhile (oslAudioVSync's or oslPlaySound's reopen) must
+// be closed: no thread is left to install it
+static void channelEndsDuringReopen(void) {
+	static VIRTUAL_FILE_SOURCE hook;
+	hook = vfsMemory;
+	hook.fOpen = hookOpen;
+	hook.fClose = hookClose;
+	if (hookType < 0) hookType = VirtualFileRegisterSource(&hook);
+	static unsigned char wav[44 + 400];
+	const char *path = writeTestWav();
+	FILE *in = fopen(path, "rb");
+	CHECK_EQ(fread(wav, 1, sizeof(wav), in), sizeof(wav));
+	fclose(in);
+	remove(path);
+	OSL_VIRTUALFILENAME v = { "hook.wav", wav, sizeof(wav), &hookType };
+	oslAddVirtualFileList(&v, 1);
+	hookOpens = hookCloses = 0;
+	OSL_SOUND *s = oslLoadSoundFileWAV("hook.wav", OSL_FMT_STREAM);
+	CHECK(s != NULL);
+	oslSetSoundLoop(s, 1);
+	oslPlaySound(s, 2);
+	osl_powerCallback(0, PSP_POWER_CB_POWER_SWITCH, NULL);
+	osl_powerCallback(0, PSP_POWER_CB_RESUME_COMPLETE, NULL);
+	stopOnOpen = 2;
+	oslAudioVSync();
+	CHECK_EQ(stopOnOpen, -1);
+	CHECK_EQ(hookOpens, hookCloses + 1); // only the sound's own file is open
+
+	// The same when oslPlaySound reopens it, after another standby
+	osl_powerCallback(0, PSP_POWER_CB_POWER_SWITCH, NULL);
+	osl_powerCallback(0, PSP_POWER_CB_RESUME_COMPLETE, NULL);
+	stopOnOpen = 2;
+	oslPlaySound(s, 2);
+	CHECK_EQ(stopOnOpen, -1);
+	CHECK(waitEnd(2));
+	CHECK_EQ(hookOpens, hookCloses + 1);
+	oslDeleteSound(s);
+	CHECK_EQ(hookOpens, 3);
+	CHECK_EQ(hookCloses, 3);
+	oslRemoveVirtualFileList(&v, 1);
+}
+
 static void hung(int sig) {
 	(void)sig;
 	static const char msg[] = "test_audio: hung (alarm)\n";
@@ -948,5 +1010,6 @@ int main(int argc, char **argv) {
 	if (!*only || !strcmp(only, "reopenonplay")) streamReopenedByPlay();
 	if (!*only || !strcmp(only, "reopenwhilereading")) streamReopenedWhileReading();
 	if (!*only || !strcmp(only, "absolutepath")) streamsRememberAbsolutePaths();
+	if (!*only || !strcmp(only, "endduringreopen")) channelEndsDuringReopen();
 	return TEST_RESULT();
 }
