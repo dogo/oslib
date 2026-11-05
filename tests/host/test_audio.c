@@ -2,6 +2,7 @@
 #include "test.h"
 
 #include <pthread.h>
+#include <sys/stat.h>
 #include <signal.h>
 #include <stdarg.h>
 #include <stdint.h>
@@ -825,6 +826,47 @@ static void streamReopenedWhileReading(void) {
 	remove(path);
 }
 
+// Streams remember their file as an absolute path, to reopen it from any thread: on the PSP,
+// threads OSLib creates have no current directory. A virtual file keeps its name, and a path
+// whose absolute form doesn't fit stays as given.
+static void streamsRememberAbsolutePaths(void) {
+	char home[4096], tmp[] = "/tmp/osltestXXXXXX", expect[4096];
+	CHECK(getcwd(home, sizeof(home)) != NULL);
+	CHECK(mkdtemp(tmp) != NULL);
+	CHECK_EQ(chdir(tmp), 0);
+	const char *wav = writeTestWav();
+	rename(wav, "a.wav");
+	OSL_SOUND *s = oslLoadSoundFileWAV("a.wav", OSL_FMT_STREAM);
+	snprintf(expect, sizeof(expect), "%s/a.wav", tmp);
+	CHECK(s && !strcmp(s->filename, expect));
+	oslDeleteSound(s);
+
+	static unsigned char memWav[44 + 400];
+	FILE *in = fopen("a.wav", "rb");
+	CHECK_EQ(fread(memWav, 1, sizeof(memWav), in), sizeof(memWav));
+	fclose(in);
+	OSL_VIRTUALFILENAME v = { "a.wav", memWav, sizeof(memWav), &VF_MEMORY };
+	oslAddVirtualFileList(&v, 1);
+	s = oslLoadSoundFileWAV("a.wav", OSL_FMT_STREAM);
+	CHECK(s && !strcmp(s->filename, "a.wav"));
+	oslDeleteSound(s);
+	oslRemoveVirtualFileList(&v, 1);
+
+	char dir[64], name[96];
+	memset(dir, 'd', 50);
+	dir[50] = 0;
+	snprintf(name, sizeof(name), "%s/b.wav", dir);
+	mkdir(dir, 0700);
+	rename("a.wav", name);
+	s = oslLoadSoundFileWAV(name, OSL_FMT_STREAM);
+	CHECK(s && !strcmp(s->filename, name));
+	oslDeleteSound(s);
+	remove(name);
+	rmdir(dir);
+	CHECK_EQ(chdir(home), 0);
+	rmdir(tmp);
+}
+
 // A thread that can't allocate its buffer ends its channel, which then plays the next sound
 static void threadBufferAllocFails(void) {
 	OSL_SOUND *s = countingSound(0, 0);
@@ -879,5 +921,6 @@ int main(int argc, char **argv) {
 	if (!*only || !strcmp(only, "bufferfail")) threadBufferAllocFails();
 	if (!*only || !strcmp(only, "reopenonplay")) streamReopenedByPlay();
 	if (!*only || !strcmp(only, "reopenwhilereading")) streamReopenedWhileReading();
+	if (!*only || !strcmp(only, "absolutepath")) streamsRememberAbsolutePaths();
 	return TEST_RESULT();
 }

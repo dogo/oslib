@@ -392,6 +392,19 @@ extern void oslPauseSound(OSL_SOUND *s, int pause);
 extern void oslDeleteSound(OSL_SOUND *s);
 
 /**
+ * @brief Remembers the file of a streamed sound, to reopen it after the PSP wakes from stand-by.
+ *
+ * Stores @p filename in `s->filename` as an absolute path (from the current directory) when it fits, since the file
+ * may be reopened by an audio thread, which has no current directory. A name in the virtual file list is kept as is,
+ * as is a path whose absolute form doesn't fit. Also marks the sound as opened after the last stand-by.
+ *
+ * @param s The streamed sound; a custom stream driver can call it too.
+ * @param filename The name the sound's file was opened with, while it is still open.
+ * @return 1, or 0 if not even @p filename fits in `s->filename` (left empty: the sound can't be reopened).
+ */
+extern int oslAudioSetSoundFilename(OSL_SOUND *s, const char *filename);
+
+/**
  * @brief Synchronizes audio streaming with the PSP's power management.
  *
  * This function ensures that streamed audio files continue to play seamlessly after the PSP resumes from stand-by mode. It should be called regularly within the game loop to maintain audio playback synchronization, especially when handling streamed audio files.

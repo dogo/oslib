@@ -371,6 +371,32 @@ int main() {
 		}
 	}
 
+	// An end callback replays a stream after a standby: the file is reopened on that callback's
+	// audio thread, which has no current directory, so the stream must remember an absolute path
+	fprintf(f, "end callback replays stream after standby ");
+	{
+		OSL_SOUND *s = oslLoadSoundFileWAV("../wavload/tone22m.wav", OSL_FMT_STREAM);
+		if (s) {
+			osl_powerCallback(0, PSP_POWER_CB_POWER_SWITCH, NULL);
+			osl_powerCallback(0, PSP_POWER_CB_RESUME_COMPLETE, NULL);
+			OSL_SOUND *a = slowSound();
+			a->audioCallback = endNow;
+			a->endCallback = playNext;
+			meet = 0;
+			next[0] = s;
+			target[0] = 2;
+			oslPlaySound(a, 0);
+			int reopened = waitReopened(s);
+			fprintf(f, "-> path %s, reopened %d %s\n", strchr(s->filename, ':') ? "absolute" : "RELATIVE", reopened,
+			        reopened ? "PASS" : "FAIL");
+			oslDeleteSound(s);
+			waitIdle(0, 2);
+			oslDeleteSound(a);
+		} else {
+			fprintf(f, "-> load failed FAIL\n");
+		}
+	}
+
 	fprintf(f, "DONE\n");
 	fclose(f);
 	sceKernelExitGame();

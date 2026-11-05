@@ -259,8 +259,7 @@ OSL_SOUND *oslLoadSoundFileBGM(const char *filename, int stream) {
 	if (s->isStreamed) {
 		// For streaming, seek to start of audio data (after header)
 		VirtualFileSeek(f, start_offset, SEEK_SET);
-		if (strlen(filename) < sizeof(s->filename))
-			strcpy(s->filename, filename);
+		oslAudioSetSoundFilename(s, filename); // without it, it can't resume after a standby
 		s->data = (void *)f;
 	} else {
 		// For RAM mode, only read the audio data (skip header)

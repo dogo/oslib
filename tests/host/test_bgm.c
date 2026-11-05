@@ -7,6 +7,12 @@ void oslHandleLoadNoFailError(const char *filename) {
 	(void)filename;
 }
 
+// audio.c isn't built here
+int oslAudioSetSoundFilename(OSL_SOUND *s, const char *filename) {
+	snprintf(s->filename, sizeof(s->filename), "%s", filename);
+	return 1;
+}
+
 static const char *path = "test_bgm.bgm";
 
 static int format = 1;

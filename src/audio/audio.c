@@ -13,6 +13,7 @@
 #include <pspaudio.h>
 #endif
 
+#include <limits.h>
 #include <strings.h>
 
 #include "oslib.h"
@@ -262,6 +263,23 @@ static int oslAudioHandOverPlay(OSL_SOUND *s, int voice) {
 	}
 	sceKernelCpuResumeIntr(flags);
 	return handOver;
+}
+
+int oslAudioSetSoundFilename(OSL_SOUND *s, const char *filename) {
+	// Threads OSLib creates have no current directory on the PSP, and one may reopen the file:
+	// resolve a relative path now, unless the name is a virtual file's or its path doesn't fit
+	char path[PATH_MAX];
+	const char *name = filename;
+	if (osl_defaultVirtualFileSource == VF_FILE && !oslFindFileInVirtualFilenameList(filename, VF_AUTO) &&
+	    realpath(filename, path) && strlen(path) < sizeof(s->filename))
+		name = path;
+	s->suspendNumber = osl_suspendNumber;
+	if (strlen(name) >= sizeof(s->filename)) {
+		s->filename[0] = '\0';
+		return 0;
+	}
+	strcpy(s->filename, name);
+	return 1;
 }
 
 static int oslAudioNeedsReopen(OSL_SOUND *s) {
@@ -948,13 +966,11 @@ OSL_SOUND *oslLoadSoundFileWAV(const char *filename, int stream) {
 	s->dataplus = wav;
 	wav->stream = stream;
 
-	// If the sound is streamed, copy the filename and set the suspend number
+	// If the sound is streamed, remember its file to reopen it after a standby
 	if (s->isStreamed) {
-		if (strlen(filename) >= sizeof(s->filename)) {
+		if (!oslAudioSetSoundFilename(s, filename)) {
 			oslFatalError("Sound file name too long!");
 		}
-		s->suspendNumber = osl_suspendNumber;
-		strcpy(s->filename, filename);
 	} else {
 		// Allocate memory for the in-memory WAV data
 		wav->database = (unsigned char *)malloc(s->size);

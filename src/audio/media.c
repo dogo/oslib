@@ -715,15 +715,10 @@ static void soundInit(const char *filename, OSL_SOUND *s, void *info, u32 sample
 	s->isStreamed = 1; // MP3 files are streamed by default
 	s->numSamples = sample_per_frame;
 
-	// If the sound is streamed, store the filename and suspend information
-	if (s->isStreamed) {
-		// Safely copy the filename, ensuring no buffer overflow
-		strncpy(s->filename, filename, sizeof(s->filename) - 1);
-		s->filename[sizeof(s->filename) - 1] = '\0'; // Ensure null termination
-
-		// Set the suspend number to track suspension state
-		s->suspendNumber = osl_suspendNumber;
-	}
+	// If the sound is streamed, remember its file to reopen it after a standby (a name too long is
+	// left empty rather than truncated: it would reopen another file)
+	if (s->isStreamed)
+		oslAudioSetSoundFilename(s, filename);
 
 	// Set up the sound control callbacks
 	s->playSound = oslAudioCallback_PlaySound_ME;
