@@ -15,6 +15,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
+#include <limits.h>
 #include <netdb.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -270,88 +271,100 @@ int oslResolveAddress(char *address, char *resolvedIP) {
 	return 0;
 }
 
+// Finishes a replacement that oslNetGetFile didn't complete (e.g. a power-off between its
+// renames): without <file>, <file>.oslbak is the old file; with it, a leftover
+static int oslNetRecoverBackup(const char *filepath, const char *bakpath) {
+	SceIoStat st;
+	int hadFile = sceIoGetstat(filepath, &st) >= 0;
+	if (hadFile && FIO_S_ISDIR(st.st_mode))
+		return -1;
+	if (sceIoGetstat(bakpath, &st) < 0)
+		return 0;
+	if (FIO_S_ISDIR(st.st_mode))
+		return -1;
+	return hadFile ? sceIoRemove(bakpath) : sceIoRename(bakpath, filepath);
+}
+
 int oslNetGetFile(const char *url, const char *filepath) {
-	int template, connection, request, ret, status, dataend, fd, byteswritten;
-	// SceULong64 contentsize;
+	int template, connection = -1, request = -1, ret, status;
+	int result = OSL_ERR_HTTP_GENERIC, opened = 0;
+	SceUID fd = -1;
+	SceULong64 length, written = 0;
 	unsigned char readbuffer[8192];
+	char tmppath[PATH_MAX], bakpath[PATH_MAX];
 
-	/*										//<-- STAS: HTTP library was already initialized (see oslNetInit()) !
-	        ret = sceHttpInit(20000);
+	// The download goes to <filepath>.oslpart (names reserved to OSLib, see net.h): an existing
+	// file is replaced only by a complete one
+	if (snprintf(tmppath, sizeof(tmppath), "%s.oslpart", filepath) >= (int)sizeof(tmppath) ||
+	    snprintf(bakpath, sizeof(bakpath), "%s.oslbak", filepath) >= (int)sizeof(bakpath))
+		return OSL_ERR_HTTP_GENERIC;
 
-	        if(ret < 0)
-	                return OSL_ERR_HTTP_INIT;
-	 */// <-- STAS END -->
+	if (oslNetRecoverBackup(filepath, bakpath) < 0)
+		return OSL_ERR_HTTP_GENERIC;
+
 	template = sceHttpCreateTemplate("OSL-agent/0.0.1 libhttp/1.0.0", 1, 1);
 	if (template < 0)
 		return OSL_ERR_HTTP_TEMPLATE;
 
-	ret = sceHttpSetResolveTimeOut(template, 3000000);
-	if (ret < 0)
-		return OSL_ERR_HTTP_TIMEOUT;
+	result = OSL_ERR_HTTP_TIMEOUT;
+	if (sceHttpSetResolveTimeOut(template, 3000000) < 0 ||
+	    sceHttpSetRecvTimeOut(template, 60000000) < 0 ||
+	    sceHttpSetSendTimeOut(template, 60000000) < 0)
+		goto end;
 
-	ret = sceHttpSetRecvTimeOut(template, 60000000);
-	if (ret < 0)
-		return OSL_ERR_HTTP_TIMEOUT;
-
-	ret = sceHttpSetSendTimeOut(template, 60000000);
-	if (ret < 0)
-		return OSL_ERR_HTTP_TIMEOUT;
-
+	result = OSL_ERR_HTTP_CONNECT;
 	connection = sceHttpCreateConnectionWithURL(template, url, 0);
 	if (connection < 0)
-		return OSL_ERR_HTTP_CONNECT;
+		goto end;
 
+	result = OSL_ERR_HTTP_REQUEST;
 	request = sceHttpCreateRequestWithURL(connection, PSP_HTTP_METHOD_GET, (char *)url, 0);
-	if (request < 0)
-		return OSL_ERR_HTTP_REQUEST;
+	if (request < 0 || sceHttpSendRequest(request, 0, 0) < 0)
+		goto end;
 
-	ret = sceHttpSendRequest(request, 0, 0);
-	if (ret < 0)
-		return OSL_ERR_HTTP_REQUEST;
+	// Anything but 200 OK is not the file
+	result = OSL_ERR_HTTP_GENERIC;
+	if (sceHttpGetStatusCode(request, &status) < 0 || status != 200)
+		goto end;
 
-	ret = sceHttpGetStatusCode(request, &status);
-	if (ret < 0)
-		return OSL_ERR_HTTP_GENERIC;
-
-	if (status != 200)
-		return 0;
-
-	/* Strangelove fix
-	   ret = sceHttpGetContentLength(request, &contentsize);
-	   if(ret < 0)
-	        return OSL_ERR_HTTP_GENERIC;
-	 */
-
-	dataend = 0;
-	byteswritten = 0;
-
-	// Strangelove fix - Added PSP_O_TRUNC
-	fd = sceIoOpen(filepath, PSP_O_WRONLY | PSP_O_TRUNC | PSP_O_CREAT, 0777);
-
-	while (dataend == 0) {
-		ret = sceHttpReadData(request, readbuffer, 8192);
-		if (ret < 0) {
-			sceIoWrite(fd, filepath, 4);
-			sceIoClose(fd);
-			return OSL_ERR_HTTP_GENERIC;
-		}
-
-		if (ret == 0)
-			dataend = 1;
-
-		if (ret > 0) {
-			byteswritten += ret;
-			sceIoWrite(fd, readbuffer, ret);
-		}
+	fd = sceIoOpen(tmppath, PSP_O_WRONLY | PSP_O_TRUNC | PSP_O_CREAT, 0777);
+	if (fd < 0)
+		goto end;
+	opened = 1;
+	while ((ret = sceHttpReadData(request, readbuffer, sizeof(readbuffer))) > 0) {
+		if (sceIoWrite(fd, readbuffer, ret) != ret)
+			goto end;
+		written += ret;
 	}
+	if (ret < 0)
+		goto end; // read error: the cleanup closes the file
+	ret = sceIoClose(fd);
+	fd = -1;
+	if (ret < 0)
+		goto end;
 
-	sceIoClose(fd);
-	sceHttpDeleteRequest(request);
-	sceHttpDeleteConnection(connection);
+	// A connection that closes early just ends the data: check it against the length, if sent
+	if (sceHttpGetContentLength(request, &length) >= 0 && length != written)
+		goto end;
+
+	// FAT can't rename over a file: move the old one aside, and back if the new one can't go in
+	int hadFile = sceIoRename(filepath, bakpath) >= 0;
+	if (sceIoRename(tmppath, filepath) < 0) {
+		if (hadFile) sceIoRename(bakpath, filepath);
+		goto end;
+	}
+	if (hadFile) sceIoRemove(bakpath);
+	result = 0;
+
+end:
+	if (fd >= 0) sceIoClose(fd);
+	if (result && opened) sceIoRemove(tmppath); // only what this call wrote
+	if (request >= 0) sceHttpDeleteRequest(request);
+	if (connection >= 0) sceHttpDeleteConnection(connection);
 	sceHttpDeleteTemplate(template);
 	//	sceHttpEnd();						//<-- STAS: This should be done in oslNetTerm() only !
 
-	return 0;
+	return result;
 }
 
 int oslNetPostForm(const char *url, char *data, char *response, unsigned int responsesize) {
@@ -364,14 +377,12 @@ int oslNetPostForm(const char *url, char *data, char *response, unsigned int res
 	 */// <-- STAS END -->
 	template = sceHttpCreateTemplate("OSL-agent/0.0.1 libhttp/1.0.0", 1, 1);
 	if (template < 0) {
-		sceHttpEnd();
 		return OSL_ERR_HTTP_TEMPLATE;
 	}
 
 	ret = sceHttpSetResolveTimeOut(template, 3000000);
 	if (ret < 0) {
 		sceHttpDeleteTemplate(template);
-		sceHttpEnd();
 		return OSL_ERR_HTTP_TIMEOUT;
 	}
 
@@ -379,7 +390,6 @@ int oslNetPostForm(const char *url, char *data, char *response, unsigned int res
 
 	if (ret < 0) {
 		sceHttpDeleteTemplate(template);
-		sceHttpEnd();
 		return OSL_ERR_HTTP_TIMEOUT;
 	}
 
@@ -387,7 +397,6 @@ int oslNetPostForm(const char *url, char *data, char *response, unsigned int res
 
 	if (ret < 0) {
 		sceHttpDeleteTemplate(template);
-		sceHttpEnd();
 		return OSL_ERR_HTTP_TIMEOUT;
 	}
 
@@ -395,7 +404,6 @@ int oslNetPostForm(const char *url, char *data, char *response, unsigned int res
 
 	if (connection < 0) {
 		sceHttpDeleteTemplate(template);
-		sceHttpEnd();
 		return OSL_ERR_HTTP_TIMEOUT;
 	}
 
@@ -404,7 +412,6 @@ int oslNetPostForm(const char *url, char *data, char *response, unsigned int res
 	if (request < 0) {
 		sceHttpDeleteConnection(connection);
 		sceHttpDeleteTemplate(template);
-		sceHttpEnd();
 		return OSL_ERR_HTTP_REQUEST;
 	}
 
@@ -415,7 +422,6 @@ int oslNetPostForm(const char *url, char *data, char *response, unsigned int res
 		sceHttpDeleteRequest(request);
 		sceHttpDeleteConnection(connection);
 		sceHttpDeleteTemplate(template);
-		sceHttpEnd();
 		return OSL_ERR_HTTP_REQUEST;
 	}
 
@@ -424,7 +430,6 @@ int oslNetPostForm(const char *url, char *data, char *response, unsigned int res
 		sceHttpDeleteRequest(request);
 		sceHttpDeleteConnection(connection);
 		sceHttpDeleteTemplate(template);
-		sceHttpEnd();
 		return OSL_ERR_HTTP_GENERIC;
 	}
 
@@ -432,7 +437,6 @@ int oslNetPostForm(const char *url, char *data, char *response, unsigned int res
 		sceHttpDeleteRequest(request);
 		sceHttpDeleteConnection(connection);
 		sceHttpDeleteTemplate(template);
-		sceHttpEnd();
 		return OSL_ERR_HTTP_GENERIC;
 	}
 
@@ -442,7 +446,6 @@ int oslNetPostForm(const char *url, char *data, char *response, unsigned int res
 			sceHttpDeleteRequest(request);
 			sceHttpDeleteConnection(connection);
 			sceHttpDeleteTemplate(template);
-			sceHttpEnd();
 			return OSL_ERR_HTTP_GENERIC;
 		}
 	}

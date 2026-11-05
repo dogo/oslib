@@ -8,7 +8,9 @@
 
 #include <fcntl.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <sys/stat.h>
 #include <unistd.h>
 
 typedef int32_t s32;
@@ -38,6 +40,33 @@ static inline int sceIoRead(SceUID fd, void *data, SceSize size) {
 
 static inline int sceIoWrite(SceUID fd, const void *data, SceSize size) {
 	return (int)write(fd, data, size);
+}
+
+// The PSP's mode bits (pspiofilemgr_stat.h); sceIoGetstat returns 0x80010002 for a missing path
+#define FIO_S_IFMT 0xF000
+#define FIO_S_IFDIR 0x1000
+#define FIO_S_IFREG 0x2000
+#define FIO_S_ISDIR(m) (((m) & FIO_S_IFMT) == FIO_S_IFDIR)
+
+typedef struct SceIoStat {
+	unsigned int st_mode;
+} SceIoStat;
+
+static inline int sceIoGetstat(const char *file, SceIoStat *stat_) {
+	struct stat st;
+	if (stat(file, &st) < 0) return (int)0x80010002;
+	stat_->st_mode = S_ISDIR(st.st_mode) ? FIO_S_IFDIR : FIO_S_IFREG;
+	return 0;
+}
+
+static inline int sceIoRemove(const char *file) {
+	return unlink(file);
+}
+
+// Like the memory stick's FAT: no rename over an existing file (0x80010011, checked on a PSP)
+static inline int sceIoRename(const char *oldname, const char *newname) {
+	if (access(newname, F_OK) == 0) return (int)0x80010011;
+	return rename(oldname, newname);
 }
 
 static inline int sceIoLseek32(SceUID fd, int offset, int whence) {

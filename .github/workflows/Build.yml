@@ -53,7 +53,7 @@ jobs:
       - name: Build device tests
         run: |
           set -euo pipefail
-          for d in tests/device/*/ ; do
+          for d in tests/device/*/ tests/ppsspp/*/ ; do
             echo "Building $d"
             make -C "$d"
           done
@@ -84,6 +84,7 @@ jobs:
           cmake -S tests/host -B build-host-tests
           cmake --build build-host-tests -j"$(nproc)"
           ctest --test-dir build-host-tests --output-on-failure
+          python3 tests/ppsspp/httpget/test_runner.py
 
   format:
     name: Code format (Uncrustify)
