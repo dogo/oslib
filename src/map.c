@@ -48,6 +48,9 @@ void oslDrawMapSimple(OSL_MAP *m) {
 
 void oslDrawMap(OSL_MAP *m) {
 	if (!m || !m->img || !m->map) return;
+	// Everything below divides by these; the fields can change after oslCreateMap. A tileset
+	// narrower than a tile has no tile per line.
+	if (m->tileX <= 0 || m->tileY <= 0 || m->mapSizeX <= 0 || m->mapSizeY <= 0 || m->img->sizeX < m->tileX) return;
 
 	int x, y, v, sX, sY, mX, mY, dX, bY, dsX, dsY, xTile, yTile;
 	u32 tilesPerLine = m->img->sizeX / m->tileX;
