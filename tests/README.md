@@ -6,7 +6,8 @@ The build CI job compiles every sample standalone, then builds the audio sample 
 `samples/audio/build/debug` and all samples together in `samples/cbuild`. It checks
 that every sample has its own EBOOT, that the audio sample's `Resources/music.bgm`
 is copied byte for byte, and that standalone and nested build trees are not copied
-into the sample outputs as assets.
+into the sample outputs as assets. It also checks that `rectAndFonts` produces its
+own executable name and that the shapes sample's C++ source is not copied as an asset.
 
 ## Host unit tests (`tests/host`)
 

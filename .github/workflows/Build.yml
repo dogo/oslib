@@ -93,6 +93,10 @@ jobs:
           test -z "$(find samples/cbuild -mindepth 2 -name CMakeCache.txt -print -quit)"
           test ! -e samples/cbuild/audio/build
           cmp samples/audio/Resources/music.bgm samples/cbuild/audio/Resources/music.bgm
+          test -f samples/cbuild/rectAndFonts/rectAndFonts
+          test ! -e samples/cbuild/rectAndFonts/dialog
+          test ! -e samples/cbuild/shapes/main.cpp
+          test ! -e samples/cbuild/shapes/shapes.hpp
 
   host-tests:
     name: Host unit tests
