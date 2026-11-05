@@ -15,4 +15,5 @@ toggle while stop pending -> stop pending, channel 0 PASS
 resume while stop pending -> stop pending, channel 0 PASS
 pause while stop pending -> stop pending, channel 0 PASS
 standby, playing + paused streams -> standby 3 2, after 1 2, reopened 1, 0 bytes kept PASS
+standby, stream played after -> reopened 1, 0 bytes kept PASS
 DONE

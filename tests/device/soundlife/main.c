@@ -122,6 +122,13 @@ static int stopTargetSound(OSL_SOUND *s, int voice) {
 	return 0;
 }
 
+// A standby closed the stream's file: its channel's thread reopens it before its next callback
+static int waitReopened(OSL_SOUND *s) {
+	for (int ms = 0; ms < 1000 && s->suspendNumber != osl_suspendNumber; ms++)
+		sceKernelDelayThread(1000);
+	return s->suspendNumber == osl_suspendNumber;
+}
+
 static int waitFor(volatile int *flag, int ms) {
 	for (; ms > 0 && !*flag; ms--)
 		sceKernelDelayThread(1000);
@@ -313,9 +320,9 @@ int main() {
 		oslDeleteSound(b);
 	}
 
-	// A standby (its power callback, without suspending): the playing stream waits for
-	// oslAudioVSync to reopen its file, the paused one stays paused; both files are reopened and
-	// the closed ones freed
+	// A standby (its power callback, without suspending): the playing stream waits for its file
+	// to be reopened, the paused one stays paused; oslAudioVSync has both reopened and the closed
+	// ones freed
 	fprintf(f, "standby, playing + paused streams ");
 	{
 		OSL_SOUND *s[2];
@@ -332,8 +339,8 @@ int main() {
 			int during[2] = { osl_audioActive[2], osl_audioActive[3] };
 			osl_powerCallback(0, PSP_POWER_CB_RESUME_COMPLETE, NULL);
 			oslAudioVSync();
+			int reopened = waitReopened(s[0]) && waitReopened(s[1]);
 			int after[2] = { osl_audioActive[2], osl_audioActive[3] };
-			int reopened = s[0]->suspendNumber == osl_suspendNumber && s[1]->suspendNumber == osl_suspendNumber;
 			int kept = mallinfo().uordblks - before;
 			fprintf(f, "-> standby %d %d, after %d %d, reopened %d, %d bytes kept %s\n", during[0], during[1], after[0],
 			        after[1], reopened, kept,
@@ -343,6 +350,25 @@ int main() {
 		}
 		for (int i = 0; i < 2; i++)
 			if (s[i]) oslDeleteSound(s[i]);
+	}
+
+	// A stream that wasn't playing during the standby: oslPlaySound reopens its file and must
+	// free the one the standby closed
+	fprintf(f, "standby, stream played after ");
+	{
+		int before = mallinfo().uordblks;
+		OSL_SOUND *s = oslLoadSoundFileWAV("../wavload/tone22m.wav", OSL_FMT_STREAM);
+		if (s) {
+			osl_powerCallback(0, PSP_POWER_CB_POWER_SWITCH, NULL);
+			osl_powerCallback(0, PSP_POWER_CB_RESUME_COMPLETE, NULL);
+			oslPlaySound(s, 2);
+			int reopened = waitReopened(s);
+			oslDeleteSound(s);
+			int kept = mallinfo().uordblks - before;
+			fprintf(f, "-> reopened %d, %d bytes kept %s\n", reopened, kept, reopened && !kept ? "PASS" : "FAIL");
+		} else {
+			fprintf(f, "-> load failed FAIL\n");
+		}
 	}
 
 	fprintf(f, "DONE\n");

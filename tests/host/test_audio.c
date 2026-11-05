@@ -128,8 +128,13 @@ int sceAudioChRelease(int channel) {
 	return 0;
 }
 
+static volatile int loudOutput[8]; // a channel output a non-silent sample
+
 int sceAudioOutputPannedBlocking(int channel, int leftvol, int rightvol, void *buf) {
-	(void)channel; (void)leftvol; (void)rightvol; (void)buf;
+	(void)leftvol; (void)rightvol;
+	int bytes = osl_audioVoices[channel].numSamples * (osl_audioVoices[channel].mono ? 2 : 4);
+	for (int i = 0; i < bytes; i++)
+		if (((unsigned char *)buf)[i]) loudOutput[channel] = 1;
 	return usleep(2000); // one buffer playing
 }
 
@@ -631,6 +636,19 @@ static OSL_SOUND *loopingStream(const char *path, int voice) {
 	return s;
 }
 
+// A standby closed the stream's file: its channel's thread reopens it before its next callback
+static int waitReopened(OSL_SOUND *s) {
+	for (int ms = 0; ms < 1000 && s->suspendNumber != osl_suspendNumber; ms++)
+		usleep(1000);
+	return s->suspendNumber == osl_suspendNumber;
+}
+
+static int waitState(int voice, int state) {
+	for (int ms = 0; ms < 1000 && osl_audioActive[voice] != state; ms++)
+		usleep(1000);
+	return osl_audioActive[voice] == state;
+}
+
 // A paused stream stays paused across standby; resumed before VSync reopens its file, it waits
 // for VSync instead of reading the file closed by the standby
 static void pausedStreamAcrossStandby(int resumeBeforeVSync) {
@@ -645,11 +663,12 @@ static void pausedStreamAcrossStandby(int resumeBeforeVSync) {
 		oslPauseSound(s, 0);
 		CHECK_EQ(osl_audioActive[2], 3);
 		oslAudioVSync();
-		CHECK_EQ(osl_audioActive[2], 1);
+		CHECK(waitReopened(s));
+		CHECK(waitState(2, 1));
 	} else {
 		oslAudioVSync();
+		CHECK(waitReopened(s));
 		CHECK_EQ(osl_audioActive[2], 2);
-		CHECK_EQ(s->suspendNumber, osl_suspendNumber); // its file was reopened
 		oslPauseSound(s, 0);
 		CHECK_EQ(osl_audioActive[2], 1);
 	}
@@ -667,6 +686,7 @@ static void toggleSuspendedStream(void) {
 	oslPauseSound(s, -1);
 	CHECK_EQ(osl_audioActive[2], 2);
 	oslAudioVSync();
+	CHECK(waitReopened(s));
 	CHECK_EQ(osl_audioActive[2], 2);
 	oslPauseSound(s, -1);
 	CHECK_EQ(osl_audioActive[2], 1);
@@ -702,6 +722,106 @@ static void stopDuringVSyncReopen(void) {
 	if (reopened) VirtualFileClose(reopened);
 	reopened = NULL;
 	oslDeleteSound(a);
+	remove(path);
+}
+
+// A stream played after a standby gets its file reopened, freeing the one the standby closed, and
+// plays from its start: not from the position saved for whatever the channel played then (0
+// here: the file's header would come out as sound)
+static void streamReopenedByPlay(void) {
+	extern long osl_filesave[];
+	const char *path = writeTestWav();
+	OSL_SOUND *s = oslLoadSoundFileWAV(path, OSL_FMT_STREAM);
+	CHECK(s != NULL);
+	osl_powerCallback(0, PSP_POWER_CB_POWER_SWITCH, NULL);
+	osl_powerCallback(0, PSP_POWER_CB_RESUME_COMPLETE, NULL);
+	osl_filesave[2] = 0;
+	loudOutput[2] = 0;
+	oslPlaySound(s, 2);
+	CHECK(waitReopened(s));
+	CHECK(waitEnd(2));
+	CHECK(!loudOutput[2]);
+	oslDeleteSound(s);
+	remove(path);
+}
+
+static pthread_mutex_t readMutex = PTHREAD_MUTEX_INITIALIZER;
+static pthread_cond_t readCond = PTHREAD_COND_INITIALIZER;
+static int readEntered, readReleased;
+static VIRTUAL_FILE *readSlot;
+
+// A read the standby interrupts: it started on the stream's file and finishes on that same file
+static int blockedRead(unsigned int voice, void *buf, unsigned int length) {
+	(void)voice;
+	memset(buf, 0, length * 4);
+	VIRTUAL_FILE *mine = readSlot;
+	pthread_mutex_lock(&readMutex);
+	readEntered = 1;
+	pthread_cond_broadcast(&readCond);
+	while (!readReleased)
+		pthread_cond_wait(&readCond, &readMutex);
+	pthread_mutex_unlock(&readMutex);
+	char c;
+	VirtualFileRead(&c, 1, 1, mine);
+	return 1;
+}
+
+static void releaseRead(OSL_SOUND *s) {
+	(void)s;
+	pthread_mutex_lock(&readMutex);
+	readReleased = 1;
+	pthread_cond_broadcast(&readCond);
+	pthread_mutex_unlock(&readMutex);
+}
+
+static VIRTUAL_FILE **readSlotOf(OSL_SOUND *s, VIRTUAL_FILE *f) {
+	(void)s; (void)f;
+	return &readSlot;
+}
+
+static VIRTUAL_FILE *readFile(OSL_SOUND *s) {
+	(void)s;
+	return readSlot;
+}
+
+static void closeReadSlot(OSL_SOUND *s) {
+	(void)s;
+	VirtualFileClose(readSlot);
+	readSlot = NULL;
+}
+
+// Replaying a stream whose callback a standby interrupted: its file must not change under that
+// callback, and is reopened (the old one freed) once it returns
+static void streamReopenedWhileReading(void) {
+	const char *path = writeTestWav();
+	readSlot = VirtualFileOpen((void *)path, 0, VF_AUTO, VF_O_READ);
+	readEntered = readReleased = 0;
+	OSL_SOUND *s = calloc(1, sizeof(OSL_SOUND));
+	s->isStreamed = 1;
+	s->suspendNumber = osl_suspendNumber;
+	strcpy(s->filename, path);
+	s->audioCallback = blockedRead;
+	s->playSound = nop;
+	s->stopSound = releaseRead;
+	s->deleteSound = closeReadSlot;
+	s->standBySound = readFile;
+	s->reactiveSound = readSlotOf;
+	oslPlaySound(s, 1);
+	pthread_mutex_lock(&readMutex);
+	while (!readEntered)
+		pthread_cond_wait(&readCond, &readMutex);
+	pthread_mutex_unlock(&readMutex);
+	osl_powerCallback(0, PSP_POWER_CB_POWER_SWITCH, NULL);
+	osl_powerCallback(0, PSP_POWER_CB_RESUME_COMPLETE, NULL);
+	VIRTUAL_FILE *old = readSlot;
+	oslPlaySound(s, 1);
+	usleep(20 * 1000);
+	CHECK(readSlot == old);
+	releaseRead(s);
+	CHECK(waitReopened(s));
+	CHECK(readSlot != old);
+	oslDeleteSound(s);
+	CHECK(waitEnd(1));
 	remove(path);
 }
 
@@ -757,5 +877,7 @@ int main(int argc, char **argv) {
 	if (!*only || !strcmp(only, "togglesuspended")) toggleSuspendedStream();
 	if (!*only || !strcmp(only, "vsyncstop")) stopDuringVSyncReopen();
 	if (!*only || !strcmp(only, "bufferfail")) threadBufferAllocFails();
+	if (!*only || !strcmp(only, "reopenonplay")) streamReopenedByPlay();
+	if (!*only || !strcmp(only, "reopenwhilereading")) streamReopenedWhileReading();
 	return TEST_RESULT();
 }
