@@ -117,5 +117,9 @@ int sceAudioChReserve(int channel, int samplecount, int format);
 int sceAudioChRelease(int channel);
 int sceAudioOutputPannedBlocking(int channel, int leftvol, int rightvol, void *buf);
 int sceAudioChangeChannelConfig(int channel, int format);
+int sceAudioSetChannelDataLen(int channel, int samplecount);
+
+#define PSP_POWER_CB_POWER_SWITCH 0x80000000
+#define PSP_POWER_CB_RESUME_COMPLETE 0x00040000
 
 #endif

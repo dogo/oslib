@@ -3,10 +3,19 @@ missing WAV, stream        -> NULL PASS
 missing BGM, RAM           -> NULL PASS
 missing BGM, stream        -> NULL PASS
 delete during callback     -> callback entered 1, still running 0, channel 0 PASS
-thread buffer alloc fails  -> channel 0, voice -1 PASS
 thread creation fails      -> stack memory exhausted, channel 0, voice -1 PASS
 channel plays again        -> callback called PASS
 stop looping sound         -> callback entered 1, channel 0 PASS
 stop self-deleting sound   -> callback entered 1, deleted by it 0, channel 0 PASS
 end callbacks stop each other -> channels 0 0 PASS
+end callback plays next on its voice -> played 3, length 1152, channel 0 PASS
+end callbacks play on each other's voice -> played 3 3, channels 0 0 PASS
+20 BGM loads and deletes -> loaded 20, 0 bytes kept PASS
+toggle while stop pending -> stop pending, channel 0 PASS
+resume while stop pending -> stop pending, channel 0 PASS
+pause while stop pending -> stop pending, channel 0 PASS
+standby, playing + paused streams -> standby 3 2, after 1 2, reopened 1, 0 bytes kept PASS
+standby, stream played after -> reopened 1, 0 bytes kept PASS
+end callback replays stream after standby -> path absolute, reopened 1 PASS
+ms0 stream replayed after chdir -> path absolute, reopened 1 PASS
 DONE

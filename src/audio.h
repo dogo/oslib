@@ -23,7 +23,7 @@ extern "C" {
  * Please release your source when creating custom implementations.
  */
 typedef struct OSL_SOUND {
-	char filename[64]; ///< Filename for reopening after standby, used if streamed.
+	char filename[256]; ///< Absolute path to reopen a streamed sound after stand-by (see oslAudioSetSoundFilename).
 	void *data;     ///< Pointer to sound data, format-specific.
 	void *dataplus; ///< Pointer to extended sound data.
 	int baseoffset; ///< Offset in the file to begin playback, excludes header.
@@ -302,6 +302,8 @@ void oslSetModSampleRate(int freq, int stereo, int shift);
  * @endcode
  *
  * The example demonstrates managing different sound effects and music tracks, showing how replacing sounds on the same channel can control audio playback dynamically.
+ *
+ * @note Called from an audio thread (an endCallback) on a channel playing another sound, including the callback's own channel, it returns at once: the channel stops its current sound and starts this one when that sound's current buffer is done, so a callback can chain the next track. The stopped sound's endCallback isn't called. A later oslPlaySound on that channel, or oslStopSound / oslDeleteSound of the new sound, cancels the switch if it hasn't happened yet.
  */
 extern void oslPlaySound(OSL_SOUND *s, int voice);
 
@@ -343,7 +345,8 @@ extern void oslStopSound(OSL_SOUND *s);
  *              - 0: Resume the sound from where it was paused.
  *              - -1: Toggle between pause and play. If the sound is playing, it will be paused; if paused, it will be resumed.
  *
- * @note If the sound is not currently playing, calling this function with a resume or toggle command will have no effect.
+ * @note If the sound is not currently playing, calling this function with a resume or toggle command will have no effect. Neither has it on a sound being stopped: the stop wins.
+ * @note A sound paused when the PSP enters stand-by stays paused after it wakes up. A streamed sound resumed before its file has been reopened (see #oslAudioVSync) starts playing once it has.
  *
  * @code
  * OSL_SOUND *backgroundMusic;
@@ -389,6 +392,22 @@ extern void oslPauseSound(OSL_SOUND *s, int pause);
 extern void oslDeleteSound(OSL_SOUND *s);
 
 /**
+ * @brief Remembers the file of a streamed sound, to reopen it after the PSP wakes from stand-by.
+ *
+ * Stores @p filename in `s->filename` as an absolute path (from the current directory set with chdir()) when it fits,
+ * since the file may be reopened by an audio thread, which has no current directory, or after the app changed
+ * directory. A name in the virtual file list is kept as is, as is a path whose absolute form doesn't fit (255
+ * characters). Also marks the sound as opened after the last stand-by.
+ *
+ * @note The current directory is the one chdir() sets; a directory set with sceIoChdir() directly isn't seen.
+ *
+ * @param s The streamed sound; a custom stream driver can call it too.
+ * @param filename The name the sound's file was opened with, while it is still open.
+ * @return 1, or 0 if not even @p filename fits in `s->filename` (left empty: the sound can't be reopened).
+ */
+extern int oslAudioSetSoundFilename(OSL_SOUND *s, const char *filename);
+
+/**
  * @brief Synchronizes audio streaming with the PSP's power management.
  *
  * This function ensures that streamed audio files continue to play seamlessly after the PSP resumes from stand-by mode. It should be called regularly within the game loop to maintain audio playback synchronization, especially when handling streamed audio files.
@@ -410,6 +429,8 @@ extern void oslDeleteSound(OSL_SOUND *s);
  * @endcode
  *
  * Including this function in your game loop ensures that audio playback issues do not occur after the PSP resumes from a standby state.
+ *
+ * @note It has the files of the streamed sounds that were playing or paused when the PSP entered stand-by reopened, by their channel's thread before its next buffer; the paused ones stay paused.
  */
 extern void oslAudioVSync();
 

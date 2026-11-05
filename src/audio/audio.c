@@ -13,6 +13,7 @@
 #include <pspaudio.h>
 #endif
 
+#include <limits.h>
 #include <strings.h>
 
 #include "oslib.h"
@@ -32,6 +33,13 @@ static osl_audio_channelinfo AudioStatus[OSL_NUM_AUDIO_CHANNELS]; // Audio chann
 volatile int osl_audioActive[OSL_NUM_AUDIO_CHANNELS];       // Tracks the active state of each audio channel
 static u32 *audio_sndbuf[OSL_NUM_AUDIO_CHANNELS];           // Sound buffers for each audio channel
 static OSL_SOUND *audio_pendingDelete[OSL_NUM_AUDIO_CHANNELS];
+static OSL_SOUND *audio_pendingPlay[OSL_NUM_AUDIO_CHANNELS]; // handed over by an audio thread
+// A stream whose file a standby closed: the thread that asks reopens it (an app thread: relative
+// paths resolve as when it was loaded), the channel's thread installs it between two callbacks
+static OSL_SOUND *audio_reopen[OSL_NUM_AUDIO_CHANNELS];
+static VIRTUAL_FILE *audio_reopenFile[OSL_NUM_AUDIO_CHANNELS];
+static int audio_reopenRestart[OSL_NUM_AUDIO_CHANNELS]; // from the start (oslPlaySound), or not (oslAudioVSync)
+static int audio_reopenNumber[OSL_NUM_AUDIO_CHANNELS];  // the standbys the new file follows
 long osl_filesave[OSL_NUM_AUDIO_CHANNELS];                  // Stores file positions for streamed audio
 
 // PSP power management
@@ -63,67 +71,134 @@ int oslAudioOutBlocking(unsigned int channel, unsigned int vol1, unsigned int vo
 	return sceAudioOutputPannedBlocking(AudioStatus[channel].handle, vol1, vol2, buf);
 }
 
+// A stream's file a standby closed: closing it may fail, the VIRTUAL_FILE is freed anyway
+static void oslAudioDropFile(VIRTUAL_FILE *f) {
+	VirtualFileGetSource(f)->fClose(f);
+	free(f);
+}
+
 static void oslAudioFreeSound(OSL_SOUND *s) {
 	if (s->deleteSound)
 		s->deleteSound(s);
 	free(s);
 }
 
+static void setChannelSound(int voice, OSL_SOUND *s);
+static void oslAudioStartSound(OSL_SOUND *s, int voice);
+static void oslAudioInstall(OSL_SOUND *s, int channel, VIRTUAL_FILE *f, int number, int restart);
+void oslAudioCallback(unsigned int i, void *buf, unsigned int length);
+
+#define OSL_AUDIO_ERROR_OUTPUT_BUSY 0x80260002
+
+// The hardware refuses a new configuration while the channel's last buffer still plays: wait
+// for it, a buffer at most
+static int oslAudioConfigureChannel(int handle, int format, int value) {
+	for (int tries = 0;; tries++) {
+		int ret = format ? sceAudioChangeChannelConfig(handle, value) : sceAudioSetChannelDataLen(handle, value);
+		if (ret != (int)OSL_AUDIO_ERROR_OUTPUT_BUSY || tries == 100)
+			return ret;
+		sceKernelDelayThread(1000);
+	}
+}
+
 static int oslAudioChannelThread(int args, void *argp) {
 	int channel = *(int *)argp;
-	int bufferIndex = 0;
-	int is_mono = (osl_audioVoices[channel].mono == 0x10);
-	// Bytes per sample: mono = 2, stereo = 4
-	int bytes_per_sample = is_mono ? 2 : 4;
-	// Total buffer size: numSamples * bytes_per_sample * 2 (double buffer)
-	int buffer_size = osl_audioVoices[channel].numSamples * bytes_per_sample * 2;
+	OSL_SOUND *next;
 
-	// Allocate double-buffer for audio processing
-	audio_sndbuf[channel] = (u32 *)calloc(1, buffer_size);
+	// One pass per sound: a play handed over by an audio thread continues on this thread
+	do {
+		int bufferIndex = 0;
+		int is_mono = (osl_audioVoices[channel].mono == 0x10);
+		// Bytes per sample: mono = 2, stereo = 4
+		int bytes_per_sample = is_mono ? 2 : 4;
+		// Total buffer size: numSamples * bytes_per_sample * 2 (double buffer)
+		int buffer_size = osl_audioVoices[channel].numSamples * bytes_per_sample * 2;
 
-	// Without a buffer the loop is skipped, but the cleanup below still ends the channel
-	while (audio_sndbuf[channel] && osl_audioActive[channel] > 0) {
-		// Get a pointer to our actual buffer (we do double buffering)
-		// For mono: advance by numSamples * 2 bytes
-		// For stereo: advance by numSamples * 4 bytes
-		void *bufptr = (u8 *)audio_sndbuf[channel] + bufferIndex * osl_audioVoices[channel].numSamples * bytes_per_sample;
-		// Our callback function
-		void (*callback)(unsigned int channel, void *buf, unsigned int reqn) = AudioStatus[channel].callback;
-		// Read before the callback: its endCallback may delete the sound
-		OSL_SOUND *sound = osl_audioVoices[channel].sound;
-		unsigned int volumeLeft = sound ? sound->volumeLeft : 0, volumeRight = sound ? sound->volumeRight : 0;
+		// Allocate double-buffer for audio processing
+		audio_sndbuf[channel] = (u32 *)calloc(1, buffer_size);
 
-		AudioStatus[channel].inProgress = 1;
-		if (callback && osl_audioActive[channel] == 1) {
-			callback(channel, bufptr, osl_audioVoices[channel].numSamples);
-		} else {
-			memset(bufptr, 0, osl_audioVoices[channel].numSamples * bytes_per_sample);
+		// Without a buffer the loop is skipped, but the cleanup below still ends the channel
+		while (audio_sndbuf[channel] && osl_audioActive[channel] > 0) {
+			// The only place a playing stream's file changes: no callback reads it meanwhile
+			unsigned int flags = sceKernelCpuSuspendIntr();
+			OSL_SOUND *reopen = audio_reopen[channel];
+			VIRTUAL_FILE *file = audio_reopenFile[channel];
+			int restart = audio_reopenRestart[channel], number = audio_reopenNumber[channel];
+			audio_reopen[channel] = NULL;
+			audio_reopenFile[channel] = NULL;
+			sceKernelCpuResumeIntr(flags);
+			if (reopen && reopen == osl_audioVoices[channel].sound)
+				oslAudioInstall(reopen, channel, file, number, restart);
+			else if (file)
+				VirtualFileClose(file); // for a sound no longer on this channel
+
+			// Get a pointer to our actual buffer (we do double buffering)
+			// For mono: advance by numSamples * 2 bytes
+			// For stereo: advance by numSamples * 4 bytes
+			void *bufptr = (u8 *)audio_sndbuf[channel] + bufferIndex * osl_audioVoices[channel].numSamples * bytes_per_sample;
+			// Our callback function
+			void (*callback)(unsigned int channel, void *buf, unsigned int reqn) = AudioStatus[channel].callback;
+			// Read before the callback: its endCallback may delete the sound
+			OSL_SOUND *sound = osl_audioVoices[channel].sound;
+			unsigned int volumeLeft = sound ? sound->volumeLeft : 0, volumeRight = sound ? sound->volumeRight : 0;
+
+			AudioStatus[channel].inProgress = 1;
+			if (callback && osl_audioActive[channel] == 1) {
+				callback(channel, bufptr, osl_audioVoices[channel].numSamples);
+			} else {
+				memset(bufptr, 0, osl_audioVoices[channel].numSamples * bytes_per_sample);
+			}
+			AudioStatus[channel].inProgress = 0;
+
+			oslAudioOutBlocking(channel, volumeLeft, volumeRight, bufptr);
+			bufferIndex = (bufferIndex ? 0 : 1);
 		}
-		AudioStatus[channel].inProgress = 0;
 
-		oslAudioOutBlocking(channel, volumeLeft, volumeRight, bufptr);
-		bufferIndex = (bufferIndex ? 0 : 1);
-	}
+		// Clean up after the sound is done
+		osl_audioActive[channel] = -2;
+		free(audio_sndbuf[channel]);
+		audio_sndbuf[channel] = NULL;
 
-	// Clean up after the channel is done
-	osl_audioActive[channel] = -2;
-	free(audio_sndbuf[channel]);
-	audio_sndbuf[channel] = NULL;
+		// Claim a deferred deletion and a handed-over play, and switch the published sound, together:
+		// another thread can then neither free the old sound early nor miss the new one.
+		unsigned int flags = sceKernelCpuSuspendIntr();
+		OSL_SOUND *sound = audio_pendingDelete[channel];
+		audio_pendingDelete[channel] = NULL;
+		next = audio_pendingPlay[channel];
+		audio_pendingPlay[channel] = NULL;
+		// A reopen for the ended sound is moot
+		audio_reopen[channel] = NULL;
+		VIRTUAL_FILE *unused = audio_reopenFile[channel];
+		audio_reopenFile[channel] = NULL;
+		int numSamples = osl_audioVoices[channel].numSamples, mono = osl_audioVoices[channel].mono;
+		if (next) {
+			setChannelSound(channel, next);
+			osl_audioActive[channel] = 1;
+		} else {
+			osl_audioVoices[channel].sound = NULL;
+		}
+		sceKernelCpuResumeIntr(flags);
+		if (unused)
+			VirtualFileClose(unused);
+		if (sound)
+			oslAudioFreeSound(sound);
+		if (next) {
+			// The new sound may use another buffer size or channel count; a refusal ends it
+			int handle = AudioStatus[channel].handle;
+			if ((osl_audioVoices[channel].numSamples != numSamples &&
+			     oslAudioConfigureChannel(handle, 0, osl_audioVoices[channel].numSamples) < 0) ||
+			    (osl_audioVoices[channel].mono != mono && oslAudioConfigureChannel(handle, 1, osl_audioVoices[channel].mono) < 0))
+				oslAudioDeleteChannel(channel);
+			oslAudioStartSound(next, channel);
+			AudioStatus[channel].callback = oslAudioCallback;
+		}
+	} while (next);
 
 	AudioStatus[channel].callback = NULL;
 	if (AudioStatus[channel].handle != -1) {
 		sceAudioChRelease(AudioStatus[channel].handle);
 		AudioStatus[channel].handle = -1;
 	}
-
-	// Claim a deferred deletion and unpublish the sound together, before another thread can free it.
-	unsigned int flags = sceKernelCpuSuspendIntr();
-	OSL_SOUND *sound = audio_pendingDelete[channel];
-	audio_pendingDelete[channel] = NULL;
-	osl_audioVoices[channel].sound = NULL;
-	sceKernelCpuResumeIntr(flags);
-	if (sound)
-		oslAudioFreeSound(sound);
 	AudioStatus[channel].threadhandle = -1;
 	osl_audioActive[channel] = 0;
 
@@ -146,10 +221,115 @@ static int oslAudioOnChannelThread(void) {
 	return 0;
 }
 
-// Returns once the channel's thread has exited: it no longer touches the channel or its sound
-static void oslAudioWaitChannelEnd(int i) {
-	while (osl_audioActive[i] != 0)
+// Ends the channel and returns once its thread has exited. Plays handed to it meanwhile are
+// dropped: the caller's own play comes later, so it wins.
+static void oslAudioEndChannel(int i) {
+	for (;;) {
+		unsigned int flags = sceKernelCpuSuspendIntr();
+		audio_pendingPlay[i] = NULL;
+		oslAudioDeleteChannel(i);
+		int active = osl_audioActive[i];
+		sceKernelCpuResumeIntr(flags);
+		if (active == 0)
+			return;
 		sceKernelDelayThread(1000); // a busy loop would starve a lower priority audio thread
+	}
+}
+
+// Returns once the channel's thread no longer uses s: it has exited, or moved on to a sound
+// handed over to it
+static void oslAudioWaitSoundOff(int i, OSL_SOUND *s) {
+	for (;;) {
+		unsigned int flags = sceKernelCpuSuspendIntr();
+		int active = osl_audioActive[i];
+		int done = active == 0 || (active != -2 && osl_audioVoices[i].sound != s);
+		sceKernelCpuResumeIntr(flags);
+		if (done)
+			return;
+		sceKernelDelayThread(1000);
+	}
+}
+
+// From an audio thread, a play on a busy voice can't wait for it to end (it may be the caller's
+// own, or one whose end callback waits for the caller): that voice's thread starts s instead
+// when its current sound ends. Returns whether the play was handed over.
+static int oslAudioHandOverPlay(OSL_SOUND *s, int voice) {
+	unsigned int flags = sceKernelCpuSuspendIntr();
+	int active = osl_audioActive[voice];
+	int handOver = active != 0 && active != -2 && osl_audioVoices[voice].sound != s;
+	if (handOver) {
+		audio_pendingPlay[voice] = s;
+		oslAudioDeleteChannel(voice);
+	}
+	sceKernelCpuResumeIntr(flags);
+	return handOver;
+}
+
+int oslAudioSetSoundFilename(OSL_SOUND *s, const char *filename) {
+	// Threads OSLib creates have no current directory on the PSP, and one may reopen the file:
+	// resolve a relative path now, unless the name is a virtual file's or its path doesn't fit
+	char path[PATH_MAX];
+	const char *name = filename;
+	if (osl_defaultVirtualFileSource == VF_FILE && !oslFindFileInVirtualFilenameList(filename, VF_AUTO) &&
+	    realpath(filename, path) && strlen(path) < sizeof(s->filename))
+		name = path;
+	s->suspendNumber = osl_suspendNumber;
+	if (strlen(name) >= sizeof(s->filename)) {
+		s->filename[0] = '\0';
+		return 0;
+	}
+	strcpy(s->filename, name);
+	return 1;
+}
+
+static int oslAudioNeedsReopen(OSL_SOUND *s) {
+	return s->isStreamed && s->suspendNumber < osl_suspendNumber; // a standby closed its file
+}
+
+// Reopens a stream's file; for a resume, at the position the standby saved for channel
+static VIRTUAL_FILE *oslAudioOpenAgain(const char *filename, int channel, int restart) {
+	VIRTUAL_FILE *f = VirtualFileOpen((void *)filename, 0, VF_AUTO, VF_O_READ);
+	if (f && !restart)
+		VirtualFileSeek(f, osl_filesave[channel], SEEK_SET);
+	return f;
+}
+
+// Hands channel's thread a reopened file for s (NULL if it couldn't be). Like the other requests
+// to a channel's thread, only while the channel still plays s: its thread then installs or
+// closes the file, but it may have ended or moved on while the file opened. A file handed
+// before and not installed yet is closed: nothing ever read it.
+static void oslAudioRequestReopen(OSL_SOUND *s, int channel, VIRTUAL_FILE *f, int number, int restart) {
+	VIRTUAL_FILE *toClose; // closed once the interrupts are back on: closing does I/O
+	unsigned int flags = sceKernelCpuSuspendIntr();
+	if (osl_audioVoices[channel].sound == s) {
+		toClose = audio_reopenFile[channel]; // replaced before being installed: nobody read it
+		if (audio_reopen[channel] == s)
+			restart |= audio_reopenRestart[channel];
+		audio_reopen[channel] = s;
+		audio_reopenFile[channel] = f;
+		audio_reopenRestart[channel] = restart;
+		audio_reopenNumber[channel] = number;
+	} else {
+		toClose = f; // the channel ended or moved on: no thread will install it
+	}
+	sceKernelCpuResumeIntr(flags);
+	if (toClose)
+		VirtualFileClose(toClose);
+}
+
+// Starts s from the beginning on voice. If a standby closed its file, the file is reopened here
+// and installed by the channel's thread, before its next callback reads it.
+static void oslAudioStartSound(OSL_SOUND *s, int voice) {
+	if (!oslAudioNeedsReopen(s)) {
+		s->playSound(s);
+		return;
+	}
+	int number = osl_suspendNumber; // a standby during the reopen leaves it needing another
+	VIRTUAL_FILE *f = oslAudioOpenAgain(s->filename, voice, 1);
+	if (AudioStatus[voice].threadhandle == sceKernelGetThreadId())
+		oslAudioInstall(s, voice, f, number, 1);
+	else
+		oslAudioRequestReopen(s, voice, f, number, 1);
 }
 
 static void setChannelSound(int voice, OSL_SOUND *s) {
@@ -234,6 +414,7 @@ int oslAudioRecreateChannel(int i, int format, int numSamples, OSL_SOUND *s) {
 		// is pending: the stop wins, or oslStopSound would wait for a channel kept alive
 		if (osl_audioActive[i] < 0 && AudioStatus[i].threadhandle == sceKernelGetThreadId())
 			return 0;
+		audio_pendingPlay[i] = NULL; // this later play replaces one handed over
 		// Update the channel configuration.
 		sceAudioChangeChannelConfig(i, format);
 		setChannelSound(i, s); // Update the sound properties for this channel.
@@ -242,10 +423,7 @@ int oslAudioRecreateChannel(int i, int format, int numSamples, OSL_SOUND *s) {
 	}
 
 	// If the number of samples or the sound has changed, recreate the channel.
-	oslAudioDeleteChannel(i); // First, delete the current channel.
-
-	// Wait until the channel is fully deactivated.
-	oslAudioWaitChannelEnd(i);
+	oslAudioEndChannel(i);
 
 	// Ensure the thread has terminated properly.
 	sceKernelWaitThreadEnd(AudioStatus[i].threadhandle, NULL);
@@ -389,10 +567,17 @@ int oslAudioPowerCallback(int unknown, int pwrflags, void *common) {
 	if (pwrflags & PSP_POWER_CB_POWER_SWITCH) {
 		osl_audioStandBy = 1;
 		for (i = 0; i < OSL_NUM_AUDIO_CHANNELS; i++) {
+			// Only a running stream (playing, paused or already suspended) is suspended: a stopping
+			// or ending channel must end. A playing one waits for oslAudioVSync to reopen its file
+			// (3); a paused one stays paused, and oslAudioVSync reopens its file too.
+			unsigned int flags = sceKernelCpuSuspendIntr();
 			s = osl_audioVoices[i].sound;
-			if (s && s->isStreamed) {
-				// Mark the audio channel as suspended (3 = suspended/invalid)
+			int state = osl_audioActive[i];
+			int suspend = s && s->isStreamed && state >= 1 && state <= 3;
+			if (suspend && state == 1)
 				osl_audioActive[i] = 3;
+			sceKernelCpuResumeIntr(flags);
+			if (suspend) {
 				// Save the current file position in case we need to resume the stream
 				f = s->standBySound(s);
 				if (f) {
@@ -425,6 +610,9 @@ int oslInitAudio() {
 		osl_audioActive[i] = 0;              // Mark audio channel as inactive
 		osl_audioVoices[i].sound = NULL;     // Clear sound reference
 		audio_pendingDelete[i] = NULL;
+		audio_pendingPlay[i] = NULL;
+		audio_reopen[i] = NULL;
+		audio_reopenFile[i] = NULL;
 
 		// Initialize audio status for each channel
 		AudioStatus[i].handle = -1;          // No handle assigned yet
@@ -450,6 +638,7 @@ int oslInitAudio() {
 void oslDeinitAudio() {
 	// Stop all active audio channels
 	for (int i = 0; i < OSL_NUM_AUDIO_CHANNELS; i++) {
+		audio_pendingPlay[i] = NULL; // don't start a handed-over play after this
 		oslAudioDeleteChannel(i); // Ensure each channel is properly deleted
 	}
 
@@ -511,45 +700,34 @@ void oslDeleteSound(OSL_SOUND *s) {
 	oslAudioFreeSound(s);
 }
 
-/*
- * Reactivate streamed audio after the PSP comes out of suspend mode.
- * Return values:
- *  0 = not reactivated,
- *  1 = reactivated,
- *  2 = reactivated, but the sound needs to restart from the beginning.
- */
-int oslAudioReactiveSound(OSL_SOUND *s) {
-	// If the sound is streamed and was suspended (i.e., after PSP was in standby)
-	if (s->isStreamed && s->suspendNumber < osl_suspendNumber) {
-		VIRTUAL_FILE *f;
-		VIRTUAL_FILE **w = NULL;
-		int channel;
-
-		// Reopen the virtual file. This may fail if the virtual file system parameters have changed.
-		f = VirtualFileOpen(s->filename, 0, VF_AUTO, VF_O_READ);
-		if (!f) {
-			return 0; // Failed to reopen the file, return without reactivation.
-		}
-
-		// Reactivate the sound with the reopened file.
-		w = s->reactiveSound(s, f);
-		channel = oslGetSoundChannel(s);
-
-		// If the sound was previously associated with a channel, restore the file position.
-		if (channel >= 0) {
-			VirtualFileSeek(f, osl_filesave[channel], SEEK_SET);
-		}
-
-		// Update the pointer to the new file in the sound object.
-		*w = f;
-		s->suspendNumber = osl_suspendNumber;
-
-		// Return 1 if reactivated on an existing channel, otherwise return 2 to restart sound.
-		return (channel >= 0) ? 1 : 2;
+// On channel's thread, between two callbacks (or before the first): makes f, reopened after a
+// standby, s's file and frees the one the standby closed; then restarts s if asked.
+static void oslAudioInstall(OSL_SOUND *s, int channel, VIRTUAL_FILE *f, int number, int restart) {
+	// Requests match sounds by address: one freed during the reopen and replaced by a new sound at
+	// the same address must not get its file. A new sound doesn't need a reopen.
+	if (f && !oslAudioNeedsReopen(s)) {
+		VirtualFileClose(f);
+		f = NULL;
 	}
-
-	// Return 0 if the sound was not reactivated (e.g., if it was not streamed).
-	return 0;
+	if (f) {
+		VIRTUAL_FILE **w = s->reactiveSound(s, f);
+		if (w) {
+			VIRTUAL_FILE *old = *w;
+			*w = f;
+			s->suspendNumber = number;
+			if (old)
+				oslAudioDropFile(old);
+		} else {
+			VirtualFileClose(f); // a format that can't reopen its stream
+		}
+	}
+	if (restart)
+		s->playSound(s);
+	// Play again once reopened, unless it was stopped or paused meanwhile
+	unsigned int flags = sceKernelCpuSuspendIntr();
+	if (osl_audioActive[channel] == 3 && !oslAudioNeedsReopen(s))
+		osl_audioActive[channel] = 1;
+	sceKernelCpuResumeIntr(flags);
 }
 
 int oslSoundLoopFunc(OSL_SOUND *s, int voice) {
@@ -569,19 +747,29 @@ void oslAudioVSync() {
 		return;
 	}
 
-	// Check each audio channel
+	// Reopen the files of streams suspended (3) or paused (2) by a standby, where the standby left
+	// them; their channel's thread installs them
 	for (int i = 0; i < OSL_NUM_AUDIO_CHANNELS; i++) {
-		// Only check channels that were suspended (marked with a 3)
-		if (osl_audioActive[i] != 3) {
-			continue;
-		}
-
-		// If a sound is associated with the channel, attempt to reactivate it
-		if (osl_audioVoices[i].sound) {
-			if (oslAudioReactiveSound(osl_audioVoices[i].sound)) {
-				// Mark the channel as active again if the sound is reactivated
-				osl_audioActive[i] = 1;
+		char filename[sizeof(osl_audioVoices[i].sound->filename)];
+		int number = osl_suspendNumber;
+		// Copied with the interrupts off: an end callback may delete the sound meanwhile
+		unsigned int flags = sceKernelCpuSuspendIntr();
+		int state = osl_audioActive[i];
+		OSL_SOUND *s = osl_audioVoices[i].sound;
+		int reopen = 0;
+		if ((state == 2 || state == 3) && s) {
+			if (!oslAudioNeedsReopen(s)) {
+				if (state == 3) osl_audioActive[i] = 1;
+			} else if (audio_reopen[i] != s) {
+				memcpy(filename, s->filename, sizeof(filename));
+				reopen = 1;
 			}
+		}
+		sceKernelCpuResumeIntr(flags);
+		if (reopen) {
+			VIRTUAL_FILE *f = oslAudioOpenAgain(filename, i, 0);
+			if (f)
+				oslAudioRequestReopen(s, i, f, number, 0);
 		}
 	}
 }
@@ -592,9 +780,15 @@ void oslPlaySound(OSL_SOUND *s, int voice) {
 		return;
 	}
 
-	// Wait if the audio channel is in a transition state (-2 indicates it is in use)
-	while (osl_audioActive[voice] == -2)
+	// Wait if the audio channel is in a transition state (-2: its thread is ending, or switching
+	// to a handed-over sound)
+	for (;;) {
+		if (oslAudioOnChannelThread() && oslAudioHandOverPlay(s, voice))
+			return;
+		if (osl_audioActive[voice] != -2)
+			break;
 		sceKernelDelayThread(1000); // a busy loop would starve a lower priority audio thread
+	}
 
 	// Create the audio channel if it's not active, otherwise recreate or reuse it
 	if (!osl_audioActive[voice]) {
@@ -603,19 +797,20 @@ void oslPlaySound(OSL_SOUND *s, int voice) {
 		oslAudioRecreateChannel(voice, s->mono, osl_audioVoices[voice].numSamples, s);
 	}
 
-	// Try to reactivate the sound (if suspended after standby)
-	if (oslAudioReactiveSound(s) != 1) {
-		// If not reactivated, restart the sound from the beginning
-		s->playSound(s);
-	}
+	oslAudioStartSound(s, voice);
 
 	// Set the callback for the audio channel
 	oslAudioSetChannelCallback(voice, oslAudioCallback);
 }
 
 void oslStopSound(OSL_SOUND *s) {
-	// Find the audio channel (voice) associated with the sound
+	// Cancel plays of s not started yet, and find the channel playing it, together: a channel
+	// thread may be switching to s right now
+	unsigned int flags = sceKernelCpuSuspendIntr();
+	for (int i = 0; i < OSL_NUM_AUDIO_CHANNELS; i++)
+		if (audio_pendingPlay[i] == s) audio_pendingPlay[i] = NULL;
 	int voice = oslGetSoundChannel(s);
+	sceKernelCpuResumeIntr(flags);
 
 	if (voice >= 0)
 		oslAudioDeleteChannel(voice);
@@ -627,24 +822,24 @@ void oslStopSound(OSL_SOUND *s) {
 
 	// Audio threads must not wait for themselves or for each other.
 	if (voice >= 0 && !oslAudioOnChannelThread())
-		oslAudioWaitChannelEnd(voice);
+		oslAudioWaitSoundOff(voice, s);
 }
 
 void oslPauseSound(OSL_SOUND *s, int pause) {
-	// Get the audio channel (voice) associated with the sound
+	// Atomic with the audio threads, which may stop the channel at any time: only a playing (1),
+	// paused (2) or suspended (3) channel changes, a stopping or ending one must end
+	unsigned int flags = sceKernelCpuSuspendIntr();
 	int voice = oslGetSoundChannel(s);
-
-	// Ensure the sound is valid and currently being played
 	if (voice >= 0) {
-		// Toggle the pause state if pause == -1
-		if (pause == -1) {
-			osl_audioActive[voice] = 3 - osl_audioActive[voice]; // Toggles between 1 (playing) and 2 (paused)
-		}
-		// Set the pause state explicitly: 2 = paused, 1 = playing
-		else {
-			osl_audioActive[voice] = pause ? 2 : 1;
+		int state = osl_audioActive[voice];
+		if (state >= 1 && state <= 3) {
+			int paused = pause == -1 ? state != 2 : pause != 0;
+			// A stream whose file a standby closed waits for its file to be reopened (3)
+			int suspended = oslAudioNeedsReopen(s);
+			osl_audioActive[voice] = paused ? 2 : suspended ? 3 : 1;
 		}
 	}
+	sceKernelCpuResumeIntr(flags);
 }
 
 /*
@@ -784,13 +979,11 @@ OSL_SOUND *oslLoadSoundFileWAV(const char *filename, int stream) {
 	s->dataplus = wav;
 	wav->stream = stream;
 
-	// If the sound is streamed, copy the filename and set the suspend number
+	// If the sound is streamed, remember its file to reopen it after a standby
 	if (s->isStreamed) {
-		if (strlen(filename) >= sizeof(s->filename)) {
+		if (!oslAudioSetSoundFilename(s, filename)) {
 			oslFatalError("Sound file name too long!");
 		}
-		s->suspendNumber = osl_suspendNumber;
-		strcpy(s->filename, filename);
 	} else {
 		// Allocate memory for the in-memory WAV data
 		wav->database = (unsigned char *)malloc(s->size);
