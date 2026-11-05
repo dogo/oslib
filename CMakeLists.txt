@@ -159,13 +159,14 @@ include(${CMAKE_SYSTEM_CMAKE_PLATFORM_PATH}/IMG.cmake)
 # Specify that stub.S is an assembly file
 set_source_files_properties(${SOURCE_DIR}/stub.S PROPERTIES LANGUAGE ASM)
 
-# Suppress warnings for third-party library sources
+# Suppress warnings for third-party library sources. Like the Makefile's CFLAGS_THIRD_PARTY,
+# they don't get _PSP_FW_VERSION: libccc would switch to its sceIo path, which isn't the tested one
 set_source_files_properties(
     ${PSPMATH_SOURCES}
     ${GIFLIB_SOURCES}
     ${INTRAFONT_SOURCES}
     PROPERTIES
-    COMPILE_FLAGS "-w"
+    COMPILE_FLAGS "-w -U_PSP_FW_VERSION"
 )
 
 # Add sources to the target

@@ -72,6 +72,32 @@ jobs:
             fi
           done
 
+      - name: Build sample in a nested directory (CMake)
+        run: |
+          set -euo pipefail
+          (cd samples/audio && cmake --preset psp -B build/debug && cmake --build build/debug -j)
+          test -f samples/audio/build/debug/EBOOT.PBP
+          cmp samples/audio/Resources/music.bgm samples/audio/build/debug/Resources/music.bgm
+          test ! -e samples/audio/build/debug/build
+          test -z "$(find samples/audio/build/debug -mindepth 2 -name CMakeCache.txt -print -quit)"
+
+      - name: Build all samples together (CMake)
+        run: |
+          set -euo pipefail
+          # One build tree for every sample: each must package into its own directory
+          (cd samples && cmake --preset psp && cmake --build --preset psp -j)
+          want=$(grep -c add_subdirectory samples/CMakeLists.txt)
+          got=$(find samples/cbuild -mindepth 2 -maxdepth 2 -name EBOOT.PBP | wc -l) # cbuild/<sample>/EBOOT.PBP
+          echo "EBOOT.PBP: $got of $want samples"
+          test "$got" -eq "$want"
+          test -z "$(find samples/cbuild -mindepth 2 -name CMakeCache.txt -print -quit)"
+          test ! -e samples/cbuild/audio/build
+          cmp samples/audio/Resources/music.bgm samples/cbuild/audio/Resources/music.bgm
+          test -f samples/cbuild/rectAndFonts/rectAndFonts
+          test ! -e samples/cbuild/rectAndFonts/dialog
+          test ! -e samples/cbuild/shapes/main.cpp
+          test ! -e samples/cbuild/shapes/shapes.hpp
+
   host-tests:
     name: Host unit tests
     runs-on: ubuntu-latest

@@ -21,7 +21,8 @@ set(CMAKE_CXX_COMPILER     psp-g++)
 set(CMAKE_ASM_COMPILER     psp-gcc)
 
 # PSP Firmware version and defines
-add_definitions(-DPSP_FW_VERSION=371 -D__PSP__ -DPSP)
+# _PSP_FW_VERSION is what the code tests, as defined by the PSPSDK's build.mak for Make builds
+add_definitions(-DPSP_FW_VERSION=371 -D_PSP_FW_VERSION=371 -D__PSP__ -DPSP)
 
 # Get the PSP prefix using psp-config
 execute_process(
