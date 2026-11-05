@@ -299,20 +299,22 @@ static VIRTUAL_FILE *oslAudioOpenAgain(const char *filename, int channel, int re
 // closes the file, but it may have ended or moved on while the file opened. A file handed
 // before and not installed yet is closed: nothing ever read it.
 static void oslAudioRequestReopen(OSL_SOUND *s, int channel, VIRTUAL_FILE *f, int number, int restart) {
-	VIRTUAL_FILE *unused = f;
+	VIRTUAL_FILE *toClose; // closed once the interrupts are back on: closing does I/O
 	unsigned int flags = sceKernelCpuSuspendIntr();
 	if (osl_audioVoices[channel].sound == s) {
-		unused = audio_reopenFile[channel];
+		toClose = audio_reopenFile[channel]; // replaced before being installed: nobody read it
 		if (audio_reopen[channel] == s)
 			restart |= audio_reopenRestart[channel];
 		audio_reopen[channel] = s;
 		audio_reopenFile[channel] = f;
 		audio_reopenRestart[channel] = restart;
 		audio_reopenNumber[channel] = number;
+	} else {
+		toClose = f; // the channel ended or moved on: no thread will install it
 	}
 	sceKernelCpuResumeIntr(flags);
-	if (unused)
-		VirtualFileClose(unused);
+	if (toClose)
+		VirtualFileClose(toClose);
 }
 
 // Starts s from the beginning on voice. If a standby closed its file, the file is reopened here
