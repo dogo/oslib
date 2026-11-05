@@ -23,6 +23,7 @@ typedef uint32_t u32;
 #include "VirtualFile.h"
 #include "vram_mgr.h"
 #include "audio.h"
+#include "bgm.h"
 
 void oslHandleLoadNoFailError(const char *filename);
 extern int osl_quit;

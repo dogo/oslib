@@ -220,6 +220,7 @@ void oslAudioCallback_DeleteSound_BGM(OSL_SOUND *s) {
 	} else {
 		free(s->data);
 	}
+	free(s->dataplus); // the ADPCM state
 }
 
 // Loads a BGM sound file and initializes it
@@ -238,16 +239,13 @@ OSL_SOUND *oslLoadSoundFileBGM(const char *filename, int stream) {
 	f = VirtualFileOpen((void *)filename, 0, VF_AUTO, VF_O_READ);
 	if (!f) goto cleanup_and_error;
 
-	// Read the format header
-	VirtualFileRead(&bfh, sizeof(bfh), 1, f);
-	if (strcmp(bfh.strVersion, "OSLBGM v01")) goto cleanup_and_error;
+	// Read the format header; 1 (IMA-ADPCM) is the only format the decoder plays
+	if (VirtualFileRead(&bfh, sizeof(bfh), 1, f) < (int)sizeof(bfh)) goto cleanup_and_error;
+	if (strcmp(bfh.strVersion, "OSLBGM v01") || bfh.format != 1) goto cleanup_and_error;
 
-	// If the format is ADPCM, initialize ADPCM data structure
-	if (bfh.format == 1) {
-		ad = (OSL_ADGlobals *)malloc(sizeof(OSL_ADGlobals));
-		if (!ad) goto cleanup_and_error;
-		s->dataplus = ad;
-	}
+	ad = (OSL_ADGlobals *)malloc(sizeof(OSL_ADGlobals));
+	if (!ad) goto cleanup_and_error;
+	s->dataplus = ad;
 
 	// Get the file size and load data
 	start_offset = VirtualFileTell(f);
@@ -269,7 +267,10 @@ OSL_SOUND *oslLoadSoundFileBGM(const char *filename, int stream) {
 		VirtualFileSeek(f, start_offset, SEEK_SET);
 		s->data = malloc(end_offset - start_offset);
 		if (!s->data) goto cleanup_and_error;
-		VirtualFileRead(s->data, end_offset - start_offset, 1, f);
+		if (VirtualFileRead(s->data, end_offset - start_offset, 1, f) < end_offset - start_offset) {
+			free(s->data);
+			goto cleanup_and_error;
+		}
 		VirtualFileClose(f);
 	}
 
