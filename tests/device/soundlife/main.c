@@ -7,6 +7,7 @@
 #include <malloc.h>
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
 
 PSP_MODULE_INFO("soundlife", 0, 1, 0);
 PSP_MAIN_THREAD_ATTR(THREAD_ATTR_USER | THREAD_ATTR_VFPU);
@@ -395,6 +396,52 @@ int main() {
 		} else {
 			fprintf(f, "-> load failed FAIL\n");
 		}
+	}
+
+	// The same from the memory stick, in a directory with a long name, loaded by a relative name
+	// after a chdir there and replayed after a chdir back: the absolute path (over the 64 bytes
+	// filename used to have) is what lets the audio thread reopen it
+	fprintf(f, "ms0 stream replayed after chdir ");
+	{
+		static const char dir[] = "ms0:/OSLTEST/a_directory_name_long_enough_to_need_more_than_64_bytes";
+		char home[256], copy[sizeof(dir) + 16];
+		getcwd(home, sizeof(home));
+		sceIoMkdir("ms0:/OSLTEST", 0777);
+		sceIoMkdir(dir, 0777);
+		snprintf(copy, sizeof(copy), "%s/tone.wav", dir);
+		FILE *in = fopen("../wavload/tone22m.wav", "rb"), *out = fopen(copy, "wb");
+		char block[4096];
+		size_t n;
+		while (in && out && (n = fread(block, 1, sizeof(block), in)) > 0)
+			fwrite(block, 1, n, out);
+		if (in) fclose(in);
+		if (out) fclose(out);
+		chdir(dir);
+		OSL_SOUND *s = oslLoadSoundFileWAV("tone.wav", OSL_FMT_STREAM);
+		chdir(home);
+		if (s) {
+			int absolute = !strcmp(s->filename, copy);
+			osl_powerCallback(0, PSP_POWER_CB_POWER_SWITCH, NULL);
+			osl_powerCallback(0, PSP_POWER_CB_RESUME_COMPLETE, NULL);
+			OSL_SOUND *a = slowSound();
+			a->audioCallback = endNow;
+			a->endCallback = playNext;
+			meet = 0;
+			next[0] = s;
+			target[0] = 2;
+			oslPlaySound(a, 0);
+			int reopened = waitReopened(s);
+			fprintf(f, "-> path %s, reopened %d %s\n", absolute ? "absolute" : "NOT ABSOLUTE", reopened,
+			        absolute && reopened ? "PASS" : "FAIL");
+			oslDeleteSound(s);
+			waitIdle(0, 2);
+			oslDeleteSound(a);
+		} else {
+			fprintf(f, "-> load failed FAIL\n");
+		}
+		sceIoRemove(copy);
+		sceIoRmdir(dir);
+		sceIoRmdir("ms0:/OSLTEST");
 	}
 
 	fprintf(f, "DONE\n");

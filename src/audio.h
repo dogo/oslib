@@ -23,7 +23,7 @@ extern "C" {
  * Please release your source when creating custom implementations.
  */
 typedef struct OSL_SOUND {
-	char filename[64]; ///< Filename for reopening after standby, used if streamed.
+	char filename[256]; ///< Absolute path to reopen a streamed sound after stand-by (see oslAudioSetSoundFilename).
 	void *data;     ///< Pointer to sound data, format-specific.
 	void *dataplus; ///< Pointer to extended sound data.
 	int baseoffset; ///< Offset in the file to begin playback, excludes header.
@@ -394,9 +394,12 @@ extern void oslDeleteSound(OSL_SOUND *s);
 /**
  * @brief Remembers the file of a streamed sound, to reopen it after the PSP wakes from stand-by.
  *
- * Stores @p filename in `s->filename` as an absolute path (from the current directory) when it fits, since the file
- * may be reopened by an audio thread, which has no current directory. A name in the virtual file list is kept as is,
- * as is a path whose absolute form doesn't fit. Also marks the sound as opened after the last stand-by.
+ * Stores @p filename in `s->filename` as an absolute path (from the current directory set with chdir()) when it fits,
+ * since the file may be reopened by an audio thread, which has no current directory, or after the app changed
+ * directory. A name in the virtual file list is kept as is, as is a path whose absolute form doesn't fit (255
+ * characters). Also marks the sound as opened after the last stand-by.
+ *
+ * @note The current directory is the one chdir() sets; a directory set with sceIoChdir() directly isn't seen.
  *
  * @param s The streamed sound; a custom stream driver can call it too.
  * @param filename The name the sound's file was opened with, while it is still open.

@@ -17,4 +17,5 @@ pause while stop pending -> stop pending, channel 0 PASS
 standby, playing + paused streams -> standby 3 2, after 1 2, reopened 1, 0 bytes kept PASS
 standby, stream played after -> reopened 1, 0 bytes kept PASS
 end callback replays stream after standby -> path absolute, reopened 1 PASS
+ms0 stream replayed after chdir -> path absolute, reopened 1 PASS
 DONE

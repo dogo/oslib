@@ -826,9 +826,24 @@ static void streamReopenedWhileReading(void) {
 	remove(path);
 }
 
-// Streams remember their file as an absolute path, to reopen it from any thread: on the PSP,
-// threads OSLib creates have no current directory. A virtual file keeps its name, and a path
-// whose absolute form doesn't fit stays as given.
+// A thread that can't allocate its buffer ends its channel, which then plays the next sound
+static void threadBufferAllocFails(void) {
+	OSL_SOUND *s = countingSound(0, 0);
+	failBuffers = 1;
+	oslPlaySound(s, 2);
+	CHECK(waitEnd(2));
+	failBuffers = 0;
+	CHECK_EQ(oslGetSoundChannel(s), -1);
+	CHECK_EQ(played[0], 0);
+	oslPlaySound(s, 2);
+	CHECK(waitEnd(2));
+	CHECK_EQ(played[0], 3);
+	oslDeleteSound(s);
+}
+
+// Streams remember their file as an absolute path, to reopen it from any thread (on the PSP,
+// threads OSLib creates have no current directory) and after a chdir. A virtual file keeps its
+// name, a path whose absolute form doesn't fit (256 bytes) stays as given.
 static void streamsRememberAbsolutePaths(void) {
 	char home[4096], tmp[] = "/tmp/osltestXXXXXX", expect[4096];
 	CHECK(getcwd(home, sizeof(home)) != NULL);
@@ -852,34 +867,45 @@ static void streamsRememberAbsolutePaths(void) {
 	oslDeleteSound(s);
 	oslRemoveVirtualFileList(&v, 1);
 
-	char dir[64], name[96];
+	// Longer than the 64 bytes filename used to have
+	char dir[64], name[320];
 	memset(dir, 'd', 50);
 	dir[50] = 0;
 	snprintf(name, sizeof(name), "%s/b.wav", dir);
 	mkdir(dir, 0700);
 	rename("a.wav", name);
 	s = oslLoadSoundFileWAV(name, OSL_FMT_STREAM);
-	CHECK(s && !strcmp(s->filename, name));
+	snprintf(expect, sizeof(expect), "%s/%s", tmp, name);
+	CHECK(s && !strcmp(s->filename, expect));
+
+	// The file is reopened by its absolute path after a chdir elsewhere
+	oslPlaySound(s, 2);
+	osl_powerCallback(0, PSP_POWER_CB_POWER_SWITCH, NULL);
+	osl_powerCallback(0, PSP_POWER_CB_RESUME_COMPLETE, NULL);
+	CHECK_EQ(chdir(home), 0);
+	oslAudioVSync();
+	CHECK(waitReopened(s));
 	oslDeleteSound(s);
-	remove(name);
+	CHECK_EQ(chdir(tmp), 0);
+
+	// 247 bytes relative, over 256 absolute: kept as given
+	char deep[128], deeper[256], longName[320];
+	memset(deep, 'e', 120);
+	deep[120] = 0;
+	snprintf(deeper, sizeof(deeper), "%s/%s", deep, deep);
+	mkdir(deep, 0700);
+	mkdir(deeper, 0700);
+	snprintf(longName, sizeof(longName), "%s/b.wav", deeper);
+	rename(name, longName);
+	s = oslLoadSoundFileWAV(longName, OSL_FMT_STREAM);
+	CHECK(s && !strcmp(s->filename, longName));
+	oslDeleteSound(s);
+	remove(longName);
+	rmdir(deeper);
+	rmdir(deep);
 	rmdir(dir);
 	CHECK_EQ(chdir(home), 0);
 	rmdir(tmp);
-}
-
-// A thread that can't allocate its buffer ends its channel, which then plays the next sound
-static void threadBufferAllocFails(void) {
-	OSL_SOUND *s = countingSound(0, 0);
-	failBuffers = 1;
-	oslPlaySound(s, 2);
-	CHECK(waitEnd(2));
-	failBuffers = 0;
-	CHECK_EQ(oslGetSoundChannel(s), -1);
-	CHECK_EQ(played[0], 0);
-	oslPlaySound(s, 2);
-	CHECK(waitEnd(2));
-	CHECK_EQ(played[0], 3);
-	oslDeleteSound(s);
 }
 
 static void hung(int sig) {
