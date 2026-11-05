@@ -1,3 +1,27 @@
+## Version 1.6.0
+
+Added: oslAudioSetSoundFilename, to remember a streamed sound's file by absolute path (custom stream drivers can use it)<br>
+Added: Host tests for audio threads, BGM, VRAM manager and HTTP downloads; PPSSPP test for HTTP; more on-device tests<br>
+Fixed: oslStopSound/oslDeleteSound returning while the audio thread still used the sound (use-after-free)<br>
+Fixed: endCallbacks that delete, loop, replay or stop sounds hanging, deadlocking or freeing sounds in use<br>
+Fixed: An endCallback playing another sound on its own or another busy voice hanging or deadlocking<br>
+Fixed: oslPauseSound and standby undoing a pending stop (oslStopSound waited forever); paused streams resuming after standby<br>
+Fixed: Streams after standby: file leaked, swapped under a running callback, reopened at the wrong position or not at all (relative paths)<br>
+Fixed: ATRAC3 blocks and the MP3 sync scan read past their buffers; WAV and BGM load errors closing invalid files<br>
+Fixed: BGM leaking its ADPCM state and crashing on formats other than IMA-ADPCM<br>
+Fixed: PNGs with more palette entries than the pixel format holds, losing tRNS/colour key; greyscale JPEGs; CMYK JPEGs rejected<br>
+Fixed: GIF and PNG loader leaks, failed conversions crashing, oslMoveImageTo and VRAM region shrink corrupting state<br>
+Fixed: oslConvertColorEx ignoring the palette; RGB565 blue expanded from the wrong bits<br>
+Fixed: oslScaleImage alpha, width-only scaling and indexed images (now read through the palette)<br>
+Fixed: Tile maps whose tile count per line isn't a power of 2, and tilesets narrower than a tile crashing<br>
+Fixed: SFont and formatted text macros writing past their buffers<br>
+Fixed: Save/load and OSK dialogs leaking memory, and freeing another keyboard on failure<br>
+Fixed: oslNetGetFile replacing files with partial downloads or directories; oslNetPostForm shutting HTTP down<br>
+Fixed: oslNetPostForm's reply not terminated and cut to one packet<br>
+Fixed: CMake builds without _PSP_FW_VERSION and with -O3; samples packaged over each other<br>
+Updated: OSL_SOUND.filename holds 256 bytes (layout change: rebuild against the new headers)<br>
+Updated: A new image's buffer starts zeroed, padding included<br>
+
 ## Version 1.5.7
 
 Added: On-device tests for the key bit layout and the VRAM mode without the manager<br>
