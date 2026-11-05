@@ -1,6 +1,6 @@
 // Drawing results that came out wrong: tile maps whose tileset has a tile count per line
-// that isn't a power of 2, oslScaleImageCreate's alpha and its width-only path, and
-// converting an indexed image to true colour.
+// that isn't a power of 2 or no whole tile per line, oslScaleImageCreate's alpha, its
+// width-only path and indexed images, and converting an indexed image to true colour.
 #include <pspkernel.h>
 #include <stdio.h>
 #include <oslib/oslib.h>
@@ -85,6 +85,85 @@ static void convertIndexed(void) {
 	if (img) oslDeleteImage(img);
 }
 
+// A 2x2 image whose pixels are palette entries 0 to 3
+static const u32 palColour[4] = { RGBA(255, 0, 0, 255), RGBA(0, 255, 0, 255), RGBA(0, 0, 255, 255), RGBA(255, 255, 255, 128) };
+
+static OSL_IMAGE *indexed(int format) {
+	OSL_IMAGE *img = oslCreateImage(2, 2, OSL_IN_RAM, format);
+	img->palette = oslCreatePalette(format == OSL_PF_4BIT ? 16 : 256, OSL_PF_8888);
+	for (int i = 0; i < 4; i++) {
+		((u32 *)img->palette->data)[i] = palColour[i];
+		oslSetImagePixel(img, i & 1, i >> 1, i);
+	}
+	return img;
+}
+
+// Scaled to true colour, an indexed image takes its colours from its palette
+static void scaleIndexed(const char *name, int format) {
+	OSL_IMAGE *img = indexed(format);
+	OSL_IMAGE *big = oslScaleImageCreate(img, OSL_IN_RAM, 4, 4, OSL_PF_8888);
+	int bad = 0;
+	for (int y = 0; y < 4; y++)
+		for (int x = 0; x < 4; x++)
+			bad += !big || (u32)oslGetImagePixel(big, x, y) != palColour[(y / 2) * 2 + x / 2];
+	fprintf(f, "%-26s %2d/16 wrong %s\n", name, bad, bad ? "FAIL" : "PASS");
+	if (big) oslDeleteImage(big);
+	oslDeleteImage(img);
+}
+
+// Scaled to its own format, an indexed image keeps its indices (the source pixel under each
+// output pixel's centre: they can't be blended) and gets a copy of its palette
+static void scaleIndexedKeepsIndices(void) {
+	OSL_IMAGE *img = indexed(OSL_PF_8BIT);
+	OSL_IMAGE *big = oslScaleImageCreate(img, OSL_IN_RAM, 5, 3, OSL_PF_8BIT);
+	static const int column[5] = { 0, 0, 1, 1, 1 }, row[3] = { 0, 1, 1 };
+	int bad = 0, palette = big && big->palette && big->palette != img->palette;
+	for (int y = 0; y < 3; y++)
+		for (int x = 0; x < 5; x++)
+			bad += !big || oslGetImagePixel(big, x, y) != row[y] * 2 + column[x];
+	for (int i = 0; palette && i < 4; i++)
+		palette = ((u32 *)big->palette->data)[i] == palColour[i];
+	fprintf(f, "%-26s %2d/15 wrong, palette %s %s\n", "scale 8bit 2x2 to 8bit 5x3", bad, palette ? "copied" : "MISSING",
+	        !bad && palette ? "PASS" : "FAIL");
+	if (big) oslDeleteImage(big);
+	oslDeleteImage(img);
+}
+
+// Blended colours have no palette to be mapped to: refused
+static void scaleToIndexedRefused(void) {
+	OSL_IMAGE *img = solid(2, 2, RGBA(10, 20, 30, 255));
+	OSL_IMAGE *big = oslScaleImageCreate(img, OSL_IN_RAM, 4, 4, OSL_PF_8BIT);
+	fprintf(f, "%-26s -> %s %s\n", "scale 8888 to 8bit", big ? "image" : "NULL", big ? "FAIL" : "PASS");
+	if (big) oslDeleteImage(big);
+	oslDeleteImage(img);
+}
+
+// A tileset narrower than one tile has no tile per line: nothing is drawn (it divided by zero)
+static void narrowTileset(void) {
+	OSL_IMAGE *tiles = oslCreateImage(8, 16, OSL_IN_VRAM, OSL_PF_8888);
+	for (int y = 0; y < 16; y++)
+		for (int x = 0; x < 8; x++)
+			oslSetImagePixel(tiles, x, y, RGBA(255, 0, 0, 255));
+	oslUncacheImage(tiles);
+	static u16 data[1] = { 0 };
+	OSL_MAP *m = oslCreateMap(tiles, data, 16, 16, 1, 1, OSL_MF_U16);
+	m->flags = 0;
+	m->drawSizeX = m->drawSizeY = 1;
+	oslStartDrawing();
+	oslClearScreen(RGBA(0, 0, 0, 255));
+	oslDrawMap(m);
+	oslEndDrawing();
+	oslSyncDrawing();
+	sceKernelDcacheWritebackInvalidateAll();
+	int drawn = 0;
+	for (int y = 0; y < 16; y++)
+		for (int x = 0; x < 16; x++)
+			drawn += screen(x, y) != 0;
+	fprintf(f, "%-26s -> %d pixels drawn %s\n", "map tileset under a tile", drawn, drawn ? "FAIL" : "PASS");
+	oslDeleteMap(m);
+	oslDeleteImage(tiles);
+}
+
 static void convert5650(void) {
 	int bad = 0;
 	for (int colour = 0; colour <= 0xffff; colour++) {
@@ -119,6 +198,11 @@ int main() {
 	scale("scale 2x2 to 4x2", 2, 2, 4, 2, RGBA(10, 20, 30, 255));
 	convertIndexed();
 	convert5650();
+	scaleIndexed("scale 8bit 2x2 to 8888 4x4", OSL_PF_8BIT);
+	scaleIndexed("scale 4bit 2x2 to 8888 4x4", OSL_PF_4BIT);
+	scaleIndexedKeepsIndices();
+	scaleToIndexedRefused();
+	narrowTileset(); // last: it crashed
 
 	fprintf(f, "DONE\n");
 	fclose(f);

@@ -29,7 +29,8 @@ static void readRow(OSL_IMAGE *img, int row, unsigned int *xelrow) {
 	int pixel;
 	for ( x = 0; x < img->sizeX; x++ ) {
 		pixel = oslGetImagePixel(img, x, row);
-		xelrow[x] = (unsigned int)oslConvertColor(OSL_PF_8888, img->pixelFormat, pixel);
+		// An indexed image's colours come from its palette
+		xelrow[x] = (unsigned int)oslConvertColorEx(img->palette, OSL_PF_8888, img->pixelFormat, pixel);
 	}
 }
 
@@ -139,9 +140,29 @@ static void horizontalScale(const float rs[], const float gs[], const float bs[]
 	}
 }
 
+static int isIndexed(int pixelFormat) {
+	return osl_pixelWidth[pixelFormat] <= 8;
+}
+
+// Indices can't be blended: each output pixel takes the index of the source pixel under its centre
+static void scaleIndices(OSL_IMAGE *dstImg, OSL_IMAGE *srcImg, int newX, int newY, int newWidth, int newHeight) {
+	for (int y = 0; y < newHeight; y++) {
+		int sy = (2 * y + 1) * srcImg->sizeY / (2 * newHeight);
+		for (int x = 0; x < newWidth; x++)
+			oslSetImagePixel(dstImg, newX + x, newY + y, oslGetImagePixel(srcImg, (2 * x + 1) * srcImg->sizeX / (2 * newWidth), sy));
+	}
+}
+
 // Scales srcImg into dstImg. Returns 1 on success, or 0 when the scratch
-// buffers could not be allocated, in which case dstImg is left untouched.
+// buffers could not be allocated or dstImg is indexed but srcImg isn't in its format (blended
+// colours have no palette to map to), in which case dstImg is left untouched.
 static int scaleImage(OSL_IMAGE *dstImg, OSL_IMAGE *srcImg, int newX, int newY, int newWidth, int newHeight) {
+	if (isIndexed(dstImg->pixelFormat)) {
+		if (srcImg->pixelFormat != dstImg->pixelFormat) return 0;
+		scaleIndices(dstImg, srcImg, newX, newY, newWidth, newHeight);
+		return 1;
+	}
+
 	float rowsleft;
 
 	/* The number of rows of output that need to be formed from the
@@ -255,13 +276,24 @@ void oslScaleImage(OSL_IMAGE *dstImg, OSL_IMAGE *srcImg, int newX, int newY, int
 }
 
 OSL_IMAGE *oslScaleImageCreate(OSL_IMAGE *img, short newLocation, int newWidth, int newHeight, short newPixelFormat) {
-	if (!img) {
+	if (!img || (isIndexed(newPixelFormat) && newPixelFormat != img->pixelFormat)) {
 		return NULL;
 	}
 
 	OSL_IMAGE *newImg = oslCreateImage(newWidth, newHeight, newLocation, newPixelFormat);
 	if (!newImg) {
 		return NULL;
+	}
+
+	// Indexed like the source: same indices, so its own copy of the source's palette
+	if (isIndexed(newPixelFormat) && img->palette) {
+		OSL_PALETTE *p = img->palette;
+		newImg->palette = oslCreatePaletteEx(p->nElements, OSL_IN_RAM, p->pixelFormat);
+		if (!newImg->palette) {
+			oslDeleteImage(newImg);
+			return NULL;
+		}
+		memcpy(newImg->palette->data, p->data, (p->nElements * osl_pixelWidth[p->pixelFormat]) >> 3);
 	}
 
 	// The scratch buffers may fail to allocate on a memory-constrained PSP.
