@@ -67,7 +67,7 @@ add_compile_options(-G0 -Wall -Wextra -Wno-unused -Wno-strict-prototypes -Wno-mi
 	-fno-strict-aliasing)
 if(CMAKE_BUILD_TYPE STREQUAL Release)
 	add_definitions(-DNDEBUG -D_NDEBUG)
-	add_compile_options(-O3)
+	add_compile_options(-O2)
 	set_source_files_properties(
 		EXTENSION *.cpp *.hpp
 		PROPERTIES COMPILE_FLAGS "-fno-exceptions -fno-rtti"
