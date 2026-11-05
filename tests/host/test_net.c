@@ -115,6 +115,7 @@ static struct {
 	int length;  // Content-Length, -1 if not sent
 	int size;    // bytes the "server" delivers
 	int failAt;  // read error once this many bytes were read, -1 for none
+	int chunk;   // most bytes one read returns, as a network packet would; 0 for no limit
 } response;
 static int delivered, live, ended, templatesCreated;
 
@@ -215,10 +216,40 @@ int sceHttpReadData(int id, void *data, unsigned int size) {
 	if (response.failAt >= 0 && delivered >= response.failAt) return (int)0x80431081;
 	int n = response.size - delivered;
 	if ((unsigned int)n > size) n = size;
+	if (response.chunk && n > response.chunk) n = response.chunk;
 	if (response.failAt >= 0 && delivered + n > response.failAt) n = response.failAt - delivered;
 	memset(data, 'n', n);
 	delivered += n;
 	return n;
+}
+
+// oslNetPostForm's reply is a string: read in full however it arrives, cut to the buffer, empty
+// on failure. The buffer starts as 'x's, so a missing terminator shows.
+static void post(int status, int size, int failAt, int bufferSize, int wantResult, int wantLength) {
+	char reply[64];
+	memset(reply, 'x', sizeof(reply));
+	response.status = status;
+	response.length = size;
+	response.size = size;
+	response.failAt = failAt;
+	response.chunk = 8;
+	int r = oslNetPostForm("http://host/form", "a=1", reply, bufferSize);
+	response.chunk = 0;
+	CHECK(wantResult > 0 ? r == wantResult : r < 0);
+	CHECK(memchr(reply, 0, bufferSize) != NULL);
+	if (memchr(reply, 0, bufferSize)) {
+		CHECK_EQ(strlen(reply), wantLength);
+		CHECK_EQ(strspn(reply, "n"), wantLength);
+	}
+	CHECK_EQ(live, 0);
+}
+
+static void postReply(void) {
+	post(200, 30, -1, 64, 1, 30);  // four reads
+	post(200, 100, -1, 16, 1, 15); // longer than the buffer: cut, still terminated
+	post(200, 0, -1, 16, 1, 0);    // empty reply
+	post(404, 10, -1, 16, -1, 0);  // failure: empty
+	post(200, 30, 12, 64, -1, 0);  // read error after 12 bytes: empty
 }
 
 #define FILE_ "test_net.bin"
@@ -416,6 +447,7 @@ int main(void) {
 	response.status = 404;
 	CHECK(oslNetPostForm("http://host/form", "a=1", reply, sizeof(reply)) < 0);
 	CHECK_EQ(live, 0);
+	postReply();
 	get(200, 100, 100, -1, 1);
 	notOursIsKept();
 	backupWithoutFileIsRestored();

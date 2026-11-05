@@ -1,6 +1,7 @@
 // oslNetGetFile against tests/ppsspp/httpget/server.py (run.sh starts it and PPSSPP): a
 // download lands complete, a failed one returns an error and leaves an existing file as it
 // was, and a failed oslNetPostForm doesn't shut HTTP down for the calls after it.
+// oslNetPostForm's reply is a string, read in full, cut to the buffer, empty on failure.
 #include <pspkernel.h>
 #include <stdio.h>
 #include <string.h>
@@ -88,6 +89,19 @@ static void afterPostError(void) {
 	        p < 0 && !r && size == 64 * 1024 ? "PASS" : "FAIL");
 }
 
+// The reply to /form is 20000 letters a-z: several packets
+static void postReply(const char *what, const char *url, unsigned int bufferSize, int wantResult, int wantLength) {
+	static char reply[32768];
+	memset(reply, 'x', sizeof(reply));
+	int r = oslNetPostForm(url, "a=1", reply, bufferSize);
+	int terminated = memchr(reply, 0, bufferSize) != NULL, length = terminated ? (int)strlen(reply) : -1, wrong = 0;
+	for (int i = 0; i < length; i++)
+		wrong += reply[i] != 'a' + i % 26;
+	int ok = (wantResult > 0 ? r == wantResult : r < 0) && length == wantLength && !wrong;
+	fprintf(f, "%-20s -> %s, %d characters%s %s\n", what, r < 0 ? "error" : "success", length, wrong ? ", WRONG" : "",
+	        ok ? "PASS" : "FAIL");
+}
+
 int main() {
 	oslInit(0);
 	f = fopen("result.txt", "w");
@@ -113,6 +127,9 @@ int main() {
 		r |= keeps("connection cut", URL "/cut");
 		noDirectory();
 		afterPostError();
+		postReply("post reply", URL "/form", sizeof(char[32768]), 1, 20000);
+		postReply("post reply cut", URL "/form", 100, 1, 99);
+		postReply("post error reply", URL "/missing", 100, -1, 0);
 		sceIoRemove(at("keep.bin"));
 		sceIoRemove(at("ok.bin"));
 		oslDisconnectFromAP();

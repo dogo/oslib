@@ -3,4 +3,7 @@ download             -> 0, 65536 bytes PASS
 connection cut       -> error, file kept PASS
 missing directory    -> error PASS
 get after post error -> post error, get 0, 65536 bytes PASS
+post reply           -> success, 20000 characters PASS
+post reply cut       -> success, 99 characters PASS
+post error reply     -> error, 0 characters PASS
 DONE

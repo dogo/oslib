@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 # Test server for httpget: /ok is 64 KB of (i * 7) & 255, /missing is a 404 (GET and POST),
-# /cut announces 64 KB but closes after 1000 bytes.
+# /cut announces 64 KB but closes after 1000 bytes, a POST to /form gets 20000 letters a-z.
 import http.server, sys
 
 BODY = bytes((i * 7) & 255 for i in range(64 * 1024))
+FORM = bytes(ord("a") + i % 26 for i in range(20000))
 
 class Handler(http.server.BaseHTTPRequestHandler):
     def do_GET(self):
@@ -25,7 +26,13 @@ class Handler(http.server.BaseHTTPRequestHandler):
 
     def do_POST(self):
         self.rfile.read(int(self.headers.get("Content-Length", 0)))
-        self.send_error(404)
+        if self.path == "/form":
+            self.send_response(200)
+            self.send_header("Content-Length", str(len(FORM)))
+            self.end_headers()
+            self.wfile.write(FORM)
+        else:
+            self.send_error(404)
 
     def log_message(self, fmt, *args):
         sys.stderr.write(fmt % args + "\n")
