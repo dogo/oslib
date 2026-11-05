@@ -84,9 +84,9 @@ int main() {
 					if (oslOskGetResult() == OSL_OSK_CANCEL)
 						sprintf(message, "Cancel");
 					else {
-						char userText[100] = "";
+						char userText[128 + 1] = ""; // the limit passed to oslInitOsk, plus the terminator
 						oslOskGetText(userText);
-						sprintf(message, "You entered: %s", userText);
+						snprintf(message, sizeof(message), "You entered: %s", userText);
 					}
 					oslEndOsk();
 				}

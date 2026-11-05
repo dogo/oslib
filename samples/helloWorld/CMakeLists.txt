@@ -54,10 +54,14 @@ foreach(F ${SAMPLE_FILES})
     if(F_LC MATCHES "\\.(c|h|o|elf|prx|pbp)$" OR F_LC STREQUAL "makefile")
         continue()
     endif()
-    # A build tree is no asset: a sample built alone has its cbuild/ in this directory
+    # Build trees and parents of the active build directory are not assets.
     set(F_PATH "${CMAKE_CURRENT_SOURCE_DIR}/${F}")
-    if(IS_DIRECTORY "${F_PATH}" AND (EXISTS "${F_PATH}/CMakeCache.txt" OR F_PATH STREQUAL CMAKE_CURRENT_BINARY_DIR))
-        continue()
+    if(IS_DIRECTORY "${F_PATH}")
+        string(FIND "${CMAKE_CURRENT_BINARY_DIR}/" "${F_PATH}/" BUILD_DIR_PREFIX)
+        file(GLOB_RECURSE BUILD_CACHE_FILES "${F_PATH}/CMakeCache.txt")
+        if(BUILD_DIR_PREFIX EQUAL 0 OR BUILD_CACHE_FILES)
+            continue()
+        endif()
     endif()
     if(IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/${F}")
         add_custom_command(TARGET helloworld POST_BUILD

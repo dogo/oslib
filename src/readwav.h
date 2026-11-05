@@ -94,7 +94,7 @@ int open_wave_src(WAVE_SRC *wav, const char *filename) {
 
 	/* open the file */
 	wav->fp = VirtualFileOpen((void *)filename, 0, VF_AUTO, VF_O_READ);
-	if (wav->fp < 0)
+	if (!wav->fp)
 		return -1;
 
 	/* read the header */

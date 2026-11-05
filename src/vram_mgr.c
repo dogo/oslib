@@ -201,7 +201,8 @@ int oslVramMgrSetParameters(void *baseAddr, int size) {
 	sizeDiff = size - curVramSize;
 
 	// The last block is ALWAYS free, even if there are 0 bytes left. See the workaround in ulTexVramAlloc
-	if (isBlockFree(blockNum) && getBlockSize(blockNum) + sizeDiff >= 0) {
+	// Signed: the block size is unsigned, so a shrink past the free space would wrap around
+	if (isBlockFree(blockNum) && (long long)getBlockSize(blockNum) + sizeDiff >= 0) {
 		setBlockSize(blockNum, getBlockSize(blockNum) + sizeDiff);
 		osl_vramBase = (u32)baseAddr;
 		osl_vramSize = size;

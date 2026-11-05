@@ -1,0 +1,5 @@
+font10.png   -> 10 letters (want 10) PASS
+font300.png  -> -1 letters (want -1) PASS
+oslDrawStringf 1500 chars -> returned PASS
+oslPrintf 1500 chars      -> returned PASS
+DONE

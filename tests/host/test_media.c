@@ -176,9 +176,60 @@ static void at3LifecycleStaysInsideItsInfo(void) {
 	remove(path);
 }
 
+// The sync scan must not read past its buffer when the last byte is 0xff
+static void mp3WithoutSyncEnds(void) {
+	static unsigned char mp3[1024];
+	mp3[sizeof(mp3) - 1] = 0xff;
+	const char *path = "test_media_nosync.mp3";
+	writeFile(path, mp3, sizeof(mp3));
+
+	OSL_SOUND *s = oslLoadSoundFileMP3(path, OSL_FMT_STREAM);
+	CHECK(s != NULL);
+	if (!s) return;
+	osl_audioVoices[0].data = s->data;
+	s->playSound(s);
+	static short out[1152 * 2];
+	CHECK_EQ(oslAudioCallback_AudioCallback_MP3(0, out, 1152), 0); // no frame: end of sound
+	s->deleteSound(s);
+	free(s);
+	remove(path);
+}
+
+// A block bigger than the ATRAC3 input buffer (0x180) must be rejected, not read into it
+static void at3BlockLargerThanBufferIsRejected(void) {
+	enum { ALIGN = 0x200 };
+	static unsigned char at3[AT3_DATA_START + ALIGN];
+	memcpy(at3, "RIFF", 4);
+	put32(at3 + 4, sizeof(at3) - 8);
+	memcpy(at3 + 8, "WAVEfmt ", 8);
+	put32(at3 + 16, 20);
+	put16(at3 + 20, 0x270); // ATRAC3
+	put16(at3 + 22, 2);
+	put32(at3 + 24, 44100);
+	put16(at3 + 32, ALIGN);
+	memcpy(at3 + 40, "data", 4);
+	put32(at3 + 44, ALIGN);
+	const char *path = "test_media_bigblock.at3";
+	writeFile(path, at3, sizeof(at3));
+
+	OSL_SOUND *s = oslLoadSoundFileAT3(path, OSL_FMT_STREAM);
+	CHECK(s == NULL);
+	if (s) {
+		osl_audioVoices[0].data = s->data;
+		s->playSound(s);
+		static short out[1024 * 2];
+		oslAudioCallback_AudioCallback_AT3(0, out, 1024);
+		s->deleteSound(s);
+		free(s);
+	}
+	remove(path);
+}
+
 int main(void) {
 	VirtualFileInit();
 	mp3DecodesEvery44kLayer3Frame();
 	at3LifecycleStaysInsideItsInfo();
+	mp3WithoutSyncEnds();
+	at3BlockLargerThanBufferIsRejected();
 	return TEST_RESULT();
 }

@@ -163,9 +163,18 @@ int oslResolveAddress(char *address, char *resolvedIP);
 /**
  * @brief Gets a file from the web and saves it to the specified filepath.
  *
+ * The file is written to `<filepath>.oslpart` and replaces `filepath` only once complete (the old
+ * one briefly becomes `<filepath>.oslbak`); on failure an existing `filepath` is left as it was.
+ * Both names are OSLib's: a download interrupted by a power-off is finished by the next call
+ * (`.oslbak` back in place if `filepath` is missing, removed otherwise; a `.oslpart` is
+ * overwritten). A directory at `filepath` is an error. Use a full path (`ms0:/...`): it goes
+ * straight to sceIoOpen.
+ * The derived names, including their suffixes and terminators, must fit PATH_MAX and the
+ * filesystem's filename limit. A directory at either the destination or backup is left untouched.
+ *
  * @param url The URL of the file to download.
  * @param filepath The path where the file should be saved.
- * @return 0 on success, otherwise an error code.
+ * @return 0 on success, otherwise an error code (a negative OSL_ERR_HTTP_*, also for a status other than 200).
  */
 int oslNetGetFile(const char *url, const char *filepath);
 
@@ -176,7 +185,7 @@ int oslNetGetFile(const char *url, const char *filepath);
  * @param data The form data to be posted.
  * @param response Pointer to a char array where the server response will be stored.
  * @param responsesize The size of the response buffer.
- * @return 0 on success, otherwise an error code.
+ * @return 1 on success, otherwise a negative error code.
  */
 int oslNetPostForm(const char *url, char *data, char *response, unsigned int responsesize);
 

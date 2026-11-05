@@ -8,7 +8,9 @@
 
 #include <fcntl.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <sys/stat.h>
 #include <unistd.h>
 
 typedef int32_t s32;
@@ -38,6 +40,33 @@ static inline int sceIoRead(SceUID fd, void *data, SceSize size) {
 
 static inline int sceIoWrite(SceUID fd, const void *data, SceSize size) {
 	return (int)write(fd, data, size);
+}
+
+// The PSP's mode bits (pspiofilemgr_stat.h); sceIoGetstat returns 0x80010002 for a missing path
+#define FIO_S_IFMT 0xF000
+#define FIO_S_IFDIR 0x1000
+#define FIO_S_IFREG 0x2000
+#define FIO_S_ISDIR(m) (((m) & FIO_S_IFMT) == FIO_S_IFDIR)
+
+typedef struct SceIoStat {
+	unsigned int st_mode;
+} SceIoStat;
+
+static inline int sceIoGetstat(const char *file, SceIoStat *stat_) {
+	struct stat st;
+	if (stat(file, &st) < 0) return (int)0x80010002;
+	stat_->st_mode = S_ISDIR(st.st_mode) ? FIO_S_IFDIR : FIO_S_IFREG;
+	return 0;
+}
+
+static inline int sceIoRemove(const char *file) {
+	return unlink(file);
+}
+
+// Like the memory stick's FAT: no rename over an existing file (0x80010011, checked on a PSP)
+static inline int sceIoRename(const char *oldname, const char *newname) {
+	if (access(newname, F_OK) == 0) return (int)0x80010011;
+	return rename(oldname, newname);
 }
 
 static inline int sceIoLseek32(SceUID fd, int offset, int whence) {
@@ -71,5 +100,22 @@ SceUID sceKernelLoadModule(const char *path, int flags, SceKernelLMOption *optio
 int sceKernelStartModule(SceUID modid, SceSize argsize, void *argp, int *status, void *option);
 int sceUtilityLoadAvModule(int module);
 SceUID pspSdkLoadStartModule(const char *filename, int mpid);
+
+// Threads and audio output, for audio.c
+typedef int (*SceKernelThreadEntry)(SceSize args, void *argp);
+SceUID sceKernelCreateThread(const char *name, SceKernelThreadEntry entry, int initPriority, int stackSize,
+                             unsigned int attr, void *option);
+int sceKernelStartThread(SceUID thid, SceSize arglen, void *argp);
+int sceKernelWaitThreadEnd(SceUID thid, unsigned int *timeout);
+int sceKernelDeleteThread(SceUID thid);
+int sceKernelExitDeleteThread(int status);
+int sceKernelGetThreadId(void);
+int sceKernelDelayThread(unsigned int delay);
+unsigned int sceKernelCpuSuspendIntr(void);
+void sceKernelCpuResumeIntr(unsigned int flags);
+int sceAudioChReserve(int channel, int samplecount, int format);
+int sceAudioChRelease(int channel);
+int sceAudioOutputPannedBlocking(int channel, int leftvol, int rightvol, void *buf);
+int sceAudioChangeChannelConfig(int channel, int format);
 
 #endif
