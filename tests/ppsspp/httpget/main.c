@@ -38,10 +38,12 @@ static int fileInfo(const char *path, u32 *sum) {
 	return size;
 }
 
-static void writeOld(const char *path) {
+static int writeOld(const char *path) {
 	FILE *out = fopen(path, "wb");
-	fputs("old", out);
-	fclose(out);
+	if (!out) return -1;
+	int failed = fputs("old", out) == EOF;
+	if (fclose(out)) failed = 1;
+	return failed ? -1 : 0;
 }
 
 static void download(void) {
@@ -53,16 +55,21 @@ static void download(void) {
 }
 
 // The request fails: an error comes back and the file there before is untouched
-static void keeps(const char *what, const char *path) {
-	writeOld(at("keep.bin"));
+static int keeps(const char *what, const char *path) {
+	if (writeOld(at("keep.bin")) < 0) {
+		fprintf(f, "%-20s -> could not create old file FAIL\n", what);
+		return 1;
+	}
 	u32 sum, old;
 	fileInfo(at("keep.bin"), &old);
 	int r = oslNetGetFile(path, at("keep.bin"));
 	int size = fileInfo(at("keep.bin"), &sum);
 	u32 tmpSum;
 	int tmp = fileInfo(at("keep.bin.oslpart"), &tmpSum) >= 0;
+	int ok = r < 0 && size == 3 && sum == old && !tmp;
 	fprintf(f, "%-20s -> %s, file %s%s %s\n", what, r < 0 ? "error" : "success", size == 3 && sum == old ? "kept" : "changed",
-	        tmp ? ", .oslpart left" : "", r < 0 && size == 3 && sum == old && !tmp ? "PASS" : "FAIL");
+	        tmp ? ", .oslpart left" : "", ok ? "PASS" : "FAIL");
+	return !ok;
 }
 
 static void noDirectory(void) {
@@ -83,17 +90,27 @@ static void afterPostError(void) {
 
 int main() {
 	oslInit(0);
-	getcwd(dir, sizeof(dir));
 	f = fopen("result.txt", "w");
+	if (!f) {
+		fputs("result.txt open FAIL\n", stderr);
+		sceKernelExitGame();
+		return 1;
+	}
 	setvbuf(f, NULL, _IONBF, 0);
+	if (!getcwd(dir, sizeof(dir))) {
+		fprintf(f, "working directory FAIL\n");
+		fclose(f);
+		sceKernelExitGame();
+		return 1;
+	}
 	int r = oslNetInit();
 	if (!r) r = oslConnectToAP(1, 30, NULL);
 	if (r) {
 		fprintf(f, "network %d FAIL\n", r);
 	} else {
 		download();
-		keeps("404", URL "/missing");
-		keeps("connection cut", URL "/cut");
+		r |= keeps("404", URL "/missing");
+		r |= keeps("connection cut", URL "/cut");
 		noDirectory();
 		afterPostError();
 		sceIoRemove(at("keep.bin"));
@@ -104,5 +121,5 @@ int main() {
 	fprintf(f, "DONE\n");
 	fclose(f);
 	sceKernelExitGame();
-	return 0;
+	return r != 0;
 }

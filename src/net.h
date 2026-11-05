@@ -169,6 +169,8 @@ int oslResolveAddress(char *address, char *resolvedIP);
  * (`.oslbak` back in place if `filepath` is missing, removed otherwise; a `.oslpart` is
  * overwritten). A directory at `filepath` is an error. Use a full path (`ms0:/...`): it goes
  * straight to sceIoOpen.
+ * The derived names, including their suffixes and terminators, must fit PATH_MAX and the
+ * filesystem's filename limit. A directory at either the destination or backup is left untouched.
  *
  * @param url The URL of the file to download.
  * @param filepath The path where the file should be saved.

@@ -28,6 +28,13 @@ it in the PPSSPP flatpak (restoring PPSSPP's ini afterwards) and compares `resul
 |---|---|
 | `httpget` | `oslNetGetFile` against a local server (`server.py`): a download lands complete; a 404, a connection cut short or a missing directory returns an error and leaves an existing file (and no `.oslpart`); a failed `oslNetPostForm` doesn't shut HTTP down for the next call |
 
+The `httpget` runner refuses an existing `PSP/GAME/httpget` directory, stops only the
+Flatpak instance it starts, and restores the ini on normal exit or interruption. If
+restoration fails, it reports and keeps `PSP/GAME/httpget/ini.bak` for recovery.
+`python3 tests/ppsspp/httpget/test_runner.py` checks cleanup using fake tools and private
+temporary paths, without running PPSSPP or changing the user's configuration.
+This cleanup check also runs in the host-tests CI job.
+
 ## Device tests (`tests/device`)
 
 Behaviour that only real hardware shows (GE, VFPU, ...). PPSSPP is not a

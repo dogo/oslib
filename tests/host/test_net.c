@@ -2,6 +2,7 @@
 #include "test.h"
 
 #include <fcntl.h>
+#include <limits.h>
 #include <sys/stat.h>
 #include <psphttp.h>
 #include <pspnet.h>
@@ -115,7 +116,7 @@ static struct {
 	int size;    // bytes the "server" delivers
 	int failAt;  // read error once this many bytes were read, -1 for none
 } response;
-static int delivered, live, ended;
+static int delivered, live, ended, templatesCreated;
 
 int sceHttpInit(unsigned int unknown1) {
 	(void)unknown1; return 0;
@@ -146,7 +147,9 @@ int sceHttpSaveSystemCookie(void) {
 }
 
 int sceHttpCreateTemplate(char *agent, int a, int b) {
-	(void)agent; (void)a; (void)b; return ended ? -1 : (live++, 1);
+	(void)agent; (void)a; (void)b;
+	templatesCreated++;
+	return ended ? -1 : (live++, 1);
 }
 
 int sceHttpDeleteTemplate(int id) {
@@ -273,6 +276,8 @@ static void notOursIsKept(void) {
 
 static void put(const char *path, const char *text) {
 	FILE *f = fopen(path, "wb");
+	CHECK(f != NULL);
+	if (!f) return;
 	fputs(text, f);
 	fclose(f);
 }
@@ -308,20 +313,97 @@ static void leftoverBackupIsRemoved(void) {
 	remove(FILE_);
 }
 
-// A directory is not replaced, nor moved aside
+// A directory is rejected before recovery can remove the only old copy
 static void directoryIsRejected(void) {
-	mkdir(FILE_, 0777);
-	put(FILE_ "/inner", "keep");
+	for (int withBackup = 0; withBackup < 2; withBackup++) {
+		CHECK_EQ(mkdir(FILE_, 0777), 0);
+		put(FILE_ "/inner", "keep");
+		if (withBackup) put(FILE_ ".oslbak", "old");
+		respond(200, 100);
+		int before = templatesCreated;
+		CHECK(oslNetGetFile("http://host/x", FILE_) < 0);
+		CHECK_EQ(templatesCreated, before);
+		CHECK_EQ(fileSize(FILE_ "/inner"), 4);
+		CHECK_EQ(fileSize(FILE_ ".oslbak"), withBackup ? 3 : -1);
+		CHECK_EQ(fileSize(FILE_ ".oslpart"), -1);
+		remove(FILE_ ".oslbak");
+		remove(FILE_ "/inner");
+		CHECK_EQ(rmdir(FILE_), 0);
+	}
+}
+
+// A backup directory cannot be an interrupted file swap
+static void backupDirectoryIsRejected(void) {
+	for (int withFile = 0; withFile < 2; withFile++) {
+		CHECK_EQ(mkdir(FILE_ ".oslbak", 0777), 0);
+		put(FILE_ ".oslbak/inner", "keep");
+		if (withFile) put(FILE_, "old");
+		respond(200, 100);
+		int before = templatesCreated;
+		CHECK(oslNetGetFile("http://host/x", FILE_) < 0);
+		CHECK_EQ(templatesCreated, before);
+		CHECK_EQ(fileSize(FILE_ ".oslbak/inner"), 4);
+		CHECK_EQ(fileSize(FILE_), withFile ? 3 : -1);
+		CHECK_EQ(fileSize(FILE_ ".oslpart"), -1);
+		remove(FILE_);
+		remove(FILE_ ".oslbak/inner");
+		CHECK_EQ(rmdir(FILE_ ".oslbak"), 0);
+	}
+}
+
+// Use short components so the old 256-byte path buffer is the only former limit
+static void longPath(int length) {
+	char path[PATH_MAX], tmppath[PATH_MAX], bakpath[PATH_MAX];
+	int prefix = 0;
+	while (length - prefix > 200) {
+		memset(path + prefix, 'd', 64);
+		prefix += 64;
+		path[prefix] = 0;
+		CHECK_EQ(mkdir(path, 0777), 0);
+		path[prefix++] = '/';
+	}
+	memset(path + prefix, 'f', length - prefix);
+	path[length] = 0;
+	snprintf(tmppath, sizeof(tmppath), "%s.oslpart", path);
+	snprintf(bakpath, sizeof(bakpath), "%s.oslbak", path);
+	put(path, "old");
 	respond(200, 100);
-	CHECK(oslNetGetFile("http://host/x", FILE_) < 0);
-	CHECK_EQ(fileSize(FILE_ "/inner"), 4);
-	CHECK_EQ(fileSize(FILE_ ".oslbak"), -1);
-	CHECK_EQ(fileSize(FILE_ ".oslpart"), -1);
-	remove(FILE_ "/inner");
-	rmdir(FILE_);
+	CHECK_EQ(oslNetGetFile("http://host/x", path), 0);
+	CHECK_EQ(fileSize(path), 100);
+	CHECK_EQ(fileSize(tmppath), -1);
+	CHECK_EQ(fileSize(bakpath), -1);
+	CHECK_EQ(live, 0);
+	CHECK_EQ(remove(path), 0);
+	while (prefix > 0) {
+		path[prefix - 1] = 0;
+		CHECK_EQ(rmdir(path), 0);
+		char *slash = strrchr(path, '/');
+		prefix = slash ? (int)(slash - path) + 1 : 0;
+	}
+}
+
+static void derivedPathOverflowIsRejected(void) {
+	char path[PATH_MAX];
+	memset(path, 'p', sizeof(path) - 8);
+	path[sizeof(path) - 8] = 0;
+	respond(200, 100);
+	int before = templatesCreated;
+	CHECK(oslNetGetFile("http://host/x", path) < 0);
+	CHECK_EQ(templatesCreated, before);
+	CHECK_EQ(live, 0);
 }
 
 int main(void) {
+	char workdir[] = "test_net.XXXXXX";
+	if (!mkdtemp(workdir)) {
+		perror("mkdtemp");
+		return 1;
+	}
+	if (chdir(workdir) < 0) {
+		perror("chdir");
+		rmdir(workdir);
+		return 1;
+	}
 	get(200, 5000, 5000, -1, 1);   // complete, replaces the old file
 	get(200, -1, 3000, -1, 1);     // no Content-Length (chunked): the end of data ends it
 	get(404, 10, 10, -1, 0);       // not the file
@@ -339,5 +421,11 @@ int main(void) {
 	backupWithoutFileIsRestored();
 	leftoverBackupIsRemoved();
 	directoryIsRejected();
+	backupDirectoryIsRejected();
+	longPath(248);
+	longPath(511);
+	derivedPathOverflowIsRejected();
+	CHECK_EQ(chdir(".."), 0);
+	CHECK_EQ(rmdir(workdir), 0);
 	return TEST_RESULT();
 }

@@ -15,6 +15,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
+#include <limits.h>
 #include <netdb.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -272,14 +273,16 @@ int oslResolveAddress(char *address, char *resolvedIP) {
 
 // Finishes a replacement that oslNetGetFile didn't complete (e.g. a power-off between its
 // renames): without <file>, <file>.oslbak is the old file; with it, a leftover
-static void oslNetRecoverBackup(const char *filepath, const char *bakpath) {
+static int oslNetRecoverBackup(const char *filepath, const char *bakpath) {
 	SceIoStat st;
+	int hadFile = sceIoGetstat(filepath, &st) >= 0;
+	if (hadFile && FIO_S_ISDIR(st.st_mode))
+		return -1;
 	if (sceIoGetstat(bakpath, &st) < 0)
-		return;
-	if (sceIoGetstat(filepath, &st) < 0)
-		sceIoRename(bakpath, filepath);
-	else
-		sceIoRemove(bakpath);
+		return 0;
+	if (FIO_S_ISDIR(st.st_mode))
+		return -1;
+	return hadFile ? sceIoRemove(bakpath) : sceIoRename(bakpath, filepath);
 }
 
 int oslNetGetFile(const char *url, const char *filepath) {
@@ -288,7 +291,7 @@ int oslNetGetFile(const char *url, const char *filepath) {
 	SceUID fd = -1;
 	SceULong64 length, written = 0;
 	unsigned char readbuffer[8192];
-	char tmppath[256], bakpath[256];
+	char tmppath[PATH_MAX], bakpath[PATH_MAX];
 
 	// The download goes to <filepath>.oslpart (names reserved to OSLib, see net.h): an existing
 	// file is replaced only by a complete one
@@ -296,11 +299,7 @@ int oslNetGetFile(const char *url, const char *filepath) {
 	    snprintf(bakpath, sizeof(bakpath), "%s.oslbak", filepath) >= (int)sizeof(bakpath))
 		return OSL_ERR_HTTP_GENERIC;
 
-	oslNetRecoverBackup(filepath, bakpath);
-
-	// Only a file is replaced: a directory would be moved aside whole
-	SceIoStat st;
-	if (sceIoGetstat(filepath, &st) >= 0 && FIO_S_ISDIR(st.st_mode))
+	if (oslNetRecoverBackup(filepath, bakpath) < 0)
 		return OSL_ERR_HTTP_GENERIC;
 
 	template = sceHttpCreateTemplate("OSL-agent/0.0.1 libhttp/1.0.0", 1, 1);
