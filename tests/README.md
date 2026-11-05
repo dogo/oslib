@@ -48,7 +48,7 @@ it in the PPSSPP flatpak (restoring PPSSPP's ini afterwards) and compares `resul
 
 | Test | Covers |
 |---|---|
-| `httpget` | `oslNetGetFile` against a local server (`server.py`): a download lands complete; a 404, a connection cut short or a missing directory returns an error and leaves an existing file (and no `.oslpart`); a failed `oslNetPostForm` doesn't shut HTTP down for the next call |
+| `httpget` | `oslNetGetFile` against a local server (`server.py`): a download lands complete; a 404, a connection cut short or a missing directory returns an error and leaves an existing file (and no `.oslpart`); a failed `oslNetPostForm` doesn't shut HTTP down for the next call; its reply (20000 bytes, several packets) comes back as a string in full, cut to a small buffer, and empty after a 404 |
 
 The `httpget` runner refuses an existing `PSP/GAME/httpget` directory, stops only the
 Flatpak instance it starts, and restores the ini on normal exit or interruption. If

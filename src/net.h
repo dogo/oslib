@@ -183,8 +183,9 @@ int oslNetGetFile(const char *url, const char *filepath);
  *
  * @param url The URL to post the form to.
  * @param data The form data to be posted.
- * @param response Pointer to a char array where the server response will be stored.
- * @param responsesize The size of the response buffer.
+ * @param response Pointer to a char array where the server response will be stored, as a string: read in full
+ * (cut to `responsesize - 1` characters), and empty if the post fails. May be NULL.
+ * @param responsesize The size of the response buffer, terminator included.
  * @return 1 on success, otherwise a negative error code.
  */
 int oslNetPostForm(const char *url, char *data, char *response, unsigned int responsesize);

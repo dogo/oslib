@@ -370,6 +370,10 @@ end:
 int oslNetPostForm(const char *url, char *data, char *response, unsigned int responsesize) {
 	int template, connection, request, ret, status;
 
+	// The reply is always a string: empty until it has been read in full
+	if (response != NULL && responsesize > 0)
+		response[0] = '\0';
+
 	/*										//<-- STAS: HTTP library was already initialized (see oslNetInit()) !
 	        ret = sceHttpInit(20000);
 	        if(ret < 0)
@@ -441,13 +445,22 @@ int oslNetPostForm(const char *url, char *data, char *response, unsigned int res
 	}
 
 	if (response != NULL && responsesize > 0) {
-		ret = sceHttpReadData(request, response, responsesize);
-		if (ret < 0) {
-			sceHttpDeleteRequest(request);
-			sceHttpDeleteConnection(connection);
-			sceHttpDeleteTemplate(template);
-			return OSL_ERR_HTTP_GENERIC;
+		// A read returns what has arrived: read until the end or the buffer is full, then terminate
+		unsigned int length = 0;
+		while (length < responsesize - 1) {
+			ret = sceHttpReadData(request, response + length, responsesize - 1 - length);
+			if (ret < 0) {
+				response[0] = '\0';
+				sceHttpDeleteRequest(request);
+				sceHttpDeleteConnection(connection);
+				sceHttpDeleteTemplate(template);
+				return OSL_ERR_HTTP_GENERIC;
+			}
+			if (ret == 0)
+				break;
+			length += ret;
 		}
+		response[length] = '\0';
 	}
 
 	sceHttpDeleteRequest(request);
