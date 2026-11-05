@@ -189,8 +189,8 @@ static void put32(unsigned char *p, unsigned long v) {
 	put16(p + 2, v >> 16);
 }
 
-// WAVs call the end callback from their own decoder, which then went on using the WAV
-static void wavDeletedByItsEndCallback(int stream) {
+// Writes a 44.1 kHz stereo WAV of 100 silent samples and returns its path
+static const char *writeTestWav(void) {
 	enum { SAMPLES = 100, DATA = SAMPLES * 4 };
 	static unsigned char wav[44 + DATA];
 	memcpy(wav, "RIFF", 4);
@@ -209,7 +209,12 @@ static void wavDeletedByItsEndCallback(int stream) {
 	FILE *f = fopen(path, "wb");
 	fwrite(wav, 1, sizeof(wav), f);
 	fclose(f);
+	return path;
+}
 
+// WAVs call the end callback from their own decoder, which then went on using the WAV
+static void wavDeletedByItsEndCallback(int stream) {
+	const char *path = writeTestWav();
 	OSL_SOUND *s = oslLoadSoundFileWAV(path, stream);
 	CHECK(s != NULL);
 	if (s) {
@@ -521,6 +526,174 @@ static void mainActsWhilePlayPending(int action) {
 	oslDeleteSound(c);
 }
 
+// A sound that keeps playing, 100 ms per buffer: a stop requested meanwhile stays pending
+static int slowPlay(unsigned int voice, void *buf, unsigned int length) {
+	(void)voice;
+	inCallback = 1;
+	memset(buf, 0, length * 4);
+	usleep(100 * 1000);
+	inCallback = 0;
+	return 1;
+}
+
+static int keepPlaying(unsigned int voice, void *buf, unsigned int length) {
+	(void)voice;
+	memset(buf, 0, length * 4);
+	return 1;
+}
+
+static VIRTUAL_FILE *noFile(OSL_SOUND *s) {
+	(void)s;
+	return NULL;
+}
+
+static OSL_SOUND *stopTarget, *stopper;
+static volatile int stopRequested;
+
+// On another channel's thread, oslStopSound only requests the stop
+static int stopTargetSound(OSL_SOUND *s, int voice) {
+	(void)s; (void)voice;
+	oslStopSound(stopTarget);
+	stopRequested = 1;
+	return 0;
+}
+
+static int waitEnd(int voice) {
+	for (int ms = 0; ms < 1000 && osl_audioActive[voice]; ms++)
+		usleep(1000);
+	return osl_audioActive[voice] == 0;
+}
+
+// Returns a sound on voice 0 whose stop, requested by an end callback on voice 1, is pending
+static OSL_SOUND *stopPending(void) {
+	OSL_SOUND *a = calloc(1, sizeof(OSL_SOUND));
+	a->audioCallback = slowPlay;
+	a->playSound = a->stopSound = a->deleteSound = nop;
+	a->standBySound = noFile;
+	stopTarget = a;
+	stopRequested = 0;
+	oslPlaySound(a, 0);
+	for (int ms = 0; ms < 1000 && !inCallback; ms++)
+		usleep(1000);
+	stopper = calloc(1, sizeof(OSL_SOUND));
+	stopper->audioCallback = endAtOnce;
+	stopper->playSound = stopper->stopSound = stopper->deleteSound = nop;
+	stopper->endCallback = stopTargetSound;
+	oslPlaySound(stopper, 1);
+	for (int ms = 0; ms < 1000 && !stopRequested; ms++)
+		usleep(1000);
+	CHECK(stopRequested);
+	CHECK_EQ(osl_audioActive[0], -1);
+	return a;
+}
+
+static void endStopPending(OSL_SOUND *a) {
+	waitIdle();
+	oslDeleteSound(a);
+	oslDeleteSound(stopper);
+}
+
+// Pausing, resuming or toggling a sound whose stop is pending must not cancel the stop
+static void pauseWhileStopPending(int pause) {
+	OSL_SOUND *a = stopPending();
+	oslPauseSound(a, pause);
+	CHECK(waitEnd(0));
+	endStopPending(a);
+}
+
+// Entering standby must not cancel a pending stop either
+static void standbyWhileStopPending(void) {
+	OSL_SOUND *a = stopPending();
+	a->isStreamed = 1;
+	osl_powerCallback(0, PSP_POWER_CB_POWER_SWITCH, NULL);
+	CHECK(waitEnd(0));
+	osl_powerCallback(0, PSP_POWER_CB_RESUME_COMPLETE, NULL);
+	endStopPending(a);
+}
+
+static OSL_SOUND *loopingStream(const char *path, int voice) {
+	OSL_SOUND *s = oslLoadSoundFileWAV(path, OSL_FMT_STREAM);
+	CHECK(s != NULL);
+	oslSetSoundLoop(s, 1);
+	oslPlaySound(s, voice);
+	CHECK_EQ(osl_audioActive[voice], 1);
+	return s;
+}
+
+// A paused stream stays paused across standby; resumed before VSync reopens its file, it waits
+// for VSync instead of reading the file closed by the standby
+static void pausedStreamAcrossStandby(int resumeBeforeVSync) {
+	const char *path = writeTestWav();
+	OSL_SOUND *s = loopingStream(path, 2);
+	oslPauseSound(s, 1);
+	CHECK_EQ(osl_audioActive[2], 2);
+	osl_powerCallback(0, PSP_POWER_CB_POWER_SWITCH, NULL);
+	CHECK_EQ(osl_audioActive[2], 2);
+	osl_powerCallback(0, PSP_POWER_CB_RESUME_COMPLETE, NULL);
+	if (resumeBeforeVSync) {
+		oslPauseSound(s, 0);
+		CHECK_EQ(osl_audioActive[2], 3);
+		oslAudioVSync();
+		CHECK_EQ(osl_audioActive[2], 1);
+	} else {
+		oslAudioVSync();
+		CHECK_EQ(osl_audioActive[2], 2);
+		CHECK_EQ(s->suspendNumber, osl_suspendNumber); // its file was reopened
+		oslPauseSound(s, 0);
+		CHECK_EQ(osl_audioActive[2], 1);
+	}
+	oslDeleteSound(s);
+	remove(path);
+}
+
+// Toggling a stream suspended by standby pauses it (3 - 3 used to mark the running channel idle)
+static void toggleSuspendedStream(void) {
+	const char *path = writeTestWav();
+	OSL_SOUND *s = loopingStream(path, 2);
+	osl_powerCallback(0, PSP_POWER_CB_POWER_SWITCH, NULL);
+	CHECK_EQ(osl_audioActive[2], 3);
+	osl_powerCallback(0, PSP_POWER_CB_RESUME_COMPLETE, NULL);
+	oslPauseSound(s, -1);
+	CHECK_EQ(osl_audioActive[2], 2);
+	oslAudioVSync();
+	CHECK_EQ(osl_audioActive[2], 2);
+	oslPauseSound(s, -1);
+	CHECK_EQ(osl_audioActive[2], 1);
+	oslDeleteSound(s);
+	remove(path);
+}
+
+static VIRTUAL_FILE *reopened;
+
+// What an audio thread's oslStopSound does while VSync reopens the stream's file
+static VIRTUAL_FILE **stopWhileReopening(OSL_SOUND *s, VIRTUAL_FILE *f) {
+	(void)s; (void)f;
+	oslAudioDeleteChannel(3);
+	return &reopened;
+}
+
+// A stop requested while VSync reopens a stream's file must not be undone by VSync
+static void stopDuringVSyncReopen(void) {
+	const char *path = writeTestWav();
+	OSL_SOUND *a = calloc(1, sizeof(OSL_SOUND));
+	a->audioCallback = keepPlaying;
+	a->playSound = a->stopSound = a->deleteSound = nop;
+	a->standBySound = noFile;
+	a->reactiveSound = stopWhileReopening;
+	oslPlaySound(a, 3);
+	a->isStreamed = 1;
+	strcpy(a->filename, path);
+	osl_powerCallback(0, PSP_POWER_CB_POWER_SWITCH, NULL);
+	CHECK_EQ(osl_audioActive[3], 3);
+	osl_powerCallback(0, PSP_POWER_CB_RESUME_COMPLETE, NULL);
+	oslAudioVSync();
+	CHECK(waitEnd(3));
+	if (reopened) VirtualFileClose(reopened);
+	reopened = NULL;
+	oslDeleteSound(a);
+	remove(path);
+}
+
 static void hung(int sig) {
 	(void)sig;
 	static const char msg[] = "test_audio: hung (alarm)\n";
@@ -549,5 +722,13 @@ int main(int argc, char **argv) {
 	if (!*only || !strcmp(only, "pendingdelete")) mainActsWhilePlayPending(DELETE_NEW);
 	if (!*only || !strcmp(only, "pendingreplace")) mainActsWhilePlayPending(REPLACE);
 	if (!*only || !strcmp(only, "pendingstopold")) mainActsWhilePlayPending(STOP_OLD);
+	if (!*only || !strcmp(only, "pausestopping")) pauseWhileStopPending(1);
+	if (!*only || !strcmp(only, "resumestopping")) pauseWhileStopPending(0);
+	if (!*only || !strcmp(only, "togglestopping")) pauseWhileStopPending(-1);
+	if (!*only || !strcmp(only, "standbystopping")) standbyWhileStopPending();
+	if (!*only || !strcmp(only, "pausedstandby")) pausedStreamAcrossStandby(0);
+	if (!*only || !strcmp(only, "resumedstandby")) pausedStreamAcrossStandby(1);
+	if (!*only || !strcmp(only, "togglesuspended")) toggleSuspendedStream();
+	if (!*only || !strcmp(only, "vsyncstop")) stopDuringVSyncReopen();
 	return TEST_RESULT();
 }

@@ -345,7 +345,8 @@ extern void oslStopSound(OSL_SOUND *s);
  *              - 0: Resume the sound from where it was paused.
  *              - -1: Toggle between pause and play. If the sound is playing, it will be paused; if paused, it will be resumed.
  *
- * @note If the sound is not currently playing, calling this function with a resume or toggle command will have no effect.
+ * @note If the sound is not currently playing, calling this function with a resume or toggle command will have no effect. Neither has it on a sound being stopped: the stop wins.
+ * @note A sound paused when the PSP enters stand-by stays paused after it wakes up. A streamed sound resumed before #oslAudioVSync has reopened its file starts playing once it has.
  *
  * @code
  * OSL_SOUND *backgroundMusic;
@@ -412,6 +413,8 @@ extern void oslDeleteSound(OSL_SOUND *s);
  * @endcode
  *
  * Including this function in your game loop ensures that audio playback issues do not occur after the PSP resumes from a standby state.
+ *
+ * @note It reopens the files of the streamed sounds that were playing or paused when the PSP entered stand-by; the paused ones stay paused. Don't delete such a sound from an audio thread (an endCallback) while this function may run.
  */
 extern void oslAudioVSync();
 

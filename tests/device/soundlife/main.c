@@ -105,6 +105,23 @@ static int waitIdle(int a, int b) {
 	return !osl_audioActive[a] && !osl_audioActive[b];
 }
 
+static OSL_SOUND *stopTarget;
+static volatile int stopRequested;
+
+static int endNow(unsigned int voice, void *buf, unsigned int length) {
+	(void)voice;
+	memset(buf, 0, length * 4);
+	return 0;
+}
+
+// On another channel's thread, oslStopSound only requests the stop
+static int stopTargetSound(OSL_SOUND *s, int voice) {
+	(void)s; (void)voice;
+	oslStopSound(stopTarget);
+	stopRequested = 1;
+	return 0;
+}
+
 static int waitFor(volatile int *flag, int ms) {
 	for (; ms > 0 && !*flag; ms--)
 		sceKernelDelayThread(1000);
@@ -122,7 +139,6 @@ int main() {
 	oslInit(0);
 	oslInitAudio();
 	f = fopen("result.txt", "w");
-	setvbuf(f, NULL, _IONBF, 0); // keep what was written if a case below crashes or hangs
 
 	missing("missing WAV, RAM", oslLoadSoundFileWAV, "missing.wav", 0);
 	missing("missing WAV, stream", oslLoadSoundFileWAV, "missing.wav", OSL_FMT_STREAM);
@@ -288,6 +304,60 @@ int main() {
 		}
 		int kept = mallinfo().uordblks - before;
 		fprintf(f, "-> loaded %d, %d bytes kept %s\n", loaded, kept, loaded == 20 && kept == 0 ? "PASS" : "FAIL");
+	}
+
+	// Pausing, resuming or toggling a sound whose stop an end callback requested must let it end
+	static const char *const pauseNames[] = { "toggle", "resume", "pause" };
+	for (int pause = -1; pause <= 1; pause++) {
+		fprintf(f, "%s while stop pending ", pauseNames[pause + 1]);
+		OSL_SOUND *a = slowSound(), *b = slowSound();
+		b->audioCallback = endNow;
+		b->endCallback = stopTargetSound;
+		stopTarget = a;
+		stopRequested = inCallback = 0;
+		oslPlaySound(a, 0);
+		waitFor(&inCallback, 1000);
+		oslPlaySound(b, 1);
+		waitFor(&stopRequested, 1000);
+		int pending = osl_audioActive[0];
+		oslPauseSound(a, pause);
+		int ended = waitIdle(0, 1);
+		fprintf(f, "-> stop %s, channel %d %s\n", pending == -1 ? "pending" : "NOT PENDING", osl_audioActive[0],
+		        pending == -1 && ended ? "PASS" : "FAIL");
+		oslDeleteSound(a);
+		oslDeleteSound(b);
+	}
+
+	// A standby (its power callback, without suspending): the playing stream waits for
+	// oslAudioVSync to reopen its file, the paused one stays paused; both files are reopened and
+	// the closed ones freed
+	fprintf(f, "standby, playing + paused streams ");
+	{
+		OSL_SOUND *s[2];
+		for (int i = 0; i < 2; i++) {
+			s[i] = oslLoadSoundFileWAV("../wavload/tone22m.wav", OSL_FMT_STREAM);
+			if (s[i]) oslSetSoundLoop(s[i], 1);
+		}
+		if (s[0] && s[1]) {
+			oslPlaySound(s[0], 2);
+			oslPlaySound(s[1], 3);
+			oslPauseSound(s[1], 1);
+			int before = mallinfo().uordblks;
+			osl_powerCallback(0, PSP_POWER_CB_POWER_SWITCH, NULL);
+			int during[2] = { osl_audioActive[2], osl_audioActive[3] };
+			osl_powerCallback(0, PSP_POWER_CB_RESUME_COMPLETE, NULL);
+			oslAudioVSync();
+			int after[2] = { osl_audioActive[2], osl_audioActive[3] };
+			int reopened = s[0]->suspendNumber == osl_suspendNumber && s[1]->suspendNumber == osl_suspendNumber;
+			int kept = mallinfo().uordblks - before;
+			fprintf(f, "-> standby %d %d, after %d %d, reopened %d, %d bytes kept %s\n", during[0], during[1], after[0],
+			        after[1], reopened, kept,
+			        during[0] == 3 && during[1] == 2 && after[0] == 1 && after[1] == 2 && reopened && !kept ? "PASS" : "FAIL");
+		} else {
+			fprintf(f, "-> load failed FAIL\n");
+		}
+		for (int i = 0; i < 2; i++)
+			if (s[i]) oslDeleteSound(s[i]);
 	}
 
 	fprintf(f, "DONE\n");

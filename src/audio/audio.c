@@ -476,10 +476,17 @@ int oslAudioPowerCallback(int unknown, int pwrflags, void *common) {
 	if (pwrflags & PSP_POWER_CB_POWER_SWITCH) {
 		osl_audioStandBy = 1;
 		for (i = 0; i < OSL_NUM_AUDIO_CHANNELS; i++) {
+			// Only a running stream (playing, paused or already suspended) is suspended: a stopping
+			// or ending channel must end. A playing one waits for oslAudioVSync to reopen its file
+			// (3); a paused one stays paused, and oslAudioVSync reopens its file too.
+			unsigned int flags = sceKernelCpuSuspendIntr();
 			s = osl_audioVoices[i].sound;
-			if (s && s->isStreamed) {
-				// Mark the audio channel as suspended (3 = suspended/invalid)
+			int state = osl_audioActive[i];
+			int suspend = s && s->isStreamed && state >= 1 && state <= 3;
+			if (suspend && state == 1)
 				osl_audioActive[i] = 3;
+			sceKernelCpuResumeIntr(flags);
+			if (suspend) {
 				// Save the current file position in case we need to resume the stream
 				f = s->standBySound(s);
 				if (f) {
@@ -607,7 +614,9 @@ void oslDeleteSound(OSL_SOUND *s) {
  *  1 = reactivated,
  *  2 = reactivated, but the sound needs to restart from the beginning.
  */
-int oslAudioReactiveSound(OSL_SOUND *s) {
+// Like oslAudioReactiveSound; with old, hands back the file the standby closed instead of
+// dropping it, for a caller that knows no audio thread still reads it
+static int oslAudioReopenSound(OSL_SOUND *s, VIRTUAL_FILE **old) {
 	// If the sound is streamed and was suspended (i.e., after PSP was in standby)
 	if (s->isStreamed && s->suspendNumber < osl_suspendNumber) {
 		VIRTUAL_FILE *f;
@@ -622,6 +631,10 @@ int oslAudioReactiveSound(OSL_SOUND *s) {
 
 		// Reactivate the sound with the reopened file.
 		w = s->reactiveSound(s, f);
+		if (!w) {
+			VirtualFileClose(f); // a format that can't reopen its stream
+			return 0;
+		}
 		channel = oslGetSoundChannel(s);
 
 		// If the sound was previously associated with a channel, restore the file position.
@@ -630,6 +643,7 @@ int oslAudioReactiveSound(OSL_SOUND *s) {
 		}
 
 		// Update the pointer to the new file in the sound object.
+		if (old) *old = *w;
 		*w = f;
 		s->suspendNumber = osl_suspendNumber;
 
@@ -639,6 +653,12 @@ int oslAudioReactiveSound(OSL_SOUND *s) {
 
 	// Return 0 if the sound was not reactivated (e.g., if it was not streamed).
 	return 0;
+}
+
+int oslAudioReactiveSound(OSL_SOUND *s) {
+	// shortcut: the closed file is dropped without freeing it (a VIRTUAL_FILE per stream and
+	// standby): here the sound's channel may already be reading it; oslAudioVSync frees it
+	return oslAudioReopenSound(s, NULL);
 }
 
 int oslSoundLoopFunc(OSL_SOUND *s, int voice) {
@@ -658,19 +678,28 @@ void oslAudioVSync() {
 		return;
 	}
 
-	// Check each audio channel
+	// Reopen the files of streams suspended (3) or paused (2) by a standby
 	for (int i = 0; i < OSL_NUM_AUDIO_CHANNELS; i++) {
-		// Only check channels that were suspended (marked with a 3)
-		if (osl_audioActive[i] != 3) {
+		int state = osl_audioActive[i];
+		OSL_SOUND *s = osl_audioVoices[i].sound;
+		// Paused or suspended, the channel starts no callback; one the standby interrupted may
+		// still read the file: wait for it to end
+		if ((state != 2 && state != 3) || !s || AudioStatus[i].inProgress) {
 			continue;
 		}
 
-		// If a sound is associated with the channel, attempt to reactivate it
-		if (osl_audioVoices[i].sound) {
-			if (oslAudioReactiveSound(osl_audioVoices[i].sound)) {
-				// Mark the channel as active again if the sound is reactivated
+		VIRTUAL_FILE *old = NULL;
+		if (oslAudioReopenSound(s, &old)) {
+			// Play again, unless it was stopped or paused while its file was reopened
+			unsigned int flags = sceKernelCpuSuspendIntr();
+			if (osl_audioActive[i] == 3 && osl_audioVoices[i].sound == s)
 				osl_audioActive[i] = 1;
-			}
+			sceKernelCpuResumeIntr(flags);
+		}
+		if (old) {
+			// Closed by the standby: closing it may fail, the VIRTUAL_FILE is freed anyway
+			VirtualFileGetSource(old)->fClose(old);
+			free(old);
 		}
 	}
 }
@@ -727,20 +756,20 @@ void oslStopSound(OSL_SOUND *s) {
 }
 
 void oslPauseSound(OSL_SOUND *s, int pause) {
-	// Get the audio channel (voice) associated with the sound
+	// Atomic with the audio threads, which may stop the channel at any time: only a playing (1),
+	// paused (2) or suspended (3) channel changes, a stopping or ending one must end
+	unsigned int flags = sceKernelCpuSuspendIntr();
 	int voice = oslGetSoundChannel(s);
-
-	// Ensure the sound is valid and currently being played
 	if (voice >= 0) {
-		// Toggle the pause state if pause == -1
-		if (pause == -1) {
-			osl_audioActive[voice] = 3 - osl_audioActive[voice]; // Toggles between 1 (playing) and 2 (paused)
-		}
-		// Set the pause state explicitly: 2 = paused, 1 = playing
-		else {
-			osl_audioActive[voice] = pause ? 2 : 1;
+		int state = osl_audioActive[voice];
+		if (state >= 1 && state <= 3) {
+			int paused = pause == -1 ? state != 2 : pause != 0;
+			// A stream whose file a standby closed waits for oslAudioVSync to reopen it (3)
+			int suspended = s->isStreamed && s->suspendNumber < osl_suspendNumber;
+			osl_audioActive[voice] = paused ? 2 : suspended ? 3 : 1;
 		}
 	}
+	sceKernelCpuResumeIntr(flags);
 }
 
 /*
